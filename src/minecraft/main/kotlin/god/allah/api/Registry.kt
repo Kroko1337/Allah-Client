@@ -1,5 +1,7 @@
 package god.allah.api
 
+import god.allah.api.executors.Command
+import god.allah.api.executors.CommandInfo
 import god.allah.api.executors.Module
 import god.allah.api.executors.ModuleInfo
 import org.reflections.Reflections
@@ -11,6 +13,7 @@ object Registry {
 
     fun init() {
         addExecutor(Module::class.java, ModuleInfo::class.java)
+        addExecutor(Command::class.java, CommandInfo::class.java)
     }
 
     fun <T: Executor?> getEntry(executor: Class<T>) : T {

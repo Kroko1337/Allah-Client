@@ -11,6 +11,7 @@ import java.util.Random;
 import java.util.UUID;
 import javax.annotation.Nullable;
 
+import god.allah.api.helper.RotationHandler;
 import god.allah.events.JumpEvent;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.block.Block;
@@ -461,6 +462,11 @@ public abstract class EntityLivingBase extends Entity
         this.prevRotationYawHead = this.rotationYawHead;
         this.prevRotationYaw = this.rotationYaw;
         this.prevRotationPitch = this.rotationPitch;
+
+        if(this == Minecraft.getMinecraft().player) {
+            this.prevRotationYawHead = RotationHandler.INSTANCE.getYaw();
+            RotationHandler.INSTANCE.setPrevPitch(RotationHandler.INSTANCE.getPitch());
+        }
         this.world.profiler.endSection();
     }
 
@@ -2520,9 +2526,12 @@ public abstract class EntityLivingBase extends Entity
 
     protected float updateDistance(float p_110146_1_, float p_110146_2_)
     {
+        float yaw = this.rotationYaw;
+        if(this == Minecraft.getMinecraft().player)
+            yaw = RotationHandler.INSTANCE.getYaw();
         float f = MathHelper.wrapDegrees(p_110146_1_ - this.renderYawOffset);
         this.renderYawOffset += f * 0.3F;
-        float f1 = MathHelper.wrapDegrees(this.rotationYaw - this.renderYawOffset);
+        float f1 = MathHelper.wrapDegrees(yaw - this.renderYawOffset);
         boolean flag = f1 < -90.0F || f1 >= 90.0F;
 
         if (f1 < -75.0F)
@@ -2535,7 +2544,7 @@ public abstract class EntityLivingBase extends Entity
             f1 = 75.0F;
         }
 
-        this.renderYawOffset = this.rotationYaw - f1;
+        this.renderYawOffset = yaw - f1;
 
         if (f1 * f1 > 2500.0F)
         {

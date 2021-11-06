@@ -29,9 +29,9 @@ fun getRotation(
     val eyeY = player.posY + player.eyeHeight
     val eyeZ = player.posZ
 
-    var x: Double = target.posX - eyeX
-    var y: Double = target.posY - eyeY
-    var z: Double = target.posZ - eyeZ
+    var x = target.posX - eyeX
+    var y = target.posY + target.eyeHeight - eyeY
+    var z = target.posZ - eyeZ
 
     if (bestVector) {
         val bestVec =
@@ -47,8 +47,8 @@ fun getRotation(
     val angle = MathHelper.sqrt(x * x + z * z).toDouble()
     val yawAngle = (MathHelper.atan2(z, x) * (180.0 / Math.PI)).toFloat() - 90.0f
     val pitchAngle = (-(MathHelper.atan2(y, angle) * (180.0 / Math.PI))).toFloat()
-    var pitch = updateRotation(prevPitch, yawAngle, 180.0F)
-    val yaw = updateRotation(prevYaw, pitchAngle, 180.0F)
+    var pitch = updateRotation(prevPitch, pitchAngle, 180.0F)
+    val yaw = updateRotation(prevYaw, yawAngle, 180.0F)
     pitch = MathHelper.clamp(pitch, -90.0F, 90.0F)
     if (!mouseSensi)
         return arrayOf(yaw, pitch)
@@ -64,7 +64,7 @@ fun getRotation(
     val f3: Float = (deltaPitch * f1 * 3)
 
     val angles = setAngles(prevYaw, prevPitch, f2, f3)
-    return arrayOf(angles[0], angles[1])
+    return arrayOf(angles[0], MathHelper.clamp(angles[1], -90.0F, 90.0F))
 }
 
 fun setAngles(currentYaw: Float, currentPitch: Float, yaw: Float, pitch: Float): Array<Float> {

@@ -1,6 +1,10 @@
 package net.minecraft.entity;
 
+import god.allah.api.helper.RotationHandler;
+import net.minecraft.client.Minecraft;
 import net.minecraft.util.math.MathHelper;
+
+import java.nio.charset.MalformedInputException;
 
 public class EntityBodyHelper
 {
@@ -23,14 +27,17 @@ public class EntityBodyHelper
      */
     public void updateRenderAngles()
     {
+        float yaw = this.living.rotationYaw;
+        if(this.living == Minecraft.getMinecraft().player)
+            yaw = RotationHandler.INSTANCE.getYaw();
         double d0 = this.living.posX - this.living.prevPosX;
         double d1 = this.living.posZ - this.living.prevPosZ;
 
         if (d0 * d0 + d1 * d1 > 2.500000277905201E-7D)
         {
-            this.living.renderYawOffset = this.living.rotationYaw;
-            this.living.rotationYawHead = this.computeAngleWithBound(this.living.renderYawOffset, this.living.rotationYawHead, 75.0F);
-            this.prevRenderYawHead = this.living.rotationYawHead;
+            this.living.renderYawOffset = yaw;
+            this.living.rotationYawHead = this.computeAngleWithBound(this.living.renderYawOffset, yaw, 75.0F);
+            this.prevRenderYawHead = yaw;
             this.rotationTickCounter = 0;
         }
         else
@@ -39,10 +46,10 @@ public class EntityBodyHelper
             {
                 float f = 75.0F;
 
-                if (Math.abs(this.living.rotationYawHead - this.prevRenderYawHead) > 15.0F)
+                if (Math.abs(yaw - this.prevRenderYawHead) > 15.0F)
                 {
                     this.rotationTickCounter = 0;
-                    this.prevRenderYawHead = this.living.rotationYawHead;
+                    this.prevRenderYawHead = yaw;
                 }
                 else
                 {
@@ -55,7 +62,7 @@ public class EntityBodyHelper
                     }
                 }
 
-                this.living.renderYawOffset = this.computeAngleWithBound(this.living.rotationYawHead, this.living.renderYawOffset, f);
+                this.living.renderYawOffset = this.computeAngleWithBound(yaw, this.living.renderYawOffset, f);
             }
         }
     }

@@ -3,6 +3,8 @@ package net.minecraft.client.renderer.entity;
 import com.google.common.collect.Lists;
 import java.nio.FloatBuffer;
 import java.util.List;
+
+import god.allah.api.helper.RotationHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.model.ModelBase;
@@ -90,6 +92,14 @@ public abstract class RenderLivingBase<T extends EntityLivingBase> extends Rende
      */
     public void doRender(T entity, double x, double y, double z, float entityYaw, float partialTicks)
     {
+        float yaw = entity.rotationYawHead;
+        float pitch = entity.rotationPitch;
+        float prePitch = entity.prevRotationPitch;
+        if(entity == Minecraft.getMinecraft().player) {
+            yaw = RotationHandler.INSTANCE.getYaw();
+            pitch = RotationHandler.INSTANCE.getPitch();
+            prePitch = RotationHandler.INSTANCE.getPrevPitch();
+        }
         if (!Reflector.RenderLivingEvent_Pre_Constructor.exists() || !Reflector.postForgeBusEvent(Reflector.RenderLivingEvent_Pre_Constructor, entity, this, partialTicks, x, y, z))
         {
             if (animateModelLiving)
@@ -112,7 +122,7 @@ public abstract class RenderLivingBase<T extends EntityLivingBase> extends Rende
             try
             {
                 float f = this.interpolateRotation(entity.prevRenderYawOffset, entity.renderYawOffset, partialTicks);
-                float f1 = this.interpolateRotation(entity.prevRotationYawHead, entity.rotationYawHead, partialTicks);
+                float f1 = this.interpolateRotation(entity.prevRotationYawHead, yaw, partialTicks);
                 float f2 = f1 - f;
 
                 if (this.mainModel.isRiding && entity.getRidingEntity() instanceof EntityLivingBase)
@@ -142,7 +152,7 @@ public abstract class RenderLivingBase<T extends EntityLivingBase> extends Rende
                     f2 = f1 - f;
                 }
 
-                float f7 = entity.prevRotationPitch + (entity.rotationPitch - entity.prevRotationPitch) * partialTicks;
+                float f7 = prePitch + (pitch - prePitch) * partialTicks;
                 this.renderLivingAt(entity, x, y, z);
                 float f8 = this.handleRotationFloat(entity, partialTicks);
                 this.applyRotations(entity, f8, f, partialTicks);

@@ -232,7 +232,7 @@ public class EntityPlayerSP extends AbstractClientPlayer {
      * interpolated look vector
      */
     public Vec3d getLook(float partialTicks) {
-        return this.getVectorForRotation(this.rotationPitch, this.rotationYaw);
+        return this.getVectorForRotation(RotationHandler.INSTANCE.getPitch(), RotationHandler.INSTANCE.getYaw());
     }
 
     /**

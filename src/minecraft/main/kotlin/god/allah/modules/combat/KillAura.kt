@@ -31,7 +31,7 @@ class KillAura : Module() {
                     target = null
                 }
                 target?.let { doAttack(it) }
-            }
+            }//tes
 
         }
     }

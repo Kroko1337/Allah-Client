@@ -1,7 +1,7 @@
 package net.minecraft.advancements;
 
-import com.google.common.base.Functions;
 import com.google.common.base.Function;
+import com.google.common.base.Functions;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import java.util.Iterator;

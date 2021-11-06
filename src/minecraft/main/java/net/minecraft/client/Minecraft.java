@@ -519,7 +519,7 @@ public class Minecraft implements IThreadListener, ISnooperInfo {
         this.particles = new ParticleManager(this.world, this.textureManager);
         this.checkGLError("Post startup");
         new Main().onStart();
-       
+
         this.ingameGUI = new GuiIngame(this);
 
         if (this.serverName != null) {

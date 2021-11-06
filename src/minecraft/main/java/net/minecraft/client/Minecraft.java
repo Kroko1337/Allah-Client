@@ -44,6 +44,7 @@ import javax.imageio.ImageIO;
 
 import god.allah.api.Registry;
 import god.allah.api.executors.Module;
+import god.allah.events.AttackEvent;
 import god.allah.events.GuiHandleEvent;
 import god.allah.main.Main;
 import net.minecraft.block.Block;
@@ -300,7 +301,7 @@ public class Minecraft implements IThreadListener, ISnooperInfo
     public DebugRenderer debugRenderer;
 
     /** Mouse left click counter */
-    private int leftClickCounter;
+    public int leftClickCounter;
 
     /** Display width */
     private final int tempDisplayWidth;
@@ -341,7 +342,7 @@ public class Minecraft implements IThreadListener, ISnooperInfo
     /**
      * When you place a block, it's set to 6, decremented once per tick, when it's 0, you can place another block.
      */
-    private int rightClickDelayTimer;
+    public int rightClickDelayTimer;
     private String serverName;
     private int serverPort;
 
@@ -2359,6 +2360,7 @@ public class Minecraft implements IThreadListener, ISnooperInfo
             }
         }
 
+        new AttackEvent().onFire();
         if (this.player.isHandActive())
         {
             if (!this.gameSettings.keyBindUseItem.isKeyDown())
@@ -2384,7 +2386,7 @@ public class Minecraft implements IThreadListener, ISnooperInfo
                             continue;
                         }
 
-                        break label109;
+                        break;
                     }
                 }
             }

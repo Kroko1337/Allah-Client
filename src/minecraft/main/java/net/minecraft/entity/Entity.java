@@ -11,6 +11,8 @@ import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 import javax.annotation.Nullable;
+
+import god.allah.events.MoveRelativeEvent;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFence;
@@ -22,6 +24,7 @@ import net.minecraft.block.material.EnumPushReaction;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.block.state.pattern.BlockPattern;
+import net.minecraft.client.Minecraft;
 import net.minecraft.command.CommandResultStats;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.crash.CrashReport;
@@ -1532,8 +1535,13 @@ public abstract class Entity implements ICommandSender
             strafe = strafe * f;
             up = up * f;
             forward = forward * f;
-            float f1 = MathHelper.sin(this.rotationYaw * 0.017453292F);
-            float f2 = MathHelper.cos(this.rotationYaw * 0.017453292F);
+            float yaw = this.rotationYaw;
+            if(this == Minecraft.getMinecraft().player) {
+                final MoveRelativeEvent moveRelativeEvent = new MoveRelativeEvent(this.rotationYaw).onFire();
+                yaw = moveRelativeEvent.getYaw();
+            }
+            float f1 = MathHelper.sin(yaw * 0.017453292F);
+            float f2 = MathHelper.cos(yaw * 0.017453292F);
             this.motionX += (double)(strafe * f2 - forward * f1);
             this.motionY += (double)up;
             this.motionZ += (double)(forward * f2 + strafe * f1);

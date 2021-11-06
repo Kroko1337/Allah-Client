@@ -6,15 +6,37 @@ import god.allah.api.event.EventPriority
 import god.allah.api.executors.Category
 import god.allah.api.executors.Module
 import god.allah.api.executors.ModuleInfo
+import god.allah.api.helper.RotationHandler
+import god.allah.api.setting.Value
+import god.allah.api.setting.types.CheckBox
+import god.allah.api.setting.types.ComboBox
+import god.allah.api.setting.types.SliderSetting
+import god.allah.events.AttackEvent
+import god.allah.events.JumpEvent
+import god.allah.events.MoveRelativeEvent
 import god.allah.events.UpdateEvent
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
+import net.minecraft.entity.SharedMonsterAttributes
+import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.init.MobEffects
+import net.minecraft.util.EnumHand
 import org.lwjgl.input.Keyboard
 
 @ModuleInfo("KillAura", Category.COMBAT, defaultKey = Keyboard.KEY_R)
 class KillAura : Module() {
 
-    private val range = 4
+    @Value("Range")
+    private val range = SliderSetting(3.0, 1.0, 6.0)
+
+    @Value("Target Mode")
+    private val targetMode = ComboBox("Single", arrayOf("Single", "Switch", "Hybrid"))
+
+    @Value("Perfect Hit")
+    private val perfectHit = CheckBox(true)
+
+    @Value("MoveFix")
+    private val moveFix = CheckBox(true)
 
     var target: Entity? = null
 
@@ -22,32 +44,68 @@ class KillAura : Module() {
     override fun onEvent(event: Event) {
         when (event) {
             is UpdateEvent -> {
-                for (tar in world.loadedEntityList) {
-                    if (shouldAttack(tar)!!) {
-                        target = tar
+                if (target != null) {
+                    if (!isValid(target))
+                        target = null
+                }
+                when (targetMode.value) {
+                    "Single" -> {
+                        if (target == null || isValid(target))
+                            for (entity in world.loadedEntityList) {
+                                if (isValid(entity)) {
+                                    target = entity
+                                    break
+                                }
+                            }
                     }
                 }
-                if (!shouldAttack(target)!!) {
-                    target = null
+            }
+            is AttackEvent -> {
+                if (target != null) {
+                    var f = player.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).attributeValue
+                    val f2  = player.getCooledAttackStrength(0.5f)
+                    f *= (0.2f + f2 * f2 * 0.8f)
+
+                    val flag = f2 > 0.9f
+                    var flag2 = flag && player.fallDistance > 0.0f && !player.onGround && !player.isOnLadder && !player.isInWater && !player.isPotionActive(MobEffects.BLINDNESS) && !player.isRiding && target is EntityLivingBase
+                    flag2 = flag2 && !player.isSprinting
+
+                    if (flag2) {
+                        f *= 1.5f
+                    }
+
+                    if(!perfectHit.value || f == player.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).attributeValue) {
+                        attackEntity(target!!)
+                    }
                 }
-                target?.let { doAttack(it) }
-            }//tes
-
+            }
+            is JumpEvent -> {
+                if(moveFix.value)
+                    event.yaw = RotationHandler.yaw
+            }
+            is MoveRelativeEvent -> {
+                if(moveFix.value)
+                    event.yaw = RotationHandler.yaw
+            }
         }
     }
 
-    private fun doAttack(target : Entity) {
-        player.swingingHand
-        playerController.attackEntity(player, target)
-    }
-
-    private fun shouldAttack(player: Entity?): Boolean? {
-        if (player != null) {
-            return player is EntityLivingBase && player != player && player.getDistance(player) <= range
+    private fun attackEntity(target: Entity) {
+        if (mc.leftClickCounter <= 0) {
+            if(!player.isRowingBoat) {
+                playerController.attackEntity(player, target)
+                player.swingArm(EnumHand.MAIN_HAND)
+            }
         }
-        return null
     }
 
+    private fun isValid(entity: Entity?): Boolean {
+        if (entity == null) return false
+        if (entity == player) return false
+        if (entity !is EntityLivingBase) return false
+        if (entity.getDistance(player) > range.value) return false
+        return true
+    }
 
     override fun onEnable() {
 

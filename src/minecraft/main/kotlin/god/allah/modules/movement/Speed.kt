@@ -12,7 +12,7 @@ import god.allah.api.utils.isMoving
 import god.allah.events.UpdateEvent
 import org.lwjgl.input.Keyboard
 
-@ModuleInfo("Speed", Category.MOVEMENT)
+@ModuleInfo("Speed", Category.MOVEMENT, defaultKey = Keyboard.KEY_G)
 class Speed : Module() {
 
     @Value("AutoJump")

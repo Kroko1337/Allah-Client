@@ -78,7 +78,7 @@ import shadersmod.common.SMCLog;
 
 public class Shaders
 {
-    static Minecraft mc;
+    public static Minecraft mc = Minecraft.getMinecraft();
     static EntityRenderer entityRenderer;
     public static boolean isInitializedOnce = false;
     public static boolean isShaderPackInitialized = false;
@@ -320,7 +320,7 @@ public class Shaders
     public static PropertyDefaultTrueFalse shaderPackBackFaceCutoutMipped = new PropertyDefaultTrueFalse("backFace.cutoutMipped", "Back-face Cutout Mipped", 0);
     public static PropertyDefaultTrueFalse shaderPackBackFaceTranslucent = new PropertyDefaultTrueFalse("backFace.translucent", "Back-face Translucent", 0);
     private static Map<String, String> shaderPackResources = new HashMap<String, String>();
-    private static World currentWorld = null;
+    private static World currentWorld = mc.world;
     private static List<Integer> shaderPackDimensions = new ArrayList<Integer>();
     private static CustomTexture[] customTexturesGbuffers = null;
     private static CustomTexture[] customTexturesComposite = null;
@@ -781,7 +781,7 @@ public class Shaders
             }
 
             updateBlockLightLevel();
-            mc.scheduleResourcesRefresh();
+            Minecraft.getMinecraft().scheduleResourcesRefresh();
         }
     }
 
@@ -868,6 +868,7 @@ public class Shaders
 
     private static CustomTexture[] loadCustomTextures(Properties props, int stage)
     {
+
         String s = "texture." + STAGE_NAMES[stage] + ".";
         Set set = props.keySet();
         List<CustomTexture> list = new ArrayList<CustomTexture>();

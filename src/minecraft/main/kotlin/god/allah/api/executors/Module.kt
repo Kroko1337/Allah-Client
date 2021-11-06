@@ -3,7 +3,7 @@ package god.allah.api.executors
 import god.allah.api.Executor
 import god.allah.api.event.Event
 
-open abstract class Module : Executor {
+abstract class Module : Executor {
     val name: String
     val category: Category
     var keyBind: Int

@@ -4,7 +4,6 @@ import god.allah.api.Registry
 import god.allah.api.executors.Module
 import net.minecraft.client.Minecraft
 import net.minecraft.client.entity.EntityPlayerSP
-import net.minecraft.entity.Entity
 import net.minecraft.network.Packet
 import net.minecraft.util.text.Style
 import net.minecraft.util.text.TextComponentString
@@ -14,6 +13,7 @@ object Wrapper {
 
     const val name = "Allah"
     const val version = "v1.0"
+    var coder = arrayOf("Kroko", "Felix1337")
 
     const val prefix = "§c$name §7>> §f"
     var commandPrefix = "."
@@ -22,7 +22,7 @@ object Wrapper {
     val player: EntityPlayerSP get() = mc.player
 
     fun sendPacket(packet: Packet<*>) {
-        mc.connection?.sendPacket(packet)
+        mc.connection.sendPacket(packet)
     }
 
     fun getModule(name: String) : Module? {

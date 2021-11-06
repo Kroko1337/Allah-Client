@@ -2386,7 +2386,7 @@ public class Minecraft implements IThreadListener, ISnooperInfo
                             continue;
                         }
 
-                        break;
+                        break label109;
                     }
                 }
             }

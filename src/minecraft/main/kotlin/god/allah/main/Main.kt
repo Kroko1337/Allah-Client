@@ -10,7 +10,7 @@ class Main {
     fun onStart() {
         instance = this
         Display.setTitle("$name $version | Minecraft 1.12.2")
-        Runtime.getRuntime().addShutdownHook(Thread() { onShutdown() })
+        Runtime.getRuntime().addShutdownHook(Thread { onShutdown() })
     }
 
     private fun onShutdown() {

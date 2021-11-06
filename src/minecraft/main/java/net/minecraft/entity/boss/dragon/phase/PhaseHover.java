@@ -17,7 +17,7 @@ public class PhaseHover extends PhaseBase
      * Gives the phase a chance to update its status.
      * Called by dragon's onLivingUpdate. Only used when !worldObj.isRemote.
      */
-    public void doLocalUpdate()
+    public void serverTick()
     {
         if (this.targetLocation == null)
         {
@@ -56,7 +56,7 @@ public class PhaseHover extends PhaseBase
         return this.targetLocation;
     }
 
-    public PhaseList<PhaseHover> getPhaseList()
+    public PhaseList<PhaseHover> getType()
     {
         return PhaseList.HOVER;
     }

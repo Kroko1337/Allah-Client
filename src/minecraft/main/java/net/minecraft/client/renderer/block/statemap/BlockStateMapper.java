@@ -50,7 +50,7 @@ public class BlockStateMapper
 
             if (istatemapper == null)
             {
-                return Collections.<ResourceLocation>singleton(Block.REGISTRY.getNameForObject(blockIn));
+                return Collections.<ResourceLocation>singleton(Block.REGISTRY.getKey(blockIn));
             }
             else
             {
@@ -58,7 +58,7 @@ public class BlockStateMapper
 
                 for (ModelResourceLocation modelresourcelocation : istatemapper.putStateModelLocations(blockIn).values())
                 {
-                    set.add(new ResourceLocation(modelresourcelocation.getResourceDomain(), modelresourcelocation.getResourcePath()));
+                    set.add(new ResourceLocation(modelresourcelocation.getNamespace(), modelresourcelocation.getPath()));
                 }
 
                 return set;

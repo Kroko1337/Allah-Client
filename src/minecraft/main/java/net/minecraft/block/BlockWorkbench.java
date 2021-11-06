@@ -25,9 +25,6 @@ public class BlockWorkbench extends Block
         this.setCreativeTab(CreativeTabs.DECORATIONS);
     }
 
-    /**
-     * Called when the block is right clicked by a player.
-     */
     public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
         if (worldIn.isRemote)
@@ -37,7 +34,7 @@ public class BlockWorkbench extends Block
         else
         {
             playerIn.displayGui(new BlockWorkbench.InterfaceCraftingTable(worldIn, pos));
-            playerIn.addStat(StatList.CRAFTING_TABLE_INTERACTION);
+            playerIn.addStat(StatList.INTERACT_WITH_CRAFTING_TABLE);
             return true;
         }
     }
@@ -65,7 +62,7 @@ public class BlockWorkbench extends Block
 
         public ITextComponent getDisplayName()
         {
-            return new TextComponentTranslation(Blocks.CRAFTING_TABLE.getUnlocalizedName() + ".name", new Object[0]);
+            return new TextComponentTranslation(Blocks.CRAFTING_TABLE.getTranslationKey() + ".name", new Object[0]);
         }
 
         public Container createContainer(InventoryPlayer playerInventory, EntityPlayer playerIn)

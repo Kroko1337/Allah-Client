@@ -8,25 +8,11 @@ public class ServerData
 {
     public String serverName;
     public String serverIP;
-
-    /**
-     * the string indicating number of players on and capacity of the server that is shown on the server browser (i.e.
-     * "5/20" meaning 5 slots used out of 20 slots total)
-     */
     public String populationInfo;
-
-    /**
-     * (better variable name would be 'hostname') server name as displayed in the server browser's second line (grey
-     * text)
-     */
     public String serverMOTD;
-
-    /** last server ping that showed up in the server browser */
     public long pingToServer;
-    public int version = 335;
-
-    /** Game version for this server. */
-    public String gameVersion = "1.12";
+    public int version = 340;
+    public String gameVersion = "1.12.2";
     public boolean pinged;
     public String playerList;
     private ServerData.ServerResourceMode resourceMode = ServerData.ServerResourceMode.PROMPT;
@@ -48,21 +34,21 @@ public class ServerData
     public NBTTagCompound getNBTCompound()
     {
         NBTTagCompound nbttagcompound = new NBTTagCompound();
-        nbttagcompound.setString("name", this.serverName);
-        nbttagcompound.setString("ip", this.serverIP);
+        nbttagcompound.putString("name", this.serverName);
+        nbttagcompound.putString("ip", this.serverIP);
 
         if (this.serverIcon != null)
         {
-            nbttagcompound.setString("icon", this.serverIcon);
+            nbttagcompound.putString("icon", this.serverIcon);
         }
 
         if (this.resourceMode == ServerData.ServerResourceMode.ENABLED)
         {
-            nbttagcompound.setBoolean("acceptTextures", true);
+            nbttagcompound.putBoolean("acceptTextures", true);
         }
         else if (this.resourceMode == ServerData.ServerResourceMode.DISABLED)
         {
-            nbttagcompound.setBoolean("acceptTextures", false);
+            nbttagcompound.putBoolean("acceptTextures", false);
         }
 
         return nbttagcompound;
@@ -85,12 +71,12 @@ public class ServerData
     {
         ServerData serverdata = new ServerData(nbtCompound.getString("name"), nbtCompound.getString("ip"), false);
 
-        if (nbtCompound.hasKey("icon", 8))
+        if (nbtCompound.contains("icon", 8))
         {
             serverdata.setBase64EncodedIconData(nbtCompound.getString("icon"));
         }
 
-        if (nbtCompound.hasKey("acceptTextures", 1))
+        if (nbtCompound.contains("acceptTextures", 1))
         {
             if (nbtCompound.getBoolean("acceptTextures"))
             {

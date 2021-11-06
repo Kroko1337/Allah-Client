@@ -137,7 +137,7 @@ public class WorldGenDungeons extends WorldGenerator
                 }
             }
 
-            worldIn.setBlockState(position, Blocks.MOB_SPAWNER.getDefaultState(), 2);
+            worldIn.setBlockState(position, Blocks.SPAWNER.getDefaultState(), 2);
             TileEntity tileentity = worldIn.getTileEntity(position);
 
             if (tileentity instanceof TileEntityMobSpawner)
@@ -157,9 +157,6 @@ public class WorldGenDungeons extends WorldGenerator
         }
     }
 
-    /**
-     * Randomly decides which spawner to use in a dungeon
-     */
     private ResourceLocation pickMobSpawner(Random rand)
     {
         return SPAWNERTYPES[rand.nextInt(SPAWNERTYPES.length)];

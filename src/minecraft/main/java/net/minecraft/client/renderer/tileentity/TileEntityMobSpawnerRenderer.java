@@ -16,9 +16,6 @@ public class TileEntityMobSpawnerRenderer extends TileEntitySpecialRenderer<Tile
         GlStateManager.popMatrix();
     }
 
-    /**
-     * Render the mob inside the mob spawner.
-     */
     public static void renderMob(MobSpawnerBaseLogic mobSpawnerLogic, double posX, double posY, double posZ, float partialTicks)
     {
         Entity entity = mobSpawnerLogic.getCachedEntity();
@@ -39,7 +36,7 @@ public class TileEntityMobSpawnerRenderer extends TileEntitySpecialRenderer<Tile
             GlStateManager.rotate(-30.0F, 1.0F, 0.0F, 0.0F);
             GlStateManager.scale(f, f, f);
             entity.setLocationAndAngles(posX, posY, posZ, 0.0F, 0.0F);
-            Minecraft.getMinecraft().getRenderManager().doRenderEntity(entity, 0.0D, 0.0D, 0.0D, 0.0F, partialTicks, false);
+            Minecraft.getInstance().getRenderManager().renderEntity(entity, 0.0D, 0.0D, 0.0D, 0.0F, partialTicks, false);
         }
     }
 }

@@ -13,13 +13,8 @@ import net.minecraft.world.World;
 
 public class NpcMerchant implements IMerchant
 {
-    /** Instance of Merchants Inventory. */
     private final InventoryMerchant merchantInventory;
-
-    /** This merchant's current player customer. */
     private final EntityPlayer customer;
-
-    /** The MerchantRecipeList instance. */
     private MerchantRecipeList recipeList;
     private final ITextComponent name;
 
@@ -64,9 +59,6 @@ public class NpcMerchant implements IMerchant
     {
     }
 
-    /**
-     * Get the formatted ChatComponent that will be used for the sender's username in chat
-     */
     public ITextComponent getDisplayName()
     {
         return (ITextComponent)(this.name != null ? this.name : new TextComponentTranslation("entity.Villager.name", new Object[0]));

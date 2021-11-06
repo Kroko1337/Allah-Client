@@ -10,12 +10,12 @@ import net.minecraft.util.EnumFacing;
 public class BuiltInModel implements IBakedModel
 {
     private final ItemCameraTransforms cameraTransforms;
-    private final ItemOverrideList overrideList;
+    private final ItemOverrideList overrides;
 
     public BuiltInModel(ItemCameraTransforms p_i46537_1_, ItemOverrideList p_i46537_2_)
     {
         this.cameraTransforms = p_i46537_1_;
-        this.overrideList = p_i46537_2_;
+        this.overrides = p_i46537_2_;
     }
 
     public List<BakedQuad> getQuads(@Nullable IBlockState state, @Nullable EnumFacing side, long rand)
@@ -50,6 +50,6 @@ public class BuiltInModel implements IBakedModel
 
     public ItemOverrideList getOverrides()
     {
-        return this.overrideList;
+        return this.overrides;
     }
 }

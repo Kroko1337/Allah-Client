@@ -155,17 +155,17 @@ public class CraftingManager
         return flag1;
     }
 
-    private static IRecipe parseRecipeJson(JsonObject p_193376_0_)
+    private static IRecipe parseRecipeJson(JsonObject json)
     {
-        String s = JsonUtils.getString(p_193376_0_, "type");
+        String s = JsonUtils.getString(json, "type");
 
         if ("crafting_shaped".equals(s))
         {
-            return ShapedRecipes.deserialize(p_193376_0_);
+            return ShapedRecipes.deserialize(json);
         }
         else if ("crafting_shapeless".equals(s))
         {
-            return ShapelessRecipes.deserialize(p_193376_0_);
+            return ShapelessRecipes.deserialize(json);
         }
         else
         {
@@ -190,16 +190,13 @@ public class CraftingManager
         }
     }
 
-    /**
-     * Retrieves an ItemStack that has multiple recipes for it.
-     */
-    public static ItemStack findMatchingResult(InventoryCrafting p_82787_0_, World craftMatrix)
+    public static ItemStack findMatchingResult(InventoryCrafting craftMatrix, World worldIn)
     {
         for (IRecipe irecipe : REGISTRY)
         {
-            if (irecipe.matches(p_82787_0_, craftMatrix))
+            if (irecipe.matches(craftMatrix, worldIn))
             {
-                return irecipe.getCraftingResult(p_82787_0_);
+                return irecipe.getCraftingResult(craftMatrix);
             }
         }
 
@@ -220,21 +217,21 @@ public class CraftingManager
         return null;
     }
 
-    public static NonNullList<ItemStack> getRemainingItems(InventoryCrafting p_180303_0_, World craftMatrix)
+    public static NonNullList<ItemStack> getRemainingItems(InventoryCrafting craftMatrix, World worldIn)
     {
         for (IRecipe irecipe : REGISTRY)
         {
-            if (irecipe.matches(p_180303_0_, craftMatrix))
+            if (irecipe.matches(craftMatrix, worldIn))
             {
-                return irecipe.getRemainingItems(p_180303_0_);
+                return irecipe.getRemainingItems(craftMatrix);
             }
         }
 
-        NonNullList<ItemStack> nonnulllist = NonNullList.<ItemStack>withSize(p_180303_0_.getSizeInventory(), ItemStack.EMPTY);
+        NonNullList<ItemStack> nonnulllist = NonNullList.<ItemStack>withSize(craftMatrix.getSizeInventory(), ItemStack.EMPTY);
 
         for (int i = 0; i < nonnulllist.size(); ++i)
         {
-            nonnulllist.set(i, p_180303_0_.getStackInSlot(i));
+            nonnulllist.set(i, craftMatrix.getStackInSlot(i));
         }
 
         return nonnulllist;
@@ -243,12 +240,12 @@ public class CraftingManager
     @Nullable
     public static IRecipe getRecipe(ResourceLocation name)
     {
-        return REGISTRY.getObject(name);
+        return REGISTRY.getOrDefault(name);
     }
 
     public static int getIDForRecipe(IRecipe recipe)
     {
-        return REGISTRY.getIDForObject(recipe);
+        return REGISTRY.getId(recipe);
     }
 
     @Nullable

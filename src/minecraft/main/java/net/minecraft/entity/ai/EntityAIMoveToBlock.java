@@ -15,7 +15,7 @@ public abstract class EntityAIMoveToBlock extends EntityAIBase
     private int maxStayTicks;
 
     /** Block to move to */
-    protected BlockPos destinationBlock = BlockPos.ORIGIN;
+    protected BlockPos destinationBlock = BlockPos.ZERO;
     private boolean isAboveDestination;
     private final int searchLength;
 
@@ -28,7 +28,8 @@ public abstract class EntityAIMoveToBlock extends EntityAIBase
     }
 
     /**
-     * Returns whether the EntityAIBase should begin execution.
+     * Returns whether execution should begin. You can also read and cache any state necessary for execution in this
+     * method as well.
      */
     public boolean shouldExecute()
     {
@@ -65,7 +66,7 @@ public abstract class EntityAIMoveToBlock extends EntityAIBase
     /**
      * Keep ticking a continuous task that has already been started
      */
-    public void updateTask()
+    public void tick()
     {
         if (this.creature.getDistanceSqToCenter(this.destinationBlock.up()) > 1.0D)
         {

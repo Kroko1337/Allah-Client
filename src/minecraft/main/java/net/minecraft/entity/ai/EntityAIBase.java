@@ -2,14 +2,11 @@ package net.minecraft.entity.ai;
 
 public abstract class EntityAIBase
 {
-    /**
-     * A bitmask telling which other tasks may not run concurrently. The test is a simple bitwise AND - if it yields
-     * zero, the two tasks may run concurrently, if not - they must run exclusively from each other.
-     */
     private int mutexBits;
 
     /**
-     * Returns whether the EntityAIBase should begin execution.
+     * Returns whether execution should begin. You can also read and cache any state necessary for execution in this
+     * method as well.
      */
     public abstract boolean shouldExecute();
 
@@ -21,10 +18,6 @@ public abstract class EntityAIBase
         return this.shouldExecute();
     }
 
-    /**
-     * Determine if this AI Task is interruptible by a higher (= lower value) priority task. All vanilla AITask have
-     * this value set to true.
-     */
     public boolean isInterruptible()
     {
         return true;
@@ -47,24 +40,15 @@ public abstract class EntityAIBase
     /**
      * Keep ticking a continuous task that has already been started
      */
-    public void updateTask()
+    public void tick()
     {
     }
 
-    /**
-     * Sets the mutex bitflags, see getMutexBits. Flag 1 for motion, flag 2 for look/head movement, flag 4 for
-     * swimming/misc. Flags can be OR'ed.
-     */
     public void setMutexBits(int mutexBitsIn)
     {
         this.mutexBits = mutexBitsIn;
     }
 
-    /**
-     * Get what actions this task will take that may potentially conflict with other tasks. The test is a simple bitwise
-     * AND - if it yields zero, the two tasks may run concurrently, if not - they must run exclusively from each other.
-     * See setMutextBits.
-     */
     public int getMutexBits()
     {
         return this.mutexBits;

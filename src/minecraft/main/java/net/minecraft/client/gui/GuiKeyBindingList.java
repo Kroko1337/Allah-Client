@@ -52,9 +52,6 @@ public class GuiKeyBindingList extends GuiListExtended
         return this.listEntries.length;
     }
 
-    /**
-     * Gets the IGuiListEntry object for the given index
-     */
     public GuiListExtended.IGuiListEntry getListEntry(int index)
     {
         return this.listEntries[index];
@@ -65,9 +62,6 @@ public class GuiKeyBindingList extends GuiListExtended
         return super.getScrollBarX() + 15;
     }
 
-    /**
-     * Gets the width of the list
-     */
     public int getListWidth()
     {
         return super.getListWidth() + 32;
@@ -98,7 +92,7 @@ public class GuiKeyBindingList extends GuiListExtended
         {
         }
 
-        public void updatePosition(int p_192633_1_, int p_192633_2_, int p_192633_3_, float p_192633_4_)
+        public void updatePosition(int slotIndex, int x, int y, float partialTicks)
         {
         }
     }
@@ -180,7 +174,7 @@ public class GuiKeyBindingList extends GuiListExtended
             this.btnReset.mouseReleased(x, y);
         }
 
-        public void updatePosition(int p_192633_1_, int p_192633_2_, int p_192633_3_, float p_192633_4_)
+        public void updatePosition(int slotIndex, int x, int y, float partialTicks)
         {
         }
     }

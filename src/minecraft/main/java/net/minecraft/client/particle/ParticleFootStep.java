@@ -28,9 +28,6 @@ public class ParticleFootStep extends Particle
         this.footstepMaxAge = 200;
     }
 
-    /**
-     * Renders the particle
-     */
     public void renderParticle(BufferBuilder buffer, Entity entityIn, float partialTicks, float rotationX, float rotationZ, float rotationYZ, float rotationXY, float rotationXZ)
     {
         float f = ((float)this.footstepAge + partialTicks) / (float)this.footstepMaxAge;
@@ -62,7 +59,7 @@ public class ParticleFootStep extends Particle
         GlStateManager.enableLighting();
     }
 
-    public void onUpdate()
+    public void tick()
     {
         ++this.footstepAge;
 
@@ -72,10 +69,6 @@ public class ParticleFootStep extends Particle
         }
     }
 
-    /**
-     * Retrieve what effect layer (what texture) the particle should be rendered with. 0 for the particle sprite sheet,
-     * 1 for the main Texture atlas, and 3 for a custom texture
-     */
     public int getFXLayer()
     {
         return 3;
@@ -85,7 +78,7 @@ public class ParticleFootStep extends Particle
     {
         public Particle createParticle(int particleID, World worldIn, double xCoordIn, double yCoordIn, double zCoordIn, double xSpeedIn, double ySpeedIn, double zSpeedIn, int... p_178902_15_)
         {
-            return new ParticleFootStep(Minecraft.getMinecraft().getTextureManager(), worldIn, xCoordIn, yCoordIn, zCoordIn);
+            return new ParticleFootStep(Minecraft.getInstance().getTextureManager(), worldIn, xCoordIn, yCoordIn, zCoordIn);
         }
     }
 }

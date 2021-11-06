@@ -24,33 +24,21 @@ public class CommandReplaceItem extends CommandBase
 {
     private static final Map<String, Integer> SHORTCUTS = Maps.<String, Integer>newHashMap();
 
-    /**
-     * Gets the name of the command
-     */
     public String getName()
     {
         return "replaceitem";
     }
 
-    /**
-     * Return the required permission level for this command.
-     */
     public int getRequiredPermissionLevel()
     {
         return 2;
     }
 
-    /**
-     * Gets the usage string for the command.
-     */
     public String getUsage(ICommandSender sender)
     {
         return "commands.replaceitem.usage";
     }
 
-    /**
-     * Callback for when the command is executed
-     */
     public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
     {
         if (args.length < 1)
@@ -115,7 +103,7 @@ public class CommandReplaceItem extends CommandBase
             }
 
             ++i;
-            int k = args.length > i ? parseInt(args[i++], 1, item.getItemStackLimit()) : 1;
+            int k = args.length > i ? parseInt(args[i++], 1, item.getMaxStackSize()) : 1;
             int l = args.length > i ? parseInt(args[i++]) : 0;
             ItemStack itemstack = new ItemStack(item, k, l);
 
@@ -125,7 +113,7 @@ public class CommandReplaceItem extends CommandBase
 
                 try
                 {
-                    itemstack.setTagCompound(JsonToNBT.getTagFromJson(s1));
+                    itemstack.setTag(JsonToNBT.getTagFromJson(s1));
                 }
                 catch (NBTException nbtexception)
                 {
@@ -159,7 +147,7 @@ public class CommandReplaceItem extends CommandBase
 
                 if (entity instanceof EntityPlayer)
                 {
-                    ((EntityPlayer)entity).inventoryContainer.detectAndSendChanges();
+                    ((EntityPlayer)entity).container.detectAndSendChanges();
                 }
 
                 if (!entity.replaceItemInInventory(j, itemstack))
@@ -169,7 +157,7 @@ public class CommandReplaceItem extends CommandBase
 
                 if (entity instanceof EntityPlayer)
                 {
-                    ((EntityPlayer)entity).inventoryContainer.detectAndSendChanges();
+                    ((EntityPlayer)entity).container.detectAndSendChanges();
                 }
             }
 
@@ -206,7 +194,7 @@ public class CommandReplaceItem extends CommandBase
         }
         else if ((args.length != 3 || !"entity".equals(args[0])) && (args.length != 5 || !"block".equals(args[0])))
         {
-            return (args.length != 4 || !"entity".equals(args[0])) && (args.length != 6 || !"block".equals(args[0])) ? Collections.emptyList() : getListOfStringsMatchingLastWord(args, Item.REGISTRY.getKeys());
+            return (args.length != 4 || !"entity".equals(args[0])) && (args.length != 6 || !"block".equals(args[0])) ? Collections.emptyList() : getListOfStringsMatchingLastWord(args, Item.REGISTRY.keySet());
         }
         else
         {
@@ -214,9 +202,6 @@ public class CommandReplaceItem extends CommandBase
         }
     }
 
-    /**
-     * Return whether the specified command parameter index is a username parameter.
-     */
     public boolean isUsernameIndex(String[] args, int index)
     {
         return args.length > 0 && "entity".equals(args[0]) && index == 1;

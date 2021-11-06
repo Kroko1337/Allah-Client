@@ -10,11 +10,11 @@ public class RenderWolf extends RenderLiving<EntityWolf>
 {
     private static final ResourceLocation WOLF_TEXTURES = new ResourceLocation("textures/entity/wolf/wolf.png");
     private static final ResourceLocation TAMED_WOLF_TEXTURES = new ResourceLocation("textures/entity/wolf/wolf_tame.png");
-    private static final ResourceLocation ANRGY_WOLF_TEXTURES = new ResourceLocation("textures/entity/wolf/wolf_angry.png");
+    private static final ResourceLocation ANGRY_WOLF_TEXTURES = new ResourceLocation("textures/entity/wolf/wolf_angry.png");
 
-    public RenderWolf(RenderManager p_i47187_1_)
+    public RenderWolf(RenderManager renderManagerIn)
     {
-        super(p_i47187_1_, new ModelWolf(), 0.5F);
+        super(renderManagerIn, new ModelWolf(), 0.5F);
         this.addLayer(new LayerWolfCollar(this));
     }
 
@@ -26,9 +26,6 @@ public class RenderWolf extends RenderLiving<EntityWolf>
         return livingBase.getTailRotation();
     }
 
-    /**
-     * Renders the desired {@code T} type Entity.
-     */
     public void doRender(EntityWolf entity, double x, double y, double z, float entityYaw, float partialTicks)
     {
         if (entity.isWolfWet())
@@ -41,7 +38,7 @@ public class RenderWolf extends RenderLiving<EntityWolf>
     }
 
     /**
-     * Returns the location of an entity's texture. Doesn't seem to be called unless you call Render.bindEntityTexture.
+     * Returns the location of an entity's texture.
      */
     protected ResourceLocation getEntityTexture(EntityWolf entity)
     {
@@ -51,7 +48,7 @@ public class RenderWolf extends RenderLiving<EntityWolf>
         }
         else
         {
-            return entity.isAngry() ? ANRGY_WOLF_TEXTURES : WOLF_TEXTURES;
+            return entity.isAngry() ? ANGRY_WOLF_TEXTURES : WOLF_TEXTURES;
         }
     }
 }

@@ -20,7 +20,7 @@ public class TileEntityId implements IFixableData
 
         if (s != null)
         {
-            compound.setString("id", s);
+            compound.putString("id", s);
         }
 
         return compound;

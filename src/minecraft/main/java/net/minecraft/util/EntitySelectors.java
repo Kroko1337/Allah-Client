@@ -18,21 +18,21 @@ public final class EntitySelectors
     {
         public boolean apply(@Nullable Entity p_apply_1_)
         {
-            return p_apply_1_.isEntityAlive();
+            return p_apply_1_.isAlive();
         }
     };
     public static final Predicate<Entity> IS_STANDALONE = new Predicate<Entity>()
     {
         public boolean apply(@Nullable Entity p_apply_1_)
         {
-            return p_apply_1_.isEntityAlive() && !p_apply_1_.isBeingRidden() && !p_apply_1_.isRiding();
+            return p_apply_1_.isAlive() && !p_apply_1_.isBeingRidden() && !p_apply_1_.isPassenger();
         }
     };
     public static final Predicate<Entity> HAS_INVENTORY = new Predicate<Entity>()
     {
         public boolean apply(@Nullable Entity p_apply_1_)
         {
-            return p_apply_1_ instanceof IInventory && p_apply_1_.isEntityAlive();
+            return p_apply_1_ instanceof IInventory && p_apply_1_.isAlive();
         }
     };
     public static final Predicate<Entity> CAN_AI_TARGET = new Predicate<Entity>()
@@ -114,7 +114,7 @@ public final class EntitySelectors
             {
                 while (true)
                 {
-                    if (p_apply_1_.isRiding())
+                    if (p_apply_1_.isPassenger())
                     {
                         p_apply_1_ = p_apply_1_.getRidingEntity();
 
@@ -143,7 +143,7 @@ public final class EntitySelectors
 
         public boolean apply(@Nullable Entity p_apply_1_)
         {
-            if (!p_apply_1_.isEntityAlive())
+            if (!p_apply_1_.isAlive())
             {
                 return false;
             }

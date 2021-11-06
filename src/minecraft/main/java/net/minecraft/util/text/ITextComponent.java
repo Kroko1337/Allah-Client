@@ -60,9 +60,6 @@ public interface ITextComponent extends Iterable<ITextComponent>
      */
     String getUnformattedComponentText();
 
-    /**
-     * Gets the text of this component <em>and all sibling components</em>, without any formatting codes.
-     */
     String getUnformattedText();
 
     /**
@@ -75,7 +72,7 @@ public interface ITextComponent extends Iterable<ITextComponent>
     /**
      * Creates a copy of this component.  Almost a deep copy, except the style is shallow-copied.
      */
-    ITextComponent createCopy();
+    ITextComponent shallowCopy();
 
     public static class Serializer implements JsonDeserializer<ITextComponent>, JsonSerializer<ITextComponent>
     {
@@ -297,21 +294,21 @@ public interface ITextComponent extends Iterable<ITextComponent>
             return jsonobject;
         }
 
-        public static String componentToJson(ITextComponent component)
+        public static String toJson(ITextComponent component)
         {
             return GSON.toJson(component);
         }
 
         @Nullable
-        public static ITextComponent jsonToComponent(String json)
+        public static ITextComponent fromJson(String json)
         {
-            return (ITextComponent)JsonUtils.gsonDeserialize(GSON, json, ITextComponent.class, false);
+            return (ITextComponent)JsonUtils.fromJson(GSON, json, ITextComponent.class, false);
         }
 
         @Nullable
         public static ITextComponent fromJsonLenient(String json)
         {
-            return (ITextComponent)JsonUtils.gsonDeserialize(GSON, json, ITextComponent.class, true);
+            return (ITextComponent)JsonUtils.fromJson(GSON, json, ITextComponent.class, true);
         }
 
         static

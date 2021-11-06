@@ -8,10 +8,6 @@ import net.minecraft.village.Village;
 public class EntityAIDefendVillage extends EntityAITarget
 {
     EntityIronGolem irongolem;
-
-    /**
-     * The aggressor of the iron golem's village which is now the golem's attack target.
-     */
     EntityLivingBase villageAgressorTarget;
 
     public EntityAIDefendVillage(EntityIronGolem ironGolemIn)
@@ -22,7 +18,8 @@ public class EntityAIDefendVillage extends EntityAITarget
     }
 
     /**
-     * Returns whether the EntityAIBase should begin execution.
+     * Returns whether execution should begin. You can also read and cache any state necessary for execution in this
+     * method as well.
      */
     public boolean shouldExecute()
     {
@@ -44,7 +41,7 @@ public class EntityAIDefendVillage extends EntityAITarget
             {
                 return true;
             }
-            else if (this.taskOwner.getRNG().nextInt(20) == 0)
+            else if (this.goalOwner.getRNG().nextInt(20) == 0)
             {
                 this.villageAgressorTarget = village.getNearestTargetPlayer(this.irongolem);
                 return this.isSuitableTarget(this.villageAgressorTarget, false);

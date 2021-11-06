@@ -2,7 +2,6 @@ package net.minecraft.world;
 
 public class ColorizerGrass
 {
-    /** Color buffer for grass */
     private static int[] grassBuffer = new int[65536];
 
     public static void setGrassBiomeColorizer(int[] grassBufferIn)
@@ -10,10 +9,7 @@ public class ColorizerGrass
         grassBuffer = grassBufferIn;
     }
 
-    /**
-     * Gets the color modifier to use for grass.
-     */
-    public static int getGrassColor(double temperature, double humidity)
+    public static int get(double temperature, double humidity)
     {
         humidity = humidity * temperature;
         int i = (int)((1.0D - temperature) * 255.0D);

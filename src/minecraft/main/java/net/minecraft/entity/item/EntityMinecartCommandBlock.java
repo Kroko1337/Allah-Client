@@ -62,7 +62,7 @@ public class EntityMinecartCommandBlock extends EntityMinecart
         }
         public MinecraftServer getServer()
         {
-            return EntityMinecartCommandBlock.this.world.getMinecraftServer();
+            return EntityMinecartCommandBlock.this.world.getServer();
         }
     };
 
@@ -88,9 +88,9 @@ public class EntityMinecartCommandBlock extends EntityMinecart
             {
                 if (TileEntity.getKey(TileEntityCommandBlock.class).equals(new ResourceLocation(compound.getString("id"))))
                 {
-                    compound.setString("id", "Control");
+                    compound.putString("id", "Control");
                     fixer.process(FixTypes.BLOCK_ENTITY, compound, versionIn);
-                    compound.setString("id", "MinecartCommandBlock");
+                    compound.putString("id", "MinecartCommandBlock");
                 }
 
                 return compound;
@@ -98,9 +98,9 @@ public class EntityMinecartCommandBlock extends EntityMinecart
         });
     }
 
-    protected void entityInit()
+    protected void registerData()
     {
-        super.entityInit();
+        super.registerData();
         this.getDataManager().register(COMMAND, "");
         this.getDataManager().register(LAST_OUTPUT, new TextComponentString(""));
     }
@@ -108,24 +108,21 @@ public class EntityMinecartCommandBlock extends EntityMinecart
     /**
      * (abstract) Protected helper method to read subclass entity data from NBT.
      */
-    protected void readEntityFromNBT(NBTTagCompound compound)
+    protected void readAdditional(NBTTagCompound compound)
     {
-        super.readEntityFromNBT(compound);
-        this.commandBlockLogic.readDataFromNBT(compound);
+        super.readAdditional(compound);
+        this.commandBlockLogic.read(compound);
         this.getDataManager().set(COMMAND, this.getCommandBlockLogic().getCommand());
         this.getDataManager().set(LAST_OUTPUT, this.getCommandBlockLogic().getLastOutput());
     }
 
-    /**
-     * (abstract) Protected helper method to write subclass entity data to NBT.
-     */
     protected void writeEntityToNBT(NBTTagCompound compound)
     {
         super.writeEntityToNBT(compound);
-        this.commandBlockLogic.writeToNBT(compound);
+        this.commandBlockLogic.write(compound);
     }
 
-    public EntityMinecart.Type getType()
+    public EntityMinecart.Type getMinecartType()
     {
         return EntityMinecart.Type.COMMAND_BLOCK;
     }
@@ -179,6 +176,15 @@ public class EntityMinecartCommandBlock extends EntityMinecart
         }
     }
 
+    /**
+     * Checks if players can use this entity to access operator (permission level 2) commands either directly or
+     * indirectly, such as give or setblock. A similar method exists for entities at {@link
+     * net.minecraft.tileentity.TileEntity#onlyOpsCanSetNbt()}.<p>For example, {@link
+     * net.minecraft.entity.item.EntityMinecartCommandBlock#ignoreItemEntityData() command block minecarts} and {@link
+     * net.minecraft.entity.item.EntityMinecartMobSpawner#ignoreItemEntityData() mob spawner minecarts} (spawning
+     * command block minecarts or drops) are considered accessible.</p>@return true if this entity offers ways for
+     * unauthorized players to use restricted commands
+     */
     public boolean ignoreItemEntityData()
     {
         return true;

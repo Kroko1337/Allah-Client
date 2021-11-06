@@ -32,7 +32,7 @@ public class StateMap extends StateMapperBase
 
         if (this.name == null)
         {
-            s = ((ResourceLocation)Block.REGISTRY.getNameForObject(state.getBlock())).toString();
+            s = ((ResourceLocation)Block.REGISTRY.getKey(state.getBlock())).toString();
         }
         else
         {
@@ -52,9 +52,9 @@ public class StateMap extends StateMapperBase
         return new ModelResourceLocation(s, this.getPropertyString(map));
     }
 
-    private <T extends Comparable<T>> String removeName(IProperty<T> property, Map < IProperty<?>, Comparable<? >> p_187490_2_)
+    private <T extends Comparable<T>> String removeName(IProperty<T> property, Map < IProperty<?>, Comparable<? >> values)
     {
-        return property.getName((T)p_187490_2_.remove(this.name));
+        return property.getName((T)values.remove(this.name));
     }
 
     public static class Builder
@@ -75,9 +75,9 @@ public class StateMap extends StateMapperBase
             return this;
         }
 
-        public StateMap.Builder ignore(IProperty<?>... p_178442_1_)
+        public StateMap.Builder ignore(IProperty<?>... ignores)
         {
-            Collections.addAll(this.ignored, p_178442_1_);
+            Collections.addAll(this.ignored, ignores);
             return this;
         }
 

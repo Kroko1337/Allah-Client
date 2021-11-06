@@ -10,25 +10,22 @@ public class EntityAILandOnOwnersShoulder extends EntityAIBase
     private EntityPlayer owner;
     private boolean isSittingOnShoulder;
 
-    public EntityAILandOnOwnersShoulder(EntityShoulderRiding p_i47415_1_)
+    public EntityAILandOnOwnersShoulder(EntityShoulderRiding entityIn)
     {
-        this.entity = p_i47415_1_;
+        this.entity = entityIn;
     }
 
     /**
-     * Returns whether the EntityAIBase should begin execution.
+     * Returns whether execution should begin. You can also read and cache any state necessary for execution in this
+     * method as well.
      */
     public boolean shouldExecute()
     {
         EntityLivingBase entitylivingbase = this.entity.getOwner();
-        boolean flag = entitylivingbase != null && !((EntityPlayer)entitylivingbase).isSpectator() && !((EntityPlayer)entitylivingbase).capabilities.isFlying && !entitylivingbase.isInWater();
+        boolean flag = entitylivingbase != null && !((EntityPlayer)entitylivingbase).isSpectator() && !((EntityPlayer)entitylivingbase).abilities.isFlying && !entitylivingbase.isInWater();
         return !this.entity.isSitting() && flag && this.entity.canSitOnShoulder();
     }
 
-    /**
-     * Determine if this AI Task is interruptible by a higher (= lower value) priority task. All vanilla AITask have
-     * this value set to true.
-     */
     public boolean isInterruptible()
     {
         return !this.isSittingOnShoulder;
@@ -46,11 +43,11 @@ public class EntityAILandOnOwnersShoulder extends EntityAIBase
     /**
      * Keep ticking a continuous task that has already been started
      */
-    public void updateTask()
+    public void tick()
     {
         if (!this.isSittingOnShoulder && !this.entity.isSitting() && !this.entity.getLeashed())
         {
-            if (this.entity.getEntityBoundingBox().intersects(this.owner.getEntityBoundingBox()))
+            if (this.entity.getBoundingBox().intersects(this.owner.getBoundingBox()))
             {
                 this.isSittingOnShoulder = this.entity.setEntityOnShoulder(this.owner);
             }

@@ -37,9 +37,6 @@ public class ItemBanner extends ItemBlock
         this.setMaxDamage(0);
     }
 
-    /**
-     * Called when a Block is right-clicked with this Item
-     */
     public EnumActionResult onItemUse(EntityPlayer player, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
         IBlockState iblockstate = worldIn.getBlockState(pos);
@@ -101,27 +98,27 @@ public class ItemBanner extends ItemBlock
     {
         String s = "item.banner.";
         EnumDyeColor enumdyecolor = getBaseColor(stack);
-        s = s + enumdyecolor.getUnlocalizedName() + ".name";
+        s = s + enumdyecolor.getTranslationKey() + ".name";
         return I18n.translateToLocal(s);
     }
 
     public static void appendHoverTextFromTileEntityTag(ItemStack stack, List<String> p_185054_1_)
     {
-        NBTTagCompound nbttagcompound = stack.getSubCompound("BlockEntityTag");
+        NBTTagCompound nbttagcompound = stack.getChildTag("BlockEntityTag");
 
-        if (nbttagcompound != null && nbttagcompound.hasKey("Patterns"))
+        if (nbttagcompound != null && nbttagcompound.contains("Patterns"))
         {
-            NBTTagList nbttaglist = nbttagcompound.getTagList("Patterns", 10);
+            NBTTagList nbttaglist = nbttagcompound.getList("Patterns", 10);
 
             for (int i = 0; i < nbttaglist.tagCount() && i < 6; ++i)
             {
-                NBTTagCompound nbttagcompound1 = nbttaglist.getCompoundTagAt(i);
-                EnumDyeColor enumdyecolor = EnumDyeColor.byDyeDamage(nbttagcompound1.getInteger("Color"));
+                NBTTagCompound nbttagcompound1 = nbttaglist.getCompound(i);
+                EnumDyeColor enumdyecolor = EnumDyeColor.byDyeDamage(nbttagcompound1.getInt("Color"));
                 BannerPattern bannerpattern = BannerPattern.byHash(nbttagcompound1.getString("Pattern"));
 
                 if (bannerpattern != null)
                 {
-                    p_185054_1_.add(I18n.translateToLocal("item.banner." + bannerpattern.getFileName() + "." + enumdyecolor.getUnlocalizedName()));
+                    p_185054_1_.add(I18n.translateToLocal("item.banner." + bannerpattern.getFileName() + "." + enumdyecolor.getTranslationKey()));
                 }
             }
         }
@@ -138,9 +135,9 @@ public class ItemBanner extends ItemBlock
     /**
      * returns a list of items with the same ID, but different meta (eg: dye returns 16 items)
      */
-    public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> items)
+    public void fillItemGroup(CreativeTabs group, NonNullList<ItemStack> items)
     {
-        if (this.isInCreativeTab(tab))
+        if (this.isInGroup(group))
         {
             for (EnumDyeColor enumdyecolor : EnumDyeColor.values())
             {
@@ -149,13 +146,13 @@ public class ItemBanner extends ItemBlock
         }
     }
 
-    public static ItemStack makeBanner(EnumDyeColor p_190910_0_, @Nullable NBTTagList p_190910_1_)
+    public static ItemStack makeBanner(EnumDyeColor color, @Nullable NBTTagList patterns)
     {
-        ItemStack itemstack = new ItemStack(Items.BANNER, 1, p_190910_0_.getDyeDamage());
+        ItemStack itemstack = new ItemStack(Items.BANNER, 1, color.getDyeDamage());
 
-        if (p_190910_1_ != null && !p_190910_1_.hasNoTags())
+        if (patterns != null && !patterns.isEmpty())
         {
-            itemstack.getOrCreateSubCompound("BlockEntityTag").setTag("Patterns", p_190910_1_.copy());
+            itemstack.getOrCreateChildTag("BlockEntityTag").setTag("Patterns", patterns.copy());
         }
 
         return itemstack;
@@ -164,7 +161,7 @@ public class ItemBanner extends ItemBlock
     /**
      * gets the CreativeTab this item is displayed on
      */
-    public CreativeTabs getCreativeTab()
+    public CreativeTabs getGroup()
     {
         return CreativeTabs.DECORATIONS;
     }

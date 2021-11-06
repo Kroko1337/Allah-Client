@@ -26,17 +26,17 @@ public class HotbarSnapshot extends ArrayList<ItemStack>
 
         for (int i = 0; i < HOTBAR_SIZE; ++i)
         {
-            nbttaglist.appendTag(((ItemStack)this.get(i)).writeToNBT(new NBTTagCompound()));
+            nbttaglist.appendTag(((ItemStack)this.get(i)).write(new NBTTagCompound()));
         }
 
         return nbttaglist;
     }
 
-    public void fromTag(NBTTagList p_192833_1_)
+    public void fromTag(NBTTagList tag)
     {
         for (int i = 0; i < HOTBAR_SIZE; ++i)
         {
-            this.set(i, new ItemStack(p_192833_1_.getCompoundTagAt(i)));
+            this.set(i, new ItemStack(tag.getCompound(i)));
         }
     }
 

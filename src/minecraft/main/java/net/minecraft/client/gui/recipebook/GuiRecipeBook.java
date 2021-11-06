@@ -1,9 +1,6 @@
 package net.minecraft.client.gui.recipebook;
 
 import com.google.common.collect.Lists;
-import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.fastutil.ints.IntList;
-import it.unimi.dsi.fastutil.ints.IntListIterator;
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
 import java.util.Iterator;
@@ -27,11 +24,6 @@ import net.minecraft.client.util.RecipeBookClient;
 import net.minecraft.client.util.RecipeItemHelper;
 import net.minecraft.client.util.SearchTreeManager;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.inventory.Container;
-import net.minecraft.inventory.ContainerPlayer;
-import net.minecraft.inventory.ContainerWorkbench;
-import net.minecraft.inventory.InventoryCraftResult;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
@@ -39,11 +31,8 @@ import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.item.crafting.ShapedRecipes;
 import net.minecraft.network.play.client.CPacketRecipeInfo;
-import net.minecraft.network.play.client.CPacketRecipePlacement;
 import net.minecraft.stats.RecipeBook;
 import net.minecraft.util.ResourceLocation;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.lwjgl.input.Keyboard;
 
 public class GuiRecipeBook extends Gui implements IRecipeUpdateListener
@@ -52,16 +41,10 @@ public class GuiRecipeBook extends Gui implements IRecipeUpdateListener
     private int xOffset;
     private int width;
     private int height;
-    private static final Logger LOGGER = LogManager.getLogger();
     private final GhostRecipe ghostRecipe = new GhostRecipe();
     private final List<GuiButtonRecipeTab> recipeTabs = Lists.newArrayList(new GuiButtonRecipeTab(0, CreativeTabs.SEARCH), new GuiButtonRecipeTab(0, CreativeTabs.TOOLS), new GuiButtonRecipeTab(0, CreativeTabs.BUILDING_BLOCKS), new GuiButtonRecipeTab(0, CreativeTabs.MISC), new GuiButtonRecipeTab(0, CreativeTabs.REDSTONE));
     private GuiButtonRecipeTab currentTab;
-
-    /**
-     * This button toggles between showing all recipes and showing only craftable recipes
-     */
     private GuiButtonToggle toggleRecipesBtn;
-    private Container container;
     private InventoryCrafting craftingSlots;
     private Minecraft mc;
     private GuiTextField searchBar;
@@ -71,21 +54,20 @@ public class GuiRecipeBook extends Gui implements IRecipeUpdateListener
     private RecipeItemHelper stackedContents = new RecipeItemHelper();
     private int timesInventoryChanged;
 
-    public void init(int p_191856_1_, int p_191856_2_, Minecraft p_191856_3_, boolean p_191856_4_, Container p_191856_5_, InventoryCrafting p_191856_6_)
+    public void func_194303_a(int p_194303_1_, int p_194303_2_, Minecraft p_194303_3_, boolean p_194303_4_, InventoryCrafting p_194303_5_)
     {
-        this.mc = p_191856_3_;
-        this.width = p_191856_1_;
-        this.height = p_191856_2_;
-        this.container = p_191856_5_;
-        this.craftingSlots = p_191856_6_;
-        this.recipeBook = p_191856_3_.player.getRecipeBook();
-        this.timesInventoryChanged = p_191856_3_.player.inventory.getTimesChanged();
+        this.mc = p_194303_3_;
+        this.width = p_194303_1_;
+        this.height = p_194303_2_;
+        this.craftingSlots = p_194303_5_;
+        this.recipeBook = p_194303_3_.player.getRecipeBook();
+        this.timesInventoryChanged = p_194303_3_.player.inventory.getTimesChanged();
         this.currentTab = this.recipeTabs.get(0);
         this.currentTab.setStateTriggered(true);
 
         if (this.isVisible())
         {
-            this.initVisuals(p_191856_4_, p_191856_6_);
+            this.initVisuals(p_194303_4_, p_194303_5_);
         }
 
         Keyboard.enableRepeatEvents(true);
@@ -335,7 +317,13 @@ public class GuiRecipeBook extends Gui implements IRecipeUpdateListener
 
                 if (irecipe != null && recipelist != null)
                 {
-                    this.setContainerRecipe(irecipe, recipelist);
+                    if (!recipelist.isCraftable(irecipe) && this.ghostRecipe.getRecipe() == irecipe)
+                    {
+                        return false;
+                    }
+
+                    this.ghostRecipe.clear();
+                    this.mc.playerController.func_194338_a(this.mc.player.openContainer.windowId, irecipe, GuiScreen.isShiftKeyDown(), this.mc.player);
 
                     if (!this.isOffsetNextToMainGUI() && p_191862_3_ == 0)
                     {
@@ -418,7 +406,7 @@ public class GuiRecipeBook extends Gui implements IRecipeUpdateListener
             {
                 if (GameSettings.isKeyDown(this.mc.gameSettings.keyBindChat) && !this.searchBar.isFocused())
                 {
-                    this.searchBar.setFocused(true);
+                    this.searchBar.setFocused2(true);
                 }
                 else if (this.searchBar.textboxKeyTyped(typedChar, keycode))
                 {
@@ -445,8 +433,6 @@ public class GuiRecipeBook extends Gui implements IRecipeUpdateListener
 
     /**
      * "Check if we should activate the pirate speak easter egg"
-     *  
-     * @param text 'if equal to "excitedze", activate the easter egg'
      */
     private void pirateRecipe(String text)
     {
@@ -492,319 +478,7 @@ public class GuiRecipeBook extends Gui implements IRecipeUpdateListener
         }
     }
 
-    private void setContainerRecipe(IRecipe recipe, RecipeList recipes)
-    {
-        boolean flag = recipes.isCraftable(recipe);
-        InventoryCraftResult inventorycraftresult = null;
-
-        if (this.container instanceof ContainerWorkbench)
-        {
-            inventorycraftresult = ((ContainerWorkbench)this.container).craftResult;
-        }
-        else if (this.container instanceof ContainerPlayer)
-        {
-            inventorycraftresult = ((ContainerPlayer)this.container).craftResult;
-        }
-
-        if (inventorycraftresult != null)
-        {
-            if (!flag && this.ghostRecipe.getRecipe() == recipe)
-            {
-                return;
-            }
-
-            if (!this.testClearCraftingGrid() && !this.mc.player.isCreative())
-            {
-                return;
-            }
-
-            if (flag)
-            {
-                this.handleRecipeClicked(recipe, this.container.inventorySlots, this.container.windowId, inventorycraftresult);
-            }
-            else
-            {
-                List<CPacketRecipePlacement.ItemMove> list2 = this.clearCraftingGrid(inventorycraftresult);
-                this.setupGhostRecipe(recipe, this.container.inventorySlots);
-
-                if (!list2.isEmpty())
-                {
-                    this.mc.playerController.handleRecipePlacement(this.container.windowId, list2, Lists.newArrayList(), this.mc.player);
-
-                    if (this.recipeBook.isFilteringCraftable())
-                    {
-                        this.mc.player.inventory.markDirty();
-                    }
-                }
-            }
-
-            if (!this.isOffsetNextToMainGUI())
-            {
-                this.toggleVisibility();
-            }
-        }
-    }
-
-    private void handleRecipeClicked(IRecipe p_193950_1_, List<Slot> p_193950_2_, int p_193950_3_, InventoryCraftResult p_193950_4_)
-    {
-        boolean flag = p_193950_1_.matches(this.craftingSlots, this.mc.world);
-        int i = this.stackedContents.getBiggestCraftableStack(p_193950_1_, (IntList)null);
-
-        if (flag)
-        {
-            boolean flag1 = true;
-
-            for (int j = 0; j < this.craftingSlots.getSizeInventory(); ++j)
-            {
-                ItemStack itemstack = this.craftingSlots.getStackInSlot(j);
-
-                if (!itemstack.isEmpty() && i > itemstack.getCount())
-                {
-                    flag1 = false;
-                }
-            }
-
-            if (flag1)
-            {
-                return;
-            }
-        }
-
-        int i1 = this.getStackSize(i, flag);
-        IntList intlist = new IntArrayList();
-
-        if (this.stackedContents.canCraft(p_193950_1_, intlist, i1))
-        {
-            int j1 = i1;
-            IntListIterator lvt_10_1_ = intlist.iterator();
-
-            while (lvt_10_1_.hasNext())
-            {
-                int k = ((Integer)lvt_10_1_.next()).intValue();
-                int l = RecipeItemHelper.unpack(k).getMaxStackSize();
-
-                if (l < j1)
-                {
-                    j1 = l;
-                }
-            }
-
-            if (this.stackedContents.canCraft(p_193950_1_, intlist, j1))
-            {
-                List<CPacketRecipePlacement.ItemMove> list2 = this.clearCraftingGrid(p_193950_4_);
-                List<CPacketRecipePlacement.ItemMove> list3 = Lists.<CPacketRecipePlacement.ItemMove>newArrayList();
-                this.placeRecipe(p_193950_1_, p_193950_2_, j1, intlist, list3);
-                this.mc.playerController.handleRecipePlacement(p_193950_3_, list2, list3, this.mc.player);
-                this.mc.player.inventory.markDirty();
-            }
-        }
-    }
-
-    private List<CPacketRecipePlacement.ItemMove> clearCraftingGrid(InventoryCraftResult p_193954_1_)
-    {
-        this.ghostRecipe.clear();
-        InventoryPlayer inventoryplayer = this.mc.player.inventory;
-        List<CPacketRecipePlacement.ItemMove> list2 = Lists.<CPacketRecipePlacement.ItemMove>newArrayList();
-
-        for (int i = 0; i < this.craftingSlots.getSizeInventory(); ++i)
-        {
-            ItemStack itemstack = this.craftingSlots.getStackInSlot(i);
-
-            if (!itemstack.isEmpty())
-            {
-                while (itemstack.getCount() > 0)
-                {
-                    int j = inventoryplayer.storeItemStack(itemstack);
-
-                    if (j == -1)
-                    {
-                        j = inventoryplayer.getFirstEmptyStack();
-                    }
-
-                    ItemStack itemstack1 = itemstack.copy();
-                    itemstack1.setCount(1);
-
-                    if (inventoryplayer.add(j, itemstack1))
-                    {
-                        itemstack1.grow(1);
-                    }
-                    else
-                    {
-                        LOGGER.error("Can't find any space for item in inventory");
-                    }
-
-                    this.craftingSlots.decrStackSize(i, 1);
-                    int k = i + 1;
-                    list2.add(new CPacketRecipePlacement.ItemMove(itemstack1.copy(), k, j));
-                }
-            }
-        }
-
-        this.craftingSlots.clear();
-        p_193954_1_.clear();
-        return list2;
-    }
-
-    private int getStackSize(int p_193943_1_, boolean p_193943_2_)
-    {
-        int i = 1;
-
-        if (GuiScreen.isShiftKeyDown())
-        {
-            i = p_193943_1_;
-        }
-        else if (p_193943_2_)
-        {
-            i = 64;
-
-            for (int j = 0; j < this.craftingSlots.getSizeInventory(); ++j)
-            {
-                ItemStack itemstack = this.craftingSlots.getStackInSlot(j);
-
-                if (!itemstack.isEmpty() && i > itemstack.getCount())
-                {
-                    i = itemstack.getCount();
-                }
-            }
-
-            if (i < 64)
-            {
-                ++i;
-            }
-        }
-
-        return i;
-    }
-
-    private void placeRecipe(IRecipe p_193013_1_, List<Slot> p_193013_2_, int p_193013_3_, IntList p_193013_4_, List<CPacketRecipePlacement.ItemMove> p_193013_5_)
-    {
-        int i = this.craftingSlots.getWidth();
-        int j = this.craftingSlots.getHeight();
-
-        if (p_193013_1_ instanceof ShapedRecipes)
-        {
-            ShapedRecipes shapedrecipes = (ShapedRecipes)p_193013_1_;
-            i = shapedrecipes.getWidth();
-            j = shapedrecipes.getHeight();
-        }
-
-        int j1 = 1;
-        Iterator<Integer> iterator = p_193013_4_.iterator();
-
-        for (int k = 0; k < this.craftingSlots.getWidth() && j != k; ++k)
-        {
-            for (int l = 0; l < this.craftingSlots.getHeight(); ++l)
-            {
-                if (i == l || !iterator.hasNext())
-                {
-                    j1 += this.craftingSlots.getWidth() - l;
-                    break;
-                }
-
-                Slot slot = p_193013_2_.get(j1);
-                ItemStack itemstack = RecipeItemHelper.unpack(((Integer)iterator.next()).intValue());
-
-                if (itemstack.isEmpty())
-                {
-                    ++j1;
-                }
-                else
-                {
-                    for (int i1 = 0; i1 < p_193013_3_; ++i1)
-                    {
-                        CPacketRecipePlacement.ItemMove cpacketrecipeplacement$itemmove = this.findSpot(j1, slot, itemstack);
-
-                        if (cpacketrecipeplacement$itemmove != null)
-                        {
-                            p_193013_5_.add(cpacketrecipeplacement$itemmove);
-                        }
-                    }
-
-                    ++j1;
-                }
-            }
-
-            if (!iterator.hasNext())
-            {
-                break;
-            }
-        }
-    }
-
-    @Nullable
-    private CPacketRecipePlacement.ItemMove findSpot(int p_193946_1_, Slot p_193946_2_, ItemStack p_193946_3_)
-    {
-        InventoryPlayer inventoryplayer = this.mc.player.inventory;
-        int i = inventoryplayer.findSlotMatchingUnusedItem(p_193946_3_);
-
-        if (i == -1)
-        {
-            return null;
-        }
-        else
-        {
-            ItemStack itemstack = inventoryplayer.getStackInSlot(i).copy();
-
-            if (itemstack.isEmpty())
-            {
-                LOGGER.error("Matched: " + p_193946_3_.getUnlocalizedName() + " with empty item.");
-                return null;
-            }
-            else
-            {
-                if (itemstack.getCount() > 1)
-                {
-                    inventoryplayer.decrStackSize(i, 1);
-                }
-                else
-                {
-                    inventoryplayer.removeStackFromSlot(i);
-                }
-
-                itemstack.setCount(1);
-
-                if (p_193946_2_.getStack().isEmpty())
-                {
-                    p_193946_2_.putStack(itemstack);
-                }
-                else
-                {
-                    p_193946_2_.getStack().grow(1);
-                }
-
-                return new CPacketRecipePlacement.ItemMove(itemstack, p_193946_1_, i);
-            }
-        }
-    }
-
-    private boolean testClearCraftingGrid()
-    {
-        InventoryPlayer inventoryplayer = this.mc.player.inventory;
-
-        for (int i = 0; i < this.craftingSlots.getSizeInventory(); ++i)
-        {
-            ItemStack itemstack = this.craftingSlots.getStackInSlot(i);
-
-            if (!itemstack.isEmpty())
-            {
-                int j = inventoryplayer.storeItemStack(itemstack);
-
-                if (j == -1)
-                {
-                    j = inventoryplayer.getFirstEmptyStack();
-                }
-
-                if (j == -1)
-                {
-                    return false;
-                }
-            }
-        }
-
-        return true;
-    }
-
-    private void setupGhostRecipe(IRecipe p_193951_1_, List<Slot> p_193951_2_)
+    public void setupGhostRecipe(IRecipe p_193951_1_, List<Slot> p_193951_2_)
     {
         ItemStack itemstack = p_193951_1_.getRecipeOutput();
         this.ghostRecipe.setRecipe(p_193951_1_);

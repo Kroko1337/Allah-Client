@@ -5,7 +5,6 @@ import net.minecraft.entity.passive.EntityAnimal;
 
 public class EntityAIFollowParent extends EntityAIBase
 {
-    /** The child that is following its parent. */
     EntityAnimal childAnimal;
     EntityAnimal parentAnimal;
     double moveSpeed;
@@ -18,7 +17,8 @@ public class EntityAIFollowParent extends EntityAIBase
     }
 
     /**
-     * Returns whether the EntityAIBase should begin execution.
+     * Returns whether execution should begin. You can also read and cache any state necessary for execution in this
+     * method as well.
      */
     public boolean shouldExecute()
     {
@@ -28,7 +28,7 @@ public class EntityAIFollowParent extends EntityAIBase
         }
         else
         {
-            List<EntityAnimal> list = this.childAnimal.world.<EntityAnimal>getEntitiesWithinAABB(this.childAnimal.getClass(), this.childAnimal.getEntityBoundingBox().grow(8.0D, 4.0D, 8.0D));
+            List<EntityAnimal> list = this.childAnimal.world.<EntityAnimal>getEntitiesWithinAABB(this.childAnimal.getClass(), this.childAnimal.getBoundingBox().grow(8.0D, 4.0D, 8.0D));
             EntityAnimal entityanimal = null;
             double d0 = Double.MAX_VALUE;
 
@@ -36,7 +36,7 @@ public class EntityAIFollowParent extends EntityAIBase
             {
                 if (entityanimal1.getGrowingAge() >= 0)
                 {
-                    double d1 = this.childAnimal.getDistanceSqToEntity(entityanimal1);
+                    double d1 = this.childAnimal.getDistanceSq(entityanimal1);
 
                     if (d1 <= d0)
                     {
@@ -71,13 +71,13 @@ public class EntityAIFollowParent extends EntityAIBase
         {
             return false;
         }
-        else if (!this.parentAnimal.isEntityAlive())
+        else if (!this.parentAnimal.isAlive())
         {
             return false;
         }
         else
         {
-            double d0 = this.childAnimal.getDistanceSqToEntity(this.parentAnimal);
+            double d0 = this.childAnimal.getDistanceSq(this.parentAnimal);
             return d0 >= 9.0D && d0 <= 256.0D;
         }
     }
@@ -101,7 +101,7 @@ public class EntityAIFollowParent extends EntityAIBase
     /**
      * Keep ticking a continuous task that has already been started
      */
-    public void updateTask()
+    public void tick()
     {
         if (--this.delayCounter <= 0)
         {

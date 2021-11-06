@@ -26,7 +26,7 @@ public class SetNBT extends LootFunction
 
     public ItemStack apply(ItemStack stack, Random rand, LootContext context)
     {
-        NBTTagCompound nbttagcompound = stack.getTagCompound();
+        NBTTagCompound nbttagcompound = stack.getTag();
 
         if (nbttagcompound == null)
         {
@@ -37,7 +37,7 @@ public class SetNBT extends LootFunction
             nbttagcompound.merge(this.tag);
         }
 
-        stack.setTagCompound(nbttagcompound);
+        stack.setTag(nbttagcompound);
         return stack;
     }
 

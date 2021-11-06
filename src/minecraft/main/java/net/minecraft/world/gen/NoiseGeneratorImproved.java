@@ -4,12 +4,6 @@ import java.util.Random;
 
 public class NoiseGeneratorImproved extends NoiseGenerator
 {
-    /**
-     * An int[512], where the first 256 elements are the numbers 0..255, in random shuffled order,
-     * and the second half of the array is identical to the first half, apparently for convenience in wrapping lookups.
-     *  
-     * Effectively a shuffled 0..255 that wraps once.
-     */
     private final int[] permutations;
     public double xCoord;
     public double yCoord;
@@ -25,12 +19,12 @@ public class NoiseGeneratorImproved extends NoiseGenerator
         this(new Random());
     }
 
-    public NoiseGeneratorImproved(Random p_i45469_1_)
+    public NoiseGeneratorImproved(Random rand)
     {
         this.permutations = new int[512];
-        this.xCoord = p_i45469_1_.nextDouble() * 256.0D;
-        this.yCoord = p_i45469_1_.nextDouble() * 256.0D;
-        this.zCoord = p_i45469_1_.nextDouble() * 256.0D;
+        this.xCoord = rand.nextDouble() * 256.0D;
+        this.yCoord = rand.nextDouble() * 256.0D;
+        this.zCoord = rand.nextDouble() * 256.0D;
 
         for (int i = 0; i < 256; this.permutations[i] = i++)
         {
@@ -39,7 +33,7 @@ public class NoiseGeneratorImproved extends NoiseGenerator
 
         for (int l = 0; l < 256; ++l)
         {
-            int j = p_i45469_1_.nextInt(256 - l) + l;
+            int j = rand.nextInt(256 - l) + l;
             int k = this.permutations[l];
             this.permutations[l] = this.permutations[j];
             this.permutations[j] = k;
@@ -64,9 +58,6 @@ public class NoiseGeneratorImproved extends NoiseGenerator
         return GRAD_X[i] * p_76310_2_ + GRAD_Y[i] * p_76310_4_ + GRAD_Z[i] * p_76310_6_;
     }
 
-    /**
-     * noiseArray should be xSize*ySize*zSize in size
-     */
     public void populateNoiseArray(double[] noiseArray, double xOffset, double yOffset, double zOffset, int xSize, int ySize, int zSize, double xScale, double yScale, double zScale, double noiseScale)
     {
         if (ySize == 1)

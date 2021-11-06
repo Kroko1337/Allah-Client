@@ -16,8 +16,8 @@ public abstract class EntityShoulderRiding extends EntityTameable
     public boolean setEntityOnShoulder(EntityPlayer p_191994_1_)
     {
         NBTTagCompound nbttagcompound = new NBTTagCompound();
-        nbttagcompound.setString("id", this.getEntityString());
-        this.writeToNBT(nbttagcompound);
+        nbttagcompound.putString("id", this.getEntityString());
+        this.writeWithoutTypeId(nbttagcompound);
 
         if (p_191994_1_.addShoulderEntity(nbttagcompound))
         {
@@ -33,10 +33,10 @@ public abstract class EntityShoulderRiding extends EntityTameable
     /**
      * Called to update the entity's position/logic.
      */
-    public void onUpdate()
+    public void tick()
     {
         ++this.rideCooldownCounter;
-        super.onUpdate();
+        super.tick();
     }
 
     public boolean canSitOnShoulder()

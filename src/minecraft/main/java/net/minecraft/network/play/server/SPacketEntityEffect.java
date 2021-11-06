@@ -22,7 +22,7 @@ public class SPacketEntityEffect implements Packet<INetHandlerPlayClient>
     public SPacketEntityEffect(int entityIdIn, PotionEffect effect)
     {
         this.entityId = entityIdIn;
-        this.effectId = (byte)(Potion.getIdFromPotion(effect.getPotion()) & 255);
+        this.effectId = (byte)(Potion.getId(effect.getPotion()) & 255);
         this.amplifier = (byte)(effect.getAmplifier() & 255);
 
         if (effect.getDuration() > 32767)
@@ -36,7 +36,7 @@ public class SPacketEntityEffect implements Packet<INetHandlerPlayClient>
 
         this.flags = 0;
 
-        if (effect.getIsAmbient())
+        if (effect.isAmbient())
         {
             this.flags = (byte)(this.flags | 1);
         }

@@ -17,13 +17,7 @@ public class EntityAIMate extends EntityAIBase
     private final Class <? extends EntityAnimal > mateClass;
     World world;
     private EntityAnimal targetMate;
-
-    /**
-     * Delay preventing a baby from spawning immediately when two mate-able animals find each other.
-     */
     int spawnBabyDelay;
-
-    /** The speed the creature moves at during mating behavior. */
     double moveSpeed;
 
     public EntityAIMate(EntityAnimal animal, double speedIn)
@@ -41,7 +35,8 @@ public class EntityAIMate extends EntityAIBase
     }
 
     /**
-     * Returns whether the EntityAIBase should begin execution.
+     * Returns whether execution should begin. You can also read and cache any state necessary for execution in this
+     * method as well.
      */
     public boolean shouldExecute()
     {
@@ -61,7 +56,7 @@ public class EntityAIMate extends EntityAIBase
      */
     public boolean shouldContinueExecuting()
     {
-        return this.targetMate.isEntityAlive() && this.targetMate.isInLove() && this.spawnBabyDelay < 60;
+        return this.targetMate.isAlive() && this.targetMate.isInLove() && this.spawnBabyDelay < 60;
     }
 
     /**
@@ -76,13 +71,13 @@ public class EntityAIMate extends EntityAIBase
     /**
      * Keep ticking a continuous task that has already been started
      */
-    public void updateTask()
+    public void tick()
     {
-        this.animal.getLookHelper().setLookPositionWithEntity(this.targetMate, 10.0F, (float)this.animal.getVerticalFaceSpeed());
+        this.animal.getLookController().setLookPositionWithEntity(this.targetMate, 10.0F, (float)this.animal.getVerticalFaceSpeed());
         this.animal.getNavigator().tryMoveToEntityLiving(this.targetMate, this.moveSpeed);
         ++this.spawnBabyDelay;
 
-        if (this.spawnBabyDelay >= 60 && this.animal.getDistanceSqToEntity(this.targetMate) < 9.0D)
+        if (this.spawnBabyDelay >= 60 && this.animal.getDistanceSq(this.targetMate) < 9.0D)
         {
             this.spawnBaby();
         }
@@ -94,16 +89,16 @@ public class EntityAIMate extends EntityAIBase
      */
     private EntityAnimal getNearbyMate()
     {
-        List<EntityAnimal> list = this.world.<EntityAnimal>getEntitiesWithinAABB(this.mateClass, this.animal.getEntityBoundingBox().grow(8.0D));
+        List<EntityAnimal> list = this.world.<EntityAnimal>getEntitiesWithinAABB(this.mateClass, this.animal.getBoundingBox().grow(8.0D));
         double d0 = Double.MAX_VALUE;
         EntityAnimal entityanimal = null;
 
         for (EntityAnimal entityanimal1 : list)
         {
-            if (this.animal.canMateWith(entityanimal1) && this.animal.getDistanceSqToEntity(entityanimal1) < d0)
+            if (this.animal.canMateWith(entityanimal1) && this.animal.getDistanceSq(entityanimal1) < d0)
             {
                 entityanimal = entityanimal1;
-                d0 = this.animal.getDistanceSqToEntity(entityanimal1);
+                d0 = this.animal.getDistanceSq(entityanimal1);
             }
         }
 
@@ -138,7 +133,7 @@ public class EntityAIMate extends EntityAIBase
             this.targetMate.resetInLove();
             entityageable.setGrowingAge(-24000);
             entityageable.setLocationAndAngles(this.animal.posX, this.animal.posY, this.animal.posZ, 0.0F, 0.0F);
-            this.world.spawnEntity(entityageable);
+            this.world.addEntity0(entityageable);
             Random random = this.animal.getRNG();
 
             for (int i = 0; i < 7; ++i)
@@ -154,7 +149,7 @@ public class EntityAIMate extends EntityAIBase
 
             if (this.world.getGameRules().getBoolean("doMobLoot"))
             {
-                this.world.spawnEntity(new EntityXPOrb(this.world, this.animal.posX, this.animal.posY, this.animal.posZ, random.nextInt(7) + 1));
+                this.world.addEntity0(new EntityXPOrb(this.world, this.animal.posX, this.animal.posY, this.animal.posZ, random.nextInt(7) + 1));
             }
         }
     }

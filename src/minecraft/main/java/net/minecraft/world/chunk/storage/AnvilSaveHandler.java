@@ -18,9 +18,6 @@ public class AnvilSaveHandler extends SaveHandler
         super(p_i46650_1_, saveDirectoryName, p_i46650_3_, dataFixerIn);
     }
 
-    /**
-     * initializes and returns the chunk loader for the specified world provider
-     */
     public IChunkLoader getChunkLoader(WorldProvider provider)
     {
         File file1 = this.getWorldDirectory();
@@ -52,9 +49,6 @@ public class AnvilSaveHandler extends SaveHandler
         super.saveWorldInfoWithPlayer(worldInformation, tagCompound);
     }
 
-    /**
-     * Called to flush all changes to disk, waiting for them to complete.
-     */
     public void flush()
     {
         try

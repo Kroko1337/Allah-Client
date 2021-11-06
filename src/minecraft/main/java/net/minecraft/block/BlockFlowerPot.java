@@ -39,13 +39,10 @@ public class BlockFlowerPot extends BlockContainer
 
     public BlockFlowerPot()
     {
-        super(Material.CIRCUITS);
-        this.setDefaultState(this.blockState.getBaseState().withProperty(CONTENTS, BlockFlowerPot.EnumFlowerType.EMPTY).withProperty(LEGACY_DATA, Integer.valueOf(0)));
+        super(Material.MISCELLANEOUS);
+        this.setDefaultState(this.stateContainer.getBaseState().withProperty(CONTENTS, BlockFlowerPot.EnumFlowerType.EMPTY).withProperty(LEGACY_DATA, Integer.valueOf(0)));
     }
 
-    /**
-     * Gets the localized name of this block. Used for the statistics page.
-     */
     public String getLocalizedName()
     {
         return I18n.translateToLocal("item.flowerPot.name");
@@ -56,9 +53,6 @@ public class BlockFlowerPot extends BlockContainer
         return FLOWER_POT_AABB;
     }
 
-    /**
-     * Used to determine ambient occlusion and culling when rebuilding chunks for render
-     */
     public boolean isOpaqueCube(IBlockState state)
     {
         return false;
@@ -67,6 +61,7 @@ public class BlockFlowerPot extends BlockContainer
     /**
      * The type of render function called. MODEL for mixed tesr and static model, MODELBLOCK_ANIMATED for TESR-only,
      * LIQUID for vanilla liquids, INVISIBLE to skip all rendering
+     * @deprecated call via {@link IBlockState#getRenderType()} whenever possible. Implementing/overriding is fine.
      */
     public EnumBlockRenderType getRenderType(IBlockState state)
     {
@@ -78,9 +73,6 @@ public class BlockFlowerPot extends BlockContainer
         return false;
     }
 
-    /**
-     * Called when the block is right clicked by a player.
-     */
     public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
         ItemStack itemstack = playerIn.getHeldItem(hand);
@@ -102,9 +94,9 @@ public class BlockFlowerPot extends BlockContainer
                 }
 
                 tileentityflowerpot.setItemStack(itemstack);
-                playerIn.addStat(StatList.FLOWER_POTTED);
+                playerIn.addStat(StatList.POT_FLOWER);
 
-                if (!playerIn.capabilities.isCreativeMode)
+                if (!playerIn.abilities.isCreativeMode)
                 {
                     itemstack.shrink(1);
                 }
@@ -166,11 +158,6 @@ public class BlockFlowerPot extends BlockContainer
         return super.canPlaceBlockAt(worldIn, pos) && worldIn.getBlockState(pos.down()).isTopSolid();
     }
 
-    /**
-     * Called when a neighboring block was changed and marks that this state should perform any checks during a neighbor
-     * change. Cases may include when redstone power is updated, cactus blocks popping off due to a neighboring solid
-     * block, etc.
-     */
     public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos)
     {
         if (!worldIn.getBlockState(pos.down()).isTopSolid())
@@ -180,9 +167,6 @@ public class BlockFlowerPot extends BlockContainer
         }
     }
 
-    /**
-     * Called serverside after this block is replaced with another in Chunk, but before the Tile Entity is updated
-     */
     public void breakBlock(World worldIn, BlockPos pos, IBlockState state)
     {
         TileEntityFlowerPot tileentityflowerpot = this.getTileEntity(worldIn, pos);
@@ -203,7 +187,7 @@ public class BlockFlowerPot extends BlockContainer
     {
         super.onBlockHarvested(worldIn, pos, state, player);
 
-        if (player.capabilities.isCreativeMode)
+        if (player.abilities.isCreativeMode)
         {
             TileEntityFlowerPot tileentityflowerpot = this.getTileEntity(worldIn, pos);
 
@@ -214,9 +198,6 @@ public class BlockFlowerPot extends BlockContainer
         }
     }
 
-    /**
-     * Get the Item that this Block should drop when harvested.
-     */
     public Item getItemDropped(IBlockState state, Random rand, int fortune)
     {
         return Items.FLOWER_POT;
@@ -229,9 +210,6 @@ public class BlockFlowerPot extends BlockContainer
         return tileentity instanceof TileEntityFlowerPot ? (TileEntityFlowerPot)tileentity : null;
     }
 
-    /**
-     * Returns a new instance of a block's tile entity class. Called on placing the block.
-     */
     public TileEntity createNewTileEntity(World worldIn, int meta)
     {
         Block block = null;
@@ -307,18 +285,11 @@ public class BlockFlowerPot extends BlockContainer
         return new BlockStateContainer(this, new IProperty[] {CONTENTS, LEGACY_DATA});
     }
 
-    /**
-     * Convert the BlockState into the correct metadata value
-     */
     public int getMetaFromState(IBlockState state)
     {
-        return ((Integer)state.getValue(LEGACY_DATA)).intValue();
+        return ((Integer)state.get(LEGACY_DATA)).intValue();
     }
 
-    /**
-     * Get the actual Block state of this Block at the given position. This applies properties not visible in the
-     * metadata, such as fence connections.
-     */
     public IBlockState getActualState(IBlockState state, IBlockAccess worldIn, BlockPos pos)
     {
         BlockFlowerPot.EnumFlowerType blockflowerpot$enumflowertype = BlockFlowerPot.EnumFlowerType.EMPTY;
@@ -452,12 +423,12 @@ public class BlockFlowerPot extends BlockContainer
         return state.withProperty(CONTENTS, blockflowerpot$enumflowertype);
     }
 
-    public BlockRenderLayer getBlockLayer()
+    public BlockRenderLayer getRenderLayer()
     {
         return BlockRenderLayer.CUTOUT;
     }
 
-    public BlockFaceShape getBlockFaceShape(IBlockAccess p_193383_1_, IBlockState p_193383_2_, BlockPos p_193383_3_, EnumFacing p_193383_4_)
+    public BlockFaceShape getBlockFaceShape(IBlockAccess worldIn, IBlockState state, BlockPos pos, EnumFacing face)
     {
         return BlockFaceShape.UNDEFINED;
     }

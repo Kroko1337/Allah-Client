@@ -15,10 +15,6 @@ import net.minecraft.world.biome.Biome;
 public class MapGenStronghold extends MapGenStructure
 {
     private final List<Biome> allowedBiomes;
-
-    /**
-     * is spawned false and set true once the defined BiomeGenBases were compared with the present ones
-     */
     private boolean ranBiomeCheck;
     private ChunkPos[] structureCoords;
     private double distance;
@@ -33,7 +29,7 @@ public class MapGenStronghold extends MapGenStructure
 
         for (Biome biome : Biome.REGISTRY)
         {
-            if (biome != null && biome.getBaseHeight() > 0.0F)
+            if (biome != null && biome.getDepth() > 0.0F)
             {
                 this.allowedBiomes.add(biome);
             }

@@ -13,12 +13,14 @@ public class TileEntityEnderChest extends TileEntity implements ITickable
     /** The angle of the ender chest lid last tick */
     public float prevLidAngle;
     public int numPlayersUsing;
-    private int ticksSinceSync;
 
     /**
-     * Like the old updateEntity(), except more generic.
+     * A counter that is incremented once each tick. Used to determine when to determine when to sync with the client;
+     * this happens every 80 ticks. However, the number of players is not re-counted.
      */
-    public void update()
+    private int ticksSinceSync;
+
+    public void tick()
     {
         if (++this.ticksSinceSync % 20 * 4 == 0)
         {
@@ -35,7 +37,7 @@ public class TileEntityEnderChest extends TileEntity implements ITickable
         {
             double d0 = (double)i + 0.5D;
             double d1 = (double)k + 0.5D;
-            this.world.playSound((EntityPlayer)null, d0, (double)j + 0.5D, d1, SoundEvents.BLOCK_ENDERCHEST_OPEN, SoundCategory.BLOCKS, 0.5F, this.world.rand.nextFloat() * 0.1F + 0.9F);
+            this.world.playSound((EntityPlayer)null, d0, (double)j + 0.5D, d1, SoundEvents.BLOCK_ENDER_CHEST_OPEN, SoundCategory.BLOCKS, 0.5F, this.world.rand.nextFloat() * 0.1F + 0.9F);
         }
 
         if (this.numPlayersUsing == 0 && this.lidAngle > 0.0F || this.numPlayersUsing > 0 && this.lidAngle < 1.0F)
@@ -62,7 +64,7 @@ public class TileEntityEnderChest extends TileEntity implements ITickable
             {
                 double d3 = (double)i + 0.5D;
                 double d2 = (double)k + 0.5D;
-                this.world.playSound((EntityPlayer)null, d3, (double)j + 0.5D, d2, SoundEvents.BLOCK_ENDERCHEST_CLOSE, SoundCategory.BLOCKS, 0.5F, this.world.rand.nextFloat() * 0.1F + 0.9F);
+                this.world.playSound((EntityPlayer)null, d3, (double)j + 0.5D, d2, SoundEvents.BLOCK_ENDER_CHEST_CLOSE, SoundCategory.BLOCKS, 0.5F, this.world.rand.nextFloat() * 0.1F + 0.9F);
             }
 
             if (this.lidAngle < 0.0F)
@@ -72,6 +74,10 @@ public class TileEntityEnderChest extends TileEntity implements ITickable
         }
     }
 
+    /**
+     * See {@link Block#eventReceived} for more information. This must return true serverside before it is called
+     * clientside.
+     */
     public boolean receiveClientEvent(int id, int type)
     {
         if (id == 1)
@@ -88,10 +94,10 @@ public class TileEntityEnderChest extends TileEntity implements ITickable
     /**
      * invalidates a tile entity
      */
-    public void invalidate()
+    public void remove()
     {
         this.updateContainingBlockInfo();
-        super.invalidate();
+        super.remove();
     }
 
     public void openChest()

@@ -36,7 +36,7 @@ public abstract class EntityMob extends EntityCreature implements IMob
      * Called frequently so the entity can update its state every tick as required. For example, zombies and skeletons
      * use this to react to sunlight and start to burn.
      */
-    public void onLivingUpdate()
+    public void livingTick()
     {
         this.updateArmSwingProgress();
         float f = this.getBrightness();
@@ -46,19 +46,19 @@ public abstract class EntityMob extends EntityCreature implements IMob
             this.idleTime += 2;
         }
 
-        super.onLivingUpdate();
+        super.livingTick();
     }
 
     /**
      * Called to update the entity's position/logic.
      */
-    public void onUpdate()
+    public void tick()
     {
-        super.onUpdate();
+        super.tick();
 
         if (!this.world.isRemote && this.world.getDifficulty() == EnumDifficulty.PEACEFUL)
         {
-            this.setDead();
+            this.remove();
         }
     }
 
@@ -77,7 +77,7 @@ public abstract class EntityMob extends EntityCreature implements IMob
      */
     public boolean attackEntityFrom(DamageSource source, float amount)
     {
-        return this.isEntityInvulnerable(source) ? false : super.attackEntityFrom(source, amount);
+        return this.isInvulnerableTo(source) ? false : super.attackEntityFrom(source, amount);
     }
 
     protected SoundEvent getHurtSound(DamageSource damageSourceIn)
@@ -97,7 +97,7 @@ public abstract class EntityMob extends EntityCreature implements IMob
 
     public boolean attackEntityAsMob(Entity entityIn)
     {
-        float f = (float)this.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).getAttributeValue();
+        float f = (float)this.getAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).getValue();
         int i = 0;
 
         if (entityIn instanceof EntityLivingBase)
@@ -153,12 +153,9 @@ public abstract class EntityMob extends EntityCreature implements IMob
         return 0.5F - this.world.getLightBrightness(pos);
     }
 
-    /**
-     * Checks to make sure the light is not too bright where the mob is spawning
-     */
     protected boolean isValidLightLevel()
     {
-        BlockPos blockpos = new BlockPos(this.posX, this.getEntityBoundingBox().minY, this.posZ);
+        BlockPos blockpos = new BlockPos(this.posX, this.getBoundingBox().minY, this.posZ);
 
         if (this.world.getLightFor(EnumSkyBlock.SKY, blockpos) > this.rand.nextInt(32))
         {
@@ -180,18 +177,15 @@ public abstract class EntityMob extends EntityCreature implements IMob
         }
     }
 
-    /**
-     * Checks if the entity's current position is a valid location to spawn this entity.
-     */
     public boolean getCanSpawnHere()
     {
         return this.world.getDifficulty() != EnumDifficulty.PEACEFUL && this.isValidLightLevel() && super.getCanSpawnHere();
     }
 
-    protected void applyEntityAttributes()
+    protected void registerAttributes()
     {
-        super.applyEntityAttributes();
-        this.getAttributeMap().registerAttribute(SharedMonsterAttributes.ATTACK_DAMAGE);
+        super.registerAttributes();
+        this.getAttributes().registerAttribute(SharedMonsterAttributes.ATTACK_DAMAGE);
     }
 
     /**

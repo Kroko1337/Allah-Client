@@ -27,35 +27,23 @@ public class GuiMerchant extends GuiContainer
 
     /** The GUI texture for the villager merchant GUI. */
     private static final ResourceLocation MERCHANT_GUI_TEXTURE = new ResourceLocation("textures/gui/container/villager.png");
-
-    /** The current IMerchant instance in use for this specific merchant. */
     private final IMerchant merchant;
-
-    /** The button which proceeds to the next available merchant recipe. */
     private GuiMerchant.MerchantButton nextButton;
-
-    /** Returns to the previous Merchant recipe if one is applicable. */
     private GuiMerchant.MerchantButton previousButton;
 
     /**
      * The integer value corresponding to the currently selected merchant recipe.
      */
     private int selectedMerchantRecipe;
-
-    /** The chat component utilized by this GuiMerchant instance. */
     private final ITextComponent chatComponent;
 
-    public GuiMerchant(InventoryPlayer p_i45500_1_, IMerchant p_i45500_2_, World worldIn)
+    public GuiMerchant(InventoryPlayer playerInventoryIn, IMerchant merchantIn, World worldIn)
     {
-        super(new ContainerMerchant(p_i45500_1_, p_i45500_2_, worldIn));
-        this.merchant = p_i45500_2_;
-        this.chatComponent = p_i45500_2_.getDisplayName();
+        super(new ContainerMerchant(playerInventoryIn, merchantIn, worldIn));
+        this.merchant = merchantIn;
+        this.chatComponent = merchantIn.getDisplayName();
     }
 
-    /**
-     * Adds the buttons (and other controls) to the screen in question. Called when the GUI is displayed and when the
-     * window resizes, the buttonList is cleared beforehand.
-     */
     public void initGui()
     {
         super.initGui();
@@ -77,9 +65,6 @@ public class GuiMerchant extends GuiContainer
         this.fontRenderer.drawString(I18n.format("container.inventory"), 8, this.ySize - 96 + 2, 4210752);
     }
 
-    /**
-     * Called from the main game loop to update the screen.
-     */
     public void updateScreen()
     {
         super.updateScreen();
@@ -92,9 +77,6 @@ public class GuiMerchant extends GuiContainer
         }
     }
 
-    /**
-     * Called by the controls from the buttonList when activated. (Mouse pressed for buttons)
-     */
     protected void actionPerformed(GuiButton button) throws IOException
     {
         boolean flag = false;
@@ -125,7 +107,7 @@ public class GuiMerchant extends GuiContainer
 
         if (flag)
         {
-            ((ContainerMerchant)this.inventorySlots).setCurrentRecipeIndex(this.selectedMerchantRecipe);
+            ((ContainerMerchant)this.container).setCurrentRecipeIndex(this.selectedMerchantRecipe);
             PacketBuffer packetbuffer = new PacketBuffer(Unpooled.buffer());
             packetbuffer.writeInt(this.selectedMerchantRecipe);
             this.mc.getConnection().sendPacket(new CPacketCustomPayload("MC|TrSel", packetbuffer));
@@ -166,9 +148,6 @@ public class GuiMerchant extends GuiContainer
         }
     }
 
-    /**
-     * Draws the screen and all the components in it.
-     */
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         this.drawDefaultBackground();

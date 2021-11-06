@@ -21,9 +21,6 @@ public class ModelEvokerFangs extends ModelBase
         this.lowerJaw.addBox(0.0F, 0.0F, 0.0F, 4, 14, 8);
     }
 
-    /**
-     * Sets the models various rotation angles then renders the model.
-     */
     public void render(Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale)
     {
         float f = limbSwing * 2.0F;

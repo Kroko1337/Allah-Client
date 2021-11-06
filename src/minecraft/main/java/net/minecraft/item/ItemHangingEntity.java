@@ -22,9 +22,6 @@ public class ItemHangingEntity extends Item
         this.setCreativeTab(CreativeTabs.DECORATIONS);
     }
 
-    /**
-     * Called when a Block is right-clicked with this Item
-     */
     public EnumActionResult onItemUse(EntityPlayer player, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
         ItemStack itemstack = player.getHeldItem(hand);
@@ -39,7 +36,7 @@ public class ItemHangingEntity extends Item
                 if (!worldIn.isRemote)
                 {
                     entityhanging.playPlaceSound();
-                    worldIn.spawnEntity(entityhanging);
+                    worldIn.addEntity0(entityhanging);
                 }
 
                 itemstack.shrink(1);

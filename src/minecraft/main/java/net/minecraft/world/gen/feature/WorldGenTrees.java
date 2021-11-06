@@ -20,17 +20,9 @@ public class WorldGenTrees extends WorldGenAbstractTree
 {
     private static final IBlockState DEFAULT_TRUNK = Blocks.LOG.getDefaultState().withProperty(BlockOldLog.VARIANT, BlockPlanks.EnumType.OAK);
     private static final IBlockState DEFAULT_LEAF = Blocks.LEAVES.getDefaultState().withProperty(BlockOldLeaf.VARIANT, BlockPlanks.EnumType.OAK).withProperty(BlockLeaves.CHECK_DECAY, Boolean.valueOf(false));
-
-    /** The minimum height of a generated tree. */
     private final int minTreeHeight;
-
-    /** True if this tree should grow Vines. */
     private final boolean vinesGrow;
-
-    /** The metadata value of the wood to use in tree generation. */
     private final IBlockState metaWood;
-
-    /** The metadata value of the leaves to use in tree generation. */
     private final IBlockState metaLeaves;
 
     public WorldGenTrees(boolean p_i2027_1_)
@@ -121,7 +113,7 @@ public class WorldGenTrees extends WorldGenAbstractTree
                                     BlockPos blockpos = new BlockPos(k1, i3, i2);
                                     Material material = worldIn.getBlockState(blockpos).getMaterial();
 
-                                    if (material == Material.AIR || material == Material.LEAVES || material == Material.VINE)
+                                    if (material == Material.AIR || material == Material.LEAVES || material == Material.TALL_PLANTS)
                                     {
                                         this.setBlockAndNotifyAdequately(worldIn, blockpos, this.metaLeaves);
                                     }
@@ -134,7 +126,7 @@ public class WorldGenTrees extends WorldGenAbstractTree
                     {
                         Material material1 = worldIn.getBlockState(position.up(j3)).getMaterial();
 
-                        if (material1 == Material.AIR || material1 == Material.LEAVES || material1 == Material.VINE)
+                        if (material1 == Material.AIR || material1 == Material.LEAVES || material1 == Material.TALL_PLANTS)
                         {
                             this.setBlockAndNotifyAdequately(worldIn, position.up(j3), this.metaWood);
 
@@ -217,7 +209,7 @@ public class WorldGenTrees extends WorldGenAbstractTree
                                     if (rand.nextInt(4 - l3) == 0)
                                     {
                                         EnumFacing enumfacing1 = enumfacing.getOpposite();
-                                        this.placeCocoa(worldIn, rand.nextInt(3), position.add(enumfacing1.getFrontOffsetX(), i - 5 + l3, enumfacing1.getFrontOffsetZ()), enumfacing);
+                                        this.placeCocoa(worldIn, rand.nextInt(3), position.add(enumfacing1.getXOffset(), i - 5 + l3, enumfacing1.getZOffset()), enumfacing);
                                     }
                                 }
                             }
@@ -240,7 +232,7 @@ public class WorldGenTrees extends WorldGenAbstractTree
 
     private void placeCocoa(World worldIn, int p_181652_2_, BlockPos pos, EnumFacing side)
     {
-        this.setBlockAndNotifyAdequately(worldIn, pos, Blocks.COCOA.getDefaultState().withProperty(BlockCocoa.AGE, Integer.valueOf(p_181652_2_)).withProperty(BlockCocoa.FACING, side));
+        this.setBlockAndNotifyAdequately(worldIn, pos, Blocks.COCOA.getDefaultState().withProperty(BlockCocoa.AGE, Integer.valueOf(p_181652_2_)).withProperty(BlockCocoa.HORIZONTAL_FACING, side));
     }
 
     private void addVine(World worldIn, BlockPos pos, PropertyBool prop)

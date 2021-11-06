@@ -19,26 +19,26 @@ import net.minecraft.world.storage.loot.LootContext;
 
 public class LootConditionManager
 {
-    private static final Map < ResourceLocation, LootCondition.Serializer<? >> NAME_TO_SERIALIZER_MAP = Maps. < ResourceLocation, LootCondition.Serializer<? >> newHashMap();
-    private static final Map < Class <? extends LootCondition > , LootCondition.Serializer<? >> CLASS_TO_SERIALIZER_MAP = Maps. < Class <? extends LootCondition > , LootCondition.Serializer<? >> newHashMap();
+    private static final Map < ResourceLocation, LootCondition.Serializer<? >> BY_NAME = Maps. < ResourceLocation, LootCondition.Serializer<? >> newHashMap();
+    private static final Map < Class <? extends LootCondition > , LootCondition.Serializer<? >> BY_CLASS = Maps. < Class <? extends LootCondition > , LootCondition.Serializer<? >> newHashMap();
 
     public static <T extends LootCondition> void registerCondition(LootCondition.Serializer <? extends T > condition)
     {
         ResourceLocation resourcelocation = condition.getLootTableLocation();
         Class<T> oclass = (Class<T>)condition.getConditionClass();
 
-        if (NAME_TO_SERIALIZER_MAP.containsKey(resourcelocation))
+        if (BY_NAME.containsKey(resourcelocation))
         {
             throw new IllegalArgumentException("Can't re-register item condition name " + resourcelocation);
         }
-        else if (CLASS_TO_SERIALIZER_MAP.containsKey(oclass))
+        else if (BY_CLASS.containsKey(oclass))
         {
             throw new IllegalArgumentException("Can't re-register item condition class " + oclass.getName());
         }
         else
         {
-            NAME_TO_SERIALIZER_MAP.put(resourcelocation, condition);
-            CLASS_TO_SERIALIZER_MAP.put(oclass, condition);
+            BY_NAME.put(resourcelocation, condition);
+            BY_CLASS.put(oclass, condition);
         }
     }
 
@@ -64,7 +64,7 @@ public class LootConditionManager
 
     public static LootCondition.Serializer<?> getSerializerForName(ResourceLocation location)
     {
-        LootCondition.Serializer<?> serializer = (LootCondition.Serializer)NAME_TO_SERIALIZER_MAP.get(location);
+        LootCondition.Serializer<?> serializer = (LootCondition.Serializer)BY_NAME.get(location);
 
         if (serializer == null)
         {
@@ -78,7 +78,7 @@ public class LootConditionManager
 
     public static <T extends LootCondition> LootCondition.Serializer<T> getSerializerFor(T conditionClass)
     {
-        LootCondition.Serializer<T> serializer = (LootCondition.Serializer)CLASS_TO_SERIALIZER_MAP.get(conditionClass.getClass());
+        LootCondition.Serializer<T> serializer = (LootCondition.Serializer)BY_CLASS.get(conditionClass.getClass());
 
         if (serializer == null)
         {

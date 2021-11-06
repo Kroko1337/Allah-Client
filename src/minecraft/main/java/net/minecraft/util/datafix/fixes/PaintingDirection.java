@@ -17,30 +17,30 @@ public class PaintingDirection implements IFixableData
         boolean flag = "Painting".equals(s);
         boolean flag1 = "ItemFrame".equals(s);
 
-        if ((flag || flag1) && !compound.hasKey("Facing", 99))
+        if ((flag || flag1) && !compound.contains("Facing", 99))
         {
             EnumFacing enumfacing;
 
-            if (compound.hasKey("Direction", 99))
+            if (compound.contains("Direction", 99))
             {
-                enumfacing = EnumFacing.getHorizontal(compound.getByte("Direction"));
-                compound.setInteger("TileX", compound.getInteger("TileX") + enumfacing.getFrontOffsetX());
-                compound.setInteger("TileY", compound.getInteger("TileY") + enumfacing.getFrontOffsetY());
-                compound.setInteger("TileZ", compound.getInteger("TileZ") + enumfacing.getFrontOffsetZ());
-                compound.removeTag("Direction");
+                enumfacing = EnumFacing.byHorizontalIndex(compound.getByte("Direction"));
+                compound.putInt("TileX", compound.getInt("TileX") + enumfacing.getXOffset());
+                compound.putInt("TileY", compound.getInt("TileY") + enumfacing.getYOffset());
+                compound.putInt("TileZ", compound.getInt("TileZ") + enumfacing.getZOffset());
+                compound.remove("Direction");
 
-                if (flag1 && compound.hasKey("ItemRotation", 99))
+                if (flag1 && compound.contains("ItemRotation", 99))
                 {
-                    compound.setByte("ItemRotation", (byte)(compound.getByte("ItemRotation") * 2));
+                    compound.putByte("ItemRotation", (byte)(compound.getByte("ItemRotation") * 2));
                 }
             }
             else
             {
-                enumfacing = EnumFacing.getHorizontal(compound.getByte("Dir"));
-                compound.removeTag("Dir");
+                enumfacing = EnumFacing.byHorizontalIndex(compound.getByte("Dir"));
+                compound.remove("Dir");
             }
 
-            compound.setByte("Facing", (byte)enumfacing.getHorizontalIndex());
+            compound.putByte("Facing", (byte)enumfacing.getHorizontalIndex());
         }
 
         return compound;

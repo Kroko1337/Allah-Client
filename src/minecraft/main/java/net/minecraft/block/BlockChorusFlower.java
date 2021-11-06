@@ -29,14 +29,11 @@ public class BlockChorusFlower extends Block
     protected BlockChorusFlower()
     {
         super(Material.PLANTS, MapColor.PURPLE);
-        this.setDefaultState(this.blockState.getBaseState().withProperty(AGE, Integer.valueOf(0)));
+        this.setDefaultState(this.stateContainer.getBaseState().withProperty(AGE, Integer.valueOf(0)));
         this.setCreativeTab(CreativeTabs.DECORATIONS);
         this.setTickRandomly(true);
     }
 
-    /**
-     * Get the Item that this Block should drop when harvested.
-     */
     public Item getItemDropped(IBlockState state, Random rand, int fortune)
     {
         return Items.AIR;
@@ -54,7 +51,7 @@ public class BlockChorusFlower extends Block
 
             if (worldIn.isAirBlock(blockpos) && blockpos.getY() < 256)
             {
-                int i = ((Integer)state.getValue(AGE)).intValue();
+                int i = ((Integer)state.get(AGE)).intValue();
 
                 if (i < 5 && rand.nextInt(1) == 0)
                 {
@@ -180,9 +177,6 @@ public class BlockChorusFlower extends Block
         return false;
     }
 
-    /**
-     * Used to determine ambient occlusion and culling when rebuilding chunks for render
-     */
     public boolean isOpaqueCube(IBlockState state)
     {
         return false;
@@ -193,11 +187,6 @@ public class BlockChorusFlower extends Block
         return super.canPlaceBlockAt(worldIn, pos) && this.canSurvive(worldIn, pos);
     }
 
-    /**
-     * Called when a neighboring block was changed and marks that this state should perform any checks during a neighbor
-     * change. Cases may include when redstone power is updated, cactus blocks popping off due to a neighboring solid
-     * block, etc.
-     */
     public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos)
     {
         if (!this.canSurvive(worldIn, pos))
@@ -260,25 +249,19 @@ public class BlockChorusFlower extends Block
         return ItemStack.EMPTY;
     }
 
-    public BlockRenderLayer getBlockLayer()
+    public BlockRenderLayer getRenderLayer()
     {
         return BlockRenderLayer.CUTOUT;
     }
 
-    /**
-     * Convert the given metadata into a BlockState for this Block
-     */
     public IBlockState getStateFromMeta(int meta)
     {
         return this.getDefaultState().withProperty(AGE, Integer.valueOf(meta));
     }
 
-    /**
-     * Convert the BlockState into the correct metadata value
-     */
     public int getMetaFromState(IBlockState state)
     {
-        return ((Integer)state.getValue(AGE)).intValue();
+        return ((Integer)state.get(AGE)).intValue();
     }
 
     protected BlockStateContainer createBlockState()
@@ -344,7 +327,7 @@ public class BlockChorusFlower extends Block
         }
     }
 
-    public BlockFaceShape getBlockFaceShape(IBlockAccess p_193383_1_, IBlockState p_193383_2_, BlockPos p_193383_3_, EnumFacing p_193383_4_)
+    public BlockFaceShape getBlockFaceShape(IBlockAccess worldIn, IBlockState state, BlockPos pos, EnumFacing face)
     {
         return BlockFaceShape.UNDEFINED;
     }

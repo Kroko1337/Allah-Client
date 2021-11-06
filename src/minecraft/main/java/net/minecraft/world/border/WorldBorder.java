@@ -17,7 +17,7 @@ public class WorldBorder
     private long endTime;
     private long startTime;
     private int worldSize;
-    private double damageAmount;
+    private double damagePerBlock;
     private double damageBuffer;
     private int warningTime;
     private int warningDistance;
@@ -26,7 +26,7 @@ public class WorldBorder
     {
         this.endDiameter = this.startDiameter;
         this.worldSize = 29999984;
-        this.damageAmount = 0.2D;
+        this.damagePerBlock = 0.2D;
         this.damageBuffer = 5.0D;
         this.warningTime = 15;
         this.warningDistance = 5;
@@ -232,14 +232,14 @@ public class WorldBorder
         }
     }
 
-    public double getDamageAmount()
+    public double getDamagePerBlock()
     {
-        return this.damageAmount;
+        return this.damagePerBlock;
     }
 
-    public void setDamageAmount(double newAmount)
+    public void setDamagePerBlock(double newAmount)
     {
-        this.damageAmount = newAmount;
+        this.damagePerBlock = newAmount;
 
         for (IBorderListener iborderlistener : this.getListeners())
         {

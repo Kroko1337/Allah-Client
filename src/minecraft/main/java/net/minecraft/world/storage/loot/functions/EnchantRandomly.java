@@ -65,7 +65,7 @@ public class EnchantRandomly extends LootFunction
             enchantment = this.enchantments.get(rand.nextInt(this.enchantments.size()));
         }
 
-        int i = MathHelper.getInt(rand, enchantment.getMinLevel(), enchantment.getMaxLevel());
+        int i = MathHelper.nextInt(rand, enchantment.getMinLevel(), enchantment.getMaxLevel());
 
         if (stack.getItem() == Items.BOOK)
         {
@@ -95,7 +95,7 @@ public class EnchantRandomly extends LootFunction
 
                 for (Enchantment enchantment : functionClazz.enchantments)
                 {
-                    ResourceLocation resourcelocation = Enchantment.REGISTRY.getNameForObject(enchantment);
+                    ResourceLocation resourcelocation = Enchantment.REGISTRY.getKey(enchantment);
 
                     if (resourcelocation == null)
                     {
@@ -118,7 +118,7 @@ public class EnchantRandomly extends LootFunction
                 for (JsonElement jsonelement : JsonUtils.getJsonArray(object, "enchantments"))
                 {
                     String s = JsonUtils.getString(jsonelement, "enchantment");
-                    Enchantment enchantment = Enchantment.REGISTRY.getObject(new ResourceLocation(s));
+                    Enchantment enchantment = Enchantment.REGISTRY.getOrDefault(new ResourceLocation(s));
 
                     if (enchantment == null)
                     {

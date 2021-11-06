@@ -22,7 +22,7 @@ import org.apache.logging.log4j.Logger;
 public abstract class AbstractResourcePack implements IResourcePack
 {
     private static final Logger LOGGER = LogManager.getLogger();
-    public final File resourcePackFile;
+    protected final File resourcePackFile;
 
     public AbstractResourcePack(File resourcePackFileIn)
     {
@@ -31,7 +31,7 @@ public abstract class AbstractResourcePack implements IResourcePack
 
     private static String locationToName(ResourceLocation location)
     {
-        return String.format("%s/%s/%s", "assets", location.getResourceDomain(), location.getResourcePath());
+        return String.format("%s/%s/%s", "assets", location.getNamespace(), location.getPath());
     }
 
     protected static String getRelativeName(File p_110595_0_, File p_110595_1_)

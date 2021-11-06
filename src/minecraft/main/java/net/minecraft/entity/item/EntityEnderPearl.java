@@ -1,6 +1,8 @@
 package net.minecraft.entity.item;
 
+import javax.annotation.Nullable;
 import net.minecraft.advancements.CriteriaTriggers;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntityEndermite;
 import net.minecraft.entity.player.EntityPlayer;
@@ -17,7 +19,7 @@ import net.minecraft.world.World;
 
 public class EntityEnderPearl extends EntityThrowable
 {
-    private EntityLivingBase thrower;
+    private EntityLivingBase perlThrower;
 
     public EntityEnderPearl(World worldIn)
     {
@@ -27,7 +29,7 @@ public class EntityEnderPearl extends EntityThrowable
     public EntityEnderPearl(World worldIn, EntityLivingBase throwerIn)
     {
         super(worldIn, throwerIn);
-        this.thrower = throwerIn;
+        this.perlThrower = throwerIn;
     }
 
     public EntityEnderPearl(World worldIn, double x, double y, double z)
@@ -49,7 +51,7 @@ public class EntityEnderPearl extends EntityThrowable
 
         if (result.entityHit != null)
         {
-            if (result.entityHit == this.thrower)
+            if (result.entityHit == this.perlThrower)
             {
                 return;
             }
@@ -74,7 +76,7 @@ public class EntityEnderPearl extends EntityThrowable
                     }
 
                     tileentityendgateway.teleportEntity(entitylivingbase);
-                    this.setDead();
+                    this.remove();
                     return;
                 }
 
@@ -94,19 +96,19 @@ public class EntityEnderPearl extends EntityThrowable
             {
                 EntityPlayerMP entityplayermp = (EntityPlayerMP)entitylivingbase;
 
-                if (entityplayermp.connection.getNetworkManager().isChannelOpen() && entityplayermp.world == this.world && !entityplayermp.isPlayerSleeping())
+                if (entityplayermp.connection.getNetworkManager().isChannelOpen() && entityplayermp.world == this.world && !entityplayermp.isSleeping())
                 {
                     if (this.rand.nextFloat() < 0.05F && this.world.getGameRules().getBoolean("doMobSpawning"))
                     {
                         EntityEndermite entityendermite = new EntityEndermite(this.world);
                         entityendermite.setSpawnedByPlayer(true);
                         entityendermite.setLocationAndAngles(entitylivingbase.posX, entitylivingbase.posY, entitylivingbase.posZ, entitylivingbase.rotationYaw, entitylivingbase.rotationPitch);
-                        this.world.spawnEntity(entityendermite);
+                        this.world.addEntity0(entityendermite);
                     }
 
-                    if (entitylivingbase.isRiding())
+                    if (entitylivingbase.isPassenger())
                     {
-                        entitylivingbase.dismountRidingEntity();
+                        entitylivingbase.stopRiding();
                     }
 
                     entitylivingbase.setPositionAndUpdate(this.posX, this.posY, this.posZ);
@@ -120,24 +122,35 @@ public class EntityEnderPearl extends EntityThrowable
                 entitylivingbase.fallDistance = 0.0F;
             }
 
-            this.setDead();
+            this.remove();
         }
     }
 
     /**
      * Called to update the entity's position/logic.
      */
-    public void onUpdate()
+    public void tick()
     {
         EntityLivingBase entitylivingbase = this.getThrower();
 
-        if (entitylivingbase != null && entitylivingbase instanceof EntityPlayer && !entitylivingbase.isEntityAlive())
+        if (entitylivingbase != null && entitylivingbase instanceof EntityPlayer && !entitylivingbase.isAlive())
         {
-            this.setDead();
+            this.remove();
         }
         else
         {
-            super.onUpdate();
+            super.tick();
         }
+    }
+
+    @Nullable
+    public Entity changeDimension(int dimensionIn)
+    {
+        if (this.owner.dimension != dimensionIn)
+        {
+            this.owner = null;
+        }
+
+        return super.changeDimension(dimensionIn);
     }
 }

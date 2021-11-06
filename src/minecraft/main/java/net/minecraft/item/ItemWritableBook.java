@@ -33,17 +33,17 @@ public class ItemWritableBook extends Item
         {
             return false;
         }
-        else if (!nbt.hasKey("pages", 9))
+        else if (!nbt.contains("pages", 9))
         {
             return false;
         }
         else
         {
-            NBTTagList nbttaglist = nbt.getTagList("pages", 8);
+            NBTTagList nbttaglist = nbt.getList("pages", 8);
 
             for (int i = 0; i < nbttaglist.tagCount(); ++i)
             {
-                String s = nbttaglist.getStringTagAt(i);
+                String s = nbttaglist.getString(i);
 
                 if (s.length() > 32767)
                 {

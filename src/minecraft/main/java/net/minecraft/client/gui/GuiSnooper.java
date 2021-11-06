@@ -10,8 +10,6 @@ import net.minecraft.client.settings.GameSettings;
 public class GuiSnooper extends GuiScreen
 {
     private final GuiScreen lastScreen;
-
-    /** Reference to the GameSettings object. */
     private final GameSettings game_settings_2;
     private final java.util.List<String> keys = Lists.<String>newArrayList();
     private final java.util.List<String> values = Lists.<String>newArrayList();
@@ -26,10 +24,6 @@ public class GuiSnooper extends GuiScreen
         this.game_settings_2 = p_i1061_2_;
     }
 
-    /**
-     * Adds the buttons (and other controls) to the screen in question. Called when the GUI is displayed and when the
-     * window resizes, the buttonList is cleared beforehand.
-     */
     public void initGui()
     {
         this.title = I18n.format("options.snooper.title");
@@ -46,9 +40,9 @@ public class GuiSnooper extends GuiScreen
         this.values.clear();
         this.toggleButton = this.addButton(new GuiButton(1, this.width / 2 - 152, this.height - 30, 150, 20, this.game_settings_2.getKeyBinding(GameSettings.Options.SNOOPER_ENABLED)));
         this.buttonList.add(new GuiButton(2, this.width / 2 + 2, this.height - 30, 150, 20, I18n.format("gui.done")));
-        boolean flag = this.mc.getIntegratedServer() != null && this.mc.getIntegratedServer().getPlayerUsageSnooper() != null;
+        boolean flag = this.mc.getIntegratedServer() != null && this.mc.getIntegratedServer().getSnooper() != null;
 
-        for (Entry<String, String> entry : (new TreeMap<String, String>(this.mc.getPlayerUsageSnooper().getCurrentStats())).entrySet())
+        for (Entry<String, String> entry : (new TreeMap<String, String>(this.mc.getSnooper().getCurrentStats())).entrySet())
         {
             this.keys.add((flag ? "C " : "") + (String)entry.getKey());
             this.values.add(this.fontRenderer.trimStringToWidth(entry.getValue(), this.width - 220));
@@ -56,7 +50,7 @@ public class GuiSnooper extends GuiScreen
 
         if (flag)
         {
-            for (Entry<String, String> entry1 : (new TreeMap<String, String>(this.mc.getIntegratedServer().getPlayerUsageSnooper().getCurrentStats())).entrySet())
+            for (Entry<String, String> entry1 : (new TreeMap<String, String>(this.mc.getIntegratedServer().getSnooper().getCurrentStats())).entrySet())
             {
                 this.keys.add("S " + (String)entry1.getKey());
                 this.values.add(this.fontRenderer.trimStringToWidth(entry1.getValue(), this.width - 220));
@@ -66,18 +60,12 @@ public class GuiSnooper extends GuiScreen
         this.list = new GuiSnooper.List();
     }
 
-    /**
-     * Handles mouse input.
-     */
     public void handleMouseInput() throws IOException
     {
         super.handleMouseInput();
         this.list.handleMouseInput();
     }
 
-    /**
-     * Called by the controls from the buttonList when activated. (Mouse pressed for buttons)
-     */
     protected void actionPerformed(GuiButton button) throws IOException
     {
         if (button.enabled)
@@ -97,9 +85,6 @@ public class GuiSnooper extends GuiScreen
         }
     }
 
-    /**
-     * Draws the screen and all the components in it.
-     */
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         this.drawDefaultBackground();
@@ -141,10 +126,10 @@ public class GuiSnooper extends GuiScreen
         {
         }
 
-        protected void drawSlot(int p_192637_1_, int p_192637_2_, int p_192637_3_, int p_192637_4_, int p_192637_5_, int p_192637_6_, float p_192637_7_)
+        protected void drawSlot(int slotIndex, int xPos, int yPos, int heightIn, int mouseXIn, int mouseYIn, float partialTicks)
         {
-            GuiSnooper.this.fontRenderer.drawString(GuiSnooper.this.keys.get(p_192637_1_), 10, p_192637_3_, 16777215);
-            GuiSnooper.this.fontRenderer.drawString(GuiSnooper.this.values.get(p_192637_1_), 230, p_192637_3_, 16777215);
+            GuiSnooper.this.fontRenderer.drawString(GuiSnooper.this.keys.get(slotIndex), 10, yPos, 16777215);
+            GuiSnooper.this.fontRenderer.drawString(GuiSnooper.this.values.get(slotIndex), 230, yPos, 16777215);
         }
 
         protected int getScrollBarX()

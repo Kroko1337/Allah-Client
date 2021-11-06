@@ -40,9 +40,6 @@ import net.minecraft.world.World;
 
 public class EntitySelector
 {
-    /**
-     * This matches the at-tokens introduced for command blocks, including their arguments, if any.
-     */
     private static final Pattern TOKEN_PATTERN = Pattern.compile("^@([pares])(?:\\[([^ ]*)\\])?$");
     private static final Splitter COMMA_SPLITTER = Splitter.on(',').omitEmptyStrings();
     private static final Splitter EQUAL_SPLITTER = Splitter.on('=').limit(2);
@@ -83,10 +80,6 @@ public class EntitySelector
     }
 
     @Nullable
-
-    /**
-     * Returns the one player that matches the given at-token.  Returns null if more than one player matches.
-     */
     public static EntityPlayerMP matchOnePlayer(ICommandSender sender, String token) throws CommandException
     {
         return (EntityPlayerMP)matchOneEntity(sender, token, EntityPlayerMP.class);
@@ -174,7 +167,7 @@ public class EntitySelector
                                     int k = getInt(map, ARGUMENT_DELTA_Z, 0);
                                     AxisAlignedBB axisalignedbb = getAABB(blockpos, i, j, k);
 
-                                    if (!axisalignedbb.intersects(entity.getEntityBoundingBox()))
+                                    if (!axisalignedbb.intersects(entity.getBoundingBox()))
                                     {
                                         return Collections.<T>emptyList();
                                     }
@@ -556,8 +549,8 @@ public class EntitySelector
 
         if (params.containsKey(ARGUMENT_ROTY_MIN) || params.containsKey(ARGUMENT_ROTY_MAX))
         {
-            final int i = MathHelper.clampAngle(getInt(params, ARGUMENT_ROTY_MIN, 0));
-            final int j = MathHelper.clampAngle(getInt(params, ARGUMENT_ROTY_MAX, 359));
+            final int i = MathHelper.wrapDegrees(getInt(params, ARGUMENT_ROTY_MIN, 0));
+            final int j = MathHelper.wrapDegrees(getInt(params, ARGUMENT_ROTY_MAX, 359));
             list.add(new Predicate<Entity>()
             {
                 public boolean apply(@Nullable Entity p_apply_1_)
@@ -568,7 +561,7 @@ public class EntitySelector
                     }
                     else
                     {
-                        int i1 = MathHelper.clampAngle(MathHelper.floor(p_apply_1_.rotationYaw));
+                        int i1 = MathHelper.wrapDegrees(MathHelper.floor(p_apply_1_.rotationYaw));
 
                         if (i > j)
                         {
@@ -585,8 +578,8 @@ public class EntitySelector
 
         if (params.containsKey(ARGUMENT_ROTX_MIN) || params.containsKey(ARGUMENT_ROTX_MAX))
         {
-            final int k = MathHelper.clampAngle(getInt(params, ARGUMENT_ROTX_MIN, 0));
-            final int l = MathHelper.clampAngle(getInt(params, ARGUMENT_ROTX_MAX, 359));
+            final int k = MathHelper.wrapDegrees(getInt(params, ARGUMENT_ROTX_MIN, 0));
+            final int l = MathHelper.wrapDegrees(getInt(params, ARGUMENT_ROTX_MAX, 359));
             list.add(new Predicate<Entity>()
             {
                 public boolean apply(@Nullable Entity p_apply_1_)
@@ -597,7 +590,7 @@ public class EntitySelector
                     }
                     else
                     {
-                        int i1 = MathHelper.clampAngle(MathHelper.floor(p_apply_1_.rotationPitch));
+                        int i1 = MathHelper.wrapDegrees(MathHelper.floor(p_apply_1_.rotationPitch));
 
                         if (k > l)
                         {
@@ -667,7 +660,7 @@ public class EntitySelector
                 {
                     public boolean apply(@Nullable Entity p_apply_1_)
                     {
-                        return p_apply_1_ != null && axisalignedbb.intersects(p_apply_1_.getEntityBoundingBox());
+                        return p_apply_1_ != null && axisalignedbb.intersects(p_apply_1_.getBoundingBox());
                     }
                 };
                 list.addAll(worldIn.getPlayers(entityClass, Predicates.and(predicate1, predicate2)));
@@ -791,9 +784,6 @@ public class EntitySelector
         return map;
     }
 
-    /**
-     * Returns whether the given pattern can match more than one player.
-     */
     public static boolean matchesMultiplePlayers(String selectorStr) throws CommandException
     {
         Matcher matcher = TOKEN_PATTERN.matcher(selectorStr);
@@ -811,9 +801,6 @@ public class EntitySelector
         }
     }
 
-    /**
-     * Returns whether the given string represents a selector.
-     */
     public static boolean isSelector(String selectorStr)
     {
         return TOKEN_PATTERN.matcher(selectorStr).matches();

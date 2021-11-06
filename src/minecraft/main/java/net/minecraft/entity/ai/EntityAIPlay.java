@@ -20,7 +20,8 @@ public class EntityAIPlay extends EntityAIBase
     }
 
     /**
-     * Returns whether the EntityAIBase should begin execution.
+     * Returns whether execution should begin. You can also read and cache any state necessary for execution in this
+     * method as well.
      */
     public boolean shouldExecute()
     {
@@ -34,14 +35,14 @@ public class EntityAIPlay extends EntityAIBase
         }
         else
         {
-            List<EntityVillager> list = this.villager.world.<EntityVillager>getEntitiesWithinAABB(EntityVillager.class, this.villager.getEntityBoundingBox().grow(6.0D, 3.0D, 6.0D));
+            List<EntityVillager> list = this.villager.world.<EntityVillager>getEntitiesWithinAABB(EntityVillager.class, this.villager.getBoundingBox().grow(6.0D, 3.0D, 6.0D));
             double d0 = Double.MAX_VALUE;
 
             for (EntityVillager entityvillager : list)
             {
                 if (entityvillager != this.villager && !entityvillager.isPlaying() && entityvillager.getGrowingAge() < 0)
                 {
-                    double d1 = entityvillager.getDistanceSqToEntity(this.villager);
+                    double d1 = entityvillager.getDistanceSq(this.villager);
 
                     if (d1 <= d0)
                     {
@@ -98,13 +99,13 @@ public class EntityAIPlay extends EntityAIBase
     /**
      * Keep ticking a continuous task that has already been started
      */
-    public void updateTask()
+    public void tick()
     {
         --this.playTime;
 
         if (this.targetVillager != null)
         {
-            if (this.villager.getDistanceSqToEntity(this.targetVillager) > 4.0D)
+            if (this.villager.getDistanceSq(this.targetVillager) > 4.0D)
             {
                 this.villager.getNavigator().tryMoveToEntityLiving(this.targetVillager, this.speed);
             }

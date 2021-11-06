@@ -104,7 +104,7 @@ public class ItemDurabilityTrigger implements ICriterionTrigger<ItemDurabilityTr
             }
             else
             {
-                return this.delta.test((float)(item.getItemDamage() - p_193197_2_));
+                return this.delta.test((float)(item.getDamage() - p_193197_2_));
             }
         }
     }

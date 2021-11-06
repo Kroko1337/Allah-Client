@@ -6,7 +6,6 @@ import java.io.IOException;
 
 public class NBTTagInt extends NBTPrimitive
 {
-    /** The integer value for the tag. */
     private int data;
 
     NBTTagInt()

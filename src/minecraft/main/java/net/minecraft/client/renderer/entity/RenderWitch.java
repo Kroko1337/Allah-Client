@@ -21,17 +21,14 @@ public class RenderWitch extends RenderLiving<EntityWitch>
         return (ModelWitch)super.getMainModel();
     }
 
-    /**
-     * Renders the desired {@code T} type Entity.
-     */
     public void doRender(EntityWitch entity, double x, double y, double z, float entityYaw, float partialTicks)
     {
-        ((ModelWitch)this.mainModel).holdingItem = !entity.getHeldItemMainhand().isEmpty();
+        ((ModelWitch)this.entityModel).holdingItem = !entity.getHeldItemMainhand().isEmpty();
         super.doRender(entity, x, y, z, entityYaw, partialTicks);
     }
 
     /**
-     * Returns the location of an entity's texture. Doesn't seem to be called unless you call Render.bindEntityTexture.
+     * Returns the location of an entity's texture.
      */
     protected ResourceLocation getEntityTexture(EntityWitch entity)
     {
@@ -43,9 +40,6 @@ public class RenderWitch extends RenderLiving<EntityWitch>
         GlStateManager.translate(0.0F, 0.1875F, 0.0F);
     }
 
-    /**
-     * Allows the render to do state modifications necessary before the model is rendered.
-     */
     protected void preRenderCallback(EntityWitch entitylivingbaseIn, float partialTickTime)
     {
         float f = 0.9375F;

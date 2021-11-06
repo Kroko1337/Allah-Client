@@ -33,10 +33,6 @@ public class EntityZombieVillager extends EntityZombie
 {
     private static final DataParameter<Boolean> CONVERTING = EntityDataManager.<Boolean>createKey(EntityZombieVillager.class, DataSerializers.BOOLEAN);
     private static final DataParameter<Integer> PROFESSION = EntityDataManager.<Integer>createKey(EntityZombieVillager.class, DataSerializers.VARINT);
-
-    /**
-     * Ticker used to determine the time remaining for this zombie to convert into a villager when cured.
-     */
     private int conversionTime;
     private UUID converstionStarter;
 
@@ -45,9 +41,9 @@ public class EntityZombieVillager extends EntityZombie
         super(worldIn);
     }
 
-    protected void entityInit()
+    protected void registerData()
     {
-        super.entityInit();
+        super.registerData();
         this.dataManager.register(CONVERTING, Boolean.valueOf(false));
         this.dataManager.register(PROFESSION, Integer.valueOf(0));
     }
@@ -67,41 +63,33 @@ public class EntityZombieVillager extends EntityZombie
         EntityLiving.registerFixesMob(fixer, EntityZombieVillager.class);
     }
 
-    /**
-     * (abstract) Protected helper method to write subclass entity data to NBT.
-     */
     public void writeEntityToNBT(NBTTagCompound compound)
     {
         super.writeEntityToNBT(compound);
-        compound.setInteger("Profession", this.getProfession());
-        compound.setInteger("ConversionTime", this.isConverting() ? this.conversionTime : -1);
+        compound.putInt("Profession", this.getProfession());
+        compound.putInt("ConversionTime", this.isConverting() ? this.conversionTime : -1);
 
         if (this.converstionStarter != null)
         {
-            compound.setUniqueId("ConversionPlayer", this.converstionStarter);
+            compound.putUniqueId("ConversionPlayer", this.converstionStarter);
         }
     }
 
     /**
      * (abstract) Protected helper method to read subclass entity data from NBT.
      */
-    public void readEntityFromNBT(NBTTagCompound compound)
+    public void readAdditional(NBTTagCompound compound)
     {
-        super.readEntityFromNBT(compound);
-        this.setProfession(compound.getInteger("Profession"));
+        super.readAdditional(compound);
+        this.setProfession(compound.getInt("Profession"));
 
-        if (compound.hasKey("ConversionTime", 99) && compound.getInteger("ConversionTime") > -1)
+        if (compound.contains("ConversionTime", 99) && compound.getInt("ConversionTime") > -1)
         {
-            this.startConverting(compound.hasUniqueId("ConversionPlayer") ? compound.getUniqueId("ConversionPlayer") : null, compound.getInteger("ConversionTime"));
+            this.startConverting(compound.hasUniqueId("ConversionPlayer") ? compound.getUniqueId("ConversionPlayer") : null, compound.getInt("ConversionTime"));
         }
     }
 
     @Nullable
-
-    /**
-     * Called only once on an entity when first time spawned, via egg, mob spawner, natural spawning etc, but not called
-     * when entity is reloaded from nbt. Mainly used for initializing attributes and inventory
-     */
     public IEntityLivingData onInitialSpawn(DifficultyInstance difficulty, @Nullable IEntityLivingData livingdata)
     {
         this.setProfession(this.world.rand.nextInt(6));
@@ -111,7 +99,7 @@ public class EntityZombieVillager extends EntityZombie
     /**
      * Called to update the entity's position/logic.
      */
-    public void onUpdate()
+    public void tick()
     {
         if (!this.world.isRemote && this.isConverting())
         {
@@ -124,7 +112,7 @@ public class EntityZombieVillager extends EntityZombie
             }
         }
 
-        super.onUpdate();
+        super.tick();
     }
 
     public boolean processInteract(EntityPlayer player, EnumHand hand)
@@ -133,7 +121,7 @@ public class EntityZombieVillager extends EntityZombie
 
         if (itemstack.getItem() == Items.GOLDEN_APPLE && itemstack.getMetadata() == 0 && this.isPotionActive(MobEffects.WEAKNESS))
         {
-            if (!player.capabilities.isCreativeMode)
+            if (!player.abilities.isCreativeMode)
             {
                 itemstack.shrink(1);
             }
@@ -151,9 +139,6 @@ public class EntityZombieVillager extends EntityZombie
         }
     }
 
-    /**
-     * Determines if an entity can be despawned, used on idle far away entities
-     */
     protected boolean canDespawn()
     {
         return !this.isConverting();
@@ -167,13 +152,16 @@ public class EntityZombieVillager extends EntityZombie
         return ((Boolean)this.getDataManager().get(CONVERTING)).booleanValue();
     }
 
-    protected void startConverting(@Nullable UUID p_191991_1_, int p_191991_2_)
+    /**
+     * Starts conversion of this zombie villager to a villager
+     */
+    protected void startConverting(@Nullable UUID conversionStarterIn, int conversionTimeIn)
     {
-        this.converstionStarter = p_191991_1_;
-        this.conversionTime = p_191991_2_;
+        this.converstionStarter = conversionStarterIn;
+        this.conversionTime = conversionTimeIn;
         this.getDataManager().set(CONVERTING, Boolean.valueOf(true));
         this.removePotionEffect(MobEffects.WEAKNESS);
-        this.addPotionEffect(new PotionEffect(MobEffects.STRENGTH, p_191991_2_, Math.min(this.world.getDifficulty().getDifficultyId() - 1, 0)));
+        this.addPotionEffect(new PotionEffect(MobEffects.STRENGTH, conversionTimeIn, Math.min(this.world.getDifficulty().getId() - 1, 0)));
         this.world.setEntityState(this, (byte)16);
     }
 
@@ -214,10 +202,10 @@ public class EntityZombieVillager extends EntityZombie
         if (this.hasCustomName())
         {
             entityvillager.setCustomNameTag(this.getCustomNameTag());
-            entityvillager.setAlwaysRenderNameTag(this.getAlwaysRenderNameTag());
+            entityvillager.setCustomNameVisible(this.isCustomNameVisible());
         }
 
-        this.world.spawnEntity(entityvillager);
+        this.world.addEntity0(entityvillager);
 
         if (this.converstionStarter != null)
         {

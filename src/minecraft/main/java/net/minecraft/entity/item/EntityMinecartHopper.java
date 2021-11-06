@@ -21,10 +21,9 @@ import net.minecraft.world.World;
 
 public class EntityMinecartHopper extends EntityMinecartContainer implements IHopper
 {
-    /** Whether this hopper minecart is being blocked by an activator rail. */
     private boolean isBlocked = true;
     private int transferTicker = -1;
-    private final BlockPos lastPosition = BlockPos.ORIGIN;
+    private final BlockPos lastPosition = BlockPos.ZERO;
 
     public EntityMinecartHopper(World worldIn)
     {
@@ -36,7 +35,7 @@ public class EntityMinecartHopper extends EntityMinecartContainer implements IHo
         super(worldIn, x, y, z);
     }
 
-    public EntityMinecart.Type getType()
+    public EntityMinecart.Type getMinecartType()
     {
         return EntityMinecart.Type.HOPPER;
     }
@@ -93,9 +92,9 @@ public class EntityMinecartHopper extends EntityMinecartContainer implements IHo
     /**
      * Set whether this hopper minecart is being blocked by an activator rail.
      */
-    public void setBlocked(boolean p_96110_1_)
+    public void setBlocked(boolean blocked)
     {
-        this.isBlocked = p_96110_1_;
+        this.isBlocked = blocked;
     }
 
     /**
@@ -133,11 +132,11 @@ public class EntityMinecartHopper extends EntityMinecartContainer implements IHo
     /**
      * Called to update the entity's position/logic.
      */
-    public void onUpdate()
+    public void tick()
     {
-        super.onUpdate();
+        super.tick();
 
-        if (!this.world.isRemote && this.isEntityAlive() && this.getBlocked())
+        if (!this.world.isRemote && this.isAlive() && this.getBlocked())
         {
             BlockPos blockpos = new BlockPos(this);
 
@@ -165,13 +164,13 @@ public class EntityMinecartHopper extends EntityMinecartContainer implements IHo
 
     public boolean captureDroppedItems()
     {
-        if (TileEntityHopper.captureDroppedItems(this))
+        if (TileEntityHopper.pullItems(this))
         {
             return true;
         }
         else
         {
-            List<EntityItem> list = this.world.<EntityItem>getEntitiesWithinAABB(EntityItem.class, this.getEntityBoundingBox().grow(0.25D, 0.0D, 0.25D), EntitySelectors.IS_ALIVE);
+            List<EntityItem> list = this.world.<EntityItem>getEntitiesWithinAABB(EntityItem.class, this.getBoundingBox().grow(0.25D, 0.0D, 0.25D), EntitySelectors.IS_ALIVE);
 
             if (!list.isEmpty())
             {
@@ -197,32 +196,29 @@ public class EntityMinecartHopper extends EntityMinecartContainer implements IHo
         EntityMinecartContainer.addDataFixers(fixer, EntityMinecartHopper.class);
     }
 
-    /**
-     * (abstract) Protected helper method to write subclass entity data to NBT.
-     */
     protected void writeEntityToNBT(NBTTagCompound compound)
     {
         super.writeEntityToNBT(compound);
-        compound.setInteger("TransferCooldown", this.transferTicker);
-        compound.setBoolean("Enabled", this.isBlocked);
+        compound.putInt("TransferCooldown", this.transferTicker);
+        compound.putBoolean("Enabled", this.isBlocked);
     }
 
     /**
      * (abstract) Protected helper method to read subclass entity data from NBT.
      */
-    protected void readEntityFromNBT(NBTTagCompound compound)
+    protected void readAdditional(NBTTagCompound compound)
     {
-        super.readEntityFromNBT(compound);
-        this.transferTicker = compound.getInteger("TransferCooldown");
-        this.isBlocked = compound.hasKey("Enabled") ? compound.getBoolean("Enabled") : true;
+        super.readAdditional(compound);
+        this.transferTicker = compound.getInt("TransferCooldown");
+        this.isBlocked = compound.contains("Enabled") ? compound.getBoolean("Enabled") : true;
     }
 
     /**
      * Sets the transfer ticker, used to determine the delay between transfers.
      */
-    public void setTransferTicker(int p_98042_1_)
+    public void setTransferTicker(int transferTickerIn)
     {
-        this.transferTicker = p_98042_1_;
+        this.transferTicker = transferTickerIn;
     }
 
     /**

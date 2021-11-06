@@ -44,9 +44,9 @@ public class EntityHorse extends AbstractHorse
         super(worldIn);
     }
 
-    protected void entityInit()
+    protected void registerData()
     {
-        super.entityInit();
+        super.registerData();
         this.dataManager.register(HORSE_VARIANT, Integer.valueOf(0));
         this.dataManager.register(HORSE_ARMOR, Integer.valueOf(HorseArmorType.NONE.getOrdinal()));
     }
@@ -57,31 +57,28 @@ public class EntityHorse extends AbstractHorse
         fixer.registerWalker(FixTypes.ENTITY, new ItemStackData(EntityHorse.class, new String[] {"ArmorItem"}));
     }
 
-    /**
-     * (abstract) Protected helper method to write subclass entity data to NBT.
-     */
     public void writeEntityToNBT(NBTTagCompound compound)
     {
         super.writeEntityToNBT(compound);
-        compound.setInteger("Variant", this.getHorseVariant());
+        compound.putInt("Variant", this.getHorseVariant());
 
         if (!this.horseChest.getStackInSlot(1).isEmpty())
         {
-            compound.setTag("ArmorItem", this.horseChest.getStackInSlot(1).writeToNBT(new NBTTagCompound()));
+            compound.setTag("ArmorItem", this.horseChest.getStackInSlot(1).write(new NBTTagCompound()));
         }
     }
 
     /**
      * (abstract) Protected helper method to read subclass entity data from NBT.
      */
-    public void readEntityFromNBT(NBTTagCompound compound)
+    public void readAdditional(NBTTagCompound compound)
     {
-        super.readEntityFromNBT(compound);
-        this.setHorseVariant(compound.getInteger("Variant"));
+        super.readAdditional(compound);
+        this.setHorseVariant(compound.getInt("Variant"));
 
-        if (compound.hasKey("ArmorItem", 10))
+        if (compound.contains("ArmorItem", 10))
         {
-            ItemStack itemstack = new ItemStack(compound.getCompoundTag("ArmorItem"));
+            ItemStack itemstack = new ItemStack(compound.getCompound("ArmorItem"));
 
             if (!itemstack.isEmpty() && HorseArmorType.isHorseArmor(itemstack.getItem()))
             {
@@ -149,9 +146,6 @@ public class EntityHorse extends AbstractHorse
         this.setHorseArmorStack(this.horseChest.getStackInSlot(1));
     }
 
-    /**
-     * Set horse armor stack (for example: new ItemStack(Items.iron_horse_armor))
-     */
     public void setHorseArmorStack(ItemStack itemStackIn)
     {
         HorseArmorType horsearmortype = HorseArmorType.getByItemStack(itemStackIn);
@@ -160,12 +154,12 @@ public class EntityHorse extends AbstractHorse
 
         if (!this.world.isRemote)
         {
-            this.getEntityAttribute(SharedMonsterAttributes.ARMOR).removeModifier(ARMOR_MODIFIER_UUID);
+            this.getAttribute(SharedMonsterAttributes.ARMOR).removeModifier(ARMOR_MODIFIER_UUID);
             int i = horsearmortype.getProtection();
 
             if (i != 0)
             {
-                this.getEntityAttribute(SharedMonsterAttributes.ARMOR).applyModifier((new AttributeModifier(ARMOR_MODIFIER_UUID, "Horse armor bonus", (double)i, 0)).setSaved(false));
+                this.getAttribute(SharedMonsterAttributes.ARMOR).applyModifier((new AttributeModifier(ARMOR_MODIFIER_UUID, "Horse armor bonus", (double)i, 0)).setSaved(false));
             }
         }
     }
@@ -200,20 +194,20 @@ public class EntityHorse extends AbstractHorse
         }
     }
 
-    protected void applyEntityAttributes()
+    protected void registerAttributes()
     {
-        super.applyEntityAttributes();
-        this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue((double)this.getModifiedMaxHealth());
-        this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(this.getModifiedMovementSpeed());
-        this.getEntityAttribute(JUMP_STRENGTH).setBaseValue(this.getModifiedJumpStrength());
+        super.registerAttributes();
+        this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue((double)this.getModifiedMaxHealth());
+        this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(this.getModifiedMovementSpeed());
+        this.getAttribute(JUMP_STRENGTH).setBaseValue(this.getModifiedJumpStrength());
     }
 
     /**
      * Called to update the entity's position/logic.
      */
-    public void onUpdate()
+    public void tick()
     {
-        super.onUpdate();
+        super.tick();
 
         if (this.world.isRemote && this.dataManager.isDirty())
         {
@@ -280,7 +274,7 @@ public class EntityHorse extends AbstractHorse
             {
                 if (this.handleEating(player, itemstack))
                 {
-                    if (!player.capabilities.isCreativeMode)
+                    if (!player.abilities.isCreativeMode)
                     {
                         itemstack.shrink(1);
                     }
@@ -401,11 +395,6 @@ public class EntityHorse extends AbstractHorse
     }
 
     @Nullable
-
-    /**
-     * Called only once on an entity when first time spawned, via egg, mob spawner, natural spawning etc, but not called
-     * when entity is reloaded from nbt. Mainly used for initializing attributes and inventory
-     */
     public IEntityLivingData onInitialSpawn(DifficultyInstance difficulty, @Nullable IEntityLivingData livingdata)
     {
         livingdata = super.onInitialSpawn(difficulty, livingdata);

@@ -58,9 +58,9 @@ public class ItemAppleGold extends ItemFood
     /**
      * returns a list of items with the same ID, but different meta (eg: dye returns 16 items)
      */
-    public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> items)
+    public void fillItemGroup(CreativeTabs group, NonNullList<ItemStack> items)
     {
-        if (this.isInCreativeTab(tab))
+        if (this.isInGroup(group))
         {
             items.add(new ItemStack(this));
             items.add(new ItemStack(this, 1, 1));

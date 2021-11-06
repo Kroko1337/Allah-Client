@@ -7,13 +7,13 @@ import net.minecraft.network.play.INetHandlerPlayClient;
 
 public class SPacketKeepAlive implements Packet<INetHandlerPlayClient>
 {
-    private int id;
+    private long id;
 
     public SPacketKeepAlive()
     {
     }
 
-    public SPacketKeepAlive(int idIn)
+    public SPacketKeepAlive(long idIn)
     {
         this.id = idIn;
     }
@@ -31,7 +31,7 @@ public class SPacketKeepAlive implements Packet<INetHandlerPlayClient>
      */
     public void readPacketData(PacketBuffer buf) throws IOException
     {
-        this.id = buf.readVarInt();
+        this.id = buf.readLong();
     }
 
     /**
@@ -39,10 +39,10 @@ public class SPacketKeepAlive implements Packet<INetHandlerPlayClient>
      */
     public void writePacketData(PacketBuffer buf) throws IOException
     {
-        buf.writeVarInt(this.id);
+        buf.writeLong(this.id);
     }
 
-    public int getId()
+    public long getId()
     {
         return this.id;
     }

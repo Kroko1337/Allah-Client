@@ -23,13 +23,13 @@ public class BlockPressurePlate extends BlockBasePressurePlate
     protected BlockPressurePlate(Material materialIn, BlockPressurePlate.Sensitivity sensitivityIn)
     {
         super(materialIn);
-        this.setDefaultState(this.blockState.getBaseState().withProperty(POWERED, Boolean.valueOf(false)));
+        this.setDefaultState(this.stateContainer.getBaseState().withProperty(POWERED, Boolean.valueOf(false)));
         this.sensitivity = sensitivityIn;
     }
 
     protected int getRedstoneStrength(IBlockState state)
     {
-        return ((Boolean)state.getValue(POWERED)).booleanValue() ? 15 : 0;
+        return ((Boolean)state.get(POWERED)).booleanValue() ? 15 : 0;
     }
 
     protected IBlockState setRedstoneStrength(IBlockState state, int strength)
@@ -37,27 +37,27 @@ public class BlockPressurePlate extends BlockBasePressurePlate
         return state.withProperty(POWERED, Boolean.valueOf(strength > 0));
     }
 
-    protected void playClickOnSound(World worldIn, BlockPos color)
+    protected void playClickOnSound(World worldIn, BlockPos pos)
     {
-        if (this.blockMaterial == Material.WOOD)
+        if (this.material == Material.WOOD)
         {
-            worldIn.playSound((EntityPlayer)null, color, SoundEvents.BLOCK_WOOD_PRESSPLATE_CLICK_ON, SoundCategory.BLOCKS, 0.3F, 0.8F);
+            worldIn.playSound((EntityPlayer)null, pos, SoundEvents.BLOCK_WOODEN_PRESSURE_PLATE_CLICK_ON, SoundCategory.BLOCKS, 0.3F, 0.8F);
         }
         else
         {
-            worldIn.playSound((EntityPlayer)null, color, SoundEvents.BLOCK_STONE_PRESSPLATE_CLICK_ON, SoundCategory.BLOCKS, 0.3F, 0.6F);
+            worldIn.playSound((EntityPlayer)null, pos, SoundEvents.BLOCK_STONE_PRESSURE_PLATE_CLICK_ON, SoundCategory.BLOCKS, 0.3F, 0.6F);
         }
     }
 
     protected void playClickOffSound(World worldIn, BlockPos pos)
     {
-        if (this.blockMaterial == Material.WOOD)
+        if (this.material == Material.WOOD)
         {
-            worldIn.playSound((EntityPlayer)null, pos, SoundEvents.BLOCK_WOOD_PRESSPLATE_CLICK_OFF, SoundCategory.BLOCKS, 0.3F, 0.7F);
+            worldIn.playSound((EntityPlayer)null, pos, SoundEvents.BLOCK_WOODEN_PRESSURE_PLATE_CLICK_OFF, SoundCategory.BLOCKS, 0.3F, 0.7F);
         }
         else
         {
-            worldIn.playSound((EntityPlayer)null, pos, SoundEvents.BLOCK_STONE_PRESSPLATE_CLICK_OFF, SoundCategory.BLOCKS, 0.3F, 0.5F);
+            worldIn.playSound((EntityPlayer)null, pos, SoundEvents.BLOCK_STONE_PRESSURE_PLATE_CLICK_OFF, SoundCategory.BLOCKS, 0.3F, 0.5F);
         }
     }
 
@@ -94,20 +94,14 @@ public class BlockPressurePlate extends BlockBasePressurePlate
         return 0;
     }
 
-    /**
-     * Convert the given metadata into a BlockState for this Block
-     */
     public IBlockState getStateFromMeta(int meta)
     {
         return this.getDefaultState().withProperty(POWERED, Boolean.valueOf(meta == 1));
     }
 
-    /**
-     * Convert the BlockState into the correct metadata value
-     */
     public int getMetaFromState(IBlockState state)
     {
-        return ((Boolean)state.getValue(POWERED)).booleanValue() ? 1 : 0;
+        return ((Boolean)state.get(POWERED)).booleanValue() ? 1 : 0;
     }
 
     protected BlockStateContainer createBlockState()

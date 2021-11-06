@@ -46,10 +46,6 @@ public class EntityOcelot extends EntityTameable
 {
     private static final DataParameter<Integer> OCELOT_VARIANT = EntityDataManager.<Integer>createKey(EntityOcelot.class, DataSerializers.VARINT);
     private EntityAIAvoidEntity<EntityPlayer> avoidEntity;
-
-    /**
-     * The tempt AI task for this mob, used to prevent taming while it is fleeing.
-     */
     private EntityAITempt aiTempt;
 
     public EntityOcelot(World worldIn)
@@ -58,26 +54,26 @@ public class EntityOcelot extends EntityTameable
         this.setSize(0.6F, 0.7F);
     }
 
-    protected void initEntityAI()
+    protected void registerGoals()
     {
-        this.aiSit = new EntityAISit(this);
+        this.sitGoal = new EntityAISit(this);
         this.aiTempt = new EntityAITempt(this, 0.6D, Items.FISH, true);
-        this.tasks.addTask(1, new EntityAISwimming(this));
-        this.tasks.addTask(2, this.aiSit);
-        this.tasks.addTask(3, this.aiTempt);
-        this.tasks.addTask(5, new EntityAIFollowOwner(this, 1.0D, 10.0F, 5.0F));
-        this.tasks.addTask(6, new EntityAIOcelotSit(this, 0.8D));
-        this.tasks.addTask(7, new EntityAILeapAtTarget(this, 0.3F));
-        this.tasks.addTask(8, new EntityAIOcelotAttack(this));
-        this.tasks.addTask(9, new EntityAIMate(this, 0.8D));
-        this.tasks.addTask(10, new EntityAIWanderAvoidWater(this, 0.8D, 1.0000001E-5F));
-        this.tasks.addTask(11, new EntityAIWatchClosest(this, EntityPlayer.class, 10.0F));
-        this.targetTasks.addTask(1, new EntityAITargetNonTamed(this, EntityChicken.class, false, (Predicate)null));
+        this.goalSelector.addGoal(1, new EntityAISwimming(this));
+        this.goalSelector.addGoal(2, this.sitGoal);
+        this.goalSelector.addGoal(3, this.aiTempt);
+        this.goalSelector.addGoal(5, new EntityAIFollowOwner(this, 1.0D, 10.0F, 5.0F));
+        this.goalSelector.addGoal(6, new EntityAIOcelotSit(this, 0.8D));
+        this.goalSelector.addGoal(7, new EntityAILeapAtTarget(this, 0.3F));
+        this.goalSelector.addGoal(8, new EntityAIOcelotAttack(this));
+        this.goalSelector.addGoal(9, new EntityAIMate(this, 0.8D));
+        this.goalSelector.addGoal(10, new EntityAIWanderAvoidWater(this, 0.8D, 1.0000001E-5F));
+        this.goalSelector.addGoal(11, new EntityAIWatchClosest(this, EntityPlayer.class, 10.0F));
+        this.targetSelector.addGoal(1, new EntityAITargetNonTamed(this, EntityChicken.class, false, (Predicate)null));
     }
 
-    protected void entityInit()
+    protected void registerData()
     {
-        super.entityInit();
+        super.registerData();
         this.dataManager.register(OCELOT_VARIANT, Integer.valueOf(0));
     }
 
@@ -110,19 +106,16 @@ public class EntityOcelot extends EntityTameable
         }
     }
 
-    /**
-     * Determines if an entity can be despawned, used on idle far away entities
-     */
     protected boolean canDespawn()
     {
         return !this.isTamed() && this.ticksExisted > 2400;
     }
 
-    protected void applyEntityAttributes()
+    protected void registerAttributes()
     {
-        super.applyEntityAttributes();
-        this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(10.0D);
-        this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.30000001192092896D);
+        super.registerAttributes();
+        this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(10.0D);
+        this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.30000001192092896D);
     }
 
     public void fall(float distance, float damageMultiplier)
@@ -134,22 +127,19 @@ public class EntityOcelot extends EntityTameable
         EntityLiving.registerFixesMob(fixer, EntityOcelot.class);
     }
 
-    /**
-     * (abstract) Protected helper method to write subclass entity data to NBT.
-     */
     public void writeEntityToNBT(NBTTagCompound compound)
     {
         super.writeEntityToNBT(compound);
-        compound.setInteger("CatType", this.getTameSkin());
+        compound.putInt("CatType", this.getTameSkin());
     }
 
     /**
      * (abstract) Protected helper method to read subclass entity data from NBT.
      */
-    public void readEntityFromNBT(NBTTagCompound compound)
+    public void readAdditional(NBTTagCompound compound)
     {
-        super.readEntityFromNBT(compound);
-        this.setTameSkin(compound.getInteger("CatType"));
+        super.readAdditional(compound);
+        this.setTameSkin(compound.getInt("CatType"));
     }
 
     @Nullable
@@ -200,15 +190,15 @@ public class EntityOcelot extends EntityTameable
      */
     public boolean attackEntityFrom(DamageSource source, float amount)
     {
-        if (this.isEntityInvulnerable(source))
+        if (this.isInvulnerableTo(source))
         {
             return false;
         }
         else
         {
-            if (this.aiSit != null)
+            if (this.sitGoal != null)
             {
-                this.aiSit.setSitting(false);
+                this.sitGoal.setSitting(false);
             }
 
             return super.attackEntityFrom(source, amount);
@@ -229,12 +219,12 @@ public class EntityOcelot extends EntityTameable
         {
             if (this.isOwner(player) && !this.world.isRemote && !this.isBreedingItem(itemstack))
             {
-                this.aiSit.setSitting(!this.isSitting());
+                this.sitGoal.setSitting(!this.isSitting());
             }
         }
-        else if ((this.aiTempt == null || this.aiTempt.isRunning()) && itemstack.getItem() == Items.FISH && player.getDistanceSqToEntity(this) < 9.0D)
+        else if ((this.aiTempt == null || this.aiTempt.isRunning()) && itemstack.getItem() == Items.FISH && player.getDistanceSq(this) < 9.0D)
         {
-            if (!player.capabilities.isCreativeMode)
+            if (!player.abilities.isCreativeMode)
             {
                 itemstack.shrink(1);
             }
@@ -246,7 +236,7 @@ public class EntityOcelot extends EntityTameable
                     this.setTamedBy(player);
                     this.setTameSkin(1 + this.world.rand.nextInt(3));
                     this.playTameEffect(true);
-                    this.aiSit.setSitting(true);
+                    this.sitGoal.setSitting(true);
                     this.world.setEntityState(this, (byte)7);
                 }
                 else
@@ -327,22 +317,16 @@ public class EntityOcelot extends EntityTameable
         this.dataManager.set(OCELOT_VARIANT, Integer.valueOf(skinId));
     }
 
-    /**
-     * Checks if the entity's current position is a valid location to spawn this entity.
-     */
     public boolean getCanSpawnHere()
     {
         return this.world.rand.nextInt(3) != 0;
     }
 
-    /**
-     * Checks that the entity is not colliding with any blocks / liquids
-     */
     public boolean isNotColliding()
     {
-        if (this.world.checkNoEntityCollision(this.getEntityBoundingBox(), this) && this.world.getCollisionBoxes(this, this.getEntityBoundingBox()).isEmpty() && !this.world.containsAnyLiquid(this.getEntityBoundingBox()))
+        if (this.world.checkNoEntityCollision(this.getBoundingBox(), this) && this.world.getCollisionBoxes(this, this.getBoundingBox()).isEmpty() && !this.world.containsAnyLiquid(this.getBoundingBox()))
         {
-            BlockPos blockpos = new BlockPos(this.posX, this.getEntityBoundingBox().minY, this.posZ);
+            BlockPos blockpos = new BlockPos(this.posX, this.getBoundingBox().minY, this.posZ);
 
             if (blockpos.getY() < this.world.getSeaLevel())
             {
@@ -361,9 +345,6 @@ public class EntityOcelot extends EntityTameable
         return false;
     }
 
-    /**
-     * Get the name of this object. For players this returns their username
-     */
     public String getName()
     {
         if (this.hasCustomName())
@@ -383,20 +364,15 @@ public class EntityOcelot extends EntityTameable
             this.avoidEntity = new EntityAIAvoidEntity<EntityPlayer>(this, EntityPlayer.class, 16.0F, 0.8D, 1.33D);
         }
 
-        this.tasks.removeTask(this.avoidEntity);
+        this.goalSelector.removeGoal(this.avoidEntity);
 
         if (!this.isTamed())
         {
-            this.tasks.addTask(4, this.avoidEntity);
+            this.goalSelector.addGoal(4, this.avoidEntity);
         }
     }
 
     @Nullable
-
-    /**
-     * Called only once on an entity when first time spawned, via egg, mob spawner, natural spawning etc, but not called
-     * when entity is reloaded from nbt. Mainly used for initializing attributes and inventory
-     */
     public IEntityLivingData onInitialSpawn(DifficultyInstance difficulty, @Nullable IEntityLivingData livingdata)
     {
         livingdata = super.onInitialSpawn(difficulty, livingdata);
@@ -408,7 +384,7 @@ public class EntityOcelot extends EntityTameable
                 EntityOcelot entityocelot = new EntityOcelot(this.world);
                 entityocelot.setLocationAndAngles(this.posX, this.posY, this.posZ, this.rotationYaw, 0.0F);
                 entityocelot.setGrowingAge(-24000);
-                this.world.spawnEntity(entityocelot);
+                this.world.addEntity0(entityocelot);
             }
         }
 

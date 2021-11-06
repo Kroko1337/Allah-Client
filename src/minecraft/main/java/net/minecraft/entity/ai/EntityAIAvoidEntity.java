@@ -14,19 +14,13 @@ import net.minecraft.util.math.Vec3d;
 public class EntityAIAvoidEntity<T extends Entity> extends EntityAIBase
 {
     private final Predicate<Entity> canBeSeenSelector;
-
-    /** The entity we are attached to */
     protected EntityCreature entity;
     private final double farSpeed;
     private final double nearSpeed;
-    protected T closestLivingEntity;
+    protected T avoidTarget;
     private final float avoidDistance;
-
-    /** The PathEntity of our entity */
-    private Path entityPathEntity;
-
-    /** The PathNavigate of our entity */
-    private final PathNavigate entityPathNavigate;
+    private Path path;
+    private final PathNavigate navigation;
     private final Class<T> classToAvoid;
     private final Predicate <? super T > avoidTargetSelector;
 
@@ -41,7 +35,7 @@ public class EntityAIAvoidEntity<T extends Entity> extends EntityAIBase
         {
             public boolean apply(@Nullable Entity p_apply_1_)
             {
-                return p_apply_1_.isEntityAlive() && EntityAIAvoidEntity.this.entity.getEntitySenses().canSee(p_apply_1_) && !EntityAIAvoidEntity.this.entity.isOnSameTeam(p_apply_1_);
+                return p_apply_1_.isAlive() && EntityAIAvoidEntity.this.entity.getEntitySenses().canSee(p_apply_1_) && !EntityAIAvoidEntity.this.entity.isOnSameTeam(p_apply_1_);
             }
         };
         this.entity = entityIn;
@@ -50,16 +44,17 @@ public class EntityAIAvoidEntity<T extends Entity> extends EntityAIBase
         this.avoidDistance = avoidDistanceIn;
         this.farSpeed = farSpeedIn;
         this.nearSpeed = nearSpeedIn;
-        this.entityPathNavigate = entityIn.getNavigator();
+        this.navigation = entityIn.getNavigator();
         this.setMutexBits(1);
     }
 
     /**
-     * Returns whether the EntityAIBase should begin execution.
+     * Returns whether execution should begin. You can also read and cache any state necessary for execution in this
+     * method as well.
      */
     public boolean shouldExecute()
     {
-        List<T> list = this.entity.world.<T>getEntitiesWithinAABB(this.classToAvoid, this.entity.getEntityBoundingBox().grow((double)this.avoidDistance, 3.0D, (double)this.avoidDistance), Predicates.and(EntitySelectors.CAN_AI_TARGET, this.canBeSeenSelector, this.avoidTargetSelector));
+        List<T> list = this.entity.world.<T>getEntitiesWithinAABB(this.classToAvoid, this.entity.getBoundingBox().grow((double)this.avoidDistance, 3.0D, (double)this.avoidDistance), Predicates.and(EntitySelectors.CAN_AI_TARGET, this.canBeSeenSelector, this.avoidTargetSelector));
 
         if (list.isEmpty())
         {
@@ -67,21 +62,21 @@ public class EntityAIAvoidEntity<T extends Entity> extends EntityAIBase
         }
         else
         {
-            this.closestLivingEntity = list.get(0);
-            Vec3d vec3d = RandomPositionGenerator.findRandomTargetBlockAwayFrom(this.entity, 16, 7, new Vec3d(this.closestLivingEntity.posX, this.closestLivingEntity.posY, this.closestLivingEntity.posZ));
+            this.avoidTarget = list.get(0);
+            Vec3d vec3d = RandomPositionGenerator.findRandomTargetBlockAwayFrom(this.entity, 16, 7, new Vec3d(this.avoidTarget.posX, this.avoidTarget.posY, this.avoidTarget.posZ));
 
             if (vec3d == null)
             {
                 return false;
             }
-            else if (this.closestLivingEntity.getDistanceSq(vec3d.x, vec3d.y, vec3d.z) < this.closestLivingEntity.getDistanceSqToEntity(this.entity))
+            else if (this.avoidTarget.getDistanceSq(vec3d.x, vec3d.y, vec3d.z) < this.avoidTarget.getDistanceSq(this.entity))
             {
                 return false;
             }
             else
             {
-                this.entityPathEntity = this.entityPathNavigate.getPathToXYZ(vec3d.x, vec3d.y, vec3d.z);
-                return this.entityPathEntity != null;
+                this.path = this.navigation.getPathToXYZ(vec3d.x, vec3d.y, vec3d.z);
+                return this.path != null;
             }
         }
     }
@@ -91,7 +86,7 @@ public class EntityAIAvoidEntity<T extends Entity> extends EntityAIBase
      */
     public boolean shouldContinueExecuting()
     {
-        return !this.entityPathNavigate.noPath();
+        return !this.navigation.noPath();
     }
 
     /**
@@ -99,7 +94,7 @@ public class EntityAIAvoidEntity<T extends Entity> extends EntityAIBase
      */
     public void startExecuting()
     {
-        this.entityPathNavigate.setPath(this.entityPathEntity, this.farSpeed);
+        this.navigation.setPath(this.path, this.farSpeed);
     }
 
     /**
@@ -107,15 +102,15 @@ public class EntityAIAvoidEntity<T extends Entity> extends EntityAIBase
      */
     public void resetTask()
     {
-        this.closestLivingEntity = null;
+        this.avoidTarget = null;
     }
 
     /**
      * Keep ticking a continuous task that has already been started
      */
-    public void updateTask()
+    public void tick()
     {
-        if (this.entity.getDistanceSqToEntity(this.closestLivingEntity) < 49.0D)
+        if (this.entity.getDistanceSq(this.avoidTarget) < 49.0D)
         {
             this.entity.getNavigator().setSpeed(this.nearSpeed);
         }

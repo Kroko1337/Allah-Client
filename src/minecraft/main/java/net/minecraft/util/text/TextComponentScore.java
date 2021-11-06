@@ -56,9 +56,6 @@ public class TextComponentScore extends TextComponentBase
         return this.value;
     }
 
-    /**
-     * Resolves the value of the score on this component.
-     */
     public void resolve(ICommandSender sender)
     {
         MinecraftServer minecraftserver = sender.getServer();
@@ -83,7 +80,7 @@ public class TextComponentScore extends TextComponentBase
     /**
      * Creates a copy of this component.  Almost a deep copy, except the style is shallow-copied.
      */
-    public TextComponentScore createCopy()
+    public TextComponentScore shallowCopy()
     {
         TextComponentScore textcomponentscore = new TextComponentScore(this.name, this.objective);
         textcomponentscore.setValue(this.value);
@@ -91,7 +88,7 @@ public class TextComponentScore extends TextComponentBase
 
         for (ITextComponent itextcomponent : this.getSiblings())
         {
-            textcomponentscore.appendSibling(itextcomponent.createCopy());
+            textcomponentscore.appendSibling(itextcomponent.shallowCopy());
         }
 
         return textcomponentscore;

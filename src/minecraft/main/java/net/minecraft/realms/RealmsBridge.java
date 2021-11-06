@@ -22,7 +22,7 @@ public class RealmsBridge extends RealmsScreen
             Constructor<?> constructor = oclass.getDeclaredConstructor(RealmsScreen.class);
             constructor.setAccessible(true);
             Object object = constructor.newInstance(this);
-            Minecraft.getMinecraft().displayGuiScreen(((RealmsScreen)object).getProxy());
+            Minecraft.getInstance().displayGuiScreen(((RealmsScreen)object).getProxy());
         }
         catch (ClassNotFoundException var5)
         {
@@ -59,6 +59,6 @@ public class RealmsBridge extends RealmsScreen
 
     public void init()
     {
-        Minecraft.getMinecraft().displayGuiScreen(this.previousScreen);
+        Minecraft.getInstance().displayGuiScreen(this.previousScreen);
     }
 }

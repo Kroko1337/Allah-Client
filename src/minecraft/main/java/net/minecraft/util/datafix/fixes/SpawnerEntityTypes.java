@@ -19,30 +19,30 @@ public class SpawnerEntityTypes implements IFixableData
         }
         else
         {
-            if (compound.hasKey("EntityId", 8))
+            if (compound.contains("EntityId", 8))
             {
                 String s = compound.getString("EntityId");
-                NBTTagCompound nbttagcompound = compound.getCompoundTag("SpawnData");
-                nbttagcompound.setString("id", s.isEmpty() ? "Pig" : s);
+                NBTTagCompound nbttagcompound = compound.getCompound("SpawnData");
+                nbttagcompound.putString("id", s.isEmpty() ? "Pig" : s);
                 compound.setTag("SpawnData", nbttagcompound);
-                compound.removeTag("EntityId");
+                compound.remove("EntityId");
             }
 
-            if (compound.hasKey("SpawnPotentials", 9))
+            if (compound.contains("SpawnPotentials", 9))
             {
-                NBTTagList nbttaglist = compound.getTagList("SpawnPotentials", 10);
+                NBTTagList nbttaglist = compound.getList("SpawnPotentials", 10);
 
                 for (int i = 0; i < nbttaglist.tagCount(); ++i)
                 {
-                    NBTTagCompound nbttagcompound1 = nbttaglist.getCompoundTagAt(i);
+                    NBTTagCompound nbttagcompound1 = nbttaglist.getCompound(i);
 
-                    if (nbttagcompound1.hasKey("Type", 8))
+                    if (nbttagcompound1.contains("Type", 8))
                     {
-                        NBTTagCompound nbttagcompound2 = nbttagcompound1.getCompoundTag("Properties");
-                        nbttagcompound2.setString("id", nbttagcompound1.getString("Type"));
+                        NBTTagCompound nbttagcompound2 = nbttagcompound1.getCompound("Properties");
+                        nbttagcompound2.putString("id", nbttagcompound1.getString("Type"));
                         nbttagcompound1.setTag("Entity", nbttagcompound2);
-                        nbttagcompound1.removeTag("Type");
-                        nbttagcompound1.removeTag("Properties");
+                        nbttagcompound1.remove("Type");
+                        nbttagcompound1.remove("Properties");
                     }
                 }
             }

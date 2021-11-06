@@ -12,7 +12,6 @@ import net.minecraft.util.ResourceLocation;
 
 public class EnchantmentPredicate
 {
-    /** The predicate that matches any set of enchantments. */
     public static final EnchantmentPredicate ANY = new EnchantmentPredicate();
     private final Enchantment enchantment;
     private final MinMaxBounds levels;
@@ -71,7 +70,7 @@ public class EnchantmentPredicate
             if (jsonobject.has("enchantment"))
             {
                 ResourceLocation resourcelocation = new ResourceLocation(JsonUtils.getString(jsonobject, "enchantment"));
-                enchantment = Enchantment.REGISTRY.getObject(resourcelocation);
+                enchantment = Enchantment.REGISTRY.getOrDefault(resourcelocation);
 
                 if (enchantment == null)
                 {

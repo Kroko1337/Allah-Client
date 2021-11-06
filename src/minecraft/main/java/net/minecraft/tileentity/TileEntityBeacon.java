@@ -34,7 +34,7 @@ import net.minecraft.util.math.BlockPos;
 
 public class TileEntityBeacon extends TileEntityLockable implements ITickable, ISidedInventory
 {
-    /** List of effects that Beacon can apply */
+    /** List of effects that Beacons can apply */
     public static final Potion[][] EFFECTS_LIST = new Potion[][] {{MobEffects.SPEED, MobEffects.HASTE}, {MobEffects.RESISTANCE, MobEffects.JUMP_BOOST}, {MobEffects.STRENGTH}, {MobEffects.REGENERATION}};
     private static final Set<Potion> VALID_EFFECTS = Sets.<Potion>newHashSet();
     private final List<TileEntityBeacon.BeamSegment> beamSegments = Lists.<TileEntityBeacon.BeamSegment>newArrayList();
@@ -46,23 +46,22 @@ public class TileEntityBeacon extends TileEntityLockable implements ITickable, I
     private int levels = -1;
     @Nullable
 
-    /** Primary potion effect given by this beacon. */
+    /** Primary potion effect given by this beacon */
     private Potion primaryEffect;
     @Nullable
 
     /** Secondary potion effect given by this beacon. */
     private Potion secondaryEffect;
-
-    /** Item given to this beacon as payment. */
     private ItemStack payment = ItemStack.EMPTY;
-    private String customName;
 
     /**
-     * Like the old updateEntity(), except more generic.
+     * The custom name for this beacon. This was unused until 1.14; see https://bugs.mojang.com/browse/MC-124395
      */
-    public void update()
+    private String customName;
+
+    public void tick()
     {
-        if (this.world.getTotalWorldTime() % 80L == 0L)
+        if (this.world.getGameTime() % 80L == 0L)
         {
             this.updateBeacon();
         }
@@ -132,7 +131,7 @@ public class TileEntityBeacon extends TileEntityLockable implements ITickable, I
 
             if (iblockstate.getBlock() == Blocks.STAINED_GLASS)
             {
-                afloat = ((EnumDyeColor)iblockstate.getValue(BlockStainedGlass.COLOR)).getColorComponentValues();
+                afloat = ((EnumDyeColor)iblockstate.get(BlockStainedGlass.COLOR)).getColorComponentValues();
             }
             else
             {
@@ -149,7 +148,7 @@ public class TileEntityBeacon extends TileEntityLockable implements ITickable, I
                     continue;
                 }
 
-                afloat = ((EnumDyeColor)iblockstate.getValue(BlockStainedGlassPane.COLOR)).getColorComponentValues();
+                afloat = ((EnumDyeColor)iblockstate.get(BlockStainedGlassPane.COLOR)).getColorComponentValues();
             }
 
             if (!flag)
@@ -231,8 +230,8 @@ public class TileEntityBeacon extends TileEntityLockable implements ITickable, I
         }
         else
         {
-            int i = (int)(this.world.getTotalWorldTime() - this.beamRenderCounter);
-            this.beamRenderCounter = this.world.getTotalWorldTime();
+            int i = (int)(this.world.getGameTime() - this.beamRenderCounter);
+            this.beamRenderCounter = this.world.getGameTime();
 
             if (i > 1)
             {
@@ -261,14 +260,23 @@ public class TileEntityBeacon extends TileEntityLockable implements ITickable, I
     }
 
     @Nullable
+
+    /**
+     * Retrieves packet to send to the client whenever this Tile Entity is resynced via World.notifyBlockUpdate. For
+     * modded TE's, this packet comes back to you clientside in {@link #onDataPacket}
+     */
     public SPacketUpdateTileEntity getUpdatePacket()
     {
         return new SPacketUpdateTileEntity(this.pos, 3, this.getUpdateTag());
     }
 
+    /**
+     * Get an NBT compound to sync to the client with SPacketChunkData, used for initial loading of the chunk or when
+     * many blocks change at once. This compound comes back to you clientside in {@link handleUpdateTag}
+     */
     public NBTTagCompound getUpdateTag()
     {
-        return this.writeToNBT(new NBTTagCompound());
+        return this.write(new NBTTagCompound());
     }
 
     public double getMaxRenderDistanceSquared()
@@ -279,24 +287,24 @@ public class TileEntityBeacon extends TileEntityLockable implements ITickable, I
     @Nullable
     private static Potion isBeaconEffect(int p_184279_0_)
     {
-        Potion potion = Potion.getPotionById(p_184279_0_);
+        Potion potion = Potion.get(p_184279_0_);
         return VALID_EFFECTS.contains(potion) ? potion : null;
     }
 
-    public void readFromNBT(NBTTagCompound compound)
+    public void read(NBTTagCompound compound)
     {
-        super.readFromNBT(compound);
-        this.primaryEffect = isBeaconEffect(compound.getInteger("Primary"));
-        this.secondaryEffect = isBeaconEffect(compound.getInteger("Secondary"));
-        this.levels = compound.getInteger("Levels");
+        super.read(compound);
+        this.primaryEffect = isBeaconEffect(compound.getInt("Primary"));
+        this.secondaryEffect = isBeaconEffect(compound.getInt("Secondary"));
+        this.levels = compound.getInt("Levels");
     }
 
-    public NBTTagCompound writeToNBT(NBTTagCompound compound)
+    public NBTTagCompound write(NBTTagCompound compound)
     {
-        super.writeToNBT(compound);
-        compound.setInteger("Primary", Potion.getIdFromPotion(this.primaryEffect));
-        compound.setInteger("Secondary", Potion.getIdFromPotion(this.secondaryEffect));
-        compound.setInteger("Levels", this.levels);
+        super.write(compound);
+        compound.putInt("Primary", Potion.getId(this.primaryEffect));
+        compound.putInt("Secondary", Potion.getId(this.secondaryEffect));
+        compound.putInt("Levels", this.levels);
         return compound;
     }
 
@@ -336,7 +344,7 @@ public class TileEntityBeacon extends TileEntityLockable implements ITickable, I
             }
             else
             {
-                return this.payment.splitStack(count);
+                return this.payment.split(count);
             }
         }
         else
@@ -373,17 +381,11 @@ public class TileEntityBeacon extends TileEntityLockable implements ITickable, I
         }
     }
 
-    /**
-     * Get the name of this object. For players this returns their username
-     */
     public String getName()
     {
         return this.hasCustomName() ? this.customName : "container.beacon";
     }
 
-    /**
-     * Returns true if this thing is named
-     */
     public boolean hasCustomName()
     {
         return this.customName != null && !this.customName.isEmpty();
@@ -452,10 +454,10 @@ public class TileEntityBeacon extends TileEntityLockable implements ITickable, I
                 return this.levels;
 
             case 1:
-                return Potion.getIdFromPotion(this.primaryEffect);
+                return Potion.getId(this.primaryEffect);
 
             case 2:
-                return Potion.getIdFromPotion(this.secondaryEffect);
+                return Potion.getId(this.secondaryEffect);
 
             default:
                 return 0;
@@ -489,6 +491,10 @@ public class TileEntityBeacon extends TileEntityLockable implements ITickable, I
         this.payment = ItemStack.EMPTY;
     }
 
+    /**
+     * See {@link Block#eventReceived} for more information. This must return true serverside before it is called
+     * clientside.
+     */
     public boolean receiveClientEvent(int id, int type)
     {
         if (id == 1)

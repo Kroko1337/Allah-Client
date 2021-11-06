@@ -15,24 +15,20 @@ import net.minecraft.world.World;
 public class ItemTool extends Item
 {
     private final Set<Block> effectiveBlocks;
-    protected float efficiencyOnProperMaterial;
-
-    /** Damage versus entities. */
-    protected float damageVsEntity;
+    protected float efficiency;
+    protected float attackDamage;
     protected float attackSpeed;
-
-    /** The material this tool is made from. */
     protected Item.ToolMaterial toolMaterial;
 
     protected ItemTool(float attackDamageIn, float attackSpeedIn, Item.ToolMaterial materialIn, Set<Block> effectiveBlocksIn)
     {
-        this.efficiencyOnProperMaterial = 4.0F;
+        this.efficiency = 4.0F;
         this.toolMaterial = materialIn;
         this.effectiveBlocks = effectiveBlocksIn;
         this.maxStackSize = 1;
         this.setMaxDamage(materialIn.getMaxUses());
-        this.efficiencyOnProperMaterial = materialIn.getEfficiencyOnProperMaterial();
-        this.damageVsEntity = attackDamageIn + materialIn.getDamageVsEntity();
+        this.efficiency = materialIn.getEfficiency();
+        this.attackDamage = attackDamageIn + materialIn.getAttackDamage();
         this.attackSpeed = attackSpeedIn;
         this.setCreativeTab(CreativeTabs.TOOLS);
     }
@@ -42,9 +38,9 @@ public class ItemTool extends Item
         this(0.0F, 0.0F, materialIn, effectiveBlocksIn);
     }
 
-    public float getStrVsBlock(ItemStack stack, IBlockState state)
+    public float getDestroySpeed(ItemStack stack, IBlockState state)
     {
-        return this.effectiveBlocks.contains(state.getBlock()) ? this.efficiencyOnProperMaterial : 1.0F;
+        return this.effectiveBlocks.contains(state.getBlock()) ? this.efficiency : 1.0F;
     }
 
     /**
@@ -70,9 +66,6 @@ public class ItemTool extends Item
         return true;
     }
 
-    /**
-     * Returns True is the item is renderer in full 3D when hold.
-     */
     public boolean isFull3D()
     {
         return true;
@@ -86,9 +79,6 @@ public class ItemTool extends Item
         return this.toolMaterial.getEnchantability();
     }
 
-    /**
-     * Return the name for this tool's material.
-     */
     public String getToolMaterialName()
     {
         return this.toolMaterial.toString();
@@ -102,13 +92,13 @@ public class ItemTool extends Item
         return this.toolMaterial.getRepairItem() == repair.getItem() ? true : super.getIsRepairable(toRepair, repair);
     }
 
-    public Multimap<String, AttributeModifier> getItemAttributeModifiers(EntityEquipmentSlot equipmentSlot)
+    public Multimap<String, AttributeModifier> getAttributeModifiers(EntityEquipmentSlot equipmentSlot)
     {
-        Multimap<String, AttributeModifier> multimap = super.getItemAttributeModifiers(equipmentSlot);
+        Multimap<String, AttributeModifier> multimap = super.getAttributeModifiers(equipmentSlot);
 
         if (equipmentSlot == EntityEquipmentSlot.MAINHAND)
         {
-            multimap.put(SharedMonsterAttributes.ATTACK_DAMAGE.getName(), new AttributeModifier(ATTACK_DAMAGE_MODIFIER, "Tool modifier", (double)this.damageVsEntity, 0));
+            multimap.put(SharedMonsterAttributes.ATTACK_DAMAGE.getName(), new AttributeModifier(ATTACK_DAMAGE_MODIFIER, "Tool modifier", (double)this.attackDamage, 0));
             multimap.put(SharedMonsterAttributes.ATTACK_SPEED.getName(), new AttributeModifier(ATTACK_SPEED_MODIFIER, "Tool modifier", (double)this.attackSpeed, 0));
         }
 

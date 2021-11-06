@@ -18,7 +18,8 @@ public class EntityAIFollowGolem extends EntityAIBase
     }
 
     /**
-     * Returns whether the EntityAIBase should begin execution.
+     * Returns whether execution should begin. You can also read and cache any state necessary for execution in this
+     * method as well.
      */
     public boolean shouldExecute()
     {
@@ -32,7 +33,7 @@ public class EntityAIFollowGolem extends EntityAIBase
         }
         else
         {
-            List<EntityIronGolem> list = this.villager.world.<EntityIronGolem>getEntitiesWithinAABB(EntityIronGolem.class, this.villager.getEntityBoundingBox().grow(6.0D, 2.0D, 6.0D));
+            List<EntityIronGolem> list = this.villager.world.<EntityIronGolem>getEntitiesWithinAABB(EntityIronGolem.class, this.villager.getBoundingBox().grow(6.0D, 2.0D, 6.0D));
 
             if (list.isEmpty())
             {
@@ -69,7 +70,7 @@ public class EntityAIFollowGolem extends EntityAIBase
     {
         this.takeGolemRoseTick = this.villager.getRNG().nextInt(320);
         this.tookGolemRose = false;
-        this.ironGolem.getNavigator().clearPathEntity();
+        this.ironGolem.getNavigator().clearPath();
     }
 
     /**
@@ -78,15 +79,15 @@ public class EntityAIFollowGolem extends EntityAIBase
     public void resetTask()
     {
         this.ironGolem = null;
-        this.villager.getNavigator().clearPathEntity();
+        this.villager.getNavigator().clearPath();
     }
 
     /**
      * Keep ticking a continuous task that has already been started
      */
-    public void updateTask()
+    public void tick()
     {
-        this.villager.getLookHelper().setLookPositionWithEntity(this.ironGolem, 30.0F, 30.0F);
+        this.villager.getLookController().setLookPositionWithEntity(this.ironGolem, 30.0F, 30.0F);
 
         if (this.ironGolem.getHoldRoseTick() == this.takeGolemRoseTick)
         {
@@ -94,10 +95,10 @@ public class EntityAIFollowGolem extends EntityAIBase
             this.tookGolemRose = true;
         }
 
-        if (this.tookGolemRose && this.villager.getDistanceSqToEntity(this.ironGolem) < 4.0D)
+        if (this.tookGolemRose && this.villager.getDistanceSq(this.ironGolem) < 4.0D)
         {
             this.ironGolem.setHoldingRose(false);
-            this.villager.getNavigator().clearPathEntity();
+            this.villager.getNavigator().clearPath();
         }
     }
 }

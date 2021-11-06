@@ -4,12 +4,8 @@ import net.minecraft.entity.Entity;
 
 public class ChunkPos
 {
-    /** The X position of this Chunk Coordinate Pair */
     public final int x;
-
-    /** The Z position of this Chunk Coordinate Pair */
     public final int z;
-    private int cachedHashCode = 0;
 
     public ChunkPos(int x, int z)
     {
@@ -33,17 +29,9 @@ public class ChunkPos
 
     public int hashCode()
     {
-        if (this.cachedHashCode != 0)
-        {
-            return this.cachedHashCode;
-        }
-        else
-        {
-            int i = 1664525 * this.x + 1013904223;
-            int j = 1664525 * (this.z ^ -559038737) + 1013904223;
-            this.cachedHashCode = i ^ j;
-            return this.cachedHashCode;
-        }
+        int i = 1664525 * this.x + 1013904223;
+        int j = 1664525 * (this.z ^ -559038737) + 1013904223;
+        return i ^ j;
     }
 
     public boolean equals(Object p_equals_1_)

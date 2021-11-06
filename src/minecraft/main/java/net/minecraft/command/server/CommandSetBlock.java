@@ -22,33 +22,21 @@ import net.minecraft.world.World;
 
 public class CommandSetBlock extends CommandBase
 {
-    /**
-     * Gets the name of the command
-     */
     public String getName()
     {
         return "setblock";
     }
 
-    /**
-     * Return the required permission level for this command.
-     */
     public int getRequiredPermissionLevel()
     {
         return 2;
     }
 
-    /**
-     * Gets the usage string for the command.
-     */
     public String getUsage(ICommandSender sender)
     {
         return "commands.setblock.usage";
     }
 
-    /**
-     * Callback for when the command is executed
-     */
     public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
     {
         if (args.length < 4)
@@ -134,10 +122,10 @@ public class CommandSetBlock extends CommandBase
 
                         if (tileentity != null)
                         {
-                            nbttagcompound.setInteger("x", blockpos.getX());
-                            nbttagcompound.setInteger("y", blockpos.getY());
-                            nbttagcompound.setInteger("z", blockpos.getZ());
-                            tileentity.readFromNBT(nbttagcompound);
+                            nbttagcompound.putInt("x", blockpos.getX());
+                            nbttagcompound.putInt("y", blockpos.getY());
+                            nbttagcompound.putInt("z", blockpos.getZ());
+                            tileentity.read(nbttagcompound);
                         }
                     }
 
@@ -157,7 +145,7 @@ public class CommandSetBlock extends CommandBase
         }
         else if (args.length == 4)
         {
-            return getListOfStringsMatchingLastWord(args, Block.REGISTRY.getKeys());
+            return getListOfStringsMatchingLastWord(args, Block.REGISTRY.keySet());
         }
         else
         {

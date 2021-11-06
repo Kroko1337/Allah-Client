@@ -11,21 +11,16 @@ public class GuiBrewingStand extends GuiContainer
 {
     private static final ResourceLocation BREWING_STAND_GUI_TEXTURES = new ResourceLocation("textures/gui/container/brewing_stand.png");
     private static final int[] BUBBLELENGTHS = new int[] {29, 24, 20, 16, 11, 6, 0};
-
-    /** The player inventory bound to this GUI. */
     private final InventoryPlayer playerInventory;
     private final IInventory tileBrewingStand;
 
-    public GuiBrewingStand(InventoryPlayer playerInv, IInventory p_i45506_2_)
+    public GuiBrewingStand(InventoryPlayer playerInv, IInventory inventoryIn)
     {
-        super(new ContainerBrewingStand(playerInv, p_i45506_2_));
+        super(new ContainerBrewingStand(playerInv, inventoryIn));
         this.playerInventory = playerInv;
-        this.tileBrewingStand = p_i45506_2_;
+        this.tileBrewingStand = inventoryIn;
     }
 
-    /**
-     * Draws the screen and all the components in it.
-     */
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         this.drawDefaultBackground();

@@ -109,19 +109,19 @@ public class StructureMineshaftPieces
         protected void writeStructureToNBT(NBTTagCompound tagCompound)
         {
             super.writeStructureToNBT(tagCompound);
-            tagCompound.setBoolean("hr", this.hasRails);
-            tagCompound.setBoolean("sc", this.hasSpiders);
-            tagCompound.setBoolean("hps", this.spawnerPlaced);
-            tagCompound.setInteger("Num", this.sectionCount);
+            tagCompound.putBoolean("hr", this.hasRails);
+            tagCompound.putBoolean("sc", this.hasSpiders);
+            tagCompound.putBoolean("hps", this.spawnerPlaced);
+            tagCompound.putInt("Num", this.sectionCount);
         }
 
-        protected void readStructureFromNBT(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
+        protected void readAdditional(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
         {
-            super.readStructureFromNBT(tagCompound, p_143011_2_);
+            super.readAdditional(tagCompound, p_143011_2_);
             this.hasRails = tagCompound.getBoolean("hr");
             this.hasSpiders = tagCompound.getBoolean("sc");
             this.spawnerPlaced = tagCompound.getBoolean("hps");
-            this.sectionCount = tagCompound.getInteger("Num");
+            this.sectionCount = tagCompound.getInt("Num");
         }
 
         public Corridor(int p_i47140_1_, Random p_i47140_2_, StructureBoundingBox p_i47140_3_, EnumFacing p_i47140_4_, MapGenMineshaft.Type p_i47140_5_)
@@ -305,7 +305,7 @@ public class StructureMineshaftPieces
                 this.setBlockState(worldIn, iblockstate, x, y, z, structurebb);
                 EntityMinecartChest entityminecartchest = new EntityMinecartChest(worldIn, (double)((float)blockpos.getX() + 0.5F), (double)((float)blockpos.getY() + 0.5F), (double)((float)blockpos.getZ() + 0.5F));
                 entityminecartchest.setLootTable(loot, randomIn.nextLong());
-                worldIn.spawnEntity(entityminecartchest);
+                worldIn.addEntity0(entityminecartchest);
                 return true;
             }
             else
@@ -370,7 +370,7 @@ public class StructureMineshaftPieces
                         if (structureBoundingBoxIn.isVecInside(blockpos) && this.getSkyBrightness(worldIn, 1, 0, i2, structureBoundingBoxIn) < 8)
                         {
                             this.spawnerPlaced = true;
-                            worldIn.setBlockState(blockpos, Blocks.MOB_SPAWNER.getDefaultState(), 2);
+                            worldIn.setBlockState(blockpos, Blocks.SPAWNER.getDefaultState(), 2);
                             TileEntity tileentity = worldIn.getTileEntity(blockpos);
 
                             if (tileentity instanceof TileEntityMobSpawner)
@@ -461,15 +461,15 @@ public class StructureMineshaftPieces
         protected void writeStructureToNBT(NBTTagCompound tagCompound)
         {
             super.writeStructureToNBT(tagCompound);
-            tagCompound.setBoolean("tf", this.isMultipleFloors);
-            tagCompound.setInteger("D", this.corridorDirection.getHorizontalIndex());
+            tagCompound.putBoolean("tf", this.isMultipleFloors);
+            tagCompound.putInt("D", this.corridorDirection.getHorizontalIndex());
         }
 
-        protected void readStructureFromNBT(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
+        protected void readAdditional(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
         {
-            super.readStructureFromNBT(tagCompound, p_143011_2_);
+            super.readAdditional(tagCompound, p_143011_2_);
             this.isMultipleFloors = tagCompound.getBoolean("tf");
-            this.corridorDirection = EnumFacing.getHorizontal(tagCompound.getInteger("D"));
+            this.corridorDirection = EnumFacing.byHorizontalIndex(tagCompound.getInt("D"));
         }
 
         public Cross(int p_i47139_1_, Random p_i47139_2_, StructureBoundingBox p_i47139_3_, @Nullable EnumFacing p_i47139_4_, MapGenMineshaft.Type p_i47139_5_)
@@ -643,12 +643,12 @@ public class StructureMineshaftPieces
 
         protected void writeStructureToNBT(NBTTagCompound tagCompound)
         {
-            tagCompound.setInteger("MST", this.mineShaftType.ordinal());
+            tagCompound.putInt("MST", this.mineShaftType.ordinal());
         }
 
-        protected void readStructureFromNBT(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
+        protected void readAdditional(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
         {
-            this.mineShaftType = MapGenMineshaft.Type.byId(tagCompound.getInteger("MST"));
+            this.mineShaftType = MapGenMineshaft.Type.byId(tagCompound.getInt("MST"));
         }
 
         protected IBlockState getPlanksBlock()
@@ -677,11 +677,11 @@ public class StructureMineshaftPieces
             }
         }
 
-        protected boolean isSupportingBox(World p_189918_1_, StructureBoundingBox p_189918_2_, int p_189918_3_, int p_189918_4_, int p_189918_5_, int p_189918_6_)
+        protected boolean isSupportingBox(World blockReaderIn, StructureBoundingBox boundsIn, int xStartIn, int xEndIn, int p_189918_5_, int zIn)
         {
-            for (int i = p_189918_3_; i <= p_189918_4_; ++i)
+            for (int i = xStartIn; i <= xEndIn; ++i)
             {
-                if (this.getBlockStateFromPos(p_189918_1_, i, p_189918_5_ + 1, p_189918_6_, p_189918_2_).getMaterial() == Material.AIR)
+                if (this.getBlockStateFromPos(blockReaderIn, i, p_189918_5_ + 1, zIn, boundsIn).getMaterial() == Material.AIR)
                 {
                     return false;
                 }
@@ -699,10 +699,10 @@ public class StructureMineshaftPieces
         {
         }
 
-        public Room(int p_i47137_1_, Random p_i47137_2_, int p_i47137_3_, int p_i47137_4_, MapGenMineshaft.Type p_i47137_5_)
+        public Room(int p_i47137_1_, Random p_i47137_2_, int p_i47137_3_, int p_i47137_4_, MapGenMineshaft.Type typeIn)
         {
-            super(p_i47137_1_, p_i47137_5_);
-            this.mineShaftType = p_i47137_5_;
+            super(p_i47137_1_, typeIn);
+            this.mineShaftType = typeIn;
             this.boundingBox = new StructureBoundingBox(p_i47137_3_, 50, p_i47137_4_, p_i47137_3_ + 7 + p_i47137_2_.nextInt(6), 54 + p_i47137_2_.nextInt(6), p_i47137_4_ + 7 + p_i47137_2_.nextInt(6));
         }
 
@@ -835,14 +835,14 @@ public class StructureMineshaftPieces
             tagCompound.setTag("Entrances", nbttaglist);
         }
 
-        protected void readStructureFromNBT(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
+        protected void readAdditional(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
         {
-            super.readStructureFromNBT(tagCompound, p_143011_2_);
-            NBTTagList nbttaglist = tagCompound.getTagList("Entrances", 11);
+            super.readAdditional(tagCompound, p_143011_2_);
+            NBTTagList nbttaglist = tagCompound.getList("Entrances", 11);
 
             for (int i = 0; i < nbttaglist.tagCount(); ++i)
             {
-                this.connectedRooms.add(new StructureBoundingBox(nbttaglist.getIntArrayAt(i)));
+                this.connectedRooms.add(new StructureBoundingBox(nbttaglist.getIntArray(i)));
             }
         }
     }

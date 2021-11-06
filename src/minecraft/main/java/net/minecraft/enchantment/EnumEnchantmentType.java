@@ -37,25 +37,25 @@ public enum EnumEnchantmentType
     ARMOR_FEET {
         public boolean canEnchantItem(Item itemIn)
         {
-            return itemIn instanceof ItemArmor && ((ItemArmor)itemIn).armorType == EntityEquipmentSlot.FEET;
+            return itemIn instanceof ItemArmor && ((ItemArmor)itemIn).slot == EntityEquipmentSlot.FEET;
         }
     },
     ARMOR_LEGS {
         public boolean canEnchantItem(Item itemIn)
         {
-            return itemIn instanceof ItemArmor && ((ItemArmor)itemIn).armorType == EntityEquipmentSlot.LEGS;
+            return itemIn instanceof ItemArmor && ((ItemArmor)itemIn).slot == EntityEquipmentSlot.LEGS;
         }
     },
     ARMOR_CHEST {
         public boolean canEnchantItem(Item itemIn)
         {
-            return itemIn instanceof ItemArmor && ((ItemArmor)itemIn).armorType == EntityEquipmentSlot.CHEST;
+            return itemIn instanceof ItemArmor && ((ItemArmor)itemIn).slot == EntityEquipmentSlot.CHEST;
         }
     },
     ARMOR_HEAD {
         public boolean canEnchantItem(Item itemIn)
         {
-            return itemIn instanceof ItemArmor && ((ItemArmor)itemIn).armorType == EntityEquipmentSlot.HEAD;
+            return itemIn instanceof ItemArmor && ((ItemArmor)itemIn).slot == EntityEquipmentSlot.HEAD;
         }
     },
     WEAPON {

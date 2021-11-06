@@ -22,7 +22,7 @@ public abstract class BlockPurpurSlab extends BlockSlab
     public BlockPurpurSlab()
     {
         super(Material.ROCK, MapColor.MAGENTA);
-        IBlockState iblockstate = this.blockState.getBaseState();
+        IBlockState iblockstate = this.stateContainer.getBaseState();
 
         if (!this.isDouble())
         {
@@ -33,9 +33,6 @@ public abstract class BlockPurpurSlab extends BlockSlab
         this.setCreativeTab(CreativeTabs.BUILDING_BLOCKS);
     }
 
-    /**
-     * Get the Item that this Block should drop when harvested.
-     */
     public Item getItemDropped(IBlockState state, Random rand, int fortune)
     {
         return Item.getItemFromBlock(Blocks.PURPUR_SLAB);
@@ -46,9 +43,6 @@ public abstract class BlockPurpurSlab extends BlockSlab
         return new ItemStack(Blocks.PURPUR_SLAB);
     }
 
-    /**
-     * Convert the given metadata into a BlockState for this Block
-     */
     public IBlockState getStateFromMeta(int meta)
     {
         IBlockState iblockstate = this.getDefaultState().withProperty(VARIANT, BlockPurpurSlab.Variant.DEFAULT);
@@ -61,14 +55,11 @@ public abstract class BlockPurpurSlab extends BlockSlab
         return iblockstate;
     }
 
-    /**
-     * Convert the BlockState into the correct metadata value
-     */
     public int getMetaFromState(IBlockState state)
     {
         int i = 0;
 
-        if (!this.isDouble() && state.getValue(HALF) == BlockSlab.EnumBlockHalf.TOP)
+        if (!this.isDouble() && state.get(HALF) == BlockSlab.EnumBlockHalf.TOP)
         {
             i |= 8;
         }
@@ -81,12 +72,9 @@ public abstract class BlockPurpurSlab extends BlockSlab
         return this.isDouble() ? new BlockStateContainer(this, new IProperty[] {VARIANT}) : new BlockStateContainer(this, new IProperty[] {HALF, VARIANT});
     }
 
-    /**
-     * Returns the slab block name with the type associated with it
-     */
-    public String getUnlocalizedName(int meta)
+    public String getTranslationKey(int meta)
     {
-        return super.getUnlocalizedName();
+        return super.getTranslationKey();
     }
 
     public IProperty<?> getVariantProperty()

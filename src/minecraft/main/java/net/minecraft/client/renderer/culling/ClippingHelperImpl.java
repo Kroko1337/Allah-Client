@@ -12,9 +12,6 @@ public class ClippingHelperImpl extends ClippingHelper
     private final FloatBuffer modelviewMatrixBuffer = GLAllocation.createDirectFloatBuffer(16);
     private final FloatBuffer floatBuffer16 = GLAllocation.createDirectFloatBuffer(16);
 
-    /**
-     * Initialises the ClippingHelper object then returns an instance of it.
-     */
     public static ClippingHelper getInstance()
     {
         instance.init();

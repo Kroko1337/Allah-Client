@@ -17,20 +17,14 @@ public class BlockFrostedIce extends BlockIce
 
     public BlockFrostedIce()
     {
-        this.setDefaultState(this.blockState.getBaseState().withProperty(AGE, Integer.valueOf(0)));
+        this.setDefaultState(this.stateContainer.getBaseState().withProperty(AGE, Integer.valueOf(0)));
     }
 
-    /**
-     * Convert the BlockState into the correct metadata value
-     */
     public int getMetaFromState(IBlockState state)
     {
-        return ((Integer)state.getValue(AGE)).intValue();
+        return ((Integer)state.get(AGE)).intValue();
     }
 
-    /**
-     * Convert the given metadata into a BlockState for this Block
-     */
     public IBlockState getStateFromMeta(int meta)
     {
         return this.getDefaultState().withProperty(AGE, Integer.valueOf(MathHelper.clamp(meta, 0, 3)));
@@ -38,21 +32,16 @@ public class BlockFrostedIce extends BlockIce
 
     public void updateTick(World worldIn, BlockPos pos, IBlockState state, Random rand)
     {
-        if ((rand.nextInt(3) == 0 || this.countNeighbors(worldIn, pos) < 4) && worldIn.getLightFromNeighbors(pos) > 11 - ((Integer)state.getValue(AGE)).intValue() - state.getLightOpacity())
+        if ((rand.nextInt(3) == 0 || this.countNeighbors(worldIn, pos) < 4) && worldIn.getLightFromNeighbors(pos) > 11 - ((Integer)state.get(AGE)).intValue() - state.getLightOpacity())
         {
             this.slightlyMelt(worldIn, pos, state, rand, true);
         }
         else
         {
-            worldIn.scheduleUpdate(pos, this, MathHelper.getInt(rand, 20, 40));
+            worldIn.scheduleUpdate(pos, this, MathHelper.nextInt(rand, 20, 40));
         }
     }
 
-    /**
-     * Called when a neighboring block was changed and marks that this state should perform any checks during a neighbor
-     * change. Cases may include when redstone power is updated, cactus blocks popping off due to a neighboring solid
-     * block, etc.
-     */
     public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos)
     {
         if (blockIn == this)
@@ -88,12 +77,12 @@ public class BlockFrostedIce extends BlockIce
 
     protected void slightlyMelt(World worldIn, BlockPos pos, IBlockState state, Random rand, boolean meltNeighbors)
     {
-        int i = ((Integer)state.getValue(AGE)).intValue();
+        int i = ((Integer)state.get(AGE)).intValue();
 
         if (i < 3)
         {
             worldIn.setBlockState(pos, state.withProperty(AGE, Integer.valueOf(i + 1)), 2);
-            worldIn.scheduleUpdate(pos, this, MathHelper.getInt(rand, 20, 40));
+            worldIn.scheduleUpdate(pos, this, MathHelper.nextInt(rand, 20, 40));
         }
         else
         {

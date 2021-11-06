@@ -17,7 +17,7 @@ public class WorldGenPumpkin extends WorldGenerator
 
             if (worldIn.isAirBlock(blockpos) && worldIn.getBlockState(blockpos.down()).getBlock() == Blocks.GRASS && Blocks.PUMPKIN.canPlaceBlockAt(worldIn, blockpos))
             {
-                worldIn.setBlockState(blockpos, Blocks.PUMPKIN.getDefaultState().withProperty(BlockPumpkin.FACING, EnumFacing.Plane.HORIZONTAL.random(rand)), 2);
+                worldIn.setBlockState(blockpos, Blocks.PUMPKIN.getDefaultState().withProperty(BlockPumpkin.HORIZONTAL_FACING, EnumFacing.Plane.HORIZONTAL.random(rand)), 2);
             }
         }
 

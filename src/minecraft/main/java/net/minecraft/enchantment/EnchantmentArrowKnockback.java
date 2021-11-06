@@ -18,9 +18,6 @@ public class EnchantmentArrowKnockback extends Enchantment
         return 12 + (enchantmentLevel - 1) * 20;
     }
 
-    /**
-     * Returns the maximum value of enchantability nedded on the enchantment level passed.
-     */
     public int getMaxEnchantability(int enchantmentLevel)
     {
         return this.getMinEnchantability(enchantmentLevel) + 25;

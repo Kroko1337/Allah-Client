@@ -30,9 +30,6 @@ public class RegistryNamespacedDefaultedByKey<K, V> extends RegistryNamespaced<K
         super.register(id, key, value);
     }
 
-    /**
-     * validates that this registry's key is non-null
-     */
     public void validateKey()
     {
         Validate.notNull(this.defaultValue, "Missing default of DefaultedMappedRegistry: " + this.defaultValueKey);
@@ -41,10 +38,10 @@ public class RegistryNamespacedDefaultedByKey<K, V> extends RegistryNamespaced<K
     /**
      * Gets the integer ID we use to identify the given object.
      */
-    public int getIDForObject(V value)
+    public int getId(V value)
     {
-        int i = super.getIDForObject(value);
-        return i == -1 ? super.getIDForObject(this.defaultValue) : i;
+        int i = super.getId(value);
+        return i == -1 ? super.getId(this.defaultValue) : i;
     }
 
     @Nonnull
@@ -52,24 +49,20 @@ public class RegistryNamespacedDefaultedByKey<K, V> extends RegistryNamespaced<K
     /**
      * Gets the name we use to identify the given object.
      */
-    public K getNameForObject(V value)
+    public K getKey(V value)
     {
-        K k = (K)super.getNameForObject(value);
+        K k = (K)super.getKey(value);
         return (K)(k == null ? this.defaultValueKey : k);
     }
 
     @Nonnull
-    public V getObject(@Nullable K name)
+    public V getOrDefault(@Nullable K name)
     {
-        V v = (V)super.getObject(name);
+        V v = (V)super.getOrDefault(name);
         return (V)(v == null ? this.defaultValue : v);
     }
 
     @Nonnull
-
-    /**
-     * Gets the object identified by the given ID.
-     */
     public V getObjectById(int id)
     {
         V v = (V)super.getObjectById(id);
@@ -77,9 +70,9 @@ public class RegistryNamespacedDefaultedByKey<K, V> extends RegistryNamespaced<K
     }
 
     @Nonnull
-    public V getRandomObject(Random random)
+    public V getRandom(Random random)
     {
-        V v = (V)super.getRandomObject(random);
+        V v = (V)super.getRandom(random);
         return (V)(v == null ? this.defaultValue : v);
     }
 }

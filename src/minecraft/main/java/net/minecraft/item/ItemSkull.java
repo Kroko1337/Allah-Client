@@ -35,9 +35,6 @@ public class ItemSkull extends Item
         this.setHasSubtypes(true);
     }
 
-    /**
-     * Called when a Block is right-clicked with this Item
-     */
     public EnumActionResult onItemUse(EntityPlayer player, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
         if (facing == EnumFacing.DOWN)
@@ -88,15 +85,15 @@ public class ItemSkull extends Item
                         {
                             GameProfile gameprofile = null;
 
-                            if (itemstack.hasTagCompound())
+                            if (itemstack.hasTag())
                             {
-                                NBTTagCompound nbttagcompound = itemstack.getTagCompound();
+                                NBTTagCompound nbttagcompound = itemstack.getTag();
 
-                                if (nbttagcompound.hasKey("SkullOwner", 10))
+                                if (nbttagcompound.contains("SkullOwner", 10))
                                 {
-                                    gameprofile = NBTUtil.readGameProfileFromNBT(nbttagcompound.getCompoundTag("SkullOwner"));
+                                    gameprofile = NBTUtil.readGameProfile(nbttagcompound.getCompound("SkullOwner"));
                                 }
-                                else if (nbttagcompound.hasKey("SkullOwner", 8) && !StringUtils.isBlank(nbttagcompound.getString("SkullOwner")))
+                                else if (nbttagcompound.contains("SkullOwner", 8) && !StringUtils.isBlank(nbttagcompound.getString("SkullOwner")))
                                 {
                                     gameprofile = new GameProfile((UUID)null, nbttagcompound.getString("SkullOwner"));
                                 }
@@ -132,9 +129,9 @@ public class ItemSkull extends Item
     /**
      * returns a list of items with the same ID, but different meta (eg: dye returns 16 items)
      */
-    public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> items)
+    public void fillItemGroup(CreativeTabs group, NonNullList<ItemStack> items)
     {
-        if (this.isInCreativeTab(tab))
+        if (this.isInGroup(group))
         {
             for (int i = 0; i < SKULL_TYPES.length; ++i)
             {
@@ -143,10 +140,6 @@ public class ItemSkull extends Item
         }
     }
 
-    /**
-     * Converts the given ItemStack damage value into a metadata value to be placed in the world when this Item is
-     * placed as a Block (mostly used with ItemBlocks).
-     */
     public int getMetadata(int damage)
     {
         return damage;
@@ -156,7 +149,7 @@ public class ItemSkull extends Item
      * Returns the unlocalized name of this item. This version accepts an ItemStack so different stacks can have
      * different names based on their damage or NBT.
      */
-    public String getUnlocalizedName(ItemStack stack)
+    public String getTranslationKey(ItemStack stack)
     {
         int i = stack.getMetadata();
 
@@ -165,23 +158,23 @@ public class ItemSkull extends Item
             i = 0;
         }
 
-        return super.getUnlocalizedName() + "." + SKULL_TYPES[i];
+        return super.getTranslationKey() + "." + SKULL_TYPES[i];
     }
 
     public String getItemStackDisplayName(ItemStack stack)
     {
-        if (stack.getMetadata() == 3 && stack.hasTagCompound())
+        if (stack.getMetadata() == 3 && stack.hasTag())
         {
-            if (stack.getTagCompound().hasKey("SkullOwner", 8))
+            if (stack.getTag().contains("SkullOwner", 8))
             {
-                return I18n.translateToLocalFormatted("item.skull.player.name", stack.getTagCompound().getString("SkullOwner"));
+                return I18n.translateToLocalFormatted("item.skull.player.name", stack.getTag().getString("SkullOwner"));
             }
 
-            if (stack.getTagCompound().hasKey("SkullOwner", 10))
+            if (stack.getTag().contains("SkullOwner", 10))
             {
-                NBTTagCompound nbttagcompound = stack.getTagCompound().getCompoundTag("SkullOwner");
+                NBTTagCompound nbttagcompound = stack.getTag().getCompound("SkullOwner");
 
-                if (nbttagcompound.hasKey("Name", 8))
+                if (nbttagcompound.contains("Name", 8))
                 {
                     return I18n.translateToLocalFormatted("item.skull.player.name", nbttagcompound.getString("Name"));
                 }
@@ -198,10 +191,10 @@ public class ItemSkull extends Item
     {
         super.updateItemStackNBT(nbt);
 
-        if (nbt.hasKey("SkullOwner", 8) && !StringUtils.isBlank(nbt.getString("SkullOwner")))
+        if (nbt.contains("SkullOwner", 8) && !StringUtils.isBlank(nbt.getString("SkullOwner")))
         {
             GameProfile gameprofile = new GameProfile((UUID)null, nbt.getString("SkullOwner"));
-            gameprofile = TileEntitySkull.updateGameprofile(gameprofile);
+            gameprofile = TileEntitySkull.updateGameProfile(gameprofile);
             nbt.setTag("SkullOwner", NBTUtil.writeGameProfile(new NBTTagCompound(), gameprofile));
             return true;
         }

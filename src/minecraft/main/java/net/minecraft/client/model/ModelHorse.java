@@ -14,15 +14,9 @@ public class ModelHorse extends ModelBase
     private final ModelRenderer lowerMouth;
     private final ModelRenderer horseLeftEar;
     private final ModelRenderer horseRightEar;
-
-    /** The left ear box for the mule model. */
     private final ModelRenderer muleLeftEar;
-
-    /** The right ear box for the mule model. */
     private final ModelRenderer muleRightEar;
     private final ModelRenderer neck;
-
-    /** The box for the horse's ropes on its face. */
     private final ModelRenderer horseFaceRopes;
     private final ModelRenderer mane;
     private final ModelRenderer body;
@@ -41,11 +35,7 @@ public class ModelHorse extends ModelBase
     private final ModelRenderer frontRightLeg;
     private final ModelRenderer frontRightShin;
     private final ModelRenderer frontRightHoof;
-
-    /** The left chest box on the mule model. */
     private final ModelRenderer muleLeftChest;
-
-    /** The right chest box on the mule model. */
     private final ModelRenderer muleRightChest;
     private final ModelRenderer horseSaddleBottom;
     private final ModelRenderer horseSaddleFront;
@@ -54,11 +44,7 @@ public class ModelHorse extends ModelBase
     private final ModelRenderer horseLeftSaddleMetal;
     private final ModelRenderer horseRightSaddleRope;
     private final ModelRenderer horseRightSaddleMetal;
-
-    /** The left metal connected to the horse's face ropes. */
     private final ModelRenderer horseLeftFaceMetal;
-
-    /** The right metal connected to the horse's face ropes. */
     private final ModelRenderer horseRightFaceMetal;
     private final ModelRenderer horseLeftRein;
     private final ModelRenderer horseRightRein;
@@ -207,9 +193,6 @@ public class ModelHorse extends ModelBase
         this.horseFaceRopes.rotateAngleX = 0.5235988F;
     }
 
-    /**
-     * Sets the models various rotation angles then renders the model.
-     */
     public void render(Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale)
     {
         AbstractHorse abstracthorse = (AbstractHorse)entityIn;
@@ -318,9 +301,6 @@ public class ModelHorse extends ModelBase
         }
     }
 
-    /**
-     * Fixes and offsets a rotation in the ModelHorse class.
-     */
     private float updateHorseRotation(float p_110683_1_, float p_110683_2_, float p_110683_3_)
     {
         float f;
@@ -338,10 +318,6 @@ public class ModelHorse extends ModelBase
         return p_110683_1_ + p_110683_3_ * f;
     }
 
-    /**
-     * Used for easily adding entity-dependent animations. The second and third float params here are the same second
-     * and third as in the setRotationAngles method.
-     */
     public void setLivingAnimations(EntityLivingBase entitylivingbaseIn, float limbSwing, float limbSwingAmount, float partialTickTime)
     {
         super.setLivingAnimations(entitylivingbaseIn, limbSwing, limbSwingAmount, partialTickTime);

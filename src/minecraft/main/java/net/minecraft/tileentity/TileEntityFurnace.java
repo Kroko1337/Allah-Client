@@ -36,13 +36,7 @@ public class TileEntityFurnace extends TileEntityLockable implements ITickable, 
     private static final int[] SLOTS_BOTTOM = new int[] {2, 1};
     private static final int[] SLOTS_SIDES = new int[] {1};
     private NonNullList<ItemStack> furnaceItemStacks = NonNullList.<ItemStack>withSize(3, ItemStack.EMPTY);
-
-    /** The number of ticks that the furnace will keep burning */
     private int furnaceBurnTime;
-
-    /**
-     * The number of ticks that a fresh copy of the currently-burning item would keep the furnace burning for
-     */
     private int currentItemBurnTime;
     private int cookTime;
     private int totalCookTime;
@@ -115,17 +109,11 @@ public class TileEntityFurnace extends TileEntityLockable implements ITickable, 
         }
     }
 
-    /**
-     * Get the name of this object. For players this returns their username
-     */
     public String getName()
     {
         return this.hasCustomName() ? this.furnaceCustomName : "container.furnace";
     }
 
-    /**
-     * Returns true if this thing is named
-     */
     public boolean hasCustomName()
     {
         return this.furnaceCustomName != null && !this.furnaceCustomName.isEmpty();
@@ -141,9 +129,9 @@ public class TileEntityFurnace extends TileEntityLockable implements ITickable, 
         fixer.registerWalker(FixTypes.BLOCK_ENTITY, new ItemStackDataLists(TileEntityFurnace.class, new String[] {"Items"}));
     }
 
-    public void readFromNBT(NBTTagCompound compound)
+    public void read(NBTTagCompound compound)
     {
-        super.readFromNBT(compound);
+        super.read(compound);
         this.furnaceItemStacks = NonNullList.<ItemStack>withSize(this.getSizeInventory(), ItemStack.EMPTY);
         ItemStackHelper.loadAllItems(compound, this.furnaceItemStacks);
         this.furnaceBurnTime = compound.getShort("BurnTime");
@@ -151,23 +139,23 @@ public class TileEntityFurnace extends TileEntityLockable implements ITickable, 
         this.totalCookTime = compound.getShort("CookTimeTotal");
         this.currentItemBurnTime = getItemBurnTime(this.furnaceItemStacks.get(1));
 
-        if (compound.hasKey("CustomName", 8))
+        if (compound.contains("CustomName", 8))
         {
             this.furnaceCustomName = compound.getString("CustomName");
         }
     }
 
-    public NBTTagCompound writeToNBT(NBTTagCompound compound)
+    public NBTTagCompound write(NBTTagCompound compound)
     {
-        super.writeToNBT(compound);
-        compound.setShort("BurnTime", (short)this.furnaceBurnTime);
-        compound.setShort("CookTime", (short)this.cookTime);
-        compound.setShort("CookTimeTotal", (short)this.totalCookTime);
+        super.write(compound);
+        compound.putShort("BurnTime", (short)this.furnaceBurnTime);
+        compound.putShort("CookTime", (short)this.cookTime);
+        compound.putShort("CookTimeTotal", (short)this.totalCookTime);
         ItemStackHelper.saveAllItems(compound, this.furnaceItemStacks);
 
         if (this.hasCustomName())
         {
-            compound.setString("CustomName", this.furnaceCustomName);
+            compound.putString("CustomName", this.furnaceCustomName);
         }
 
         return compound;
@@ -181,9 +169,6 @@ public class TileEntityFurnace extends TileEntityLockable implements ITickable, 
         return 64;
     }
 
-    /**
-     * Furnace isBurning
-     */
     public boolean isBurning()
     {
         return this.furnaceBurnTime > 0;
@@ -194,10 +179,7 @@ public class TileEntityFurnace extends TileEntityLockable implements ITickable, 
         return inventory.getField(0) > 0;
     }
 
-    /**
-     * Like the old updateEntity(), except more generic.
-     */
-    public void update()
+    public void tick()
     {
         boolean flag = this.isBurning();
         boolean flag1 = false;
@@ -276,9 +258,6 @@ public class TileEntityFurnace extends TileEntityLockable implements ITickable, 
         return 200;
     }
 
-    /**
-     * Returns true if the furnace can smelt an item, i.e. has a source item, destination stack isn't full, etc.
-     */
     private boolean canSmelt()
     {
         if (((ItemStack)this.furnaceItemStacks.get(0)).isEmpty())
@@ -317,9 +296,6 @@ public class TileEntityFurnace extends TileEntityLockable implements ITickable, 
         }
     }
 
-    /**
-     * Turn one item from the furnace source stack into the appropriate smelted item in the furnace result stack
-     */
     public void smeltItem()
     {
         if (this.canSmelt())
@@ -346,10 +322,6 @@ public class TileEntityFurnace extends TileEntityLockable implements ITickable, 
         }
     }
 
-    /**
-     * Returns the number of ticks that the supplied fuel item will keep the furnace burning, or 0 if the item isn't
-     * fuel
-     */
     public static int getItemBurnTime(ItemStack stack)
     {
         if (stack.isEmpty())

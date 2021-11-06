@@ -20,8 +20,6 @@ public class VillageSiege
     private int siegeState = -1;
     private int siegeCount;
     private int nextSpawnTime;
-
-    /** Instance of Village. */
     private Village village;
     private int spawnX;
     private int spawnY;
@@ -32,9 +30,6 @@ public class VillageSiege
         this.world = worldIn;
     }
 
-    /**
-     * Runs a single tick for the village siege
-     */
     public void tick()
     {
         if (this.world.isDaytime())
@@ -186,7 +181,7 @@ public class VillageSiege
             }
 
             entityzombie.setLocationAndAngles(vec3d.x, vec3d.y, vec3d.z, this.world.rand.nextFloat() * 360.0F, 0.0F);
-            this.world.spawnEntity(entityzombie);
+            this.world.addEntity0(entityzombie);
             BlockPos blockpos = this.village.getCenter();
             entityzombie.setHomePosAndDistance(blockpos, this.village.getVillageRadius());
             return true;

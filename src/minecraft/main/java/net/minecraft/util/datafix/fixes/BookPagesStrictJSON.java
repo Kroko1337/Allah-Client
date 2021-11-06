@@ -21,15 +21,15 @@ public class BookPagesStrictJSON implements IFixableData
     {
         if ("minecraft:written_book".equals(compound.getString("id")))
         {
-            NBTTagCompound nbttagcompound = compound.getCompoundTag("tag");
+            NBTTagCompound nbttagcompound = compound.getCompound("tag");
 
-            if (nbttagcompound.hasKey("pages", 9))
+            if (nbttagcompound.contains("pages", 9))
             {
-                NBTTagList nbttaglist = nbttagcompound.getTagList("pages", 8);
+                NBTTagList nbttaglist = nbttagcompound.getList("pages", 8);
 
                 for (int i = 0; i < nbttaglist.tagCount(); ++i)
                 {
-                    String s = nbttaglist.getStringTagAt(i);
+                    String s = nbttaglist.getString(i);
                     ITextComponent itextcomponent = null;
 
                     if (!"null".equals(s) && !StringUtils.isNullOrEmpty(s))
@@ -38,7 +38,7 @@ public class BookPagesStrictJSON implements IFixableData
                         {
                             try
                             {
-                                itextcomponent = (ITextComponent)JsonUtils.gsonDeserialize(SignStrictJSON.GSON_INSTANCE, s, ITextComponent.class, true);
+                                itextcomponent = (ITextComponent)JsonUtils.fromJson(SignStrictJSON.GSON, s, ITextComponent.class, true);
 
                                 if (itextcomponent == null)
                                 {
@@ -54,7 +54,7 @@ public class BookPagesStrictJSON implements IFixableData
                             {
                                 try
                                 {
-                                    itextcomponent = ITextComponent.Serializer.jsonToComponent(s);
+                                    itextcomponent = ITextComponent.Serializer.fromJson(s);
                                 }
                                 catch (JsonParseException var9)
                                 {
@@ -89,7 +89,7 @@ public class BookPagesStrictJSON implements IFixableData
                         itextcomponent = new TextComponentString("");
                     }
 
-                    nbttaglist.set(i, new NBTTagString(ITextComponent.Serializer.componentToJson(itextcomponent)));
+                    nbttaglist.set(i, new NBTTagString(ITextComponent.Serializer.toJson(itextcomponent)));
                 }
 
                 nbttagcompound.setTag("pages", nbttaglist);

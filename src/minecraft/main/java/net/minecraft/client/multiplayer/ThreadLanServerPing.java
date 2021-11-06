@@ -14,8 +14,6 @@ public class ThreadLanServerPing extends Thread
     private static final AtomicInteger UNIQUE_THREAD_ID = new AtomicInteger(0);
     private static final Logger LOGGER = LogManager.getLogger();
     private final String motd;
-
-    /** The socket we're using to send packets on. */
     private final DatagramSocket socket;
     private boolean isStopping = true;
     private final String address;

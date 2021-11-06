@@ -15,8 +15,6 @@ import net.minecraft.world.biome.Biome;
 public class MapGenVillage extends MapGenStructure
 {
     public static final List<Biome> VILLAGE_SPAWN_BIOMES = Arrays.<Biome>asList(Biomes.PLAINS, Biomes.DESERT, Biomes.SAVANNA, Biomes.TAIGA);
-
-    /** None */
     private int size;
     private int distance;
     private final int minTownSeparation;
@@ -144,7 +142,7 @@ public class MapGenVillage extends MapGenStructure
             this.hasMoreThanTwoComponents = k > 2;
         }
 
-        public boolean isSizeableStructure()
+        public boolean isValid()
         {
             return this.hasMoreThanTwoComponents;
         }
@@ -152,7 +150,7 @@ public class MapGenVillage extends MapGenStructure
         public void writeToNBT(NBTTagCompound tagCompound)
         {
             super.writeToNBT(tagCompound);
-            tagCompound.setBoolean("Valid", this.hasMoreThanTwoComponents);
+            tagCompound.putBoolean("Valid", this.hasMoreThanTwoComponents);
         }
 
         public void readFromNBT(NBTTagCompound tagCompound)

@@ -17,10 +17,6 @@ public class ItemColored extends ItemBlock
         }
     }
 
-    /**
-     * Converts the given ItemStack damage value into a metadata value to be placed in the world when this Item is
-     * placed as a Block (mostly used with ItemBlocks).
-     */
     public int getMetadata(int damage)
     {
         return damage;
@@ -36,16 +32,16 @@ public class ItemColored extends ItemBlock
      * Returns the unlocalized name of this item. This version accepts an ItemStack so different stacks can have
      * different names based on their damage or NBT.
      */
-    public String getUnlocalizedName(ItemStack stack)
+    public String getTranslationKey(ItemStack stack)
     {
         if (this.subtypeNames == null)
         {
-            return super.getUnlocalizedName(stack);
+            return super.getTranslationKey(stack);
         }
         else
         {
             int i = stack.getMetadata();
-            return i >= 0 && i < this.subtypeNames.length ? super.getUnlocalizedName(stack) + "." + this.subtypeNames[i] : super.getUnlocalizedName(stack);
+            return i >= 0 && i < this.subtypeNames.length ? super.getTranslationKey(stack) + "." + this.subtypeNames[i] : super.getTranslationKey(stack);
         }
     }
 }

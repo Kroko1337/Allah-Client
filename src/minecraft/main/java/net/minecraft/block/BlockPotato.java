@@ -23,9 +23,6 @@ public class BlockPotato extends BlockCrops
         return Items.POTATO;
     }
 
-    /**
-     * Spawns this Block's drops into the World as EntityItems.
-     */
     public void dropBlockAsItemWithChance(World worldIn, BlockPos pos, IBlockState state, float chance, int fortune)
     {
         super.dropBlockAsItemWithChance(worldIn, pos, state, chance, fortune);
@@ -41,6 +38,6 @@ public class BlockPotato extends BlockCrops
 
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
     {
-        return POTATO_AABB[((Integer)state.getValue(this.getAgeProperty())).intValue()];
+        return POTATO_AABB[((Integer)state.get(this.getAgeProperty())).intValue()];
     }
 }

@@ -12,33 +12,21 @@ import net.minecraft.util.math.BlockPos;
 
 public class CommandEnchant extends CommandBase
 {
-    /**
-     * Gets the name of the command
-     */
     public String getName()
     {
         return "enchant";
     }
 
-    /**
-     * Return the required permission level for this command.
-     */
     public int getRequiredPermissionLevel()
     {
         return 2;
     }
 
-    /**
-     * Gets the usage string for the command.
-     */
     public String getUsage(ICommandSender sender)
     {
         return "commands.enchant.usage";
     }
 
-    /**
-     * Callback for when the command is executed
-     */
     public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
     {
         if (args.length < 2)
@@ -84,13 +72,13 @@ public class CommandEnchant extends CommandBase
                         i = parseInt(args[2], enchantment.getMinLevel(), enchantment.getMaxLevel());
                     }
 
-                    if (itemstack.hasTagCompound())
+                    if (itemstack.hasTag())
                     {
                         NBTTagList nbttaglist = itemstack.getEnchantmentTagList();
 
                         for (int j = 0; j < nbttaglist.tagCount(); ++j)
                         {
-                            int k = nbttaglist.getCompoundTagAt(j).getShort("id");
+                            int k = nbttaglist.getCompound(j).getShort("id");
 
                             if (Enchantment.getEnchantmentByID(k) != null)
                             {
@@ -98,7 +86,7 @@ public class CommandEnchant extends CommandBase
 
                                 if (!enchantment.isCompatibleWith(enchantment1))
                                 {
-                                    throw new CommandException("commands.enchant.cantCombine", new Object[] {enchantment.getTranslatedName(i), enchantment1.getTranslatedName(nbttaglist.getCompoundTagAt(j).getShort("lvl"))});
+                                    throw new CommandException("commands.enchant.cantCombine", new Object[] {enchantment.getTranslatedName(i), enchantment1.getTranslatedName(nbttaglist.getCompound(j).getShort("lvl"))});
                                 }
                             }
                         }
@@ -120,13 +108,10 @@ public class CommandEnchant extends CommandBase
         }
         else
         {
-            return args.length == 2 ? getListOfStringsMatchingLastWord(args, Enchantment.REGISTRY.getKeys()) : Collections.emptyList();
+            return args.length == 2 ? getListOfStringsMatchingLastWord(args, Enchantment.REGISTRY.keySet()) : Collections.emptyList();
         }
     }
 
-    /**
-     * Return whether the specified command parameter index is a username parameter.
-     */
     public boolean isUsernameIndex(String[] args, int index)
     {
         return index == 0;

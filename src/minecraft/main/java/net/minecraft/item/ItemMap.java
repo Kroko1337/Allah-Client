@@ -40,7 +40,7 @@ public class ItemMap extends ItemMapBase
         worldIn.setData(s, mapdata);
         mapdata.scale = scale;
         mapdata.calculateMapCenter(worldX, worldZ, mapdata.scale);
-        mapdata.dimension = (byte)worldIn.provider.getDimensionType().getId();
+        mapdata.dimension = (byte)worldIn.dimension.getType().getId();
         mapdata.trackingPosition = trackingPosition;
         mapdata.unlimitedTracking = unlimitedTracking;
         mapdata.markDirty();
@@ -67,7 +67,7 @@ public class ItemMap extends ItemMapBase
             mapdata = new MapData(s);
             mapdata.scale = 3;
             mapdata.calculateMapCenter((double)worldIn.getWorldInfo().getSpawnX(), (double)worldIn.getWorldInfo().getSpawnZ(), mapdata.scale);
-            mapdata.dimension = (byte)worldIn.provider.getDimensionType().getId();
+            mapdata.dimension = (byte)worldIn.dimension.getType().getId();
             mapdata.markDirty();
             worldIn.setData(s, mapdata);
         }
@@ -77,7 +77,7 @@ public class ItemMap extends ItemMapBase
 
     public void updateMapData(World worldIn, Entity viewer, MapData data)
     {
-        if (worldIn.provider.getDimensionType().getId() == data.dimension && viewer instanceof EntityPlayer)
+        if (worldIn.dimension.getType().getId() == data.dimension && viewer instanceof EntityPlayer)
         {
             int i = 1 << data.scale;
             int j = data.xCenter;
@@ -86,7 +86,7 @@ public class ItemMap extends ItemMapBase
             int i1 = MathHelper.floor(viewer.posZ - (double)k) / i + 64;
             int j1 = 128 / i;
 
-            if (worldIn.provider.isNether())
+            if (worldIn.dimension.isNether())
             {
                 j1 /= 2;
             }
@@ -112,7 +112,7 @@ public class ItemMap extends ItemMapBase
                             int k2 = (j / i + k1 - 64) * i;
                             int l2 = (k / i + l1 - 64) * i;
                             Multiset<MapColor> multiset = HashMultiset.<MapColor>create();
-                            Chunk chunk = worldIn.getChunkFromBlockCoords(new BlockPos(k2, 0, l2));
+                            Chunk chunk = worldIn.getChunkAt(new BlockPos(k2, 0, l2));
 
                             if (!chunk.isEmpty())
                             {
@@ -121,18 +121,18 @@ public class ItemMap extends ItemMapBase
                                 int k3 = 0;
                                 double d1 = 0.0D;
 
-                                if (worldIn.provider.isNether())
+                                if (worldIn.dimension.isNether())
                                 {
                                     int l3 = k2 + l2 * 231871;
                                     l3 = l3 * l3 * 31287121 + l3 * 11;
 
                                     if ((l3 >> 20 & 1) == 0)
                                     {
-                                        multiset.add(Blocks.DIRT.getDefaultState().withProperty(BlockDirt.VARIANT, BlockDirt.DirtType.DIRT).getMapColor(worldIn, BlockPos.ORIGIN), 10);
+                                        multiset.add(Blocks.DIRT.getDefaultState().withProperty(BlockDirt.VARIANT, BlockDirt.DirtType.DIRT).getMaterialColor(worldIn, BlockPos.ZERO), 10);
                                     }
                                     else
                                     {
-                                        multiset.add(Blocks.STONE.getDefaultState().withProperty(BlockStone.VARIANT, BlockStone.EnumType.STONE).getMapColor(worldIn, BlockPos.ORIGIN), 100);
+                                        multiset.add(Blocks.STONE.getDefaultState().withProperty(BlockStone.VARIANT, BlockStone.EnumType.STONE).getMaterialColor(worldIn, BlockPos.ZERO), 100);
                                     }
 
                                     d1 = 100.0D;
@@ -162,7 +162,7 @@ public class ItemMap extends ItemMapBase
                                                         iblockstate = chunk.getBlockState(i4 + i3, k4, j4 + j3);
                                                         blockpos$mutableblockpos.setPos((chunk.x << 4) + i4 + i3, k4, (chunk.z << 4) + j4 + j3);
 
-                                                        if (iblockstate.getMapColor(worldIn, blockpos$mutableblockpos) != MapColor.AIR || k4 <= 0)
+                                                        if (iblockstate.getMaterialColor(worldIn, blockpos$mutableblockpos) != MapColor.AIR || k4 <= 0)
                                                         {
                                                             break;
                                                         }
@@ -187,7 +187,7 @@ public class ItemMap extends ItemMapBase
                                             }
 
                                             d1 += (double)k4 / (double)(i * i);
-                                            multiset.add(iblockstate.getMapColor(worldIn, blockpos$mutableblockpos));
+                                            multiset.add(iblockstate.getMaterialColor(worldIn, blockpos$mutableblockpos));
                                         }
                                     }
                                 }
@@ -246,9 +246,6 @@ public class ItemMap extends ItemMapBase
         }
     }
 
-    /**
-     * Draws ambiguous landmasses representing unexplored terrain onto a treasure map
-     */
     public static void renderBiomePreviewMap(World worldIn, ItemStack map)
     {
         if (map.getItem() == Items.FILLED_MAP)
@@ -257,7 +254,7 @@ public class ItemMap extends ItemMapBase
 
             if (mapdata != null)
             {
-                if (worldIn.provider.getDimensionType().getId() == mapdata.dimension)
+                if (worldIn.dimension.getType().getId() == mapdata.dimension)
                 {
                     int i = 1 << mapdata.scale;
                     int j = mapdata.xCenter;
@@ -277,47 +274,47 @@ public class ItemMap extends ItemMapBase
 
                             if (l > 0 && i1 > 0 && l < 127 && i1 < 127)
                             {
-                                if (abiome[(l - 1) * i + (i1 - 1) * i * 128 * i].getBaseHeight() >= 0.0F)
+                                if (abiome[(l - 1) * i + (i1 - 1) * i * 128 * i].getDepth() >= 0.0F)
                                 {
                                     --i2;
                                 }
 
-                                if (abiome[(l - 1) * i + (i1 + 1) * i * 128 * i].getBaseHeight() >= 0.0F)
+                                if (abiome[(l - 1) * i + (i1 + 1) * i * 128 * i].getDepth() >= 0.0F)
                                 {
                                     --i2;
                                 }
 
-                                if (abiome[(l - 1) * i + i1 * i * 128 * i].getBaseHeight() >= 0.0F)
+                                if (abiome[(l - 1) * i + i1 * i * 128 * i].getDepth() >= 0.0F)
                                 {
                                     --i2;
                                 }
 
-                                if (abiome[(l + 1) * i + (i1 - 1) * i * 128 * i].getBaseHeight() >= 0.0F)
+                                if (abiome[(l + 1) * i + (i1 - 1) * i * 128 * i].getDepth() >= 0.0F)
                                 {
                                     --i2;
                                 }
 
-                                if (abiome[(l + 1) * i + (i1 + 1) * i * 128 * i].getBaseHeight() >= 0.0F)
+                                if (abiome[(l + 1) * i + (i1 + 1) * i * 128 * i].getDepth() >= 0.0F)
                                 {
                                     --i2;
                                 }
 
-                                if (abiome[(l + 1) * i + i1 * i * 128 * i].getBaseHeight() >= 0.0F)
+                                if (abiome[(l + 1) * i + i1 * i * 128 * i].getDepth() >= 0.0F)
                                 {
                                     --i2;
                                 }
 
-                                if (abiome[l * i + (i1 - 1) * i * 128 * i].getBaseHeight() >= 0.0F)
+                                if (abiome[l * i + (i1 - 1) * i * 128 * i].getDepth() >= 0.0F)
                                 {
                                     --i2;
                                 }
 
-                                if (abiome[l * i + (i1 + 1) * i * 128 * i].getBaseHeight() >= 0.0F)
+                                if (abiome[l * i + (i1 + 1) * i * 128 * i].getDepth() >= 0.0F)
                                 {
                                     --i2;
                                 }
 
-                                if (biome.getBaseHeight() < 0.0F)
+                                if (biome.getDepth() < 0.0F)
                                 {
                                     mapcolor = MapColor.ADOBE;
 
@@ -382,7 +379,7 @@ public class ItemMap extends ItemMapBase
      * Called each tick as long the item is on a player inventory. Uses by maps to check if is on a player hand and
      * update it's contents.
      */
-    public void onUpdate(ItemStack stack, World worldIn, Entity entityIn, int itemSlot, boolean isSelected)
+    public void inventoryTick(ItemStack stack, World worldIn, Entity entityIn, int itemSlot, boolean isSelected)
     {
         if (!worldIn.isRemote)
         {
@@ -402,7 +399,7 @@ public class ItemMap extends ItemMapBase
     }
 
     @Nullable
-    public Packet<?> createMapDataPacket(ItemStack stack, World worldIn, EntityPlayer player)
+    public Packet<?> getUpdatePacket(ItemStack stack, World worldIn, EntityPlayer player)
     {
         return this.getMapData(stack, worldIn).getMapPacket(stack, worldIn, player);
     }
@@ -412,19 +409,19 @@ public class ItemMap extends ItemMapBase
      */
     public void onCreated(ItemStack stack, World worldIn, EntityPlayer playerIn)
     {
-        NBTTagCompound nbttagcompound = stack.getTagCompound();
+        NBTTagCompound nbttagcompound = stack.getTag();
 
         if (nbttagcompound != null)
         {
-            if (nbttagcompound.hasKey("map_scale_direction", 99))
+            if (nbttagcompound.contains("map_scale_direction", 99))
             {
-                scaleMap(stack, worldIn, nbttagcompound.getInteger("map_scale_direction"));
-                nbttagcompound.removeTag("map_scale_direction");
+                scaleMap(stack, worldIn, nbttagcompound.getInt("map_scale_direction"));
+                nbttagcompound.remove("map_scale_direction");
             }
             else if (nbttagcompound.getBoolean("map_tracking_position"))
             {
                 enableMapTracking(stack, worldIn);
-                nbttagcompound.removeTag("map_tracking_position");
+                nbttagcompound.remove("map_tracking_position");
             }
         }
     }
@@ -485,13 +482,13 @@ public class ItemMap extends ItemMapBase
         }
     }
 
-    public static int getColor(ItemStack p_190907_0_)
+    public static int getColor(ItemStack stack)
     {
-        NBTTagCompound nbttagcompound = p_190907_0_.getSubCompound("display");
+        NBTTagCompound nbttagcompound = stack.getChildTag("display");
 
-        if (nbttagcompound != null && nbttagcompound.hasKey("MapColor", 99))
+        if (nbttagcompound != null && nbttagcompound.contains("MapColor", 99))
         {
-            int i = nbttagcompound.getInteger("MapColor");
+            int i = nbttagcompound.getInt("MapColor");
             return -16777216 | i & 16777215;
         }
         else

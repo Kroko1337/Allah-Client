@@ -18,7 +18,7 @@ public class BlockSlime extends BlockBreakable
         this.slipperiness = 0.8F;
     }
 
-    public BlockRenderLayer getBlockLayer()
+    public BlockRenderLayer getRenderLayer()
     {
         return BlockRenderLayer.TRANSLUCENT;
     }

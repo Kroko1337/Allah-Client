@@ -27,7 +27,7 @@ public class RenderVillager extends RenderLiving<EntityVillager>
     }
 
     /**
-     * Returns the location of an entity's texture. Doesn't seem to be called unless you call Render.bindEntityTexture.
+     * Returns the location of an entity's texture.
      */
     protected ResourceLocation getEntityTexture(EntityVillager entity)
     {
@@ -54,9 +54,6 @@ public class RenderVillager extends RenderLiving<EntityVillager>
         }
     }
 
-    /**
-     * Allows the render to do state modifications necessary before the model is rendered.
-     */
     protected void preRenderCallback(EntityVillager entitylivingbaseIn, float partialTickTime)
     {
         float f = 0.9375F;

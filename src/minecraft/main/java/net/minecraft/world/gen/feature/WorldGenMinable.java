@@ -12,8 +12,6 @@ import net.minecraft.world.World;
 public class WorldGenMinable extends WorldGenerator
 {
     private final IBlockState oreBlock;
-
-    /** The number of blocks to generate. */
     private final int numberOfBlocks;
     private final Predicate<IBlockState> predicate;
 
@@ -100,7 +98,7 @@ public class WorldGenMinable extends WorldGenerator
         {
             if (p_apply_1_ != null && p_apply_1_.getBlock() == Blocks.STONE)
             {
-                BlockStone.EnumType blockstone$enumtype = (BlockStone.EnumType)p_apply_1_.getValue(BlockStone.VARIANT);
+                BlockStone.EnumType blockstone$enumtype = (BlockStone.EnumType)p_apply_1_.get(BlockStone.VARIANT);
                 return blockstone$enumtype.isNatural();
             }
             else

@@ -13,8 +13,6 @@ import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import net.minecraft.src.CrashReporter;
-import net.minecraft.src.Reflector;
 import net.minecraft.util.ReportedException;
 import net.minecraft.world.gen.layer.IntCache;
 import org.apache.commons.io.IOUtils;
@@ -25,24 +23,13 @@ import org.apache.logging.log4j.Logger;
 public class CrashReport
 {
     private static final Logger LOGGER = LogManager.getLogger();
-
-    /** Description of the crash report. */
     private final String description;
-
-    /** The Throwable that is the "cause" for this crash and Crash Report. */
     private final Throwable cause;
-
-    /** Category of crash */
     private final CrashReportCategory systemDetailsCategory = new CrashReportCategory(this, "System Details");
     private final List<CrashReportCategory> crashReportSections = Lists.<CrashReportCategory>newArrayList();
-
-    /** File of crash report. */
     private File crashReportFile;
-
-    /** Is true when the current category is the first in the crash report */
     private boolean firstCategoryInCrashReport = true;
     private StackTraceElement[] stacktrace = new StackTraceElement[0];
-    private boolean reported = false;
 
     public CrashReport(String descriptionIn, Throwable causeThrowable)
     {
@@ -61,7 +48,7 @@ public class CrashReport
         {
             public String call()
             {
-                return "1.12";
+                return "1.12.2";
             }
         });
         this.systemDetailsCategory.addDetail("Operating System", new ICrashReportDetail<String>()
@@ -131,12 +118,6 @@ public class CrashReport
                 return IntCache.getCacheSizes();
             }
         });
-
-        if (Reflector.FMLCommonHandler_enhanceCrashReport.exists())
-        {
-            Object object = Reflector.call(Reflector.FMLCommonHandler_instance);
-            Reflector.callString(object, Reflector.FMLCommonHandler_enhanceCrashReport, this, this.systemDetailsCategory);
-        }
     }
 
     /**
@@ -239,16 +220,8 @@ public class CrashReport
      */
     public String getCompleteReport()
     {
-        if (!this.reported)
-        {
-            this.reported = true;
-            CrashReporter.onCrashReport(this, this.systemDetailsCategory);
-        }
-
         StringBuilder stringbuilder = new StringBuilder();
         stringbuilder.append("---- Minecraft Crash Report ----\n");
-        Reflector.call(Reflector.BlamingTransformer_onCrash, stringbuilder);
-        Reflector.call(Reflector.CoreModManager_onCrash, stringbuilder);
         stringbuilder.append("// ");
         stringbuilder.append(getWittyComment());
         stringbuilder.append("\n\n");
@@ -296,28 +269,27 @@ public class CrashReport
             }
 
             Writer writer = null;
-            boolean flag;
+            boolean flag1;
 
             try
             {
                 writer = new OutputStreamWriter(new FileOutputStream(toFile), StandardCharsets.UTF_8);
                 writer.write(this.getCompleteReport());
                 this.crashReportFile = toFile;
-                boolean flag1 = true;
-                boolean flag2 = flag1;
-                return flag2;
+                boolean lvt_3_1_ = true;
+                return lvt_3_1_;
             }
-            catch (Throwable throwable1)
+            catch (Throwable throwable)
             {
-                LOGGER.error("Could not save crash report to {}", toFile, throwable1);
-                flag = false;
+                LOGGER.error("Could not save crash report to {}", toFile, throwable);
+                flag1 = false;
             }
             finally
             {
                 IOUtils.closeQuietly(writer);
             }
 
-            return flag;
+            return flag1;
         }
     }
 

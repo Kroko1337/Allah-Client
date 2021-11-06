@@ -18,10 +18,6 @@ public abstract class InventoryEffectRenderer extends GuiContainer
         super(inventorySlotsIn);
     }
 
-    /**
-     * Adds the buttons (and other controls) to the screen in question. Called when the GUI is displayed and when the
-     * window resizes, the buttonList is cleared beforehand.
-     */
     public void initGui()
     {
         super.initGui();
@@ -42,9 +38,6 @@ public abstract class InventoryEffectRenderer extends GuiContainer
         }
     }
 
-    /**
-     * Draws the screen and all the components in it.
-     */
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         super.drawScreen(mouseX, mouseY, partialTicks);

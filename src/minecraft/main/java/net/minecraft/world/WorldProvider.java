@@ -20,50 +20,25 @@ import net.minecraft.world.gen.IChunkGenerator;
 public abstract class WorldProvider
 {
     public static final float[] MOON_PHASE_FACTORS = new float[] {1.0F, 0.75F, 0.5F, 0.25F, 0.0F, 0.25F, 0.5F, 0.75F};
-
-    /** world object being used */
     protected World world;
     private WorldType terrainType;
     private String generatorSettings;
-
-    /** World chunk manager being used to generate chunks */
     protected BiomeProvider biomeProvider;
-
-    /**
-     * States whether the Hell world provider is used(true) or if the normal world provider is used(false)
-     */
     protected boolean doesWaterVaporize;
-
-    /**
-     * Whether this dimension should be treated as the nether.
-     *  
-     * @see <a href="https://github.com/ModCoderPack/MCPBot-Issues/issues/330">https://github.com/ModCoderPack/MCPBot-
-     * Issues/issues/330</a>
-     */
     protected boolean nether;
     protected boolean hasSkyLight;
-
-    /** Light to brightness conversion table */
     protected final float[] lightBrightnessTable = new float[16];
-
-    /** Array for sunrise/sunset colors (RGBA) */
     private final float[] colorsSunriseSunset = new float[4];
 
-    /**
-     * associate an existing world with a World provider, and setup its lightbrightness table
-     */
     public final void setWorld(World worldIn)
     {
         this.world = worldIn;
-        this.terrainType = worldIn.getWorldInfo().getTerrainType();
+        this.terrainType = worldIn.getWorldInfo().getGenerator();
         this.generatorSettings = worldIn.getWorldInfo().getGeneratorOptions();
         this.init();
         this.generateLightBrightnessTable();
     }
 
-    /**
-     * Creates the light to brightness table
-     */
     protected void generateLightBrightnessTable()
     {
         float f = 0.0F;
@@ -75,16 +50,10 @@ public abstract class WorldProvider
         }
     }
 
-    /**
-     * Creates a new {@link BiomeProvider} for the WorldProvider, and also sets the values of {@link #hasSkylight} and
-     * {@link #hasNoSky} appropriately.
-     *  
-     * Note that subclasses generally override this method without calling the parent version.
-     */
     protected void init()
     {
         this.hasSkyLight = true;
-        WorldType worldtype = this.world.getWorldInfo().getTerrainType();
+        WorldType worldtype = this.world.getWorldInfo().getGenerator();
 
         if (worldtype == WorldType.FLAT)
         {
@@ -117,9 +86,6 @@ public abstract class WorldProvider
         }
     }
 
-    /**
-     * Will check if the x, z position specified is alright to be set as the map spawn point
-     */
     public boolean canCoordinateBeSpawn(int x, int z)
     {
         BlockPos blockpos = new BlockPos(x, 0, z);
@@ -201,9 +167,9 @@ public abstract class WorldProvider
     /**
      * Return Vec3D with biome specific fog color
      */
-    public Vec3d getFogColor(float p_76562_1_, float p_76562_2_)
+    public Vec3d getFogColor(float celestialAngle, float partialTicks)
     {
-        float f = MathHelper.cos(p_76562_1_ * ((float)Math.PI * 2F)) * 2.0F + 0.5F;
+        float f = MathHelper.cos(celestialAngle * ((float)Math.PI * 2F)) * 2.0F + 0.5F;
         f = MathHelper.clamp(f, 0.0F, 1.0F);
         float f1 = 0.7529412F;
         float f2 = 0.84705883F;
@@ -294,21 +260,15 @@ public abstract class WorldProvider
         return new WorldBorder();
     }
 
-    /**
-     * Called when a Player is added to the provider's world.
-     */
     public void onPlayerAdded(EntityPlayerMP player)
     {
     }
 
-    /**
-     * Called when a Player is removed from the provider's world.
-     */
     public void onPlayerRemoved(EntityPlayerMP player)
     {
     }
 
-    public abstract DimensionType getDimensionType();
+    public abstract DimensionType getType();
 
     /**
      * Called when the world is performing a save. Only used to save the state of the Dragon Boss fight in
@@ -322,14 +282,10 @@ public abstract class WorldProvider
      * Called when the world is updating entities. Only used in WorldProviderEnd to update the DragonFightManager in
      * Vanilla.
      */
-    public void onWorldUpdateEntities()
+    public void tick()
     {
     }
 
-    /**
-     * Called to determine if the chunk at the given chunk coordinates within the provider's world can be dropped. Used
-     * in WorldProviderSurface to prevent spawn chunks from being unloaded.
-     */
     public boolean canDropChunk(int x, int z)
     {
         return true;

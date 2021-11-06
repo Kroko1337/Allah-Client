@@ -32,13 +32,10 @@ public class GuiInventory extends InventoryEffectRenderer implements IRecipeShow
 
     public GuiInventory(EntityPlayer player)
     {
-        super(player.inventoryContainer);
+        super(player.container);
         this.allowUserInput = true;
     }
 
-    /**
-     * Called from the main game loop to update the screen.
-     */
     public void updateScreen()
     {
         if (this.mc.playerController.isInCreativeMode())
@@ -49,10 +46,6 @@ public class GuiInventory extends InventoryEffectRenderer implements IRecipeShow
         this.recipeBookGui.tick();
     }
 
-    /**
-     * Adds the buttons (and other controls) to the screen in question. Called when the GUI is displayed and when the
-     * window resizes, the buttonList is cleared beforehand.
-     */
     public void initGui()
     {
         this.buttonList.clear();
@@ -67,7 +60,7 @@ public class GuiInventory extends InventoryEffectRenderer implements IRecipeShow
         }
 
         this.widthTooNarrow = this.width < 379;
-        this.recipeBookGui.init(this.width, this.height, this.mc, this.widthTooNarrow, this.inventorySlots, ((ContainerPlayer)this.inventorySlots).craftMatrix);
+        this.recipeBookGui.func_194303_a(this.width, this.height, this.mc, this.widthTooNarrow, ((ContainerPlayer)this.container).craftMatrix);
         this.guiLeft = this.recipeBookGui.updateScreenPosition(this.widthTooNarrow, this.width, this.xSize);
         this.recipeButton = new GuiButtonImage(10, this.guiLeft + 104, this.height / 2 - 22, 20, 18, 178, 0, 19, INVENTORY_BACKGROUND);
         this.buttonList.add(this.recipeButton);
@@ -81,9 +74,6 @@ public class GuiInventory extends InventoryEffectRenderer implements IRecipeShow
         this.fontRenderer.drawString(I18n.format("container.crafting"), 97, 8, 4210752);
     }
 
-    /**
-     * Draws the screen and all the components in it.
-     */
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         this.drawDefaultBackground();
@@ -120,9 +110,6 @@ public class GuiInventory extends InventoryEffectRenderer implements IRecipeShow
         drawEntityOnScreen(i + 51, j + 75, 30, (float)(i + 51) - this.oldMouseX, (float)(j + 75 - 50) - this.oldMouseY, this.mc.player);
     }
 
-    /**
-     * Draws an entity on the screen looking toward the cursor.
-     */
     public static void drawEntityOnScreen(int posX, int posY, int scale, float mouseX, float mouseY, EntityLivingBase ent)
     {
         GlStateManager.enableColorMaterial();
@@ -145,10 +132,10 @@ public class GuiInventory extends InventoryEffectRenderer implements IRecipeShow
         ent.rotationYawHead = ent.rotationYaw;
         ent.prevRotationYawHead = ent.rotationYaw;
         GlStateManager.translate(0.0F, 0.0F, 0.0F);
-        RenderManager rendermanager = Minecraft.getMinecraft().getRenderManager();
+        RenderManager rendermanager = Minecraft.getInstance().getRenderManager();
         rendermanager.setPlayerViewY(180.0F);
         rendermanager.setRenderShadow(false);
-        rendermanager.doRenderEntity(ent, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F, false);
+        rendermanager.renderEntity(ent, 0.0D, 0.0D, 0.0D, 0.0F, 1.0F, false);
         rendermanager.setRenderShadow(true);
         ent.renderYawOffset = f;
         ent.rotationYaw = f1;
@@ -163,18 +150,11 @@ public class GuiInventory extends InventoryEffectRenderer implements IRecipeShow
         GlStateManager.setActiveTexture(OpenGlHelper.defaultTexUnit);
     }
 
-    /**
-     * Test if the 2D point is in a rectangle (relative to the GUI). Args : rectX, rectY, rectWidth, rectHeight, pointX,
-     * pointY
-     */
     protected boolean isPointInRegion(int rectX, int rectY, int rectWidth, int rectHeight, int pointX, int pointY)
     {
         return (!this.widthTooNarrow || !this.recipeBookGui.isVisible()) && super.isPointInRegion(rectX, rectY, rectWidth, rectHeight, pointX, pointY);
     }
 
-    /**
-     * Called when the mouse is clicked. Args : mouseX, mouseY, clickedButton
-     */
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
     {
         if (!this.recipeBookGui.mouseClicked(mouseX, mouseY, mouseButton))
@@ -186,9 +166,6 @@ public class GuiInventory extends InventoryEffectRenderer implements IRecipeShow
         }
     }
 
-    /**
-     * Called when a mouse button is released.
-     */
     protected void mouseReleased(int mouseX, int mouseY, int state)
     {
         if (this.buttonClicked)
@@ -207,14 +184,11 @@ public class GuiInventory extends InventoryEffectRenderer implements IRecipeShow
         return this.recipeBookGui.hasClickedOutside(p_193983_1_, p_193983_2_, this.guiLeft, this.guiTop, this.xSize, this.ySize) && flag;
     }
 
-    /**
-     * Called by the controls from the buttonList when activated. (Mouse pressed for buttons)
-     */
     protected void actionPerformed(GuiButton button) throws IOException
     {
         if (button.id == 10)
         {
-            this.recipeBookGui.initVisuals(this.widthTooNarrow, ((ContainerPlayer)this.inventorySlots).craftMatrix);
+            this.recipeBookGui.initVisuals(this.widthTooNarrow, ((ContainerPlayer)this.container).craftMatrix);
             this.recipeBookGui.toggleVisibility();
             this.guiLeft = this.recipeBookGui.updateScreenPosition(this.widthTooNarrow, this.width, this.xSize);
             this.recipeButton.setPosition(this.guiLeft + 104, this.height / 2 - 22);
@@ -222,10 +196,6 @@ public class GuiInventory extends InventoryEffectRenderer implements IRecipeShow
         }
     }
 
-    /**
-     * Fired when a key is typed (except F11 which toggles full screen). This is the equivalent of
-     * KeyListener.keyTyped(KeyEvent e). Args : character (character on the key), keyCode (lwjgl Keyboard key code)
-     */
     protected void keyTyped(char typedChar, int keyCode) throws IOException
     {
         if (!this.recipeBookGui.keyPressed(typedChar, keyCode))
@@ -248,12 +218,14 @@ public class GuiInventory extends InventoryEffectRenderer implements IRecipeShow
         this.recipeBookGui.recipesUpdated();
     }
 
-    /**
-     * Called when the screen is unloaded. Used to disable keyboard repeat events
-     */
     public void onGuiClosed()
     {
         this.recipeBookGui.removed();
         super.onGuiClosed();
+    }
+
+    public GuiRecipeBook getRecipeGui()
+    {
+        return this.recipeBookGui;
     }
 }

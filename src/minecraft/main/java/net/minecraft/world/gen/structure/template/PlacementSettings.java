@@ -15,18 +15,10 @@ public class PlacementSettings
     private Rotation rotation = Rotation.NONE;
     private boolean ignoreEntities;
     @Nullable
-
-    /**
-     * the type of block in the world that will get replaced by the structure
-     */
     private Block replacedBlock;
     @Nullable
-
-    /** the chunk the structure is within */
     private ChunkPos chunk;
     @Nullable
-
-    /** the bounds the structure is contained within */
     private StructureBoundingBox boundingBox;
     private boolean ignoreStructureBlock = true;
     private float integrity = 1.0F;

@@ -80,63 +80,60 @@ public class EntityLlama extends AbstractChestHorse implements IRangedAttackMob
         return ((Integer)this.dataManager.get(DATA_STRENGTH_ID)).intValue();
     }
 
-    /**
-     * (abstract) Protected helper method to write subclass entity data to NBT.
-     */
     public void writeEntityToNBT(NBTTagCompound compound)
     {
         super.writeEntityToNBT(compound);
-        compound.setInteger("Variant", this.getVariant());
-        compound.setInteger("Strength", this.getStrength());
+        compound.putInt("Variant", this.getVariant());
+        compound.putInt("Strength", this.getStrength());
 
         if (!this.horseChest.getStackInSlot(1).isEmpty())
         {
-            compound.setTag("DecorItem", this.horseChest.getStackInSlot(1).writeToNBT(new NBTTagCompound()));
+            compound.setTag("DecorItem", this.horseChest.getStackInSlot(1).write(new NBTTagCompound()));
         }
     }
 
     /**
      * (abstract) Protected helper method to read subclass entity data from NBT.
      */
-    public void readEntityFromNBT(NBTTagCompound compound)
+    public void readAdditional(NBTTagCompound compound)
     {
-        this.setStrength(compound.getInteger("Strength"));
-        super.readEntityFromNBT(compound);
-        this.setVariant(compound.getInteger("Variant"));
+        this.setStrength(compound.getInt("Strength"));
+        super.readAdditional(compound);
+        this.setVariant(compound.getInt("Variant"));
 
-        if (compound.hasKey("DecorItem", 10))
+        if (compound.contains("DecorItem", 10))
         {
-            this.horseChest.setInventorySlotContents(1, new ItemStack(compound.getCompoundTag("DecorItem")));
+            this.horseChest.setInventorySlotContents(1, new ItemStack(compound.getCompound("DecorItem")));
         }
 
         this.updateHorseSlots();
     }
 
-    protected void initEntityAI()
+    protected void registerGoals()
     {
-        this.tasks.addTask(0, new EntityAISwimming(this));
-        this.tasks.addTask(1, new EntityAIRunAroundLikeCrazy(this, 1.2D));
-        this.tasks.addTask(2, new EntityAILlamaFollowCaravan(this, 2.0999999046325684D));
-        this.tasks.addTask(3, new EntityAIAttackRanged(this, 1.25D, 40, 20.0F));
-        this.tasks.addTask(3, new EntityAIPanic(this, 1.2D));
-        this.tasks.addTask(4, new EntityAIMate(this, 1.0D));
-        this.tasks.addTask(5, new EntityAIFollowParent(this, 1.0D));
-        this.tasks.addTask(6, new EntityAIWanderAvoidWater(this, 0.7D));
-        this.tasks.addTask(7, new EntityAIWatchClosest(this, EntityPlayer.class, 6.0F));
-        this.tasks.addTask(8, new EntityAILookIdle(this));
-        this.targetTasks.addTask(1, new EntityLlama.AIHurtByTarget(this));
-        this.targetTasks.addTask(2, new EntityLlama.AIDefendTarget(this));
+        this.goalSelector.addGoal(0, new EntityAISwimming(this));
+        this.goalSelector.addGoal(1, new EntityAIRunAroundLikeCrazy(this, 1.2D));
+        this.goalSelector.addGoal(2, new EntityAILlamaFollowCaravan(this, 2.0999999046325684D));
+        this.goalSelector.addGoal(3, new EntityAIAttackRanged(this, 1.25D, 40, 20.0F));
+        this.goalSelector.addGoal(3, new EntityAIPanic(this, 1.2D));
+        this.goalSelector.addGoal(4, new EntityAIMate(this, 1.0D));
+        this.goalSelector.addGoal(5, new EntityAIFollowParent(this, 1.0D));
+        this.goalSelector.addGoal(6, new EntityAIWanderAvoidWater(this, 0.7D));
+        this.goalSelector.addGoal(7, new EntityAIWatchClosest(this, EntityPlayer.class, 6.0F));
+        this.goalSelector.addGoal(8, new EntityAILookIdle(this));
+        this.targetSelector.addGoal(1, new EntityLlama.AIHurtByTarget(this));
+        this.targetSelector.addGoal(2, new EntityLlama.AIDefendTarget(this));
     }
 
-    protected void applyEntityAttributes()
+    protected void registerAttributes()
     {
-        super.applyEntityAttributes();
-        this.getEntityAttribute(SharedMonsterAttributes.FOLLOW_RANGE).setBaseValue(40.0D);
+        super.registerAttributes();
+        this.getAttribute(SharedMonsterAttributes.FOLLOW_RANGE).setBaseValue(40.0D);
     }
 
-    protected void entityInit()
+    protected void registerData()
     {
-        super.entityInit();
+        super.registerData();
         this.dataManager.register(DATA_STRENGTH_ID, Integer.valueOf(0));
         this.dataManager.register(DATA_COLOR_ID, Integer.valueOf(-1));
         this.dataManager.register(DATA_VARIANT_ID, Integer.valueOf(0));
@@ -257,11 +254,6 @@ public class EntityLlama extends AbstractChestHorse implements IRangedAttackMob
     }
 
     @Nullable
-
-    /**
-     * Called only once on an entity when first time spawned, via egg, mob spawner, natural spawning etc, but not called
-     * when entity is reloaded from nbt. Mainly used for initializing attributes and inventory
-     */
     public IEntityLivingData onInitialSpawn(DifficultyInstance difficulty, @Nullable IEntityLivingData livingdata)
     {
         livingdata = super.onInitialSpawn(difficulty, livingdata);
@@ -438,12 +430,12 @@ public class EntityLlama extends AbstractChestHorse implements IRangedAttackMob
     {
         EntityLlamaSpit entityllamaspit = new EntityLlamaSpit(this.world, this);
         double d0 = target.posX - this.posX;
-        double d1 = target.getEntityBoundingBox().minY + (double)(target.height / 3.0F) - entityllamaspit.posY;
+        double d1 = target.getBoundingBox().minY + (double)(target.height / 3.0F) - entityllamaspit.posY;
         double d2 = target.posZ - this.posZ;
         float f = MathHelper.sqrt(d0 * d0 + d2 * d2) * 0.2F;
-        entityllamaspit.setThrowableHeading(d0, d1 + (double)f, d2, 1.5F, 10.0F);
+        entityllamaspit.shoot(d0, d1 + (double)f, d2, 1.5F, 10.0F);
         this.world.playSound((EntityPlayer)null, this.posX, this.posY, this.posZ, SoundEvents.ENTITY_LLAMA_SPIT, this.getSoundCategory(), 1.0F, 1.0F + (this.rand.nextFloat() - this.rand.nextFloat()) * 0.2F);
-        this.world.spawnEntity(entityllamaspit);
+        this.world.addEntity0(entityllamaspit);
         this.didSpit = true;
     }
 
@@ -553,13 +545,13 @@ public class EntityLlama extends AbstractChestHorse implements IRangedAttackMob
 
         public boolean shouldExecute()
         {
-            if (super.shouldExecute() && this.targetEntity != null && !((EntityWolf)this.targetEntity).isTamed())
+            if (super.shouldExecute() && this.nearestTarget != null && !((EntityWolf)this.nearestTarget).isTamed())
             {
                 return true;
             }
             else
             {
-                this.taskOwner.setAttackTarget((EntityLivingBase)null);
+                this.goalOwner.setAttackTarget((EntityLivingBase)null);
                 return false;
             }
         }
@@ -579,9 +571,9 @@ public class EntityLlama extends AbstractChestHorse implements IRangedAttackMob
 
         public boolean shouldContinueExecuting()
         {
-            if (this.taskOwner instanceof EntityLlama)
+            if (this.goalOwner instanceof EntityLlama)
             {
-                EntityLlama entityllama = (EntityLlama)this.taskOwner;
+                EntityLlama entityllama = (EntityLlama)this.goalOwner;
 
                 if (entityllama.didSpit)
                 {

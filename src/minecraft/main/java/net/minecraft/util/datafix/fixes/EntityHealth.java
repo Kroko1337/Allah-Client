@@ -20,14 +20,14 @@ public class EntityHealth implements IFixableData
         {
             float f;
 
-            if (compound.hasKey("HealF", 99))
+            if (compound.contains("HealF", 99))
             {
                 f = compound.getFloat("HealF");
-                compound.removeTag("HealF");
+                compound.remove("HealF");
             }
             else
             {
-                if (!compound.hasKey("Health", 99))
+                if (!compound.contains("Health", 99))
                 {
                     return compound;
                 }
@@ -35,7 +35,7 @@ public class EntityHealth implements IFixableData
                 f = compound.getFloat("Health");
             }
 
-            compound.setFloat("Health", f);
+            compound.putFloat("Health", f);
         }
 
         return compound;

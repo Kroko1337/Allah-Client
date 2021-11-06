@@ -18,9 +18,6 @@ public class EnchantmentWaterWorker extends Enchantment
         return 1;
     }
 
-    /**
-     * Returns the maximum value of enchantability nedded on the enchantment level passed.
-     */
     public int getMaxEnchantability(int enchantmentLevel)
     {
         return this.getMinEnchantability(enchantmentLevel) + 40;

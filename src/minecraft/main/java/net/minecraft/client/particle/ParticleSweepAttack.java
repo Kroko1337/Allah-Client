@@ -33,9 +33,6 @@ public class ParticleSweepAttack extends Particle
         this.size = 1.0F - (float)p_i46582_9_ * 0.5F;
     }
 
-    /**
-     * Renders the particle
-     */
     public void renderParticle(BufferBuilder buffer, Entity entityIn, float partialTicks, float rotationX, float rotationZ, float rotationYZ, float rotationXY, float rotationXZ)
     {
         int i = (int)(((float)this.life + partialTicks) * 3.0F / (float)this.lifeTime);
@@ -64,12 +61,12 @@ public class ParticleSweepAttack extends Particle
         }
     }
 
-    public int getBrightnessForRender(float p_189214_1_)
+    public int getBrightnessForRender(float partialTick)
     {
         return 61680;
     }
 
-    public void onUpdate()
+    public void tick()
     {
         this.prevPosX = this.posX;
         this.prevPosY = this.posY;
@@ -82,10 +79,6 @@ public class ParticleSweepAttack extends Particle
         }
     }
 
-    /**
-     * Retrieve what effect layer (what texture) the particle should be rendered with. 0 for the particle sprite sheet,
-     * 1 for the main Texture atlas, and 3 for a custom texture
-     */
     public int getFXLayer()
     {
         return 3;
@@ -95,7 +88,7 @@ public class ParticleSweepAttack extends Particle
     {
         public Particle createParticle(int particleID, World worldIn, double xCoordIn, double yCoordIn, double zCoordIn, double xSpeedIn, double ySpeedIn, double zSpeedIn, int... p_178902_15_)
         {
-            return new ParticleSweepAttack(Minecraft.getMinecraft().getTextureManager(), worldIn, xCoordIn, yCoordIn, zCoordIn, xSpeedIn, ySpeedIn, zSpeedIn);
+            return new ParticleSweepAttack(Minecraft.getInstance().getTextureManager(), worldIn, xCoordIn, yCoordIn, zCoordIn, xSpeedIn, ySpeedIn, zSpeedIn);
         }
     }
 }

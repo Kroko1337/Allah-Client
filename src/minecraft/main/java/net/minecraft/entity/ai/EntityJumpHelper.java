@@ -4,12 +4,12 @@ import net.minecraft.entity.EntityLiving;
 
 public class EntityJumpHelper
 {
-    private final EntityLiving entity;
+    private final EntityLiving mob;
     protected boolean isJumping;
 
-    public EntityJumpHelper(EntityLiving entityIn)
+    public EntityJumpHelper(EntityLiving mob)
     {
-        this.entity = entityIn;
+        this.mob = mob;
     }
 
     public void setJumping()
@@ -20,9 +20,9 @@ public class EntityJumpHelper
     /**
      * Called to actually make the entity jump if isJumping is true.
      */
-    public void doJump()
+    public void tick()
     {
-        this.entity.setJumping(this.isJumping);
+        this.mob.setJumping(this.isJumping);
         this.isJumping = false;
     }
 }

@@ -65,7 +65,7 @@ public class EntityAreaEffectCloud extends Entity
         this.setPosition(x, y, z);
     }
 
-    protected void entityInit()
+    protected void registerData()
     {
         this.getDataManager().register(COLOR, Integer.valueOf(0));
         this.getDataManager().register(RADIUS, Float.valueOf(0.5F));
@@ -196,9 +196,9 @@ public class EntityAreaEffectCloud extends Entity
     /**
      * Called to update the entity's position/logic.
      */
-    public void onUpdate()
+    public void tick()
     {
-        super.onUpdate();
+        super.tick();
         boolean flag = this.shouldIgnoreRadius();
         float f = this.getRadius();
 
@@ -273,7 +273,7 @@ public class EntityAreaEffectCloud extends Entity
         {
             if (this.ticksExisted >= this.waitTime + this.duration)
             {
-                this.setDead();
+                this.remove();
                 return;
             }
 
@@ -295,7 +295,7 @@ public class EntityAreaEffectCloud extends Entity
 
                 if (f < 0.5F)
                 {
-                    this.setDead();
+                    this.remove();
                     return;
                 }
 
@@ -320,7 +320,7 @@ public class EntityAreaEffectCloud extends Entity
 
                 for (PotionEffect potioneffect1 : this.potion.getEffects())
                 {
-                    lstPotions.add(new PotionEffect(potioneffect1.getPotion(), potioneffect1.getDuration() / 4, potioneffect1.getAmplifier(), potioneffect1.getIsAmbient(), potioneffect1.doesShowParticles()));
+                    lstPotions.add(new PotionEffect(potioneffect1.getPotion(), potioneffect1.getDuration() / 4, potioneffect1.getAmplifier(), potioneffect1.isAmbient(), potioneffect1.doesShowParticles()));
                 }
 
                 lstPotions.addAll(this.effects);
@@ -331,7 +331,7 @@ public class EntityAreaEffectCloud extends Entity
                 }
                 else
                 {
-                    List<EntityLivingBase> list = this.world.<EntityLivingBase>getEntitiesWithinAABB(EntityLivingBase.class, this.getEntityBoundingBox());
+                    List<EntityLivingBase> list = this.world.<EntityLivingBase>getEntitiesWithinAABB(EntityLivingBase.class, this.getBoundingBox());
 
                     if (!list.isEmpty())
                     {
@@ -365,7 +365,7 @@ public class EntityAreaEffectCloud extends Entity
 
                                         if (f < 0.5F)
                                         {
-                                            this.setDead();
+                                            this.remove();
                                             return;
                                         }
 
@@ -378,7 +378,7 @@ public class EntityAreaEffectCloud extends Entity
 
                                         if (this.duration <= 0)
                                         {
-                                            this.setDead();
+                                            this.remove();
                                             return;
                                         }
                                     }
@@ -431,48 +431,48 @@ public class EntityAreaEffectCloud extends Entity
     /**
      * (abstract) Protected helper method to read subclass entity data from NBT.
      */
-    protected void readEntityFromNBT(NBTTagCompound compound)
+    protected void readAdditional(NBTTagCompound compound)
     {
-        this.ticksExisted = compound.getInteger("Age");
-        this.duration = compound.getInteger("Duration");
-        this.waitTime = compound.getInteger("WaitTime");
-        this.reapplicationDelay = compound.getInteger("ReapplicationDelay");
-        this.durationOnUse = compound.getInteger("DurationOnUse");
+        this.ticksExisted = compound.getInt("Age");
+        this.duration = compound.getInt("Duration");
+        this.waitTime = compound.getInt("WaitTime");
+        this.reapplicationDelay = compound.getInt("ReapplicationDelay");
+        this.durationOnUse = compound.getInt("DurationOnUse");
         this.radiusOnUse = compound.getFloat("RadiusOnUse");
         this.radiusPerTick = compound.getFloat("RadiusPerTick");
         this.setRadius(compound.getFloat("Radius"));
         this.ownerUniqueId = compound.getUniqueId("OwnerUUID");
 
-        if (compound.hasKey("Particle", 8))
+        if (compound.contains("Particle", 8))
         {
             EnumParticleTypes enumparticletypes = EnumParticleTypes.getByName(compound.getString("Particle"));
 
             if (enumparticletypes != null)
             {
                 this.setParticle(enumparticletypes);
-                this.setParticleParam1(compound.getInteger("ParticleParam1"));
-                this.setParticleParam2(compound.getInteger("ParticleParam2"));
+                this.setParticleParam1(compound.getInt("ParticleParam1"));
+                this.setParticleParam2(compound.getInt("ParticleParam2"));
             }
         }
 
-        if (compound.hasKey("Color", 99))
+        if (compound.contains("Color", 99))
         {
-            this.setColor(compound.getInteger("Color"));
+            this.setColor(compound.getInt("Color"));
         }
 
-        if (compound.hasKey("Potion", 8))
+        if (compound.contains("Potion", 8))
         {
             this.setPotion(PotionUtils.getPotionTypeFromNBT(compound));
         }
 
-        if (compound.hasKey("Effects", 9))
+        if (compound.contains("Effects", 9))
         {
-            NBTTagList nbttaglist = compound.getTagList("Effects", 10);
+            NBTTagList nbttaglist = compound.getList("Effects", 10);
             this.effects.clear();
 
             for (int i = 0; i < nbttaglist.tagCount(); ++i)
             {
-                PotionEffect potioneffect = PotionEffect.readCustomPotionEffectFromNBT(nbttaglist.getCompoundTagAt(i));
+                PotionEffect potioneffect = PotionEffect.read(nbttaglist.getCompound(i));
 
                 if (potioneffect != null)
                 {
@@ -482,36 +482,33 @@ public class EntityAreaEffectCloud extends Entity
         }
     }
 
-    /**
-     * (abstract) Protected helper method to write subclass entity data to NBT.
-     */
     protected void writeEntityToNBT(NBTTagCompound compound)
     {
-        compound.setInteger("Age", this.ticksExisted);
-        compound.setInteger("Duration", this.duration);
-        compound.setInteger("WaitTime", this.waitTime);
-        compound.setInteger("ReapplicationDelay", this.reapplicationDelay);
-        compound.setInteger("DurationOnUse", this.durationOnUse);
-        compound.setFloat("RadiusOnUse", this.radiusOnUse);
-        compound.setFloat("RadiusPerTick", this.radiusPerTick);
-        compound.setFloat("Radius", this.getRadius());
-        compound.setString("Particle", this.getParticle().getParticleName());
-        compound.setInteger("ParticleParam1", this.getParticleParam1());
-        compound.setInteger("ParticleParam2", this.getParticleParam2());
+        compound.putInt("Age", this.ticksExisted);
+        compound.putInt("Duration", this.duration);
+        compound.putInt("WaitTime", this.waitTime);
+        compound.putInt("ReapplicationDelay", this.reapplicationDelay);
+        compound.putInt("DurationOnUse", this.durationOnUse);
+        compound.putFloat("RadiusOnUse", this.radiusOnUse);
+        compound.putFloat("RadiusPerTick", this.radiusPerTick);
+        compound.putFloat("Radius", this.getRadius());
+        compound.putString("Particle", this.getParticle().getParticleName());
+        compound.putInt("ParticleParam1", this.getParticleParam1());
+        compound.putInt("ParticleParam2", this.getParticleParam2());
 
         if (this.ownerUniqueId != null)
         {
-            compound.setUniqueId("OwnerUUID", this.ownerUniqueId);
+            compound.putUniqueId("OwnerUUID", this.ownerUniqueId);
         }
 
         if (this.colorSet)
         {
-            compound.setInteger("Color", this.getColor());
+            compound.putInt("Color", this.getColor());
         }
 
         if (this.potion != PotionTypes.EMPTY && this.potion != null)
         {
-            compound.setString("Potion", ((ResourceLocation)PotionType.REGISTRY.getNameForObject(this.potion)).toString());
+            compound.putString("Potion", ((ResourceLocation)PotionType.REGISTRY.getKey(this.potion)).toString());
         }
 
         if (!this.effects.isEmpty())
@@ -520,7 +517,7 @@ public class EntityAreaEffectCloud extends Entity
 
             for (PotionEffect potioneffect : this.effects)
             {
-                nbttaglist.appendTag(potioneffect.writeCustomPotionEffectToNBT(new NBTTagCompound()));
+                nbttaglist.appendTag(potioneffect.write(new NBTTagCompound()));
             }
 
             compound.setTag("Effects", nbttaglist);

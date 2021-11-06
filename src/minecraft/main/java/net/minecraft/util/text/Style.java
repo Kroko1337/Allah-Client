@@ -16,7 +16,7 @@ import net.minecraft.util.text.event.HoverEvent;
 public class Style
 {
     /**
-     * The parent of this ChatStyle.  Used for looking up values that this instance does not override.
+     * The parent of this ChatStyle. Used for looking up values that this instance does not override.
      */
     private Style parentStyle;
     private TextFormatting color;
@@ -30,7 +30,7 @@ public class Style
     private String insertion;
 
     /**
-     * The base of the ChatStyle hierarchy.  All ChatStyle instances are implicitly children of this.
+     * The base of the ChatStyle hierarchy. All ChatStyle instances are implicitly children of this.
      */
     private static final Style ROOT = new Style()
     {

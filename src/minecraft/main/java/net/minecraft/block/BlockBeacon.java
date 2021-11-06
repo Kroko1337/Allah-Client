@@ -30,17 +30,11 @@ public class BlockBeacon extends BlockContainer
         this.setCreativeTab(CreativeTabs.MISC);
     }
 
-    /**
-     * Returns a new instance of a block's tile entity class. Called on placing the block.
-     */
     public TileEntity createNewTileEntity(World worldIn, int meta)
     {
         return new TileEntityBeacon();
     }
 
-    /**
-     * Called when the block is right clicked by a player.
-     */
     public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
         if (worldIn.isRemote)
@@ -54,16 +48,13 @@ public class BlockBeacon extends BlockContainer
             if (tileentity instanceof TileEntityBeacon)
             {
                 playerIn.displayGUIChest((TileEntityBeacon)tileentity);
-                playerIn.addStat(StatList.BEACON_INTERACTION);
+                playerIn.addStat(StatList.INTERACT_WITH_BEACON);
             }
 
             return true;
         }
     }
 
-    /**
-     * Used to determine ambient occlusion and culling when rebuilding chunks for render
-     */
     public boolean isOpaqueCube(IBlockState state)
     {
         return false;
@@ -77,6 +68,7 @@ public class BlockBeacon extends BlockContainer
     /**
      * The type of render function called. MODEL for mixed tesr and static model, MODELBLOCK_ANIMATED for TESR-only,
      * LIQUID for vanilla liquids, INVISIBLE to skip all rendering
+     * @deprecated call via {@link IBlockState#getRenderType()} whenever possible. Implementing/overriding is fine.
      */
     public EnumBlockRenderType getRenderType(IBlockState state)
     {
@@ -101,11 +93,6 @@ public class BlockBeacon extends BlockContainer
         }
     }
 
-    /**
-     * Called when a neighboring block was changed and marks that this state should perform any checks during a neighbor
-     * change. Cases may include when redstone power is updated, cactus blocks popping off due to a neighboring solid
-     * block, etc.
-     */
     public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos)
     {
         TileEntity tileentity = worldIn.getTileEntity(pos);
@@ -117,7 +104,7 @@ public class BlockBeacon extends BlockContainer
         }
     }
 
-    public BlockRenderLayer getBlockLayer()
+    public BlockRenderLayer getRenderLayer()
     {
         return BlockRenderLayer.CUTOUT;
     }
@@ -128,7 +115,7 @@ public class BlockBeacon extends BlockContainer
         {
             public void run()
             {
-                Chunk chunk = worldIn.getChunkFromBlockCoords(glassPos);
+                Chunk chunk = worldIn.getChunkAt(glassPos);
 
                 for (int i = glassPos.getY() - 1; i >= 0; --i)
                 {

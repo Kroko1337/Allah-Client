@@ -40,6 +40,7 @@ import net.minecraft.network.play.server.SPacketMoveVehicle;
 import net.minecraft.network.play.server.SPacketMultiBlockChange;
 import net.minecraft.network.play.server.SPacketOpenWindow;
 import net.minecraft.network.play.server.SPacketParticles;
+import net.minecraft.network.play.server.SPacketPlaceGhostRecipe;
 import net.minecraft.network.play.server.SPacketPlayerAbilities;
 import net.minecraft.network.play.server.SPacketPlayerListHeaderFooter;
 import net.minecraft.network.play.server.SPacketPlayerListItem;
@@ -162,9 +163,6 @@ public interface INetHandlerPlayClient extends INetHandler
      */
     void handleChat(SPacketChat packetIn);
 
-    /**
-     * Displays the available command-completion options the server knows of
-     */
     void handleTabComplete(SPacketTabComplete packetIn);
 
     /**
@@ -196,10 +194,6 @@ public interface INetHandlerPlayClient extends INetHandler
      */
     void handleWindowItems(SPacketWindowItems packetIn);
 
-    /**
-     * Displays a GUI by ID. In order starting from id 0: Chest, Workbench, Furnace, Dispenser, Enchanting table,
-     * Brewing stand, Villager merchant, Beacon, Anvil, Hopper, Dropper, Horse
-     */
     void handleOpenWindow(SPacketOpenWindow packetIn);
 
     /**
@@ -225,10 +219,6 @@ public interface INetHandlerPlayClient extends INetHandler
      */
     void handleDisconnect(SPacketDisconnect packetIn);
 
-    /**
-     * Retrieves the player identified by the packet, puts him to sleep if possible (and flags whether all players are
-     * asleep)
-     */
     void handleUseBed(SPacketUseBed packetIn);
 
     /**
@@ -389,4 +379,6 @@ public interface INetHandlerPlayClient extends INetHandler
     void handleAdvancementInfo(SPacketAdvancementInfo packetIn);
 
     void handleSelectAdvancementsTab(SPacketSelectAdvancementsTab packetIn);
+
+    void handlePlaceGhostRecipe(SPacketPlaceGhostRecipe packetIn);
 }

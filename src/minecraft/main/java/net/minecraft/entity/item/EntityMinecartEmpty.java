@@ -60,12 +60,12 @@ public class EntityMinecartEmpty extends EntityMinecart
                 this.setRollingDirection(-this.getRollingDirection());
                 this.setRollingAmplitude(10);
                 this.setDamage(50.0F);
-                this.setBeenAttacked();
+                this.markVelocityChanged();
             }
         }
     }
 
-    public EntityMinecart.Type getType()
+    public EntityMinecart.Type getMinecartType()
     {
         return EntityMinecart.Type.RIDEABLE;
     }

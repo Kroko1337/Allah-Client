@@ -15,7 +15,6 @@ import net.minecraft.util.JsonUtils;
 
 public class NBTPredicate
 {
-    /** The predicate that matches any NBT tag. */
     public static final NBTPredicate ANY = new NBTPredicate((NBTTagCompound)null);
     @Nullable
     private final NBTTagCompound tag;
@@ -27,7 +26,7 @@ public class NBTPredicate
 
     public boolean test(ItemStack item)
     {
-        return this == ANY ? true : this.test(item.getTagCompound());
+        return this == ANY ? true : this.test(item.getTag());
     }
 
     public boolean test(Entity entityIn)

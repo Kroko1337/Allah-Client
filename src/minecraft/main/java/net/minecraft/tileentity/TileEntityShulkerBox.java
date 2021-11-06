@@ -52,10 +52,7 @@ public class TileEntityShulkerBox extends TileEntityLockableLoot implements ITic
         this.color = colorIn;
     }
 
-    /**
-     * Like the old updateEntity(), except more generic.
-     */
-    public void update()
+    public void tick()
     {
         this.updateAnimation();
 
@@ -108,20 +105,20 @@ public class TileEntityShulkerBox extends TileEntityLockableLoot implements ITic
         return this.animationStatus;
     }
 
-    public AxisAlignedBB getBoundingBox(IBlockState p_190584_1_)
+    public AxisAlignedBB getBoundingBox(IBlockState state)
     {
-        return this.getBoundingBox((EnumFacing)p_190584_1_.getValue(BlockShulkerBox.FACING));
+        return this.getBoundingBox((EnumFacing)state.get(BlockShulkerBox.FACING));
     }
 
-    public AxisAlignedBB getBoundingBox(EnumFacing p_190587_1_)
+    public AxisAlignedBB getBoundingBox(EnumFacing directionIn)
     {
-        return Block.FULL_BLOCK_AABB.expand((double)(0.5F * this.getProgress(1.0F) * (float)p_190587_1_.getFrontOffsetX()), (double)(0.5F * this.getProgress(1.0F) * (float)p_190587_1_.getFrontOffsetY()), (double)(0.5F * this.getProgress(1.0F) * (float)p_190587_1_.getFrontOffsetZ()));
+        return Block.FULL_BLOCK_AABB.expand((double)(0.5F * this.getProgress(1.0F) * (float)directionIn.getXOffset()), (double)(0.5F * this.getProgress(1.0F) * (float)directionIn.getYOffset()), (double)(0.5F * this.getProgress(1.0F) * (float)directionIn.getZOffset()));
     }
 
-    private AxisAlignedBB getTopBoundingBox(EnumFacing p_190588_1_)
+    private AxisAlignedBB getTopBoundingBox(EnumFacing directionIn)
     {
-        EnumFacing enumfacing = p_190588_1_.getOpposite();
-        return this.getBoundingBox(p_190588_1_).contract((double)enumfacing.getFrontOffsetX(), (double)enumfacing.getFrontOffsetY(), (double)enumfacing.getFrontOffsetZ());
+        EnumFacing enumfacing = directionIn.getOpposite();
+        return this.getBoundingBox(directionIn).contract((double)enumfacing.getXOffset(), (double)enumfacing.getYOffset(), (double)enumfacing.getZOffset());
     }
 
     private void moveCollidedEntities()
@@ -130,7 +127,7 @@ public class TileEntityShulkerBox extends TileEntityLockableLoot implements ITic
 
         if (iblockstate.getBlock() instanceof BlockShulkerBox)
         {
-            EnumFacing enumfacing = (EnumFacing)iblockstate.getValue(BlockShulkerBox.FACING);
+            EnumFacing enumfacing = (EnumFacing)iblockstate.get(BlockShulkerBox.FACING);
             AxisAlignedBB axisalignedbb = this.getTopBoundingBox(enumfacing).offset(this.pos);
             List<Entity> list = this.world.getEntitiesWithinAABBExcludingEntity((Entity)null, axisalignedbb);
 
@@ -145,7 +142,7 @@ public class TileEntityShulkerBox extends TileEntityLockableLoot implements ITic
                         double d0 = 0.0D;
                         double d1 = 0.0D;
                         double d2 = 0.0D;
-                        AxisAlignedBB axisalignedbb1 = entity.getEntityBoundingBox();
+                        AxisAlignedBB axisalignedbb1 = entity.getBoundingBox();
 
                         switch (enumfacing.getAxis())
                         {
@@ -188,7 +185,7 @@ public class TileEntityShulkerBox extends TileEntityLockableLoot implements ITic
                                 d2 = d2 + 0.01D;
                         }
 
-                        entity.move(MoverType.SHULKER_BOX, d0 * (double)enumfacing.getFrontOffsetX(), d1 * (double)enumfacing.getFrontOffsetY(), d2 * (double)enumfacing.getFrontOffsetZ());
+                        entity.move(MoverType.SHULKER_BOX, d0 * (double)enumfacing.getXOffset(), d1 * (double)enumfacing.getYOffset(), d2 * (double)enumfacing.getZOffset());
                     }
                 }
             }
@@ -211,6 +208,10 @@ public class TileEntityShulkerBox extends TileEntityLockableLoot implements ITic
         return 64;
     }
 
+    /**
+     * See {@link Block#eventReceived} for more information. This must return true serverside before it is called
+     * clientside.
+     */
     public boolean receiveClientEvent(int id, int type)
     {
         if (id == 1)
@@ -278,9 +279,6 @@ public class TileEntityShulkerBox extends TileEntityLockableLoot implements ITic
         return "minecraft:shulker_box";
     }
 
-    /**
-     * Get the name of this object. For players this returns their username
-     */
     public String getName()
     {
         return this.hasCustomName() ? this.customName : "container.shulkerBox";
@@ -291,15 +289,15 @@ public class TileEntityShulkerBox extends TileEntityLockableLoot implements ITic
         fixer.registerWalker(FixTypes.BLOCK_ENTITY, new ItemStackDataLists(TileEntityShulkerBox.class, new String[] {"Items"}));
     }
 
-    public void readFromNBT(NBTTagCompound compound)
+    public void read(NBTTagCompound compound)
     {
-        super.readFromNBT(compound);
+        super.read(compound);
         this.loadFromNbt(compound);
     }
 
-    public NBTTagCompound writeToNBT(NBTTagCompound compound)
+    public NBTTagCompound write(NBTTagCompound compound)
     {
-        super.writeToNBT(compound);
+        super.write(compound);
         return this.saveToNbt(compound);
     }
 
@@ -307,12 +305,12 @@ public class TileEntityShulkerBox extends TileEntityLockableLoot implements ITic
     {
         this.items = NonNullList.<ItemStack>withSize(this.getSizeInventory(), ItemStack.EMPTY);
 
-        if (!this.checkLootAndRead(compound) && compound.hasKey("Items", 9))
+        if (!this.checkLootAndRead(compound) && compound.contains("Items", 9))
         {
             ItemStackHelper.loadAllItems(compound, this.items);
         }
 
-        if (compound.hasKey("CustomName", 8))
+        if (compound.contains("CustomName", 8))
         {
             this.customName = compound.getString("CustomName");
         }
@@ -327,12 +325,12 @@ public class TileEntityShulkerBox extends TileEntityLockableLoot implements ITic
 
         if (this.hasCustomName())
         {
-            compound.setString("CustomName", this.customName);
+            compound.putString("CustomName", this.customName);
         }
 
-        if (!compound.hasKey("Lock") && this.isLocked())
+        if (!compound.contains("Lock") && this.isLocked())
         {
-            this.getLockCode().toNBT(compound);
+            this.getLockCode().write(compound);
         }
 
         return compound;
@@ -404,6 +402,11 @@ public class TileEntityShulkerBox extends TileEntityLockableLoot implements ITic
     }
 
     @Nullable
+
+    /**
+     * Retrieves packet to send to the client whenever this Tile Entity is resynced via World.notifyBlockUpdate. For
+     * modded TE's, this packet comes back to you clientside in {@link #onDataPacket}
+     */
     public SPacketUpdateTileEntity getUpdatePacket()
     {
         return new SPacketUpdateTileEntity(this.pos, 10, this.getUpdateTag());

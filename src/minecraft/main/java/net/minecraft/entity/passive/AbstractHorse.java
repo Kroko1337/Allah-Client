@@ -76,7 +76,7 @@ public abstract class AbstractHorse extends EntityAnimal implements IInventoryCh
     protected ContainerHorseChest horseChest;
 
     /**
-     * "The higher this value, the more likely the horse is to be tamed next time a player rides it."
+     * The higher this value, the more likely the horse is to be tamed next time a player rides it.
      */
     protected int temper;
     protected float jumpPower;
@@ -100,21 +100,21 @@ public abstract class AbstractHorse extends EntityAnimal implements IInventoryCh
         this.initHorseChest();
     }
 
-    protected void initEntityAI()
+    protected void registerGoals()
     {
-        this.tasks.addTask(0, new EntityAISwimming(this));
-        this.tasks.addTask(1, new EntityAIPanic(this, 1.2D));
-        this.tasks.addTask(1, new EntityAIRunAroundLikeCrazy(this, 1.2D));
-        this.tasks.addTask(2, new EntityAIMate(this, 1.0D, AbstractHorse.class));
-        this.tasks.addTask(4, new EntityAIFollowParent(this, 1.0D));
-        this.tasks.addTask(6, new EntityAIWanderAvoidWater(this, 0.7D));
-        this.tasks.addTask(7, new EntityAIWatchClosest(this, EntityPlayer.class, 6.0F));
-        this.tasks.addTask(8, new EntityAILookIdle(this));
+        this.goalSelector.addGoal(0, new EntityAISwimming(this));
+        this.goalSelector.addGoal(1, new EntityAIPanic(this, 1.2D));
+        this.goalSelector.addGoal(1, new EntityAIRunAroundLikeCrazy(this, 1.2D));
+        this.goalSelector.addGoal(2, new EntityAIMate(this, 1.0D, AbstractHorse.class));
+        this.goalSelector.addGoal(4, new EntityAIFollowParent(this, 1.0D));
+        this.goalSelector.addGoal(6, new EntityAIWanderAvoidWater(this, 0.7D));
+        this.goalSelector.addGoal(7, new EntityAIWatchClosest(this, EntityPlayer.class, 6.0F));
+        this.goalSelector.addGoal(8, new EntityAILookIdle(this));
     }
 
-    protected void entityInit()
+    protected void registerData()
     {
-        super.entityInit();
+        super.registerData();
         this.dataManager.register(STATUS, Byte.valueOf((byte)0));
         this.dataManager.register(OWNER_UNIQUE_ID, Optional.absent());
     }
@@ -159,9 +159,6 @@ public abstract class AbstractHorse extends EntityAnimal implements IInventoryCh
         return 0.5F;
     }
 
-    /**
-     * "Sets the scale for an ageable entity according to the boolean parameter, which says if it's a child."
-     */
     public void setScaleForAge(boolean child)
     {
         this.setScale(child ? this.getHorseSize() : 1.0F);
@@ -187,9 +184,9 @@ public abstract class AbstractHorse extends EntityAnimal implements IInventoryCh
         return super.canBeLeashedTo(player) && this.getCreatureAttribute() != EnumCreatureAttribute.UNDEAD;
     }
 
-    protected void onLeashDistance(float p_142017_1_)
+    protected void onLeashDistance(float distance)
     {
-        if (p_142017_1_ > 6.0F && this.isEatingHaystack())
+        if (distance > 6.0F && this.isEatingHaystack())
         {
             this.setEatingHaystack(false);
         }
@@ -309,7 +306,7 @@ public abstract class AbstractHorse extends EntityAnimal implements IInventoryCh
 
         if (containerhorsechest != null)
         {
-            containerhorsechest.removeInventoryChangeListener(this);
+            containerhorsechest.removeListener(this);
             int i = Math.min(containerhorsechest.getSizeInventory(), this.horseChest.getSizeInventory());
 
             for (int j = 0; j < i; ++j)
@@ -323,7 +320,7 @@ public abstract class AbstractHorse extends EntityAnimal implements IInventoryCh
             }
         }
 
-        this.horseChest.addInventoryChangeListener(this);
+        this.horseChest.addListener(this);
         this.updateHorseSlots();
     }
 
@@ -358,7 +355,7 @@ public abstract class AbstractHorse extends EntityAnimal implements IInventoryCh
         double d0 = Double.MAX_VALUE;
         Entity entity = null;
 
-        for (Entity entity1 : this.world.getEntitiesInAABBexcluding(entityIn, entityIn.getEntityBoundingBox().expand(distance, distance, distance), IS_HORSE_BREEDING))
+        for (Entity entity1 : this.world.getEntitiesInAABBexcluding(entityIn, entityIn.getBoundingBox().expand(distance, distance, distance), IS_HORSE_BREEDING))
         {
             double d1 = entity1.getDistanceSq(entityIn.posX, entityIn.posY, entityIn.posZ);
 
@@ -374,7 +371,7 @@ public abstract class AbstractHorse extends EntityAnimal implements IInventoryCh
 
     public double getHorseJumpStrength()
     {
-        return this.getEntityAttribute(JUMP_STRENGTH).getAttributeValue();
+        return this.getAttribute(JUMP_STRENGTH).getValue();
     }
 
     @Nullable
@@ -468,12 +465,12 @@ public abstract class AbstractHorse extends EntityAnimal implements IInventoryCh
         this.playSound(SoundEvents.ENTITY_HORSE_GALLOP, p_190680_1_.getVolume() * 0.15F, p_190680_1_.getPitch());
     }
 
-    protected void applyEntityAttributes()
+    protected void registerAttributes()
     {
-        super.applyEntityAttributes();
-        this.getAttributeMap().registerAttribute(JUMP_STRENGTH);
-        this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(53.0D);
-        this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.22499999403953552D);
+        super.registerAttributes();
+        this.getAttributes().registerAttribute(JUMP_STRENGTH);
+        this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(53.0D);
+        this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.22499999403953552D);
     }
 
     /**
@@ -510,7 +507,7 @@ public abstract class AbstractHorse extends EntityAnimal implements IInventoryCh
         if (!this.world.isRemote && (!this.isBeingRidden() || this.isPassenger(playerEntity)) && this.isTame())
         {
             this.horseChest.setCustomName(this.getName());
-            playerEntity.openGuiHorseInventory(this, this.horseChest);
+            playerEntity.openHorseInventory(this, this.horseChest);
         }
     }
 
@@ -666,14 +663,14 @@ public abstract class AbstractHorse extends EntityAnimal implements IInventoryCh
      * Called frequently so the entity can update its state every tick as required. For example, zombies and skeletons
      * use this to react to sunlight and start to burn.
      */
-    public void onLivingUpdate()
+    public void livingTick()
     {
         if (this.rand.nextInt(200) == 0)
         {
             this.moveTail();
         }
 
-        super.onLivingUpdate();
+        super.livingTick();
 
         if (!this.world.isRemote)
         {
@@ -706,9 +703,9 @@ public abstract class AbstractHorse extends EntityAnimal implements IInventoryCh
         {
             AbstractHorse abstracthorse = this.getClosestHorse(this, 16.0D);
 
-            if (abstracthorse != null && this.getDistanceSqToEntity(abstracthorse) > 4.0D)
+            if (abstracthorse != null && this.getDistanceSq(abstracthorse) > 4.0D)
             {
-                this.navigator.getPathToEntityLiving(abstracthorse);
+                this.navigator.getPathToEntity(abstracthorse);
             }
         }
     }
@@ -721,9 +718,9 @@ public abstract class AbstractHorse extends EntityAnimal implements IInventoryCh
     /**
      * Called to update the entity's position/logic.
      */
-    public void onUpdate()
+    public void tick()
     {
-        super.onUpdate();
+        super.tick();
 
         if (this.openMouthCounter > 0 && ++this.openMouthCounter > 30)
         {
@@ -877,7 +874,7 @@ public abstract class AbstractHorse extends EntityAnimal implements IInventoryCh
         return true;
     }
 
-    public void travel(float p_191986_1_, float p_191986_2_, float p_191986_3_)
+    public void travel(float strafe, float vertical, float forward)
     {
         if (this.isBeingRidden() && this.canBeSteered() && this.isHorseSaddled())
         {
@@ -888,19 +885,19 @@ public abstract class AbstractHorse extends EntityAnimal implements IInventoryCh
             this.setRotation(this.rotationYaw, this.rotationPitch);
             this.renderYawOffset = this.rotationYaw;
             this.rotationYawHead = this.renderYawOffset;
-            p_191986_1_ = entitylivingbase.moveStrafing * 0.5F;
-            p_191986_3_ = entitylivingbase.moveForward;
+            strafe = entitylivingbase.moveStrafing * 0.5F;
+            forward = entitylivingbase.moveForward;
 
-            if (p_191986_3_ <= 0.0F)
+            if (forward <= 0.0F)
             {
-                p_191986_3_ *= 0.25F;
+                forward *= 0.25F;
                 this.gallopTime = 0;
             }
 
             if (this.onGround && this.jumpPower == 0.0F && this.isRearing() && !this.allowStandSliding)
             {
-                p_191986_1_ = 0.0F;
-                p_191986_3_ = 0.0F;
+                strafe = 0.0F;
+                forward = 0.0F;
             }
 
             if (this.jumpPower > 0.0F && !this.isHorseJumping() && this.onGround)
@@ -915,7 +912,7 @@ public abstract class AbstractHorse extends EntityAnimal implements IInventoryCh
                 this.setHorseJumping(true);
                 this.isAirBorne = true;
 
-                if (p_191986_3_ > 0.0F)
+                if (forward > 0.0F)
                 {
                     float f = MathHelper.sin(this.rotationYaw * 0.017453292F);
                     float f1 = MathHelper.cos(this.rotationYaw * 0.017453292F);
@@ -931,8 +928,8 @@ public abstract class AbstractHorse extends EntityAnimal implements IInventoryCh
 
             if (this.canPassengerSteer())
             {
-                this.setAIMoveSpeed((float)this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getAttributeValue());
-                super.travel(p_191986_1_, p_191986_2_, p_191986_3_);
+                this.setAIMoveSpeed((float)this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getValue());
+                super.travel(strafe, vertical, forward);
             }
             else if (entitylivingbase instanceof EntityPlayer)
             {
@@ -963,7 +960,7 @@ public abstract class AbstractHorse extends EntityAnimal implements IInventoryCh
         else
         {
             this.jumpMovementFactor = 0.02F;
-            super.travel(p_191986_1_, p_191986_2_, p_191986_3_);
+            super.travel(strafe, vertical, forward);
         }
     }
 
@@ -973,41 +970,38 @@ public abstract class AbstractHorse extends EntityAnimal implements IInventoryCh
         fixer.registerWalker(FixTypes.ENTITY, new ItemStackData(entityClass, new String[] {"SaddleItem"}));
     }
 
-    /**
-     * (abstract) Protected helper method to write subclass entity data to NBT.
-     */
     public void writeEntityToNBT(NBTTagCompound compound)
     {
         super.writeEntityToNBT(compound);
-        compound.setBoolean("EatingHaystack", this.isEatingHaystack());
-        compound.setBoolean("Bred", this.isBreeding());
-        compound.setInteger("Temper", this.getTemper());
-        compound.setBoolean("Tame", this.isTame());
+        compound.putBoolean("EatingHaystack", this.isEatingHaystack());
+        compound.putBoolean("Bred", this.isBreeding());
+        compound.putInt("Temper", this.getTemper());
+        compound.putBoolean("Tame", this.isTame());
 
         if (this.getOwnerUniqueId() != null)
         {
-            compound.setString("OwnerUUID", this.getOwnerUniqueId().toString());
+            compound.putString("OwnerUUID", this.getOwnerUniqueId().toString());
         }
 
         if (!this.horseChest.getStackInSlot(0).isEmpty())
         {
-            compound.setTag("SaddleItem", this.horseChest.getStackInSlot(0).writeToNBT(new NBTTagCompound()));
+            compound.setTag("SaddleItem", this.horseChest.getStackInSlot(0).write(new NBTTagCompound()));
         }
     }
 
     /**
      * (abstract) Protected helper method to read subclass entity data from NBT.
      */
-    public void readEntityFromNBT(NBTTagCompound compound)
+    public void readAdditional(NBTTagCompound compound)
     {
-        super.readEntityFromNBT(compound);
+        super.readAdditional(compound);
         this.setEatingHaystack(compound.getBoolean("EatingHaystack"));
         this.setBreeding(compound.getBoolean("Bred"));
-        this.setTemper(compound.getInteger("Temper"));
+        this.setTemper(compound.getInt("Temper"));
         this.setHorseTamed(compound.getBoolean("Tame"));
         String s;
 
-        if (compound.hasKey("OwnerUUID", 8))
+        if (compound.contains("OwnerUUID", 8))
         {
             s = compound.getString("OwnerUUID");
         }
@@ -1022,16 +1016,16 @@ public abstract class AbstractHorse extends EntityAnimal implements IInventoryCh
             this.setOwnerUniqueId(UUID.fromString(s));
         }
 
-        IAttributeInstance iattributeinstance = this.getAttributeMap().getAttributeInstanceByName("Speed");
+        IAttributeInstance iattributeinstance = this.getAttributes().getAttributeInstanceByName("Speed");
 
         if (iattributeinstance != null)
         {
-            this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(iattributeinstance.getBaseValue() * 0.25D);
+            this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(iattributeinstance.getBaseValue() * 0.25D);
         }
 
-        if (compound.hasKey("SaddleItem", 10))
+        if (compound.contains("SaddleItem", 10))
         {
-            ItemStack itemstack = new ItemStack(compound.getCompoundTag("SaddleItem"));
+            ItemStack itemstack = new ItemStack(compound.getCompound("SaddleItem"));
 
             if (itemstack.getItem() == Items.SADDLE)
             {
@@ -1055,7 +1049,7 @@ public abstract class AbstractHorse extends EntityAnimal implements IInventoryCh
      */
     protected boolean canMate()
     {
-        return !this.isBeingRidden() && !this.isRiding() && this.isTame() && !this.isChild() && this.getHealth() >= this.getMaxHealth() && this.isInLove();
+        return !this.isBeingRidden() && !this.isPassenger() && this.isTame() && !this.isChild() && this.getHealth() >= this.getMaxHealth() && this.isInLove();
     }
 
     @Nullable
@@ -1066,12 +1060,12 @@ public abstract class AbstractHorse extends EntityAnimal implements IInventoryCh
 
     protected void setOffspringAttributes(EntityAgeable p_190681_1_, AbstractHorse p_190681_2_)
     {
-        double d0 = this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).getBaseValue() + p_190681_1_.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).getBaseValue() + (double)this.getModifiedMaxHealth();
-        p_190681_2_.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(d0 / 3.0D);
-        double d1 = this.getEntityAttribute(JUMP_STRENGTH).getBaseValue() + p_190681_1_.getEntityAttribute(JUMP_STRENGTH).getBaseValue() + this.getModifiedJumpStrength();
-        p_190681_2_.getEntityAttribute(JUMP_STRENGTH).setBaseValue(d1 / 3.0D);
-        double d2 = this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getBaseValue() + p_190681_1_.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getBaseValue() + this.getModifiedMovementSpeed();
-        p_190681_2_.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(d2 / 3.0D);
+        double d0 = this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).getBaseValue() + p_190681_1_.getAttribute(SharedMonsterAttributes.MAX_HEALTH).getBaseValue() + (double)this.getModifiedMaxHealth();
+        p_190681_2_.getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(d0 / 3.0D);
+        double d1 = this.getAttribute(JUMP_STRENGTH).getBaseValue() + p_190681_1_.getAttribute(JUMP_STRENGTH).getBaseValue() + this.getModifiedJumpStrength();
+        p_190681_2_.getAttribute(JUMP_STRENGTH).setBaseValue(d1 / 3.0D);
+        double d2 = this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getBaseValue() + p_190681_1_.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getBaseValue() + this.getModifiedMovementSpeed();
+        p_190681_2_.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(d2 / 3.0D);
     }
 
     /**
@@ -1295,11 +1289,6 @@ public abstract class AbstractHorse extends EntityAnimal implements IInventoryCh
     }
 
     @Nullable
-
-    /**
-     * Called only once on an entity when first time spawned, via egg, mob spawner, natural spawning etc, but not called
-     * when entity is reloaded from nbt. Mainly used for initializing attributes and inventory
-     */
     public IEntityLivingData onInitialSpawn(DifficultyInstance difficulty, @Nullable IEntityLivingData livingdata)
     {
         livingdata = super.onInitialSpawn(difficulty, livingdata);

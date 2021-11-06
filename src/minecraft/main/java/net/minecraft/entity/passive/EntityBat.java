@@ -24,8 +24,6 @@ import net.minecraft.world.storage.loot.LootTableList;
 public class EntityBat extends EntityAmbientCreature
 {
     private static final DataParameter<Byte> HANGING = EntityDataManager.<Byte>createKey(EntityBat.class, DataSerializers.BYTE);
-
-    /** Coordinates of where the bat spawned. */
     private BlockPos spawnPosition;
 
     public EntityBat(World worldIn)
@@ -35,9 +33,9 @@ public class EntityBat extends EntityAmbientCreature
         this.setIsBatHanging(true);
     }
 
-    protected void entityInit()
+    protected void registerData()
     {
-        super.entityInit();
+        super.registerData();
         this.dataManager.register(HANGING, Byte.valueOf((byte)0));
     }
 
@@ -89,10 +87,10 @@ public class EntityBat extends EntityAmbientCreature
     {
     }
 
-    protected void applyEntityAttributes()
+    protected void registerAttributes()
     {
-        super.applyEntityAttributes();
-        this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(6.0D);
+        super.registerAttributes();
+        this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(6.0D);
     }
 
     public boolean getIsBatHanging()
@@ -117,9 +115,9 @@ public class EntityBat extends EntityAmbientCreature
     /**
      * Called to update the entity's position/logic.
      */
-    public void onUpdate()
+    public void tick()
     {
-        super.onUpdate();
+        super.tick();
 
         if (this.getIsBatHanging())
         {
@@ -191,10 +189,6 @@ public class EntityBat extends EntityAmbientCreature
         }
     }
 
-    /**
-     * returns if this entity triggers Block.onEntityWalking on the blocks they walk on. used for spiders and wolves to
-     * prevent them from trampling crops
-     */
     protected boolean canTriggerWalking()
     {
         return false;
@@ -221,7 +215,7 @@ public class EntityBat extends EntityAmbientCreature
      */
     public boolean attackEntityFrom(DamageSource source, float amount)
     {
-        if (this.isEntityInvulnerable(source))
+        if (this.isInvulnerableTo(source))
         {
             return false;
         }
@@ -244,27 +238,21 @@ public class EntityBat extends EntityAmbientCreature
     /**
      * (abstract) Protected helper method to read subclass entity data from NBT.
      */
-    public void readEntityFromNBT(NBTTagCompound compound)
+    public void readAdditional(NBTTagCompound compound)
     {
-        super.readEntityFromNBT(compound);
+        super.readAdditional(compound);
         this.dataManager.set(HANGING, Byte.valueOf(compound.getByte("BatFlags")));
     }
 
-    /**
-     * (abstract) Protected helper method to write subclass entity data to NBT.
-     */
     public void writeEntityToNBT(NBTTagCompound compound)
     {
         super.writeEntityToNBT(compound);
-        compound.setByte("BatFlags", ((Byte)this.dataManager.get(HANGING)).byteValue());
+        compound.putByte("BatFlags", ((Byte)this.dataManager.get(HANGING)).byteValue());
     }
 
-    /**
-     * Checks if the entity's current position is a valid location to spawn this entity.
-     */
     public boolean getCanSpawnHere()
     {
-        BlockPos blockpos = new BlockPos(this.posX, this.getEntityBoundingBox().minY, this.posZ);
+        BlockPos blockpos = new BlockPos(this.posX, this.getBoundingBox().minY, this.posZ);
 
         if (blockpos.getY() >= this.world.getSeaLevel())
         {

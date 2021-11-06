@@ -45,7 +45,7 @@ public class BlockPistonStructureHelper
 
         if (!BlockPistonBase.canPush(iblockstate, this.world, this.blockToMove, this.moveDirection, false, this.moveDirection))
         {
-            if (iblockstate.getMobilityFlag() == EnumPushReaction.DESTROY)
+            if (iblockstate.getPushReaction() == EnumPushReaction.DESTROY)
             {
                 this.toDestroy.add(this.blockToMove);
                 return true;
@@ -75,7 +75,7 @@ public class BlockPistonStructureHelper
         }
     }
 
-    private boolean addBlockLine(BlockPos origin, EnumFacing p_177251_2_)
+    private boolean addBlockLine(BlockPos origin, EnumFacing facingIn)
     {
         IBlockState iblockstate = this.world.getBlockState(origin);
         Block block = iblockstate.getBlock();
@@ -84,7 +84,7 @@ public class BlockPistonStructureHelper
         {
             return true;
         }
-        else if (!BlockPistonBase.canPush(iblockstate, this.world, origin, this.moveDirection, false, p_177251_2_))
+        else if (!BlockPistonBase.canPush(iblockstate, this.world, origin, this.moveDirection, false, facingIn))
         {
             return true;
         }
@@ -169,7 +169,7 @@ public class BlockPistonStructureHelper
                         return false;
                     }
 
-                    if (iblockstate.getMobilityFlag() == EnumPushReaction.DESTROY)
+                    if (iblockstate.getPushReaction() == EnumPushReaction.DESTROY)
                     {
                         this.toDestroy.add(blockpos1);
                         return true;

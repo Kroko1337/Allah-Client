@@ -17,7 +17,7 @@ public abstract class NodeProcessor
     protected boolean canOpenDoors;
     protected boolean canSwim;
 
-    public void initProcessor(IBlockAccess sourceIn, EntityLiving mob)
+    public void init(IBlockAccess sourceIn, EntityLiving mob)
     {
         this.blockaccess = sourceIn;
         this.entity = mob;
@@ -57,9 +57,6 @@ public abstract class NodeProcessor
 
     public abstract PathPoint getStart();
 
-    /**
-     * Returns PathPoint for given coordinates
-     */
     public abstract PathPoint getPathPointToCoords(double x, double y, double z);
 
     public abstract int findPathOptions(PathPoint[] pathOptions, PathPoint currentPoint, PathPoint targetPoint, float maxDistance);

@@ -24,7 +24,7 @@ public class GuiCrafting extends GuiContainer implements IRecipeShownListener
 
     public GuiCrafting(InventoryPlayer playerInv, World worldIn)
     {
-        this(playerInv, worldIn, BlockPos.ORIGIN);
+        this(playerInv, worldIn, BlockPos.ZERO);
     }
 
     public GuiCrafting(InventoryPlayer playerInv, World worldIn, BlockPos blockPosition)
@@ -33,32 +33,22 @@ public class GuiCrafting extends GuiContainer implements IRecipeShownListener
         this.recipeBookGui = new GuiRecipeBook();
     }
 
-    /**
-     * Adds the buttons (and other controls) to the screen in question. Called when the GUI is displayed and when the
-     * window resizes, the buttonList is cleared beforehand.
-     */
     public void initGui()
     {
         super.initGui();
         this.widthTooNarrow = this.width < 379;
-        this.recipeBookGui.init(this.width, this.height, this.mc, this.widthTooNarrow, this.inventorySlots, ((ContainerWorkbench)this.inventorySlots).craftMatrix);
+        this.recipeBookGui.func_194303_a(this.width, this.height, this.mc, this.widthTooNarrow, ((ContainerWorkbench)this.container).craftMatrix);
         this.guiLeft = this.recipeBookGui.updateScreenPosition(this.widthTooNarrow, this.width, this.xSize);
         this.recipeButton = new GuiButtonImage(10, this.guiLeft + 5, this.height / 2 - 49, 20, 18, 0, 168, 19, CRAFTING_TABLE_GUI_TEXTURES);
         this.buttonList.add(this.recipeButton);
     }
 
-    /**
-     * Called from the main game loop to update the screen.
-     */
     public void updateScreen()
     {
         super.updateScreen();
         this.recipeBookGui.tick();
     }
 
-    /**
-     * Draws the screen and all the components in it.
-     */
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         this.drawDefaultBackground();
@@ -100,18 +90,11 @@ public class GuiCrafting extends GuiContainer implements IRecipeShownListener
         this.drawTexturedModalRect(i, j, 0, 0, this.xSize, this.ySize);
     }
 
-    /**
-     * Test if the 2D point is in a rectangle (relative to the GUI). Args : rectX, rectY, rectWidth, rectHeight, pointX,
-     * pointY
-     */
     protected boolean isPointInRegion(int rectX, int rectY, int rectWidth, int rectHeight, int pointX, int pointY)
     {
         return (!this.widthTooNarrow || !this.recipeBookGui.isVisible()) && super.isPointInRegion(rectX, rectY, rectWidth, rectHeight, pointX, pointY);
     }
 
-    /**
-     * Called when the mouse is clicked. Args : mouseX, mouseY, clickedButton
-     */
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
     {
         if (!this.recipeBookGui.mouseClicked(mouseX, mouseY, mouseButton))
@@ -129,24 +112,17 @@ public class GuiCrafting extends GuiContainer implements IRecipeShownListener
         return this.recipeBookGui.hasClickedOutside(p_193983_1_, p_193983_2_, this.guiLeft, this.guiTop, this.xSize, this.ySize) && flag;
     }
 
-    /**
-     * Called by the controls from the buttonList when activated. (Mouse pressed for buttons)
-     */
     protected void actionPerformed(GuiButton button) throws IOException
     {
         if (button.id == 10)
         {
-            this.recipeBookGui.initVisuals(this.widthTooNarrow, ((ContainerWorkbench)this.inventorySlots).craftMatrix);
+            this.recipeBookGui.initVisuals(this.widthTooNarrow, ((ContainerWorkbench)this.container).craftMatrix);
             this.recipeBookGui.toggleVisibility();
             this.guiLeft = this.recipeBookGui.updateScreenPosition(this.widthTooNarrow, this.width, this.xSize);
             this.recipeButton.setPosition(this.guiLeft + 5, this.height / 2 - 49);
         }
     }
 
-    /**
-     * Fired when a key is typed (except F11 which toggles full screen). This is the equivalent of
-     * KeyListener.keyTyped(KeyEvent e). Args : character (character on the key), keyCode (lwjgl Keyboard key code)
-     */
     protected void keyTyped(char typedChar, int keyCode) throws IOException
     {
         if (!this.recipeBookGui.keyPressed(typedChar, keyCode))
@@ -169,12 +145,14 @@ public class GuiCrafting extends GuiContainer implements IRecipeShownListener
         this.recipeBookGui.recipesUpdated();
     }
 
-    /**
-     * Called when the screen is unloaded. Used to disable keyboard repeat events
-     */
     public void onGuiClosed()
     {
         this.recipeBookGui.removed();
         super.onGuiClosed();
+    }
+
+    public GuiRecipeBook getRecipeGui()
+    {
+        return this.recipeBookGui;
     }
 }

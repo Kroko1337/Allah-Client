@@ -40,11 +40,11 @@ public class ModelBlockDefinition
         this.mapVariants.putAll(variants);
     }
 
-    public ModelBlockDefinition(List<ModelBlockDefinition> p_i46222_1_)
+    public ModelBlockDefinition(List<ModelBlockDefinition> definitions)
     {
         ModelBlockDefinition modelblockdefinition = null;
 
-        for (ModelBlockDefinition modelblockdefinition1 : p_i46222_1_)
+        for (ModelBlockDefinition modelblockdefinition1 : definitions)
         {
             if (modelblockdefinition1.hasMultipartData())
             {

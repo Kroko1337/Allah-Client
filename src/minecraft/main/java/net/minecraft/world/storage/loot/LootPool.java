@@ -22,24 +22,18 @@ import org.apache.commons.lang3.ArrayUtils;
 public class LootPool
 {
     private final LootEntry[] lootEntries;
-    private final LootCondition[] poolConditions;
+    private final LootCondition[] conditions;
     private final RandomValueRange rolls;
     private final RandomValueRange bonusRolls;
 
     public LootPool(LootEntry[] lootEntriesIn, LootCondition[] poolConditionsIn, RandomValueRange rollsIn, RandomValueRange bonusRollsIn)
     {
         this.lootEntries = lootEntriesIn;
-        this.poolConditions = poolConditionsIn;
+        this.conditions = poolConditionsIn;
         this.rolls = rollsIn;
         this.bonusRolls = bonusRollsIn;
     }
 
-    /**
-     * generates the contents for a single roll.
-     * The first for loop calculates the sum of all the lootentries
-     * and the second for loop adds a random item
-     * with items with higher weights being more probable.
-     */
     protected void createLootRoll(Collection<ItemStack> stacks, Random rand, LootContext context)
     {
         List<LootEntry> list = Lists.<LootEntry>newArrayList();
@@ -76,12 +70,9 @@ public class LootPool
         }
     }
 
-    /**
-     * generates loot and puts it in an inventory
-     */
     public void generateLoot(Collection<ItemStack> stacks, Random rand, LootContext context)
     {
-        if (LootConditionManager.testAllConditions(this.poolConditions, rand, context))
+        if (LootConditionManager.testAllConditions(this.conditions, rand, context))
         {
             int i = this.rolls.generateInt(rand) + MathHelper.floor(this.bonusRolls.generateFloat(rand) * context.getLuck());
 
@@ -115,9 +106,9 @@ public class LootPool
                 jsonobject.add("bonus_rolls", p_serialize_3_.serialize(p_serialize_1_.bonusRolls));
             }
 
-            if (!ArrayUtils.isEmpty((Object[])p_serialize_1_.poolConditions))
+            if (!ArrayUtils.isEmpty((Object[])p_serialize_1_.conditions))
             {
-                jsonobject.add("conditions", p_serialize_3_.serialize(p_serialize_1_.poolConditions));
+                jsonobject.add("conditions", p_serialize_3_.serialize(p_serialize_1_.conditions));
             }
 
             return jsonobject;

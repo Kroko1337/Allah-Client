@@ -14,7 +14,7 @@ public class InventoryBasic implements IInventory
     private String inventoryTitle;
     private final int slotsCount;
     private final NonNullList<ItemStack> inventoryContents;
-    private List<IInventoryChangedListener> changeListeners;
+    private List<IInventoryChangedListener> listeners;
     private boolean hasCustomName;
 
     public InventoryBasic(String title, boolean customName, int slotCount)
@@ -33,22 +33,22 @@ public class InventoryBasic implements IInventory
     /**
      * Add a listener that will be notified when any item in this inventory is modified.
      */
-    public void addInventoryChangeListener(IInventoryChangedListener listener)
+    public void addListener(IInventoryChangedListener listener)
     {
-        if (this.changeListeners == null)
+        if (this.listeners == null)
         {
-            this.changeListeners = Lists.<IInventoryChangedListener>newArrayList();
+            this.listeners = Lists.<IInventoryChangedListener>newArrayList();
         }
 
-        this.changeListeners.add(listener);
+        this.listeners.add(listener);
     }
 
     /**
      * removes the specified IInvBasic from receiving further change notices
      */
-    public void removeInventoryChangeListener(IInventoryChangedListener listener)
+    public void removeListener(IInventoryChangedListener listener)
     {
-        this.changeListeners.remove(listener);
+        this.listeners.remove(listener);
     }
 
     /**
@@ -170,34 +170,22 @@ public class InventoryBasic implements IInventory
         return true;
     }
 
-    /**
-     * Get the name of this object. For players this returns their username
-     */
     public String getName()
     {
         return this.inventoryTitle;
     }
 
-    /**
-     * Returns true if this thing is named
-     */
     public boolean hasCustomName()
     {
         return this.hasCustomName;
     }
 
-    /**
-     * Sets the name of this inventory. This is displayed to the client on opening.
-     */
     public void setCustomName(String inventoryTitleIn)
     {
         this.hasCustomName = true;
         this.inventoryTitle = inventoryTitleIn;
     }
 
-    /**
-     * Get the formatted ChatComponent that will be used for the sender's username in chat
-     */
     public ITextComponent getDisplayName()
     {
         return (ITextComponent)(this.hasCustomName() ? new TextComponentString(this.getName()) : new TextComponentTranslation(this.getName(), new Object[0]));
@@ -217,11 +205,11 @@ public class InventoryBasic implements IInventory
      */
     public void markDirty()
     {
-        if (this.changeListeners != null)
+        if (this.listeners != null)
         {
-            for (int i = 0; i < this.changeListeners.size(); ++i)
+            for (int i = 0; i < this.listeners.size(); ++i)
             {
-                ((IInventoryChangedListener)this.changeListeners.get(i)).onInventoryChanged(this);
+                ((IInventoryChangedListener)this.listeners.get(i)).onInventoryChanged(this);
             }
         }
     }

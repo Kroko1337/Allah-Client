@@ -22,13 +22,13 @@ public abstract class BlockContainer extends Block implements ITileEntityProvide
 {
     protected BlockContainer(Material materialIn)
     {
-        this(materialIn, materialIn.getMaterialMapColor());
+        this(materialIn, materialIn.getColor());
     }
 
     protected BlockContainer(Material materialIn, MapColor color)
     {
         super(materialIn, color);
-        this.isBlockContainer = true;
+        this.hasTileEntity = true;
     }
 
     protected boolean isInvalidNeighbor(World worldIn, BlockPos pos, EnumFacing facing)
@@ -44,15 +44,13 @@ public abstract class BlockContainer extends Block implements ITileEntityProvide
     /**
      * The type of render function called. MODEL for mixed tesr and static model, MODELBLOCK_ANIMATED for TESR-only,
      * LIQUID for vanilla liquids, INVISIBLE to skip all rendering
+     * @deprecated call via {@link IBlockState#getRenderType()} whenever possible. Implementing/overriding is fine.
      */
     public EnumBlockRenderType getRenderType(IBlockState state)
     {
         return EnumBlockRenderType.INVISIBLE;
     }
 
-    /**
-     * Called serverside after this block is replaced with another in Chunk, but before the Tile Entity is updated
-     */
     public void breakBlock(World worldIn, BlockPos pos, IBlockState state)
     {
         super.breakBlock(worldIn, pos, state);
@@ -97,6 +95,8 @@ public abstract class BlockContainer extends Block implements ITileEntityProvide
      * Called on server when World#addBlockEvent is called. If server returns true, then also called on the client. On
      * the Server, this may perform additional changes to the world, like pistons replacing the block with an extended
      * base. On the client, the update may involve replacing tile entities or effects such as sounds or particles
+     * @deprecated call via {@link IBlockState#onBlockEventReceived(World,BlockPos,int,int)} whenever possible.
+     * Implementing/overriding is fine.
      */
     public boolean eventReceived(IBlockState state, World worldIn, BlockPos pos, int id, int param)
     {

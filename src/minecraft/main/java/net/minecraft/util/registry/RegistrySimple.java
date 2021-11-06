@@ -14,7 +14,7 @@ import org.apache.logging.log4j.Logger;
 
 public class RegistrySimple<K, V> implements IRegistry<K, V>
 {
-    private static final Logger LOGGER = LogManager.getLogger();
+    private static final Logger LOGGER0 = LogManager.getLogger();
     protected final Map<K, V> registryObjects = this.createUnderlyingMap();
     private Object[] values;
 
@@ -24,14 +24,11 @@ public class RegistrySimple<K, V> implements IRegistry<K, V>
     }
 
     @Nullable
-    public V getObject(@Nullable K name)
+    public V getOrDefault(@Nullable K name)
     {
         return this.registryObjects.get(name);
     }
 
-    /**
-     * Register an object on this registry.
-     */
     public void putObject(K key, V value)
     {
         Validate.notNull(key);
@@ -40,19 +37,19 @@ public class RegistrySimple<K, V> implements IRegistry<K, V>
 
         if (this.registryObjects.containsKey(key))
         {
-            LOGGER.debug("Adding duplicate key '{}' to registry", key);
+            LOGGER0.debug("Adding duplicate key '{}' to registry", key);
         }
 
         this.registryObjects.put(key, value);
     }
 
-    public Set<K> getKeys()
+    public Set<K> keySet()
     {
         return Collections.<K>unmodifiableSet(this.registryObjects.keySet());
     }
 
     @Nullable
-    public V getRandomObject(Random random)
+    public V getRandom(Random random)
     {
         if (this.values == null)
         {
@@ -69,9 +66,6 @@ public class RegistrySimple<K, V> implements IRegistry<K, V>
         return (V)this.values[random.nextInt(this.values.length)];
     }
 
-    /**
-     * Does this registry contain an entry for the given key?
-     */
     public boolean containsKey(K key)
     {
         return this.registryObjects.containsKey(key);

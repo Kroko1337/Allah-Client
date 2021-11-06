@@ -74,14 +74,10 @@ public class PathWorldListener implements IWorldEventListener
     {
     }
 
-    public void spawnParticle(int id, boolean ignoreRange, boolean p_190570_3_, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed, int... parameters)
+    public void spawnParticle(int id, boolean ignoreRange, boolean minimiseParticleLevel, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed, int... parameters)
     {
     }
 
-    /**
-     * Called on all IWorldAccesses when an entity is created or loaded. On client worlds, starts downloading any
-     * necessary textures. On server worlds, adds the entity to the entity tracker.
-     */
     public void onEntityAdded(Entity entityIn)
     {
         if (entityIn instanceof EntityLiving)
@@ -90,10 +86,6 @@ public class PathWorldListener implements IWorldEventListener
         }
     }
 
-    /**
-     * Called on all IWorldAccesses when an entity is unloaded or destroyed. On client worlds, releases any downloaded
-     * textures. On server worlds, removes the entity from the entity tracker.
-     */
     public void onEntityRemoved(Entity entityIn)
     {
         if (entityIn instanceof EntityLiving)

@@ -6,16 +6,11 @@ import net.minecraft.world.GameType;
 
 public class WorldSummary implements Comparable<WorldSummary>
 {
-    /** the file name of this save */
     private final String fileName;
-
-    /** the displayed name of this save file */
     private final String displayName;
     private final long lastTimePlayed;
     private final long sizeOnDisk;
     private final boolean requiresConversion;
-
-    /** Instance of EnumGameType. */
     private final GameType gameType;
     private final boolean hardcore;
     private final boolean cheatsEnabled;
@@ -31,7 +26,7 @@ public class WorldSummary implements Comparable<WorldSummary>
         this.sizeOnDisk = sizeOnDiskIn;
         this.gameType = info.getGameType();
         this.requiresConversion = requiresConversionIn;
-        this.hardcore = info.isHardcoreModeEnabled();
+        this.hardcore = info.isHardcore();
         this.cheatsEnabled = info.areCommandsAllowed();
         this.versionName = info.getVersionName();
         this.versionId = info.getVersionId();
@@ -114,6 +109,6 @@ public class WorldSummary implements Comparable<WorldSummary>
 
     public boolean askToOpenWorld()
     {
-        return this.versionId > 1139;
+        return this.versionId > 1343;
     }
 }

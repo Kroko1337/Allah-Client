@@ -80,7 +80,7 @@ public class GhostRecipe
 
             GlStateManager.disableLighting();
             ItemStack itemstack = ghostrecipe$ghostingredient.getItem();
-            RenderItem renderitem = p_194188_1_.getRenderItem();
+            RenderItem renderitem = p_194188_1_.getItemRenderer();
             renderitem.renderItemAndEffectIntoGUI(p_194188_1_.player, itemstack, j, k);
             GlStateManager.depthFunc(516);
             Gui.drawRect(j, k, j + 16, k + 16, 822083583);

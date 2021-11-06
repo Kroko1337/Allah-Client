@@ -18,9 +18,6 @@ public class FurnaceRecipes
     private final Map<ItemStack, ItemStack> smeltingList = Maps.<ItemStack, ItemStack>newHashMap();
     private final Map<ItemStack, Float> experienceList = Maps.<ItemStack, Float>newHashMap();
 
-    /**
-     * Returns an instance of FurnaceRecipes.
-     */
     public static FurnaceRecipes instance()
     {
         return SMELTING_BASE;
@@ -40,7 +37,7 @@ public class FurnaceRecipes
         this.addSmeltingRecipeForBlock(Blocks.COBBLESTONE, new ItemStack(Blocks.STONE), 0.1F);
         this.addSmeltingRecipe(new ItemStack(Blocks.STONEBRICK, 1, BlockStoneBrick.DEFAULT_META), new ItemStack(Blocks.STONEBRICK, 1, BlockStoneBrick.CRACKED_META), 0.1F);
         this.addSmelting(Items.CLAY_BALL, new ItemStack(Items.BRICK), 0.3F);
-        this.addSmeltingRecipeForBlock(Blocks.CLAY, new ItemStack(Blocks.HARDENED_CLAY), 0.35F);
+        this.addSmeltingRecipeForBlock(Blocks.CLAY, new ItemStack(Blocks.TERRACOTTA), 0.35F);
         this.addSmeltingRecipeForBlock(Blocks.CACTUS, new ItemStack(Items.DYE, 1, EnumDyeColor.GREEN.getDyeDamage()), 0.2F);
         this.addSmeltingRecipeForBlock(Blocks.LOG, new ItemStack(Items.COAL, 1, 1), 0.15F);
         this.addSmeltingRecipeForBlock(Blocks.LOG2, new ItemStack(Items.COAL, 1, 1), 0.15F);
@@ -48,7 +45,7 @@ public class FurnaceRecipes
         this.addSmelting(Items.POTATO, new ItemStack(Items.BAKED_POTATO), 0.35F);
         this.addSmeltingRecipeForBlock(Blocks.NETHERRACK, new ItemStack(Items.NETHERBRICK), 0.1F);
         this.addSmeltingRecipe(new ItemStack(Blocks.SPONGE, 1, 1), new ItemStack(Blocks.SPONGE, 1, 0), 0.15F);
-        this.addSmelting(Items.CHORUS_FRUIT, new ItemStack(Items.CHORUS_FRUIT_POPPED), 0.1F);
+        this.addSmelting(Items.CHORUS_FRUIT, new ItemStack(Items.POPPED_CHORUS_FRUIT), 0.1F);
 
         for (ItemFishFood.FishType itemfishfood$fishtype : ItemFishFood.FishType.values())
         {
@@ -104,34 +101,22 @@ public class FurnaceRecipes
         this.addSmeltingRecipe(new ItemStack(Blocks.STAINED_HARDENED_CLAY, 1, EnumDyeColor.BLACK.getMetadata()), new ItemStack(Blocks.BLACK_GLAZED_TERRACOTTA), 0.1F);
     }
 
-    /**
-     * Adds a smelting recipe, where the input item is an instance of Block.
-     */
     public void addSmeltingRecipeForBlock(Block input, ItemStack stack, float experience)
     {
         this.addSmelting(Item.getItemFromBlock(input), stack, experience);
     }
 
-    /**
-     * Adds a smelting recipe using an Item as the input item.
-     */
     public void addSmelting(Item input, ItemStack stack, float experience)
     {
         this.addSmeltingRecipe(new ItemStack(input, 1, 32767), stack, experience);
     }
 
-    /**
-     * Adds a smelting recipe using an ItemStack as the input for the recipe.
-     */
     public void addSmeltingRecipe(ItemStack input, ItemStack stack, float experience)
     {
         this.smeltingList.put(input, stack);
         this.experienceList.put(stack, Float.valueOf(experience));
     }
 
-    /**
-     * Returns the smelting result of an item.
-     */
     public ItemStack getSmeltingResult(ItemStack stack)
     {
         for (Entry<ItemStack, ItemStack> entry : this.smeltingList.entrySet())
@@ -145,9 +130,6 @@ public class FurnaceRecipes
         return ItemStack.EMPTY;
     }
 
-    /**
-     * Compares two itemstacks to ensure that they are the same. This checks both the item and the metadata of the item.
-     */
     private boolean compareItemStacks(ItemStack stack1, ItemStack stack2)
     {
         return stack2.getItem() == stack1.getItem() && (stack2.getMetadata() == 32767 || stack2.getMetadata() == stack1.getMetadata());

@@ -107,7 +107,7 @@ public class StructureOceanMonument extends MapGenStructure
         return new StructureOceanMonument.StartMonument(this.world, this.rand, chunkX, chunkZ);
     }
 
-    public List<Biome.SpawnListEntry> getScatteredFeatureSpawnList()
+    public List<Biome.SpawnListEntry> getMonsters()
     {
         return MONUMENT_ENEMIES;
     }
@@ -178,8 +178,8 @@ public class StructureOceanMonument extends MapGenStructure
             for (ChunkPos chunkpos : this.processed)
             {
                 NBTTagCompound nbttagcompound = new NBTTagCompound();
-                nbttagcompound.setInteger("X", chunkpos.x);
-                nbttagcompound.setInteger("Z", chunkpos.z);
+                nbttagcompound.putInt("X", chunkpos.x);
+                nbttagcompound.putInt("Z", chunkpos.z);
                 nbttaglist.appendTag(nbttagcompound);
             }
 
@@ -190,14 +190,14 @@ public class StructureOceanMonument extends MapGenStructure
         {
             super.readFromNBT(tagCompound);
 
-            if (tagCompound.hasKey("Processed", 9))
+            if (tagCompound.contains("Processed", 9))
             {
-                NBTTagList nbttaglist = tagCompound.getTagList("Processed", 10);
+                NBTTagList nbttaglist = tagCompound.getList("Processed", 10);
 
                 for (int i = 0; i < nbttaglist.tagCount(); ++i)
                 {
-                    NBTTagCompound nbttagcompound = nbttaglist.getCompoundTagAt(i);
-                    this.processed.add(new ChunkPos(nbttagcompound.getInteger("X"), nbttagcompound.getInteger("Z")));
+                    NBTTagCompound nbttagcompound = nbttaglist.getCompound(i);
+                    this.processed.add(new ChunkPos(nbttagcompound.getInt("X"), nbttagcompound.getInt("Z")));
                 }
             }
         }

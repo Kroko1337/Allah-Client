@@ -11,18 +11,12 @@ public class Tuple<A, B>
         this.b = bIn;
     }
 
-    /**
-     * Get the first Object in the Tuple
-     */
-    public A getFirst()
+    public A getA()
     {
         return this.a;
     }
 
-    /**
-     * Get the second Object in the Tuple
-     */
-    public B getSecond()
+    public B getB()
     {
         return this.b;
     }

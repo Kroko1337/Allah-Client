@@ -14,9 +14,6 @@ public abstract class RenderArrow<T extends EntityArrow> extends Render<T>
         super(renderManagerIn);
     }
 
-    /**
-     * Renders the desired {@code T} type Entity.
-     */
     public void doRender(T entity, double x, double y, double z, float entityYaw, float partialTicks)
     {
         this.bindEntityTexture(entity);

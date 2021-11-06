@@ -42,9 +42,9 @@ public abstract class EntityAnimal extends EntityAgeable implements IAnimals
      * Called frequently so the entity can update its state every tick as required. For example, zombies and skeletons
      * use this to react to sunlight and start to burn.
      */
-    public void onLivingUpdate()
+    public void livingTick()
     {
-        super.onLivingUpdate();
+        super.livingTick();
 
         if (this.getGrowingAge() != 0)
         {
@@ -70,7 +70,7 @@ public abstract class EntityAnimal extends EntityAgeable implements IAnimals
      */
     public boolean attackEntityFrom(DamageSource source, float amount)
     {
-        if (this.isEntityInvulnerable(source))
+        if (this.isInvulnerableTo(source))
         {
             return false;
         }
@@ -86,17 +86,14 @@ public abstract class EntityAnimal extends EntityAgeable implements IAnimals
         return this.world.getBlockState(pos.down()).getBlock() == this.spawnableBlock ? 10.0F : this.world.getLightBrightness(pos) - 0.5F;
     }
 
-    /**
-     * (abstract) Protected helper method to write subclass entity data to NBT.
-     */
     public void writeEntityToNBT(NBTTagCompound compound)
     {
         super.writeEntityToNBT(compound);
-        compound.setInteger("InLove", this.inLove);
+        compound.putInt("InLove", this.inLove);
 
         if (this.playerInLove != null)
         {
-            compound.setUniqueId("LoveCause", this.playerInLove);
+            compound.putUniqueId("LoveCause", this.playerInLove);
         }
     }
 
@@ -111,20 +108,17 @@ public abstract class EntityAnimal extends EntityAgeable implements IAnimals
     /**
      * (abstract) Protected helper method to read subclass entity data from NBT.
      */
-    public void readEntityFromNBT(NBTTagCompound compound)
+    public void readAdditional(NBTTagCompound compound)
     {
-        super.readEntityFromNBT(compound);
-        this.inLove = compound.getInteger("InLove");
+        super.readAdditional(compound);
+        this.inLove = compound.getInt("InLove");
         this.playerInLove = compound.hasUniqueId("LoveCause") ? compound.getUniqueId("LoveCause") : null;
     }
 
-    /**
-     * Checks if the entity's current position is a valid location to spawn this entity.
-     */
     public boolean getCanSpawnHere()
     {
         int i = MathHelper.floor(this.posX);
-        int j = MathHelper.floor(this.getEntityBoundingBox().minY);
+        int j = MathHelper.floor(this.getBoundingBox().minY);
         int k = MathHelper.floor(this.posZ);
         BlockPos blockpos = new BlockPos(i, j, k);
         return this.world.getBlockState(blockpos.down()).getBlock() == this.spawnableBlock && this.world.getLight(blockpos) > 8 && super.getCanSpawnHere();
@@ -138,9 +132,6 @@ public abstract class EntityAnimal extends EntityAgeable implements IAnimals
         return 120;
     }
 
-    /**
-     * Determines if an entity can be despawned, used on idle far away entities
-     */
     protected boolean canDespawn()
     {
         return false;
@@ -192,7 +183,7 @@ public abstract class EntityAnimal extends EntityAgeable implements IAnimals
      */
     protected void consumeItemFromStack(EntityPlayer player, ItemStack stack)
     {
-        if (!player.capabilities.isCreativeMode)
+        if (!player.abilities.isCreativeMode)
         {
             stack.shrink(1);
         }

@@ -23,7 +23,7 @@ public class Rotations
 
     public Rotations(NBTTagList nbt)
     {
-        this(nbt.getFloatAt(0), nbt.getFloatAt(1), nbt.getFloatAt(2));
+        this(nbt.getFloat(0), nbt.getFloat(1), nbt.getFloat(2));
     }
 
     public NBTTagList writeToNBT()

@@ -42,7 +42,7 @@ public class LayerEntityOnShoulder implements LayerRenderer<EntityPlayer>
             GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
             NBTTagCompound nbttagcompound = entitylivingbaseIn.getLeftShoulderEntity();
 
-            if (!nbttagcompound.hasNoTags())
+            if (!nbttagcompound.isEmpty())
             {
                 LayerEntityOnShoulder.DataHolder layerentityonshoulder$dataholder = this.renderEntityOnShoulder(entitylivingbaseIn, this.leftUniqueId, nbttagcompound, this.leftRenderer, this.leftModel, this.leftResource, this.leftEntityClass, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch, scale, true);
                 this.leftUniqueId = layerentityonshoulder$dataholder.entityId;
@@ -54,7 +54,7 @@ public class LayerEntityOnShoulder implements LayerRenderer<EntityPlayer>
 
             NBTTagCompound nbttagcompound1 = entitylivingbaseIn.getRightShoulderEntity();
 
-            if (!nbttagcompound1.hasNoTags())
+            if (!nbttagcompound1.isEmpty())
             {
                 LayerEntityOnShoulder.DataHolder layerentityonshoulder$dataholder1 = this.renderEntityOnShoulder(entitylivingbaseIn, this.rightUniqueId, nbttagcompound1, this.rightRenderer, this.rightModel, this.rightResource, this.rightEntityClass, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch, scale, false);
                 this.rightUniqueId = layerentityonshoulder$dataholder1.entityId;
@@ -79,7 +79,7 @@ public class LayerEntityOnShoulder implements LayerRenderer<EntityPlayer>
             {
                 p_192864_4_ = new RenderParrot(this.renderManager);
                 p_192864_5_ = new ModelParrot();
-                p_192864_6_ = RenderParrot.PARROT_TEXTURES[p_192864_3_.getInteger("Variant")];
+                p_192864_6_ = RenderParrot.PARROT_TEXTURES[p_192864_3_.getInt("Variant")];
             }
         }
 

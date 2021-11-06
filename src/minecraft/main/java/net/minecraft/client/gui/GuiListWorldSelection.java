@@ -17,8 +17,6 @@ public class GuiListWorldSelection extends GuiListExtended
     private static final Logger LOGGER = LogManager.getLogger();
     private final GuiWorldSelection worldSelection;
     private final List<GuiListWorldSelectionEntry> entries = Lists.<GuiListWorldSelectionEntry>newArrayList();
-
-    /** Index to the currently selected world */
     private int selectedIdx = -1;
 
     public GuiListWorldSelection(GuiWorldSelection p_i46590_1_, Minecraft clientIn, int widthIn, int heightIn, int topIn, int bottomIn, int slotHeightIn)
@@ -52,9 +50,6 @@ public class GuiListWorldSelection extends GuiListExtended
         }
     }
 
-    /**
-     * Gets the IGuiListEntry object for the given index
-     */
     public GuiListWorldSelectionEntry getListEntry(int index)
     {
         return this.entries.get(index);
@@ -70,9 +65,6 @@ public class GuiListWorldSelection extends GuiListExtended
         return super.getScrollBarX() + 20;
     }
 
-    /**
-     * Gets the width of the list
-     */
     public int getListWidth()
     {
         return super.getListWidth() + 50;
@@ -84,9 +76,6 @@ public class GuiListWorldSelection extends GuiListExtended
         this.worldSelection.selectWorld(this.getSelectedWorld());
     }
 
-    /**
-     * Returns true if the element passed in is currently selected
-     */
     protected boolean isSelected(int slotIndex)
     {
         return slotIndex == this.selectedIdx;

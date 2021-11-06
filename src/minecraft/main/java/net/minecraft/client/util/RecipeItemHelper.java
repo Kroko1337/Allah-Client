@@ -20,12 +20,11 @@ import net.minecraft.item.crafting.Ingredient;
 
 public class RecipeItemHelper
 {
-    /** Map from {@link #pack} packed ids to counts */
     public final Int2IntMap itemToCount = new Int2IntOpenHashMap();
 
     public void accountStack(ItemStack stack)
     {
-        if (!stack.isEmpty() && !stack.isItemDamaged() && !stack.isItemEnchanted() && !stack.hasDisplayName())
+        if (!stack.isEmpty() && !stack.isDamaged() && !stack.isEnchanted() && !stack.hasDisplayName())
         {
             int i = pack(stack);
             int j = stack.getCount();
@@ -37,22 +36,22 @@ public class RecipeItemHelper
     {
         Item item = stack.getItem();
         int i = item.getHasSubtypes() ? stack.getMetadata() : 0;
-        return Item.REGISTRY.getIDForObject(item) << 16 | i & 65535;
+        return Item.REGISTRY.getId(item) << 16 | i & 65535;
     }
 
-    public boolean containsItem(int p_194120_1_)
+    public boolean containsItem(int packedItem)
     {
-        return this.itemToCount.get(p_194120_1_) > 0;
+        return this.itemToCount.get(packedItem) > 0;
     }
 
-    public int tryTake(int p_194122_1_, int maximum)
+    public int tryTake(int packedItem, int maximum)
     {
-        int i = this.itemToCount.get(p_194122_1_);
+        int i = this.itemToCount.get(packedItem);
 
         if (i >= maximum)
         {
-            this.itemToCount.put(p_194122_1_, i - maximum);
-            return p_194122_1_;
+            this.itemToCount.put(packedItem, i - maximum);
+            return packedItem;
         }
         else
         {
@@ -60,34 +59,34 @@ public class RecipeItemHelper
         }
     }
 
-    private void increment(int p_194117_1_, int amount)
+    private void increment(int packedItem, int amount)
     {
-        this.itemToCount.put(p_194117_1_, this.itemToCount.get(p_194117_1_) + amount);
+        this.itemToCount.put(packedItem, this.itemToCount.get(packedItem) + amount);
     }
 
-    public boolean canCraft(IRecipe recipe, @Nullable IntList p_194116_2_)
+    public boolean canCraft(IRecipe recipe, @Nullable IntList packedItemList)
     {
-        return this.canCraft(recipe, p_194116_2_, 1);
+        return this.canCraft(recipe, packedItemList, 1);
     }
 
-    public boolean canCraft(IRecipe recipe, @Nullable IntList p_194118_2_, int p_194118_3_)
+    public boolean canCraft(IRecipe recipe, @Nullable IntList packedItemList, int maxAmount)
     {
-        return (new RecipeItemHelper.RecipePicker(recipe)).tryPick(p_194118_3_, p_194118_2_);
+        return (new RecipeItemHelper.RecipePicker(recipe)).tryPick(maxAmount, packedItemList);
     }
 
-    public int getBiggestCraftableStack(IRecipe recipe, @Nullable IntList p_194114_2_)
+    public int getBiggestCraftableStack(IRecipe recipe, @Nullable IntList packedItemList)
     {
-        return this.getBiggestCraftableStack(recipe, Integer.MAX_VALUE, p_194114_2_);
+        return this.getBiggestCraftableStack(recipe, Integer.MAX_VALUE, packedItemList);
     }
 
-    public int getBiggestCraftableStack(IRecipe recipe, int p_194121_2_, @Nullable IntList p_194121_3_)
+    public int getBiggestCraftableStack(IRecipe recipe, int maxAmount, @Nullable IntList packedItemList)
     {
-        return (new RecipeItemHelper.RecipePicker(recipe)).tryPickAll(p_194121_2_, p_194121_3_);
+        return (new RecipeItemHelper.RecipePicker(recipe)).tryPickAll(maxAmount, packedItemList);
     }
 
-    public static ItemStack unpack(int p_194115_0_)
+    public static ItemStack unpack(int packedItem)
     {
-        return p_194115_0_ == 0 ? ItemStack.EMPTY : new ItemStack(Item.getItemById(p_194115_0_ >> 16 & 65535), 1, p_194115_0_ & 65535);
+        return packedItem == 0 ? ItemStack.EMPTY : new ItemStack(Item.getItemById(packedItem >> 16 & 65535), 1, packedItem & 65535);
     }
 
     public void clear()
@@ -105,10 +104,10 @@ public class RecipeItemHelper
         private final BitSet data;
         private IntList path = new IntArrayList();
 
-        public RecipePicker(IRecipe p_i47608_2_)
+        public RecipePicker(IRecipe recipeIn)
         {
-            this.recipe = p_i47608_2_;
-            this.ingredients.addAll(p_i47608_2_.getIngredients());
+            this.recipe = recipeIn;
+            this.ingredients.addAll(recipeIn.getIngredients());
             this.ingredients.removeIf((p_194103_0_) ->
             {
                 return p_194103_0_ == Ingredient.EMPTY;
@@ -132,9 +131,9 @@ public class RecipeItemHelper
             }
         }
 
-        public boolean tryPick(int p_194092_1_, @Nullable IntList listIn)
+        public boolean tryPick(int maxAmount, @Nullable IntList listIn)
         {
-            if (p_194092_1_ <= 0)
+            if (maxAmount <= 0)
             {
                 return true;
             }
@@ -142,9 +141,9 @@ public class RecipeItemHelper
             {
                 int k;
 
-                for (k = 0; this.dfs(p_194092_1_); ++k)
+                for (k = 0; this.dfs(maxAmount); ++k)
                 {
-                    RecipeItemHelper.this.tryTake(this.possessedIngredientStacks[this.path.getInt(0)], p_194092_1_);
+                    RecipeItemHelper.this.tryTake(this.possessedIngredientStacks[this.path.getInt(0)], maxAmount);
                     int l = this.path.size() - 1;
                     this.setSatisfied(this.path.getInt(l));
 
@@ -182,7 +181,7 @@ public class RecipeItemHelper
                             if (this.hasResidual(false, j1, l1))
                             {
                                 this.toggleResidual(true, l1, j1);
-                                RecipeItemHelper.this.increment(this.possessedIngredientStacks[l1], p_194092_1_);
+                                RecipeItemHelper.this.increment(this.possessedIngredientStacks[l1], maxAmount);
 
                                 if (flag1)
                                 {
@@ -221,13 +220,13 @@ public class RecipeItemHelper
             return intcollection.toIntArray();
         }
 
-        private boolean dfs(int p_194098_1_)
+        private boolean dfs(int amount)
         {
             int k = this.possessedIngredientStackCount;
 
             for (int l = 0; l < k; ++l)
             {
-                if (RecipeItemHelper.this.itemToCount.get(this.possessedIngredientStacks[l]) >= p_194098_1_)
+                if (RecipeItemHelper.this.itemToCount.get(this.possessedIngredientStacks[l]) >= amount)
                 {
                     this.visit(false, l);
 

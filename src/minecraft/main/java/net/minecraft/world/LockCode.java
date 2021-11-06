@@ -24,14 +24,14 @@ public class LockCode
         return this.lock;
     }
 
-    public void toNBT(NBTTagCompound nbt)
+    public void write(NBTTagCompound nbt)
     {
-        nbt.setString("Lock", this.lock);
+        nbt.putString("Lock", this.lock);
     }
 
-    public static LockCode fromNBT(NBTTagCompound nbt)
+    public static LockCode read(NBTTagCompound nbt)
     {
-        if (nbt.hasKey("Lock", 8))
+        if (nbt.contains("Lock", 8))
         {
             String s = nbt.getString("Lock");
             return new LockCode(s);

@@ -11,13 +11,8 @@ import net.minecraft.world.LockCode;
 
 public class InventoryLargeChest implements ILockableContainer
 {
-    /** Name of the chest. */
     private final String name;
-
-    /** Inventory object corresponding to double chest upper part */
     private final ILockableContainer upperChest;
-
-    /** Inventory object corresponding to double chest lower part */
     private final ILockableContainer lowerChest;
 
     public InventoryLargeChest(String nameIn, ILockableContainer upperChestIn, ILockableContainer lowerChestIn)
@@ -68,9 +63,6 @@ public class InventoryLargeChest implements ILockableContainer
         return this.upperChest == inventoryIn || this.lowerChest == inventoryIn;
     }
 
-    /**
-     * Get the name of this object. For players this returns their username
-     */
     public String getName()
     {
         if (this.upperChest.hasCustomName())
@@ -83,17 +75,11 @@ public class InventoryLargeChest implements ILockableContainer
         }
     }
 
-    /**
-     * Returns true if this thing is named
-     */
     public boolean hasCustomName()
     {
         return this.upperChest.hasCustomName() || this.lowerChest.hasCustomName();
     }
 
-    /**
-     * Get the formatted ChatComponent that will be used for the sender's username in chat
-     */
     public ITextComponent getDisplayName()
     {
         return (ITextComponent)(this.hasCustomName() ? new TextComponentString(this.getName()) : new TextComponentTranslation(this.getName(), new Object[0]));

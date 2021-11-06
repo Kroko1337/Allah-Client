@@ -95,7 +95,7 @@ public class CrashReportCategory
     {
         try
         {
-            this.addCrashSection(nameIn, detail.call());
+            this.addDetail(nameIn, detail.call());
         }
         catch (Throwable throwable)
         {
@@ -106,7 +106,7 @@ public class CrashReportCategory
     /**
      * Adds a Crashreport section with the given name with the given value (convered .toString())
      */
-    public void addCrashSection(String sectionName, Object value)
+    public void addDetail(String sectionName, Object value)
     {
         this.children.add(new CrashReportCategory.Entry(sectionName, value));
     }
@@ -116,7 +116,7 @@ public class CrashReportCategory
      */
     public void addCrashSectionThrowable(String sectionName, Throwable throwable)
     {
-        this.addCrashSection(sectionName, throwable);
+        this.addDetail(sectionName, throwable);
     }
 
     /**
@@ -224,7 +224,7 @@ public class CrashReportCategory
             {
                 try
                 {
-                    return String.format("ID #%d (%s // %s)", i, blockIn.getUnlocalizedName(), blockIn.getClass().getCanonicalName());
+                    return String.format("ID #%d (%s // %s)", i, blockIn.getTranslationKey(), blockIn.getClass().getCanonicalName());
                 }
                 catch (Throwable var2)
                 {

@@ -15,38 +15,38 @@ import net.minecraft.server.MinecraftServer;
 
 public class ServerScoreboard extends Scoreboard
 {
-    private final MinecraftServer scoreboardMCServer;
+    private final MinecraftServer server;
     private final Set<ScoreObjective> addedObjectives = Sets.<ScoreObjective>newHashSet();
     private Runnable[] dirtyRunnables = new Runnable[0];
 
     public ServerScoreboard(MinecraftServer mcServer)
     {
-        this.scoreboardMCServer = mcServer;
+        this.server = mcServer;
     }
 
-    public void onScoreUpdated(Score scoreIn)
+    public void onScoreChanged(Score scoreIn)
     {
-        super.onScoreUpdated(scoreIn);
+        super.onScoreChanged(scoreIn);
 
         if (this.addedObjectives.contains(scoreIn.getObjective()))
         {
-            this.scoreboardMCServer.getPlayerList().sendPacketToAllPlayers(new SPacketUpdateScore(scoreIn));
+            this.server.getPlayerList().sendPacketToAllPlayers(new SPacketUpdateScore(scoreIn));
         }
 
         this.markSaveDataDirty();
     }
 
-    public void broadcastScoreUpdate(String scoreName)
+    public void onPlayerRemoved(String scoreName)
     {
-        super.broadcastScoreUpdate(scoreName);
-        this.scoreboardMCServer.getPlayerList().sendPacketToAllPlayers(new SPacketUpdateScore(scoreName));
+        super.onPlayerRemoved(scoreName);
+        this.server.getPlayerList().sendPacketToAllPlayers(new SPacketUpdateScore(scoreName));
         this.markSaveDataDirty();
     }
 
-    public void broadcastScoreUpdate(String scoreName, ScoreObjective objective)
+    public void onPlayerScoreRemoved(String scoreName, ScoreObjective objective)
     {
-        super.broadcastScoreUpdate(scoreName, objective);
-        this.scoreboardMCServer.getPlayerList().sendPacketToAllPlayers(new SPacketUpdateScore(scoreName, objective));
+        super.onPlayerScoreRemoved(scoreName, objective);
+        this.server.getPlayerList().sendPacketToAllPlayers(new SPacketUpdateScore(scoreName, objective));
         this.markSaveDataDirty();
     }
 
@@ -62,7 +62,7 @@ public class ServerScoreboard extends Scoreboard
         {
             if (this.getObjectiveDisplaySlotCount(scoreobjective) > 0)
             {
-                this.scoreboardMCServer.getPlayerList().sendPacketToAllPlayers(new SPacketDisplayObjective(objectiveSlot, objective));
+                this.server.getPlayerList().sendPacketToAllPlayers(new SPacketDisplayObjective(objectiveSlot, objective));
             }
             else
             {
@@ -74,7 +74,7 @@ public class ServerScoreboard extends Scoreboard
         {
             if (this.addedObjectives.contains(objective))
             {
-                this.scoreboardMCServer.getPlayerList().sendPacketToAllPlayers(new SPacketDisplayObjective(objectiveSlot, objective));
+                this.server.getPlayerList().sendPacketToAllPlayers(new SPacketDisplayObjective(objectiveSlot, objective));
             }
             else
             {
@@ -85,15 +85,12 @@ public class ServerScoreboard extends Scoreboard
         this.markSaveDataDirty();
     }
 
-    /**
-     * Adds a player to the given team
-     */
     public boolean addPlayerToTeam(String player, String newTeam)
     {
         if (super.addPlayerToTeam(player, newTeam))
         {
             ScorePlayerTeam scoreplayerteam = this.getTeam(newTeam);
-            this.scoreboardMCServer.getPlayerList().sendPacketToAllPlayers(new SPacketTeams(scoreplayerteam, Arrays.asList(player), 3));
+            this.server.getPlayerList().sendPacketToAllPlayers(new SPacketTeams(scoreplayerteam, Arrays.asList(player), 3));
             this.markSaveDataDirty();
             return true;
         }
@@ -110,16 +107,13 @@ public class ServerScoreboard extends Scoreboard
     public void removePlayerFromTeam(String username, ScorePlayerTeam playerTeam)
     {
         super.removePlayerFromTeam(username, playerTeam);
-        this.scoreboardMCServer.getPlayerList().sendPacketToAllPlayers(new SPacketTeams(playerTeam, Arrays.asList(username), 4));
+        this.server.getPlayerList().sendPacketToAllPlayers(new SPacketTeams(playerTeam, Arrays.asList(username), 4));
         this.markSaveDataDirty();
     }
 
-    /**
-     * Called when a score objective is added
-     */
-    public void onScoreObjectiveAdded(ScoreObjective scoreObjectiveIn)
+    public void onObjectiveAdded(ScoreObjective objective)
     {
-        super.onScoreObjectiveAdded(scoreObjectiveIn);
+        super.onObjectiveAdded(objective);
         this.markSaveDataDirty();
     }
 
@@ -129,15 +123,15 @@ public class ServerScoreboard extends Scoreboard
 
         if (this.addedObjectives.contains(objective))
         {
-            this.scoreboardMCServer.getPlayerList().sendPacketToAllPlayers(new SPacketScoreboardObjective(objective, 2));
+            this.server.getPlayerList().sendPacketToAllPlayers(new SPacketScoreboardObjective(objective, 2));
         }
 
         this.markSaveDataDirty();
     }
 
-    public void onScoreObjectiveRemoved(ScoreObjective objective)
+    public void onObjectiveRemoved(ScoreObjective objective)
     {
-        super.onScoreObjectiveRemoved(objective);
+        super.onObjectiveRemoved(objective);
 
         if (this.addedObjectives.contains(objective))
         {
@@ -147,30 +141,24 @@ public class ServerScoreboard extends Scoreboard
         this.markSaveDataDirty();
     }
 
-    /**
-     * This packet will notify the players that this team is created, and that will register it on the client
-     */
-    public void broadcastTeamCreated(ScorePlayerTeam playerTeam)
+    public void onTeamAdded(ScorePlayerTeam playerTeam)
     {
-        super.broadcastTeamCreated(playerTeam);
-        this.scoreboardMCServer.getPlayerList().sendPacketToAllPlayers(new SPacketTeams(playerTeam, 0));
+        super.onTeamAdded(playerTeam);
+        this.server.getPlayerList().sendPacketToAllPlayers(new SPacketTeams(playerTeam, 0));
         this.markSaveDataDirty();
     }
 
-    /**
-     * This packet will notify the players that this team is updated
-     */
-    public void broadcastTeamInfoUpdate(ScorePlayerTeam playerTeam)
+    public void onTeamChanged(ScorePlayerTeam playerTeam)
     {
-        super.broadcastTeamInfoUpdate(playerTeam);
-        this.scoreboardMCServer.getPlayerList().sendPacketToAllPlayers(new SPacketTeams(playerTeam, 2));
+        super.onTeamChanged(playerTeam);
+        this.server.getPlayerList().sendPacketToAllPlayers(new SPacketTeams(playerTeam, 2));
         this.markSaveDataDirty();
     }
 
-    public void broadcastTeamRemove(ScorePlayerTeam playerTeam)
+    public void onTeamRemoved(ScorePlayerTeam playerTeam)
     {
-        super.broadcastTeamRemove(playerTeam);
-        this.scoreboardMCServer.getPlayerList().sendPacketToAllPlayers(new SPacketTeams(playerTeam, 1));
+        super.onTeamRemoved(playerTeam);
+        this.server.getPlayerList().sendPacketToAllPlayers(new SPacketTeams(playerTeam, 1));
         this.markSaveDataDirty();
     }
 
@@ -213,7 +201,7 @@ public class ServerScoreboard extends Scoreboard
     {
         List < Packet<? >> list = this.getCreatePackets(objective);
 
-        for (EntityPlayerMP entityplayermp : this.scoreboardMCServer.getPlayerList().getPlayers())
+        for (EntityPlayerMP entityplayermp : this.server.getPlayerList().getPlayers())
         {
             for (Packet<?> packet : list)
             {
@@ -244,7 +232,7 @@ public class ServerScoreboard extends Scoreboard
     {
         List < Packet<? >> list = this.getDestroyPackets(p_96546_1_);
 
-        for (EntityPlayerMP entityplayermp : this.scoreboardMCServer.getPlayerList().getPlayers())
+        for (EntityPlayerMP entityplayermp : this.server.getPlayerList().getPlayers())
         {
             for (Packet<?> packet : list)
             {

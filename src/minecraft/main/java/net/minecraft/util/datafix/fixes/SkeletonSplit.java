@@ -16,18 +16,18 @@ public class SkeletonSplit implements IFixableData
 
         if ("Skeleton".equals(s))
         {
-            int i = compound.getInteger("SkeletonType");
+            int i = compound.getInt("SkeletonType");
 
             if (i == 1)
             {
-                compound.setString("id", "WitherSkeleton");
+                compound.putString("id", "WitherSkeleton");
             }
             else if (i == 2)
             {
-                compound.setString("id", "Stray");
+                compound.putString("id", "Stray");
             }
 
-            compound.removeTag("SkeletonType");
+            compound.remove("SkeletonType");
         }
 
         return compound;

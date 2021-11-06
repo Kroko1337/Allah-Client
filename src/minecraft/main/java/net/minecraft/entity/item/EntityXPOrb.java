@@ -16,25 +16,12 @@ import net.minecraft.world.World;
 
 public class EntityXPOrb extends Entity
 {
-    /**
-     * A constantly increasing value that RenderXPOrb uses to control the colour shifting (Green / yellow)
-     */
     public int xpColor;
-
-    /** The age of the XP orb in ticks. */
     public int xpOrbAge;
     public int delayBeforeCanPickup;
-
-    /** The health of this XP orb. */
     private int xpOrbHealth = 5;
-
-    /** This is how much XP this orb has. */
     private int xpValue;
-
-    /** The closest EntityPlayer to this orb. */
     private EntityPlayer closestPlayer;
-
-    /** Threshold color for tracking players */
     private int xpTargetColor;
 
     public EntityXPOrb(World worldIn, double x, double y, double z, int expValue)
@@ -49,10 +36,6 @@ public class EntityXPOrb extends Entity
         this.xpValue = expValue;
     }
 
-    /**
-     * returns if this entity triggers Block.onEntityWalking on the blocks they walk on. used for spiders and wolves to
-     * prevent them from trampling crops
-     */
     protected boolean canTriggerWalking()
     {
         return false;
@@ -64,7 +47,7 @@ public class EntityXPOrb extends Entity
         this.setSize(0.25F, 0.25F);
     }
 
-    protected void entityInit()
+    protected void registerData()
     {
     }
 
@@ -88,9 +71,9 @@ public class EntityXPOrb extends Entity
     /**
      * Called to update the entity's position/logic.
      */
-    public void onUpdate()
+    public void tick()
     {
-        super.onUpdate();
+        super.tick();
 
         if (this.delayBeforeCanPickup > 0)
         {
@@ -114,12 +97,12 @@ public class EntityXPOrb extends Entity
             this.playSound(SoundEvents.ENTITY_GENERIC_BURN, 0.4F, 2.0F + this.rand.nextFloat() * 0.4F);
         }
 
-        this.pushOutOfBlocks(this.posX, (this.getEntityBoundingBox().minY + this.getEntityBoundingBox().maxY) / 2.0D, this.posZ);
+        this.pushOutOfBlocks(this.posX, (this.getBoundingBox().minY + this.getBoundingBox().maxY) / 2.0D, this.posZ);
         double d0 = 8.0D;
 
         if (this.xpTargetColor < this.xpColor - 20 + this.getEntityId() % 100)
         {
-            if (this.closestPlayer == null || this.closestPlayer.getDistanceSqToEntity(this) > 64.0D)
+            if (this.closestPlayer == null || this.closestPlayer.getDistanceSq(this) > 64.0D)
             {
                 this.closestPlayer = this.world.getClosestPlayerToEntity(this, 8.0D);
             }
@@ -154,7 +137,7 @@ public class EntityXPOrb extends Entity
 
         if (this.onGround)
         {
-            f = this.world.getBlockState(new BlockPos(MathHelper.floor(this.posX), MathHelper.floor(this.getEntityBoundingBox().minY) - 1, MathHelper.floor(this.posZ))).getBlock().slipperiness * 0.98F;
+            f = this.world.getBlockState(new BlockPos(MathHelper.floor(this.posX), MathHelper.floor(this.getBoundingBox().minY) - 1, MathHelper.floor(this.posZ))).getBlock().slipperiness * 0.98F;
         }
 
         this.motionX *= (double)f;
@@ -171,7 +154,7 @@ public class EntityXPOrb extends Entity
 
         if (this.xpOrbAge >= 6000)
         {
-            this.setDead();
+            this.remove();
         }
     }
 
@@ -180,7 +163,7 @@ public class EntityXPOrb extends Entity
      */
     public boolean handleWaterMovement()
     {
-        return this.world.handleMaterialAcceleration(this.getEntityBoundingBox(), Material.WATER, this);
+        return this.world.handleMaterialAcceleration(this.getBoundingBox(), Material.WATER, this);
     }
 
     /**
@@ -196,38 +179,35 @@ public class EntityXPOrb extends Entity
      */
     public boolean attackEntityFrom(DamageSource source, float amount)
     {
-        if (this.isEntityInvulnerable(source))
+        if (this.isInvulnerableTo(source))
         {
             return false;
         }
         else
         {
-            this.setBeenAttacked();
+            this.markVelocityChanged();
             this.xpOrbHealth = (int)((float)this.xpOrbHealth - amount);
 
             if (this.xpOrbHealth <= 0)
             {
-                this.setDead();
+                this.remove();
             }
 
             return false;
         }
     }
 
-    /**
-     * (abstract) Protected helper method to write subclass entity data to NBT.
-     */
     public void writeEntityToNBT(NBTTagCompound compound)
     {
-        compound.setShort("Health", (short)this.xpOrbHealth);
-        compound.setShort("Age", (short)this.xpOrbAge);
-        compound.setShort("Value", (short)this.xpValue);
+        compound.putShort("Health", (short)this.xpOrbHealth);
+        compound.putShort("Age", (short)this.xpOrbAge);
+        compound.putShort("Value", (short)this.xpValue);
     }
 
     /**
      * (abstract) Protected helper method to read subclass entity data from NBT.
      */
-    public void readEntityFromNBT(NBTTagCompound compound)
+    public void readAdditional(NBTTagCompound compound)
     {
         this.xpOrbHealth = compound.getShort("Health");
         this.xpOrbAge = compound.getShort("Age");
@@ -247,11 +227,11 @@ public class EntityXPOrb extends Entity
                 entityIn.onItemPickup(this, 1);
                 ItemStack itemstack = EnchantmentHelper.getEnchantedItem(Enchantments.MENDING, entityIn);
 
-                if (!itemstack.isEmpty() && itemstack.isItemDamaged())
+                if (!itemstack.isEmpty() && itemstack.isDamaged())
                 {
-                    int i = Math.min(this.xpToDurability(this.xpValue), itemstack.getItemDamage());
+                    int i = Math.min(this.xpToDurability(this.xpValue), itemstack.getDamage());
                     this.xpValue -= this.durabilityToXp(i);
-                    itemstack.setItemDamage(itemstack.getItemDamage() - i);
+                    itemstack.setItemDamage(itemstack.getDamage() - i);
                 }
 
                 if (this.xpValue > 0)
@@ -259,7 +239,7 @@ public class EntityXPOrb extends Entity
                     entityIn.addExperience(this.xpValue);
                 }
 
-                this.setDead();
+                this.remove();
             }
         }
     }

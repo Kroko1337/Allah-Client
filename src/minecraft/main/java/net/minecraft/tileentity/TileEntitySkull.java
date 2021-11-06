@@ -37,11 +37,11 @@ public class TileEntitySkull extends TileEntity implements ITickable
         sessionService = sessionServiceIn;
     }
 
-    public NBTTagCompound writeToNBT(NBTTagCompound compound)
+    public NBTTagCompound write(NBTTagCompound compound)
     {
-        super.writeToNBT(compound);
-        compound.setByte("SkullType", (byte)(this.skullType & 255));
-        compound.setByte("Rot", (byte)(this.skullRotation & 255));
+        super.write(compound);
+        compound.putByte("SkullType", (byte)(this.skullType & 255));
+        compound.putByte("Rot", (byte)(this.skullRotation & 255));
 
         if (this.playerProfile != null)
         {
@@ -53,19 +53,19 @@ public class TileEntitySkull extends TileEntity implements ITickable
         return compound;
     }
 
-    public void readFromNBT(NBTTagCompound compound)
+    public void read(NBTTagCompound compound)
     {
-        super.readFromNBT(compound);
+        super.read(compound);
         this.skullType = compound.getByte("SkullType");
         this.skullRotation = compound.getByte("Rot");
 
         if (this.skullType == 3)
         {
-            if (compound.hasKey("Owner", 10))
+            if (compound.contains("Owner", 10))
             {
-                this.playerProfile = NBTUtil.readGameProfileFromNBT(compound.getCompoundTag("Owner"));
+                this.playerProfile = NBTUtil.readGameProfile(compound.getCompound("Owner"));
             }
-            else if (compound.hasKey("ExtraType", 8))
+            else if (compound.contains("ExtraType", 8))
             {
                 String s = compound.getString("ExtraType");
 
@@ -78,10 +78,7 @@ public class TileEntitySkull extends TileEntity implements ITickable
         }
     }
 
-    /**
-     * Like the old updateEntity(), except more generic.
-     */
-    public void update()
+    public void tick()
     {
         if (this.skullType == 5)
         {
@@ -109,14 +106,23 @@ public class TileEntitySkull extends TileEntity implements ITickable
     }
 
     @Nullable
+
+    /**
+     * Retrieves packet to send to the client whenever this Tile Entity is resynced via World.notifyBlockUpdate. For
+     * modded TE's, this packet comes back to you clientside in {@link #onDataPacket}
+     */
     public SPacketUpdateTileEntity getUpdatePacket()
     {
         return new SPacketUpdateTileEntity(this.pos, 4, this.getUpdateTag());
     }
 
+    /**
+     * Get an NBT compound to sync to the client with SPacketChunkData, used for initial loading of the chunk or when
+     * many blocks change at once. This compound comes back to you clientside in {@link handleUpdateTag}
+     */
     public NBTTagCompound getUpdateTag()
     {
-        return this.writeToNBT(new NBTTagCompound());
+        return this.write(new NBTTagCompound());
     }
 
     public void setType(int type)
@@ -134,11 +140,11 @@ public class TileEntitySkull extends TileEntity implements ITickable
 
     private void updatePlayerProfile()
     {
-        this.playerProfile = updateGameprofile(this.playerProfile);
+        this.playerProfile = updateGameProfile(this.playerProfile);
         this.markDirty();
     }
 
-    public static GameProfile updateGameprofile(GameProfile input)
+    public static GameProfile updateGameProfile(GameProfile input)
     {
         if (input != null && !StringUtils.isNullOrEmpty(input.getName()))
         {
@@ -194,7 +200,7 @@ public class TileEntitySkull extends TileEntity implements ITickable
 
     public void mirror(Mirror mirrorIn)
     {
-        if (this.world != null && this.world.getBlockState(this.getPos()).getValue(BlockSkull.FACING) == EnumFacing.UP)
+        if (this.world != null && this.world.getBlockState(this.getPos()).get(BlockSkull.FACING) == EnumFacing.UP)
         {
             this.skullRotation = mirrorIn.mirrorRotation(this.skullRotation, 16);
         }
@@ -202,7 +208,7 @@ public class TileEntitySkull extends TileEntity implements ITickable
 
     public void rotate(Rotation rotationIn)
     {
-        if (this.world != null && this.world.getBlockState(this.getPos()).getValue(BlockSkull.FACING) == EnumFacing.UP)
+        if (this.world != null && this.world.getBlockState(this.getPos()).get(BlockSkull.FACING) == EnumFacing.UP)
         {
             this.skullRotation = rotationIn.rotate(this.skullRotation, 16);
         }

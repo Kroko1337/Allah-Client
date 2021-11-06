@@ -46,17 +46,11 @@ public class TileEntityBrewingStand extends TileEntityLockable implements ITicka
     private String customName;
     private int fuel;
 
-    /**
-     * Get the name of this object. For players this returns their username
-     */
     public String getName()
     {
         return this.hasCustomName() ? this.customName : "container.brewing";
     }
 
-    /**
-     * Returns true if this thing is named
-     */
     public boolean hasCustomName()
     {
         return this.customName != null && !this.customName.isEmpty();
@@ -88,10 +82,7 @@ public class TileEntityBrewingStand extends TileEntityLockable implements ITicka
         return true;
     }
 
-    /**
-     * Like the old updateEntity(), except more generic.
-     */
-    public void update()
+    public void tick()
     {
         ItemStack itemstack = this.brewingItemStacks.get(4);
 
@@ -241,14 +232,14 @@ public class TileEntityBrewingStand extends TileEntityLockable implements ITicka
         fixer.registerWalker(FixTypes.BLOCK_ENTITY, new ItemStackDataLists(TileEntityBrewingStand.class, new String[] {"Items"}));
     }
 
-    public void readFromNBT(NBTTagCompound compound)
+    public void read(NBTTagCompound compound)
     {
-        super.readFromNBT(compound);
+        super.read(compound);
         this.brewingItemStacks = NonNullList.<ItemStack>withSize(this.getSizeInventory(), ItemStack.EMPTY);
         ItemStackHelper.loadAllItems(compound, this.brewingItemStacks);
         this.brewTime = compound.getShort("BrewTime");
 
-        if (compound.hasKey("CustomName", 8))
+        if (compound.contains("CustomName", 8))
         {
             this.customName = compound.getString("CustomName");
         }
@@ -256,18 +247,18 @@ public class TileEntityBrewingStand extends TileEntityLockable implements ITicka
         this.fuel = compound.getByte("Fuel");
     }
 
-    public NBTTagCompound writeToNBT(NBTTagCompound compound)
+    public NBTTagCompound write(NBTTagCompound compound)
     {
-        super.writeToNBT(compound);
-        compound.setShort("BrewTime", (short)this.brewTime);
+        super.write(compound);
+        compound.putShort("BrewTime", (short)this.brewTime);
         ItemStackHelper.saveAllItems(compound, this.brewingItemStacks);
 
         if (this.hasCustomName())
         {
-            compound.setString("CustomName", this.customName);
+            compound.putString("CustomName", this.customName);
         }
 
-        compound.setByte("Fuel", (byte)this.fuel);
+        compound.putByte("Fuel", (byte)this.fuel);
         return compound;
     }
 
@@ -357,7 +348,7 @@ public class TileEntityBrewingStand extends TileEntityLockable implements ITicka
             }
             else
             {
-                return (item == Items.POTIONITEM || item == Items.SPLASH_POTION || item == Items.LINGERING_POTION || item == Items.GLASS_BOTTLE) && this.getStackInSlot(index).isEmpty();
+                return (item == Items.POTION || item == Items.SPLASH_POTION || item == Items.LINGERING_POTION || item == Items.GLASS_BOTTLE) && this.getStackInSlot(index).isEmpty();
             }
         }
     }

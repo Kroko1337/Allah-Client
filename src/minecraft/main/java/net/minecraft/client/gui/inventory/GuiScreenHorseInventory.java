@@ -12,11 +12,7 @@ import net.minecraft.util.ResourceLocation;
 public class GuiScreenHorseInventory extends GuiContainer
 {
     private static final ResourceLocation HORSE_GUI_TEXTURES = new ResourceLocation("textures/gui/container/horse.png");
-
-    /** The player inventory bound to this GUI. */
     private final IInventory playerInventory;
-
-    /** The horse inventory bound to this GUI. */
     private final IInventory horseInventory;
 
     /** The EntityHorse whose inventory is currently being accessed. */
@@ -30,7 +26,7 @@ public class GuiScreenHorseInventory extends GuiContainer
 
     public GuiScreenHorseInventory(IInventory playerInv, IInventory horseInv, AbstractHorse horse)
     {
-        super(new ContainerHorseInventory(playerInv, horseInv, horse, Minecraft.getMinecraft().player));
+        super(new ContainerHorseInventory(playerInv, horseInv, horse, Minecraft.getInstance().player));
         this.playerInventory = playerInv;
         this.horseInventory = horseInv;
         this.horseEntity = horse;
@@ -87,9 +83,6 @@ public class GuiScreenHorseInventory extends GuiContainer
         GuiInventory.drawEntityOnScreen(i + 51, j + 60, 17, (float)(i + 51) - this.mousePosx, (float)(j + 75 - 50) - this.mousePosY, this.horseEntity);
     }
 
-    /**
-     * Draws the screen and all the components in it.
-     */
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         this.drawDefaultBackground();

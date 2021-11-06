@@ -8,8 +8,6 @@ public class FlatLayerInfo
 {
     private final int version;
     private IBlockState layerMaterial;
-
-    /** Amount of layers for this set of layers. */
     private int layerCount;
     private int layerMinimumY;
 
@@ -50,9 +48,6 @@ public class FlatLayerInfo
         return this.layerMaterial.getBlock();
     }
 
-    /**
-     * Return the block metadata used on this set of layers.
-     */
     private int getFillBlockMeta()
     {
         return this.layerMaterial.getBlock().getMetaFromState(this.layerMaterial);
@@ -80,7 +75,7 @@ public class FlatLayerInfo
 
         if (this.version >= 3)
         {
-            ResourceLocation resourcelocation = Block.REGISTRY.getNameForObject(this.getLayerMaterialBlock());
+            ResourceLocation resourcelocation = Block.REGISTRY.getKey(this.getLayerMaterialBlock());
             s = resourcelocation == null ? "null" : resourcelocation.toString();
 
             if (this.layerCount > 1)

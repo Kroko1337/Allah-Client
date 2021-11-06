@@ -29,15 +29,11 @@ public class GuiRepair extends GuiContainer implements IContainerListener
 
     public GuiRepair(InventoryPlayer inventoryIn, World worldIn)
     {
-        super(new ContainerRepair(inventoryIn, worldIn, Minecraft.getMinecraft().player));
+        super(new ContainerRepair(inventoryIn, worldIn, Minecraft.getInstance().player));
         this.playerInventory = inventoryIn;
-        this.anvil = (ContainerRepair)this.inventorySlots;
+        this.anvil = (ContainerRepair)this.container;
     }
 
-    /**
-     * Adds the buttons (and other controls) to the screen in question. Called when the GUI is displayed and when the
-     * window resizes, the buttonList is cleared beforehand.
-     */
     public void initGui()
     {
         super.initGui();
@@ -49,18 +45,15 @@ public class GuiRepair extends GuiContainer implements IContainerListener
         this.nameField.setDisabledTextColour(-1);
         this.nameField.setEnableBackgroundDrawing(false);
         this.nameField.setMaxStringLength(35);
-        this.inventorySlots.removeListener(this);
-        this.inventorySlots.addListener(this);
+        this.container.removeListener(this);
+        this.container.addListener(this);
     }
 
-    /**
-     * Called when the screen is unloaded. Used to disable keyboard repeat events
-     */
     public void onGuiClosed()
     {
         super.onGuiClosed();
         Keyboard.enableRepeatEvents(false);
-        this.inventorySlots.removeListener(this);
+        this.container.removeListener(this);
     }
 
     /**
@@ -78,7 +71,7 @@ public class GuiRepair extends GuiContainer implements IContainerListener
             boolean flag = true;
             String s = I18n.format("container.repair.cost", this.anvil.maximumCost);
 
-            if (this.anvil.maximumCost >= 40 && !this.mc.player.capabilities.isCreativeMode)
+            if (this.anvil.maximumCost >= 40 && !this.mc.player.abilities.isCreativeMode)
             {
                 s = I18n.format("container.repair.expensive");
                 i = 16736352;
@@ -117,10 +110,6 @@ public class GuiRepair extends GuiContainer implements IContainerListener
         GlStateManager.enableLighting();
     }
 
-    /**
-     * Fired when a key is typed (except F11 which toggles full screen). This is the equivalent of
-     * KeyListener.keyTyped(KeyEvent e). Args : character (character on the key), keyCode (lwjgl Keyboard key code)
-     */
     protected void keyTyped(char typedChar, int keyCode) throws IOException
     {
         if (this.nameField.textboxKeyTyped(typedChar, keyCode))
@@ -147,18 +136,12 @@ public class GuiRepair extends GuiContainer implements IContainerListener
         this.mc.player.connection.sendPacket(new CPacketCustomPayload("MC|ItemName", (new PacketBuffer(Unpooled.buffer())).writeString(s)));
     }
 
-    /**
-     * Called when the mouse is clicked. Args : mouseX, mouseY, clickedButton
-     */
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
     {
         super.mouseClicked(mouseX, mouseY, mouseButton);
         this.nameField.mouseClicked(mouseX, mouseY, mouseButton);
     }
 
-    /**
-     * Draws the screen and all the components in it.
-     */
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         this.drawDefaultBackground();

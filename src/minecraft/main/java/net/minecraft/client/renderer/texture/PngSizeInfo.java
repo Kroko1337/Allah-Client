@@ -9,8 +9,8 @@ import org.apache.commons.io.IOUtils;
 
 public class PngSizeInfo
 {
-    public final int pngWidth;
-    public final int pngHeight;
+    public final int width;
+    public final int height;
 
     public PngSizeInfo(InputStream stream) throws IOException
     {
@@ -30,8 +30,8 @@ public class PngSizeInfo
         }
         else
         {
-            this.pngWidth = datainputstream.readInt();
-            this.pngHeight = datainputstream.readInt();
+            this.width = datainputstream.readInt();
+            this.height = datainputstream.readInt();
             IOUtils.closeQuietly((InputStream)datainputstream);
         }
     }

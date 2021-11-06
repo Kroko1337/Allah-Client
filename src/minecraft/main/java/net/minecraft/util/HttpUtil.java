@@ -32,14 +32,9 @@ import org.apache.logging.log4j.Logger;
 public class HttpUtil
 {
     public static final ListeningExecutorService DOWNLOADER_EXECUTOR = MoreExecutors.listeningDecorator(Executors.newCachedThreadPool((new ThreadFactoryBuilder()).setDaemon(true).setNameFormat("Downloader %d").build()));
-
-    /** The number of download threads that we have started so far. */
     private static final AtomicInteger DOWNLOAD_THREADS_STARTED = new AtomicInteger(0);
     private static final Logger LOGGER = LogManager.getLogger();
 
-    /**
-     * Builds an encoded HTTP POST content string from a string map
-     */
     public static String buildPostString(Map<String, Object> data)
     {
         StringBuilder stringbuilder = new StringBuilder();
@@ -78,17 +73,11 @@ public class HttpUtil
         return stringbuilder.toString();
     }
 
-    /**
-     * Sends a POST to the given URL using the map as the POST args
-     */
     public static String postMap(URL url, Map<String, Object> data, boolean skipLoggingErrors, @Nullable Proxy proxyIn)
     {
         return post(url, buildPostString(data), skipLoggingErrors, proxyIn);
     }
 
-    /**
-     * Sends a POST to the given URL
-     */
     private static String post(URL url, String content, boolean skipLoggingErrors, @Nullable Proxy p_151225_3_)
     {
         try
@@ -134,7 +123,7 @@ public class HttpUtil
         }
     }
 
-    public static ListenableFuture<Object> downloadResourcePack(final File saveFile, final String packUrl, final Map<String, String> p_180192_2_, final int maxSize, @Nullable final IProgressUpdate p_180192_4_, final Proxy p_180192_5_)
+    public static ListenableFuture<Object> downloadResourcePack(final File saveFile, final String packUrl, final Map<String, String> requestProperties, final int maxSize, @Nullable final IProgressUpdate progressCallback, final Proxy proxyIn)
     {
         ListenableFuture<?> listenablefuture = DOWNLOADER_EXECUTOR.submit(new Runnable()
         {
@@ -144,10 +133,10 @@ public class HttpUtil
                 InputStream inputstream = null;
                 OutputStream outputstream = null;
 
-                if (p_180192_4_ != null)
+                if (progressCallback != null)
                 {
-                    p_180192_4_.resetProgressAndMessage(I18n.translateToLocal("resourcepack.downloading"));
-                    p_180192_4_.displayLoadingString(I18n.translateToLocal("resourcepack.requesting"));
+                    progressCallback.resetProgressAndMessage(I18n.translateToLocal("resourcepack.downloading"));
+                    progressCallback.displayLoadingString(I18n.translateToLocal("resourcepack.requesting"));
                 }
 
                 try
@@ -156,18 +145,18 @@ public class HttpUtil
                     {
                         byte[] abyte = new byte[4096];
                         URL url = new URL(packUrl);
-                        httpurlconnection = (HttpURLConnection)url.openConnection(p_180192_5_);
+                        httpurlconnection = (HttpURLConnection)url.openConnection(proxyIn);
                         httpurlconnection.setInstanceFollowRedirects(true);
                         float f = 0.0F;
-                        float f1 = (float)p_180192_2_.entrySet().size();
+                        float f1 = (float)requestProperties.entrySet().size();
 
-                        for (Entry<String, String> entry : p_180192_2_.entrySet())
+                        for (Entry<String, String> entry : requestProperties.entrySet())
                         {
                             httpurlconnection.setRequestProperty(entry.getKey(), entry.getValue());
 
-                            if (p_180192_4_ != null)
+                            if (progressCallback != null)
                             {
-                                p_180192_4_.setLoadingProgress((int)(++f / f1 * 100.0F));
+                                progressCallback.setLoadingProgress((int)(++f / f1 * 100.0F));
                             }
                         }
 
@@ -175,9 +164,9 @@ public class HttpUtil
                         f1 = (float)httpurlconnection.getContentLength();
                         int i = httpurlconnection.getContentLength();
 
-                        if (p_180192_4_ != null)
+                        if (progressCallback != null)
                         {
-                            p_180192_4_.displayLoadingString(I18n.translateToLocalFormatted("resourcepack.progress", String.format("%.2f", f1 / 1000.0F / 1000.0F)));
+                            progressCallback.displayLoadingString(I18n.translateToLocalFormatted("resourcepack.progress", String.format("%.2f", f1 / 1000.0F / 1000.0F)));
                         }
 
                         if (saveFile.exists())
@@ -186,9 +175,9 @@ public class HttpUtil
 
                             if (j == (long)i)
                             {
-                                if (p_180192_4_ != null)
+                                if (progressCallback != null)
                                 {
-                                    p_180192_4_.setDoneWorking();
+                                    progressCallback.setDoneWorking();
                                 }
 
                                 return;
@@ -206,9 +195,9 @@ public class HttpUtil
 
                         if (maxSize > 0 && f1 > (float)maxSize)
                         {
-                            if (p_180192_4_ != null)
+                            if (progressCallback != null)
                             {
-                                p_180192_4_.setDoneWorking();
+                                progressCallback.setDoneWorking();
                             }
 
                             throw new IOException("Filesize is bigger than maximum allowed (file is " + f + ", limit is " + maxSize + ")");
@@ -220,16 +209,16 @@ public class HttpUtil
                         {
                             f += (float)k;
 
-                            if (p_180192_4_ != null)
+                            if (progressCallback != null)
                             {
-                                p_180192_4_.setLoadingProgress((int)(f / f1 * 100.0F));
+                                progressCallback.setLoadingProgress((int)(f / f1 * 100.0F));
                             }
 
                             if (maxSize > 0 && f > (float)maxSize)
                             {
-                                if (p_180192_4_ != null)
+                                if (progressCallback != null)
                                 {
-                                    p_180192_4_.setDoneWorking();
+                                    progressCallback.setDoneWorking();
                                 }
 
                                 throw new IOException("Filesize was bigger than maximum allowed (got >= " + f + ", limit was " + maxSize + ")");
@@ -239,9 +228,9 @@ public class HttpUtil
                             {
                                 HttpUtil.LOGGER.error("INTERRUPTED");
 
-                                if (p_180192_4_ != null)
+                                if (progressCallback != null)
                                 {
-                                    p_180192_4_.setDoneWorking();
+                                    progressCallback.setDoneWorking();
                                 }
 
                                 return;
@@ -250,9 +239,9 @@ public class HttpUtil
                             outputstream.write(abyte, 0, k);
                         }
 
-                        if (p_180192_4_ != null)
+                        if (progressCallback != null)
                         {
-                            p_180192_4_.setDoneWorking();
+                            progressCallback.setDoneWorking();
                             return;
                         }
                     }
@@ -274,9 +263,9 @@ public class HttpUtil
                             }
                         }
 
-                        if (p_180192_4_ != null)
+                        if (progressCallback != null)
                         {
-                            p_180192_4_.setDoneWorking();
+                            progressCallback.setDoneWorking();
                             return;
                         }
                     }

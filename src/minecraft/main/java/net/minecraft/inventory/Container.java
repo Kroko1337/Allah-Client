@@ -23,13 +23,7 @@ public abstract class Container
     public List<Slot> inventorySlots = Lists.<Slot>newArrayList();
     public int windowId;
     private short transactionID;
-
-    /**
-     * The current drag mode (0 : evenly split, 1 : one item by slot, 2 : not used ?)
-     */
     private int dragMode = -1;
-
-    /** The current drag event (0 : start, 1 : add slot : 2 : end) */
     private int dragEvent;
     private final Set<Slot> dragSlots = Sets.<Slot>newHashSet();
     protected List<IContainerListener> listeners = Lists.<IContainerListener>newArrayList();
@@ -38,7 +32,7 @@ public abstract class Container
     /**
      * Adds an item slot to this container
      */
-    protected Slot addSlotToContainer(Slot slotIn)
+    protected Slot addSlot(Slot slotIn)
     {
         slotIn.slotNumber = this.inventorySlots.size();
         this.inventorySlots.add(slotIn);
@@ -241,7 +235,7 @@ public abstract class Container
 
                     if (dragType == 1)
                     {
-                        player.dropItem(inventoryplayer.getItemStack().splitStack(1), true);
+                        player.dropItem(inventoryplayer.getItemStack().split(1), true);
                     }
                 }
             }
@@ -294,7 +288,7 @@ public abstract class Container
                                 i3 = slot6.getItemStackLimit(itemstack11);
                             }
 
-                            slot6.putStack(itemstack11.splitStack(i3));
+                            slot6.putStack(itemstack11.split(i3));
                         }
                     }
                     else if (slot6.canTakeStack(player))
@@ -393,7 +387,7 @@ public abstract class Container
 
                         if (itemstack6.getCount() > l1)
                         {
-                            slot4.putStack(itemstack6.splitStack(l1));
+                            slot4.putStack(itemstack6.split(l1));
                         }
                         else
                         {
@@ -408,7 +402,7 @@ public abstract class Container
 
                     if (itemstack6.getCount() > i2)
                     {
-                        slot4.putStack(itemstack6.splitStack(i2));
+                        slot4.putStack(itemstack6.split(i2));
                         slot4.onTake(player, itemstack10);
 
                         if (!inventoryplayer.addItemStackToInventory(itemstack10))
@@ -425,7 +419,7 @@ public abstract class Container
                 }
             }
         }
-        else if (clickTypeIn == ClickType.CLONE && player.capabilities.isCreativeMode && inventoryplayer.getItemStack().isEmpty() && slotId >= 0)
+        else if (clickTypeIn == ClickType.CLONE && player.abilities.isCreativeMode && inventoryplayer.getItemStack().isEmpty() && slotId >= 0)
         {
             Slot slot3 = this.inventorySlots.get(slotId);
 
@@ -516,7 +510,7 @@ public abstract class Container
 
     protected void clearContainer(EntityPlayer playerIn, World worldIn, IInventory inventoryIn)
     {
-        if (!playerIn.isEntityAlive() || playerIn instanceof EntityPlayerMP && ((EntityPlayerMP)playerIn).hasDisconnected())
+        if (!playerIn.isAlive() || playerIn instanceof EntityPlayerMP && ((EntityPlayerMP)playerIn).hasDisconnected())
         {
             for (int j = 0; j < inventoryIn.getSizeInventory(); ++j)
             {
@@ -553,20 +547,6 @@ public abstract class Container
         for (int i = 0; i < p_190896_1_.size(); ++i)
         {
             this.getSlot(i).putStack(p_190896_1_.get(i));
-        }
-    }
-
-    public void addItem(int slotIn, ItemStack stack)
-    {
-        ItemStack itemstack = this.getSlot(slotIn).getStack();
-
-        if (itemstack.isEmpty())
-        {
-            this.putStackInSlot(slotIn, stack);
-        }
-        else if (itemstack.getUnlocalizedName().equals(stack.getUnlocalizedName()) && itemstack.getCount() < itemstack.getMaxStackSize())
-        {
-            itemstack.grow(stack.getCount());
         }
     }
 
@@ -708,11 +688,11 @@ public abstract class Container
                 {
                     if (stack.getCount() > slot1.getSlotStackLimit())
                     {
-                        slot1.putStack(stack.splitStack(slot1.getSlotStackLimit()));
+                        slot1.putStack(stack.split(slot1.getSlotStackLimit()));
                     }
                     else
                     {
-                        slot1.putStack(stack.splitStack(stack.getCount()));
+                        slot1.putStack(stack.split(stack.getCount()));
                     }
 
                     slot1.onSlotChanged();
@@ -767,7 +747,7 @@ public abstract class Container
         }
         else
         {
-            return dragModeIn == 2 && player.capabilities.isCreativeMode;
+            return dragModeIn == 2 && player.abilities.isCreativeMode;
         }
     }
 
@@ -814,7 +794,7 @@ public abstract class Container
                 break;
 
             case 2:
-                stack.setCount(stack.getItem().getItemStackLimit());
+                stack.setCount(stack.getItem().getMaxStackSize());
         }
 
         stack.grow(slotStackSize);
@@ -872,7 +852,7 @@ public abstract class Container
             ItemStack itemstack = ItemStack.EMPTY;
             IRecipe irecipe = CraftingManager.findMatchingRecipe(p_192389_3_, p_192389_1_);
 
-            if (irecipe != null && (irecipe.isHidden() || !p_192389_1_.getGameRules().getBoolean("doLimitedCrafting") || entityplayermp.getRecipeBook().containsRecipe(irecipe)))
+            if (irecipe != null && (irecipe.isDynamic() || !p_192389_1_.getGameRules().getBoolean("doLimitedCrafting") || entityplayermp.getRecipeBook().isUnlocked(irecipe)))
             {
                 p_192389_4_.setRecipeUsed(irecipe);
                 itemstack = irecipe.getCraftingResult(p_192389_3_);

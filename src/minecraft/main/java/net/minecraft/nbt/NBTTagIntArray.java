@@ -8,7 +8,6 @@ import java.util.List;
 
 public class NBTTagIntArray extends NBTBase
 {
-    /** The array of saved integers */
     private int[] intArray;
 
     NBTTagIntArray()

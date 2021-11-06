@@ -23,20 +23,10 @@ import org.apache.logging.log4j.Logger;
 public class SaveHandler implements ISaveHandler, IPlayerFileData
 {
     private static final Logger LOGGER = LogManager.getLogger();
-
-    /** The directory in which to save world data. */
     private final File worldDirectory;
-
-    /** The directory in which to save player data. */
     private final File playersDirectory;
     private final File mapDataDir;
-
-    /**
-     * The time in milliseconds when this field was initialized. Stored in the session lock file.
-     */
     private final long initializationTime = MinecraftServer.getCurrentTimeMillis();
-
-    /** The directory name of the world */
     private final String saveDirectoryName;
     private final TemplateManager structureTemplateManager;
     protected final DataFixer dataFixer;
@@ -64,9 +54,6 @@ public class SaveHandler implements ISaveHandler, IPlayerFileData
         this.setSessionLock();
     }
 
-    /**
-     * Creates a session lock file for this process
-     */
     private void setSessionLock()
     {
         try
@@ -126,9 +113,6 @@ public class SaveHandler implements ISaveHandler, IPlayerFileData
         }
     }
 
-    /**
-     * initializes and returns the chunk loader for the specified world provider
-     */
     public IChunkLoader getChunkLoader(WorldProvider provider)
     {
         throw new RuntimeException("Old Chunk Storage is no longer supported.");
@@ -213,7 +197,7 @@ public class SaveHandler implements ISaveHandler, IPlayerFileData
     {
         try
         {
-            NBTTagCompound nbttagcompound = player.writeToNBT(new NBTTagCompound());
+            NBTTagCompound nbttagcompound = player.writeWithoutTypeId(new NBTTagCompound());
             File file1 = new File(this.playersDirectory, player.getCachedUniqueIdString() + ".dat.tmp");
             File file2 = new File(this.playersDirectory, player.getCachedUniqueIdString() + ".dat");
             CompressedStreamTools.writeCompressed(nbttagcompound, new FileOutputStream(file1));
@@ -256,7 +240,7 @@ public class SaveHandler implements ISaveHandler, IPlayerFileData
 
         if (nbttagcompound != null)
         {
-            player.readFromNBT(this.dataFixer.process(FixTypes.PLAYER, nbttagcompound));
+            player.read(this.dataFixer.process(FixTypes.PLAYER, nbttagcompound));
         }
 
         return nbttagcompound;
@@ -267,9 +251,6 @@ public class SaveHandler implements ISaveHandler, IPlayerFileData
         return this;
     }
 
-    /**
-     * Returns an array of usernames for which player.dat exists for.
-     */
     public String[] getAvailablePlayerDat()
     {
         String[] astring = this.playersDirectory.list();
@@ -290,16 +271,10 @@ public class SaveHandler implements ISaveHandler, IPlayerFileData
         return astring;
     }
 
-    /**
-     * Called to flush all changes to disk, waiting for them to complete.
-     */
     public void flush()
     {
     }
 
-    /**
-     * Gets the file location of the given map
-     */
     public File getMapFileFromName(String mapName)
     {
         return new File(this.mapDataDir, mapName + ".dat");

@@ -19,7 +19,7 @@ public class PhaseLandingApproach extends PhaseBase
         super(dragonIn);
     }
 
-    public PhaseList<PhaseLandingApproach> getPhaseList()
+    public PhaseList<PhaseLandingApproach> getType()
     {
         return PhaseList.LANDING_APPROACH;
     }
@@ -37,11 +37,11 @@ public class PhaseLandingApproach extends PhaseBase
      * Gives the phase a chance to update its status.
      * Called by dragon's onLivingUpdate. Only used when !worldObj.isRemote.
      */
-    public void doLocalUpdate()
+    public void serverTick()
     {
         double d0 = this.targetLocation == null ? 0.0D : this.targetLocation.squareDistanceTo(this.dragon.posX, this.dragon.posY, this.dragon.posZ);
 
-        if (d0 < 100.0D || d0 > 22500.0D || this.dragon.isCollidedHorizontally || this.dragon.isCollidedVertically)
+        if (d0 < 100.0D || d0 > 22500.0D || this.dragon.collidedHorizontally || this.dragon.collidedVertically)
         {
             this.findNewTarget();
         }

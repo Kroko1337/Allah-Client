@@ -44,10 +44,6 @@ public class GuiMultiplayer extends GuiScreen
         this.parentScreen = parentScreen;
     }
 
-    /**
-     * Adds the buttons (and other controls) to the screen in question. Called when the GUI is displayed and when the
-     * window resizes, the buttonList is cleared beforehand.
-     */
     public void initGui()
     {
         Keyboard.enableRepeatEvents(true);
@@ -81,9 +77,6 @@ public class GuiMultiplayer extends GuiScreen
         this.createButtons();
     }
 
-    /**
-     * Handles mouse input.
-     */
     public void handleMouseInput() throws IOException
     {
         super.handleMouseInput();
@@ -102,9 +95,6 @@ public class GuiMultiplayer extends GuiScreen
         this.selectServer(this.serverListSelector.getSelected());
     }
 
-    /**
-     * Called from the main game loop to update the screen.
-     */
     public void updateScreen()
     {
         super.updateScreen();
@@ -119,9 +109,6 @@ public class GuiMultiplayer extends GuiScreen
         this.oldServerPinger.pingPendingNetworks();
     }
 
-    /**
-     * Called when the screen is unloaded. Used to disable keyboard repeat events
-     */
     public void onGuiClosed()
     {
         Keyboard.enableRepeatEvents(false);
@@ -135,9 +122,6 @@ public class GuiMultiplayer extends GuiScreen
         this.oldServerPinger.clearPendingNetworks();
     }
 
-    /**
-     * Called by the controls from the buttonList when activated. (Mouse pressed for buttons)
-     */
     protected void actionPerformed(GuiButton button) throws IOException
     {
         if (button.enabled)
@@ -262,10 +246,6 @@ public class GuiMultiplayer extends GuiScreen
         }
     }
 
-    /**
-     * Fired when a key is typed (except F11 which toggles full screen). This is the equivalent of
-     * KeyListener.keyTyped(KeyEvent e). Args : character (character on the key), keyCode (lwjgl Keyboard key code)
-     */
     protected void keyTyped(char typedChar, int keyCode) throws IOException
     {
         int i = this.serverListSelector.getSelected();
@@ -365,9 +345,6 @@ public class GuiMultiplayer extends GuiScreen
         }
     }
 
-    /**
-     * Draws the screen and all the components in it.
-     */
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         this.hoveringText = null;
@@ -432,18 +409,12 @@ public class GuiMultiplayer extends GuiScreen
         this.hoveringText = p_146793_1_;
     }
 
-    /**
-     * Called when the mouse is clicked. Args : mouseX, mouseY, clickedButton
-     */
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
     {
         super.mouseClicked(mouseX, mouseY, mouseButton);
         this.serverListSelector.mouseClicked(mouseX, mouseY, mouseButton);
     }
 
-    /**
-     * Called when a mouse button is released.
-     */
     protected void mouseReleased(int mouseX, int mouseY, int state)
     {
         super.mouseReleased(mouseX, mouseY, state);

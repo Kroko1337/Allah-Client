@@ -1,7 +1,6 @@
 package net.minecraft.client.multiplayer;
 
 import io.netty.buffer.Unpooled;
-import java.util.List;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockCommandBlock;
 import net.minecraft.block.BlockStructure;
@@ -20,16 +19,17 @@ import net.minecraft.inventory.ClickType;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemSword;
+import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.client.CPacketClickWindow;
 import net.minecraft.network.play.client.CPacketCreativeInventoryAction;
 import net.minecraft.network.play.client.CPacketCustomPayload;
 import net.minecraft.network.play.client.CPacketEnchantItem;
 import net.minecraft.network.play.client.CPacketHeldItemChange;
+import net.minecraft.network.play.client.CPacketPlaceRecipe;
 import net.minecraft.network.play.client.CPacketPlayerDigging;
 import net.minecraft.network.play.client.CPacketPlayerTryUseItem;
 import net.minecraft.network.play.client.CPacketPlayerTryUseItemOnBlock;
-import net.minecraft.network.play.client.CPacketRecipePlacement;
 import net.minecraft.network.play.client.CPacketUseEntity;
 import net.minecraft.stats.RecipeBook;
 import net.minecraft.stats.StatisticsManager;
@@ -47,34 +47,15 @@ import net.minecraft.world.World;
 
 public class PlayerControllerMP
 {
-    /** The Minecraft instance. */
     private final Minecraft mc;
     private final NetHandlerPlayClient connection;
     private BlockPos currentBlock = new BlockPos(-1, -1, -1);
-
-    /** The Item currently being used to destroy a block */
     private ItemStack currentItemHittingBlock = ItemStack.EMPTY;
-
-    /** Current block damage (MP) */
     private float curBlockDamageMP;
-
-    /**
-     * Tick counter, when it hits 4 it resets back to 0 and plays the step sound
-     */
     private float stepSoundTickCounter;
-
-    /**
-     * Delays the first damage on the block after the first click on the block
-     */
     private int blockHitDelay;
-
-    /** Tells if the player is hitting a block */
     private boolean isHittingBlock;
-
-    /** Current game type for the player */
     private GameType currentGameType = GameType.SURVIVAL;
-
-    /** Index of the current item held by the player in the inventory hotbar */
     private int currentPlayerItem;
 
     public PlayerControllerMP(Minecraft mcIn, NetHandlerPlayClient netHandler)
@@ -96,12 +77,9 @@ public class PlayerControllerMP
      */
     public void setPlayerCapabilities(EntityPlayer player)
     {
-        this.currentGameType.configurePlayerCapabilities(player.capabilities);
+        this.currentGameType.configurePlayerCapabilities(player.abilities);
     }
 
-    /**
-     * None
-     */
     public boolean isSpectator()
     {
         return this.currentGameType == GameType.SPECTATOR;
@@ -113,12 +91,9 @@ public class PlayerControllerMP
     public void setGameType(GameType type)
     {
         this.currentGameType = type;
-        this.currentGameType.configurePlayerCapabilities(this.mc.player.capabilities);
+        this.currentGameType.configurePlayerCapabilities(this.mc.player.abilities);
     }
 
-    /**
-     * Flips the player around.
-     */
     public void flipPlayer(EntityPlayer playerIn)
     {
         playerIn.rotationYaw = -180.0F;
@@ -131,7 +106,7 @@ public class PlayerControllerMP
 
     public boolean onPlayerDestroyBlock(BlockPos pos)
     {
-        if (this.currentGameType.isAdventure())
+        if (this.currentGameType.hasLimitedInteractions())
         {
             if (this.currentGameType == GameType.SPECTATOR)
             {
@@ -180,7 +155,7 @@ public class PlayerControllerMP
 
                 if (flag)
                 {
-                    block.onBlockDestroyedByPlayer(world, pos, iblockstate);
+                    block.onPlayerDestroy(world, pos, iblockstate);
                 }
 
                 this.currentBlock = new BlockPos(this.currentBlock.getX(), -1, this.currentBlock.getZ());
@@ -210,7 +185,7 @@ public class PlayerControllerMP
      */
     public boolean clickBlock(BlockPos loc, EnumFacing face)
     {
-        if (this.currentGameType.isAdventure())
+        if (this.currentGameType.hasLimitedInteractions())
         {
             if (this.currentGameType == GameType.SPECTATOR)
             {
@@ -332,7 +307,7 @@ public class PlayerControllerMP
                 if (this.stepSoundTickCounter % 4.0F == 0.0F)
                 {
                     SoundType soundtype = block.getSoundType();
-                    this.mc.getSoundHandler().playSound(new PositionedSoundRecord(soundtype.getHitSound(), SoundCategory.NEUTRAL, (soundtype.getVolume() + 1.0F) / 8.0F, soundtype.getPitch() * 0.5F, posBlock));
+                    this.mc.getSoundHandler().play(new PositionedSoundRecord(soundtype.getHitSound(), SoundCategory.NEUTRAL, (soundtype.getVolume() + 1.0F) / 8.0F, soundtype.getPitch() * 0.5F, posBlock));
                 }
 
                 ++this.stepSoundTickCounter;
@@ -366,17 +341,17 @@ public class PlayerControllerMP
         return this.currentGameType.isCreative() ? 5.0F : 4.5F;
     }
 
-    public void updateController()
+    public void tick()
     {
         this.syncCurrentPlayItem();
 
         if (this.connection.getNetworkManager().isChannelOpen())
         {
-            this.connection.getNetworkManager().processReceivedPackets();
+            this.connection.getNetworkManager().tick();
         }
         else
         {
-            this.connection.getNetworkManager().checkDisconnected();
+            this.connection.getNetworkManager().handleDisconnection();
         }
     }
 
@@ -387,7 +362,7 @@ public class PlayerControllerMP
 
         if (!this.currentItemHittingBlock.isEmpty() && !itemstack.isEmpty())
         {
-            flag = itemstack.getItem() == this.currentItemHittingBlock.getItem() && ItemStack.areItemStackTagsEqual(itemstack, this.currentItemHittingBlock) && (itemstack.isItemStackDamageable() || itemstack.getMetadata() == this.currentItemHittingBlock.getMetadata());
+            flag = itemstack.getItem() == this.currentItemHittingBlock.getItem() && ItemStack.areItemStackTagsEqual(itemstack, this.currentItemHittingBlock) && (itemstack.isDamageable() || itemstack.getMetadata() == this.currentItemHittingBlock.getMetadata());
         }
 
         return pos.equals(this.currentBlock) && flag;
@@ -556,7 +531,7 @@ public class PlayerControllerMP
     public EnumActionResult interactWithEntity(EntityPlayer player, Entity target, RayTraceResult ray, EnumHand hand)
     {
         this.syncCurrentPlayItem();
-        Vec3d vec3d = new Vec3d(ray.hitVec.x - target.posX, ray.hitVec.y - target.posY, ray.hitVec.z - target.posZ);
+        Vec3d vec3d = new Vec3d(ray.hitResult.x - target.posX, ray.hitResult.y - target.posY, ray.hitResult.z - target.posZ);
         this.connection.sendPacket(new CPacketUseEntity(target, hand, vec3d));
         return this.currentGameType == GameType.SPECTATOR ? EnumActionResult.PASS : target.applyPlayerInteraction(player, vec3d, hand);
     }
@@ -572,10 +547,9 @@ public class PlayerControllerMP
         return itemstack;
     }
 
-    public void handleRecipePlacement(int p_192831_1_, List<CPacketRecipePlacement.ItemMove> p_192831_2_, List<CPacketRecipePlacement.ItemMove> p_192831_3_, EntityPlayer p_192831_4_)
+    public void func_194338_a(int p_194338_1_, IRecipe p_194338_2_, boolean p_194338_3_, EntityPlayer p_194338_4_)
     {
-        short short1 = p_192831_4_.openContainer.getNextTransactionID(p_192831_4_.inventory);
-        this.connection.sendPacket(new CPacketRecipePlacement(p_192831_1_, p_192831_2_, p_192831_3_, short1));
+        this.connection.sendPacket(new CPacketPlaceRecipe(p_194338_1_, p_194338_2_, p_194338_3_));
     }
 
     /**
@@ -612,7 +586,7 @@ public class PlayerControllerMP
     public void onStoppedUsingItem(EntityPlayer playerIn)
     {
         this.syncCurrentPlayItem();
-        this.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN));
+        this.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ZERO, EnumFacing.DOWN));
         playerIn.stopActiveHand();
     }
 
@@ -650,7 +624,7 @@ public class PlayerControllerMP
      */
     public boolean isRidingHorse()
     {
-        return this.mc.player.isRiding() && this.mc.player.getRidingEntity() instanceof AbstractHorse;
+        return this.mc.player.isPassenger() && this.mc.player.getRidingEntity() instanceof AbstractHorse;
     }
 
     public boolean isSpectatorMode()

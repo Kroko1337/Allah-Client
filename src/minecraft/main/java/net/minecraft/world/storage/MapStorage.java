@@ -29,11 +29,6 @@ public class MapStorage
     }
 
     @Nullable
-
-    /**
-     * Loads an existing MapDataBase corresponding to the given id from disk, instantiating the given Class, or returns
-     * null if none such file exists.
-     */
     public WorldSavedData getOrLoadData(Class <? extends WorldSavedData > clazz, String dataIdentifier)
     {
         WorldSavedData worldsaveddata = this.loadedDataMap.get(dataIdentifier);
@@ -64,7 +59,7 @@ public class MapStorage
                         FileInputStream fileinputstream = new FileInputStream(file1);
                         NBTTagCompound nbttagcompound = CompressedStreamTools.readCompressed(fileinputstream);
                         fileinputstream.close();
-                        worldsaveddata.readFromNBT(nbttagcompound.getCompoundTag("data"));
+                        worldsaveddata.read(nbttagcompound.getCompound("data"));
                     }
                 }
                 catch (Exception exception1)
@@ -83,9 +78,6 @@ public class MapStorage
         }
     }
 
-    /**
-     * Assigns the given String id to the given MapDataBase, removing any existing ones of the same id.
-     */
     public void setData(String dataIdentifier, WorldSavedData data)
     {
         if (this.loadedDataMap.containsKey(dataIdentifier))
@@ -97,9 +89,6 @@ public class MapStorage
         this.loadedDataList.add(data);
     }
 
-    /**
-     * Saves all dirty loaded MapDataBases to disk.
-     */
     public void saveAllData()
     {
         for (int i = 0; i < this.loadedDataList.size(); ++i)
@@ -114,21 +103,18 @@ public class MapStorage
         }
     }
 
-    /**
-     * Saves the given MapDataBase to disk.
-     */
     private void saveData(WorldSavedData data)
     {
         if (this.saveHandler != null)
         {
             try
             {
-                File file1 = this.saveHandler.getMapFileFromName(data.mapName);
+                File file1 = this.saveHandler.getMapFileFromName(data.name);
 
                 if (file1 != null)
                 {
                     NBTTagCompound nbttagcompound = new NBTTagCompound();
-                    nbttagcompound.setTag("data", data.writeToNBT(new NBTTagCompound()));
+                    nbttagcompound.setTag("data", data.write(new NBTTagCompound()));
                     FileOutputStream fileoutputstream = new FileOutputStream(file1);
                     CompressedStreamTools.writeCompressed(nbttagcompound, fileoutputstream);
                     fileoutputstream.close();
@@ -141,9 +127,6 @@ public class MapStorage
         }
     }
 
-    /**
-     * Loads the idCounts Map from the 'idcounts' file.
-     */
     private void loadIdCounts()
     {
         try
@@ -163,9 +146,9 @@ public class MapStorage
                 NBTTagCompound nbttagcompound = CompressedStreamTools.read(datainputstream);
                 datainputstream.close();
 
-                for (String s : nbttagcompound.getKeySet())
+                for (String s : nbttagcompound.keySet())
                 {
-                    NBTBase nbtbase = nbttagcompound.getTag(s);
+                    NBTBase nbtbase = nbttagcompound.get(s);
 
                     if (nbtbase instanceof NBTTagShort)
                     {
@@ -182,9 +165,6 @@ public class MapStorage
         }
     }
 
-    /**
-     * Returns an unique new data id for the given prefix and saves the idCounts map to the 'idcounts' file.
-     */
     public int getUniqueDataId(String key)
     {
         Short oshort = this.idCounts.get(key);
@@ -216,7 +196,7 @@ public class MapStorage
 
                     for (String s : this.idCounts.keySet())
                     {
-                        nbttagcompound.setShort(s, ((Short)this.idCounts.get(s)).shortValue());
+                        nbttagcompound.putShort(s, ((Short)this.idCounts.get(s)).shortValue());
                     }
 
                     DataOutputStream dataoutputstream = new DataOutputStream(new FileOutputStream(file1));

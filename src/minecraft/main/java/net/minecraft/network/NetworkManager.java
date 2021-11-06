@@ -294,13 +294,13 @@ public class NetworkManager extends SimpleChannelInboundHandler < Packet<? >>
     /**
      * Checks timeouts and processes all packets received
      */
-    public void processReceivedPackets()
+    public void tick()
     {
         this.flushOutboundQueue();
 
         if (this.packetListener instanceof ITickable)
         {
-            ((ITickable)this.packetListener).update();
+            ((ITickable)this.packetListener).tick();
         }
 
         if (this.channel != null)
@@ -482,7 +482,7 @@ public class NetworkManager extends SimpleChannelInboundHandler < Packet<? >>
         }
     }
 
-    public void checkDisconnected()
+    public void handleDisconnection()
     {
         if (this.channel != null && !this.channel.isOpen())
         {

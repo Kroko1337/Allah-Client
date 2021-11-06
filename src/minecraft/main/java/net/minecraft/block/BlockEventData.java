@@ -11,11 +11,11 @@ public class BlockEventData
     private final int eventID;
     private final int eventParameter;
 
-    public BlockEventData(BlockPos pos, Block blockType, int eventId, int p_i45756_4_)
+    public BlockEventData(BlockPos pos, Block blockType, int eventId, int eventParameterIn)
     {
         this.position = pos;
         this.eventID = eventId;
-        this.eventParameter = p_i45756_4_;
+        this.eventParameter = eventParameterIn;
         this.blockType = blockType;
     }
 

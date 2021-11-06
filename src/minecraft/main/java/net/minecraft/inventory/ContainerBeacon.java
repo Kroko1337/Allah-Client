@@ -8,17 +8,13 @@ import net.minecraft.item.ItemStack;
 public class ContainerBeacon extends Container
 {
     private final IInventory tileBeacon;
-
-    /**
-     * This beacon's slot where you put in Emerald, Diamond, Gold or Iron Ingot.
-     */
     private final ContainerBeacon.BeaconSlot beaconSlot;
 
     public ContainerBeacon(IInventory playerInventory, IInventory tileBeaconIn)
     {
         this.tileBeacon = tileBeaconIn;
         this.beaconSlot = new ContainerBeacon.BeaconSlot(tileBeaconIn, 0, 136, 110);
-        this.addSlotToContainer(this.beaconSlot);
+        this.addSlot(this.beaconSlot);
         int i = 36;
         int j = 137;
 
@@ -26,13 +22,13 @@ public class ContainerBeacon extends Container
         {
             for (int l = 0; l < 9; ++l)
             {
-                this.addSlotToContainer(new Slot(playerInventory, l + k * 9 + 9, 36 + l * 18, 137 + k * 18));
+                this.addSlot(new Slot(playerInventory, l + k * 9 + 9, 36 + l * 18, 137 + k * 18));
             }
         }
 
         for (int i1 = 0; i1 < 9; ++i1)
         {
-            this.addSlotToContainer(new Slot(playerInventory, i1, 36 + i1 * 18, 195));
+            this.addSlot(new Slot(playerInventory, i1, 36 + i1 * 18, 195));
         }
     }
 

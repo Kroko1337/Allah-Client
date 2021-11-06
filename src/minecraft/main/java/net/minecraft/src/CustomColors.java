@@ -1161,7 +1161,6 @@ public class CustomColors {
 
 	public static Vec3d getWorldSkyColor(Vec3d p_getWorldSkyColor_0_, World p_getWorldSkyColor_1_, Entity p_getWorldSkyColor_2_, float p_getWorldSkyColor_3_) {
 //        DimensionType dimensiontype = p_getWorldSkyColor_1_.provider.getDimensionType();
-
 		Minecraft minecraft = Minecraft.getMinecraft();
 		p_getWorldSkyColor_0_ = getSkyColor(p_getWorldSkyColor_0_, minecraft.world, p_getWorldSkyColor_2_.posX, p_getWorldSkyColor_2_.posY + 1.0D, p_getWorldSkyColor_2_.posZ);
 		return p_getWorldSkyColor_0_;

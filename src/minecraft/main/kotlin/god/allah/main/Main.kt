@@ -13,7 +13,6 @@ class Main {
         instance = this
         Display.setTitle("$name $version | Minecraft 1.12.2")
         Runtime.getRuntime().addShutdownHook(Thread { onShutdown() })
-        Runtime.getRuntime().addShutdownHook(Thread() { onShutdown() })
         Registry.init()
         EventHandler.init()
     }

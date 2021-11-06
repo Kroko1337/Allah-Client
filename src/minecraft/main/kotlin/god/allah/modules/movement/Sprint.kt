@@ -29,6 +29,7 @@ class Sprint : Module() {
     @Value("Category")
     val testCategory = SettingCategory(test, test2, slider)
 
+    @EventInfo(priority = EventPriority.LOW)
     override fun onEvent(event: Event) {
         when(event) {
             is UpdateEvent -> {

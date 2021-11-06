@@ -21,6 +21,8 @@ interface Executor {
     val player: EntityPlayerSP get() = mc.player
     val playerController: PlayerControllerMP get() = mc.playerController
 
+    val ground : Boolean get() = player.onGround
+
     val x: Double get() = player.posX
     val y: Double get() = player.posY
     val z: Double get() = player.posZ

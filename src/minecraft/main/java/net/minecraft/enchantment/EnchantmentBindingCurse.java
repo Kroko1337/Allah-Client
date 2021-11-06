@@ -4,9 +4,9 @@ import net.minecraft.inventory.EntityEquipmentSlot;
 
 public class EnchantmentBindingCurse extends Enchantment
 {
-    public EnchantmentBindingCurse(Enchantment.Rarity rarityIn, EntityEquipmentSlot... slots)
+    public EnchantmentBindingCurse(Enchantment.Rarity p_i47254_1_, EntityEquipmentSlot... p_i47254_2_)
     {
-        super(rarityIn, EnumEnchantmentType.WEARABLE, slots);
+        super(p_i47254_1_, EnumEnchantmentType.WEARABLE, p_i47254_2_);
         this.setName("binding_curse");
     }
 
@@ -18,6 +18,9 @@ public class EnchantmentBindingCurse extends Enchantment
         return 25;
     }
 
+    /**
+     * Returns the maximum value of enchantability nedded on the enchantment level passed.
+     */
     public int getMaxEnchantability(int enchantmentLevel)
     {
         return 50;

@@ -15,9 +15,9 @@ public abstract class AbstractIllager extends EntityMob
         super(p_i47509_1_);
     }
 
-    protected void registerData()
+    protected void entityInit()
     {
-        super.registerData();
+        super.entityInit();
         this.dataManager.register(AGGRESSIVE, Byte.valueOf((byte)0));
     }
 
@@ -43,6 +43,9 @@ public abstract class AbstractIllager extends EntityMob
         this.dataManager.set(AGGRESSIVE, Byte.valueOf((byte)(i & 255)));
     }
 
+    /**
+     * Get this Entity's EnumCreatureAttribute
+     */
     public EnumCreatureAttribute getCreatureAttribute()
     {
         return EnumCreatureAttribute.ILLAGER;

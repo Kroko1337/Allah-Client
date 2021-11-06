@@ -19,7 +19,7 @@ public class EntitySenses
     /**
      * Clears canSeeCachePositive and canSeeCacheNegative.
      */
-    public void tick()
+    public void clearSensingCache()
     {
         this.seenEntities.clear();
         this.unseenEntities.clear();

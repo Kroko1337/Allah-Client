@@ -253,17 +253,27 @@ public class ShaderManager
     }
 
     @Nullable
+
+    /**
+     * gets a shader uniform for the name given. null if not found.
+     */
     public ShaderUniform getShaderUniform(String name)
     {
         return this.mappedShaderUniforms.get(name);
     }
 
+    /**
+     * gets a shader uniform for the name given. if not found, returns a default not-null value
+     */
     public ShaderUniform getShaderUniformOrDefault(String name)
     {
         ShaderUniform shaderuniform = this.getShaderUniform(name);
         return (ShaderUniform)(shaderuniform == null ? DEFAULT_SHADER_UNIFORM : shaderuniform);
     }
 
+    /**
+     * goes through the parsed uniforms and samplers and connects them to their GL counterparts.
+     */
     private void setupUniforms()
     {
         int i = 0;
@@ -322,6 +332,9 @@ public class ShaderManager
         }
     }
 
+    /**
+     * adds a shader sampler texture. if it already exists, replaces it.
+     */
     public void addSamplerTexture(String name, Object samplerTexture)
     {
         if (this.shaderSamplers.containsKey(name))

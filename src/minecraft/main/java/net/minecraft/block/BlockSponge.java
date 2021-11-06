@@ -27,25 +27,40 @@ public class BlockSponge extends Block
     protected BlockSponge()
     {
         super(Material.SPONGE);
-        this.setDefaultState(this.stateContainer.getBaseState().withProperty(WET, Boolean.valueOf(false)));
+        this.setDefaultState(this.blockState.getBaseState().withProperty(WET, Boolean.valueOf(false)));
         this.setCreativeTab(CreativeTabs.BUILDING_BLOCKS);
     }
 
+    /**
+     * Gets the localized name of this block. Used for the statistics page.
+     */
     public String getLocalizedName()
     {
         return I18n.translateToLocal(this.getTranslationKey() + ".dry.name");
     }
 
+    /**
+     * Gets the metadata of the item this Block can drop. This method is called when the block gets destroyed. It
+     * returns the metadata of the dropped item based on the old metadata of the block.
+     */
     public int damageDropped(IBlockState state)
     {
-        return ((Boolean)state.get(WET)).booleanValue() ? 1 : 0;
+        return ((Boolean)state.getValue(WET)).booleanValue() ? 1 : 0;
     }
 
+    /**
+     * Called after the block is set in the Chunk data, but before the Tile Entity is set
+     */
     public void onBlockAdded(World worldIn, BlockPos pos, IBlockState state)
     {
         this.tryAbsorb(worldIn, pos, state);
     }
 
+    /**
+     * Called when a neighboring block was changed and marks that this state should perform any checks during a neighbor
+     * change. Cases may include when redstone power is updated, cactus blocks popping off due to a neighboring solid
+     * block, etc.
+     */
     public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos)
     {
         this.tryAbsorb(worldIn, pos, state);
@@ -54,7 +69,7 @@ public class BlockSponge extends Block
 
     protected void tryAbsorb(World worldIn, BlockPos pos, IBlockState state)
     {
-        if (!((Boolean)state.get(WET)).booleanValue() && this.absorb(worldIn, pos))
+        if (!((Boolean)state.getValue(WET)).booleanValue() && this.absorb(worldIn, pos))
         {
             worldIn.setBlockState(pos, state.withProperty(WET, Boolean.valueOf(true)), 2);
             worldIn.playEvent(2001, pos, Block.getIdFromBlock(Blocks.WATER));
@@ -71,8 +86,8 @@ public class BlockSponge extends Block
         while (!queue.isEmpty())
         {
             Tuple<BlockPos, Integer> tuple = (Tuple)queue.poll();
-            BlockPos blockpos = tuple.getA();
-            int j = ((Integer)tuple.getB()).intValue();
+            BlockPos blockpos = tuple.getFirst();
+            int j = ((Integer)tuple.getSecond()).intValue();
 
             for (EnumFacing enumfacing : EnumFacing.values())
             {
@@ -108,20 +123,26 @@ public class BlockSponge extends Block
     /**
      * returns a list of blocks with the same ID, but different meta (eg: wood returns 4 blocks)
      */
-    public void fillItemGroup(CreativeTabs group, NonNullList<ItemStack> items)
+    public void getSubBlocks(CreativeTabs itemIn, NonNullList<ItemStack> items)
     {
         items.add(new ItemStack(this, 1, 0));
         items.add(new ItemStack(this, 1, 1));
     }
 
+    /**
+     * Convert the given metadata into a BlockState for this Block
+     */
     public IBlockState getStateFromMeta(int meta)
     {
         return this.getDefaultState().withProperty(WET, Boolean.valueOf((meta & 1) == 1));
     }
 
+    /**
+     * Convert the BlockState into the correct metadata value
+     */
     public int getMetaFromState(IBlockState state)
     {
-        return ((Boolean)state.get(WET)).booleanValue() ? 1 : 0;
+        return ((Boolean)state.getValue(WET)).booleanValue() ? 1 : 0;
     }
 
     protected BlockStateContainer createBlockState()
@@ -134,9 +155,9 @@ public class BlockSponge extends Block
      * this method is unrelated to {@link randomTick} and {@link #needsRandomTick}, and will always be called regardless
      * of whether the block can receive random update ticks
      */
-    public void animateTick(IBlockState stateIn, World worldIn, BlockPos pos, Random rand)
+    public void randomDisplayTick(IBlockState stateIn, World worldIn, BlockPos pos, Random rand)
     {
-        if (((Boolean)stateIn.get(WET)).booleanValue())
+        if (((Boolean)stateIn.getValue(WET)).booleanValue())
         {
             EnumFacing enumfacing = EnumFacing.random(rand);
 

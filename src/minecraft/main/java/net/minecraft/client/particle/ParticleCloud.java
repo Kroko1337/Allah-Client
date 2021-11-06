@@ -28,30 +28,33 @@ public class ParticleCloud extends Particle
         this.particleScale *= 0.75F;
         this.particleScale *= 2.5F;
         this.oSize = this.particleScale;
-        this.maxAge = (int)(8.0D / (Math.random() * 0.8D + 0.3D));
-        this.maxAge = (int)((float)this.maxAge * 2.5F);
+        this.particleMaxAge = (int)(8.0D / (Math.random() * 0.8D + 0.3D));
+        this.particleMaxAge = (int)((float)this.particleMaxAge * 2.5F);
     }
 
+    /**
+     * Renders the particle
+     */
     public void renderParticle(BufferBuilder buffer, Entity entityIn, float partialTicks, float rotationX, float rotationZ, float rotationYZ, float rotationXY, float rotationXZ)
     {
-        float f = ((float)this.age + partialTicks) / (float)this.maxAge * 32.0F;
+        float f = ((float)this.particleAge + partialTicks) / (float)this.particleMaxAge * 32.0F;
         f = MathHelper.clamp(f, 0.0F, 1.0F);
         this.particleScale = this.oSize * f;
         super.renderParticle(buffer, entityIn, partialTicks, rotationX, rotationZ, rotationYZ, rotationXY, rotationXZ);
     }
 
-    public void tick()
+    public void onUpdate()
     {
         this.prevPosX = this.posX;
         this.prevPosY = this.posY;
         this.prevPosZ = this.posZ;
 
-        if (this.age++ >= this.maxAge)
+        if (this.particleAge++ >= this.particleMaxAge)
         {
             this.setExpired();
         }
 
-        this.setParticleTextureIndex(7 - this.age * 8 / this.maxAge);
+        this.setParticleTextureIndex(7 - this.particleAge * 8 / this.particleMaxAge);
         this.move(this.motionX, this.motionY, this.motionZ);
         this.motionX *= 0.9599999785423279D;
         this.motionY *= 0.9599999785423279D;
@@ -60,7 +63,7 @@ public class ParticleCloud extends Particle
 
         if (entityplayer != null)
         {
-            AxisAlignedBB axisalignedbb = entityplayer.getBoundingBox();
+            AxisAlignedBB axisalignedbb = entityplayer.getEntityBoundingBox();
 
             if (this.posY > axisalignedbb.minY)
             {

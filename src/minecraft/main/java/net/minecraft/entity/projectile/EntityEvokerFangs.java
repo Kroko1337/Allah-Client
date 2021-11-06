@@ -36,7 +36,7 @@ public class EntityEvokerFangs extends Entity
         this.setPosition(x, y, z);
     }
 
-    protected void registerData()
+    protected void entityInit()
     {
     }
 
@@ -65,28 +65,31 @@ public class EntityEvokerFangs extends Entity
     /**
      * (abstract) Protected helper method to read subclass entity data from NBT.
      */
-    protected void readAdditional(NBTTagCompound compound)
+    protected void readEntityFromNBT(NBTTagCompound compound)
     {
-        this.warmupDelayTicks = compound.getInt("Warmup");
+        this.warmupDelayTicks = compound.getInteger("Warmup");
         this.casterUuid = compound.getUniqueId("OwnerUUID");
     }
 
+    /**
+     * (abstract) Protected helper method to write subclass entity data to NBT.
+     */
     protected void writeEntityToNBT(NBTTagCompound compound)
     {
-        compound.putInt("Warmup", this.warmupDelayTicks);
+        compound.setInteger("Warmup", this.warmupDelayTicks);
 
         if (this.casterUuid != null)
         {
-            compound.putUniqueId("OwnerUUID", this.casterUuid);
+            compound.setUniqueId("OwnerUUID", this.casterUuid);
         }
     }
 
     /**
      * Called to update the entity's position/logic.
      */
-    public void tick()
+    public void onUpdate()
     {
-        super.tick();
+        super.onUpdate();
 
         if (this.world.isRemote)
         {
@@ -113,7 +116,7 @@ public class EntityEvokerFangs extends Entity
         {
             if (this.warmupDelayTicks == -8)
             {
-                for (EntityLivingBase entitylivingbase : this.world.getEntitiesWithinAABB(EntityLivingBase.class, this.getBoundingBox().grow(0.2D, 0.0D, 0.2D)))
+                for (EntityLivingBase entitylivingbase : this.world.getEntitiesWithinAABB(EntityLivingBase.class, this.getEntityBoundingBox().grow(0.2D, 0.0D, 0.2D)))
                 {
                     this.damage(entitylivingbase);
                 }
@@ -127,7 +130,7 @@ public class EntityEvokerFangs extends Entity
 
             if (--this.lifeTicks < 0)
             {
-                this.remove();
+                this.setDead();
             }
         }
     }
@@ -136,7 +139,7 @@ public class EntityEvokerFangs extends Entity
     {
         EntityLivingBase entitylivingbase = this.getCaster();
 
-        if (p_190551_1_.isAlive() && !p_190551_1_.isInvulnerable() && p_190551_1_ != entitylivingbase)
+        if (p_190551_1_.isEntityAlive() && !p_190551_1_.getIsInvulnerable() && p_190551_1_ != entitylivingbase)
         {
             if (entitylivingbase == null)
             {
@@ -167,7 +170,7 @@ public class EntityEvokerFangs extends Entity
 
             if (!this.isSilent())
             {
-                this.world.playSound(this.posX, this.posY, this.posZ, SoundEvents.ENTITY_EVOKER_FANGS_ATTACK, this.getSoundCategory(), 1.0F, this.rand.nextFloat() * 0.2F + 0.85F, false);
+                this.world.playSound(this.posX, this.posY, this.posZ, SoundEvents.EVOCATION_FANGS_ATTACK, this.getSoundCategory(), 1.0F, this.rand.nextFloat() * 0.2F + 0.85F, false);
             }
         }
     }

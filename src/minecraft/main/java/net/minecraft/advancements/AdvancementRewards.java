@@ -76,7 +76,7 @@ public class AdvancementRewards
 
         if (flag)
         {
-            player.container.detectAndSendChanges();
+            player.inventoryContainer.detectAndSendChanges();
         }
 
         if (this.recipes.length > 0)

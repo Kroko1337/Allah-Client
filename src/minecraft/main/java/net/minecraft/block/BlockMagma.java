@@ -34,7 +34,7 @@ public class BlockMagma extends Block
      * @deprecated call via {@link IBlockState#getMapColor(IBlockAccess,BlockPos)} whenever possible.
      * Implementing/overriding is fine.
      */
-    public MapColor getMaterialColor(IBlockState state, IBlockAccess worldIn, BlockPos pos)
+    public MapColor getMapColor(IBlockState state, IBlockAccess worldIn, BlockPos pos)
     {
         return MapColor.NETHERRACK;
     }
@@ -44,7 +44,7 @@ public class BlockMagma extends Block
      */
     public void onEntityWalk(World worldIn, BlockPos pos, Entity entityIn)
     {
-        if (!entityIn.isImmuneToFire() && entityIn instanceof EntityLivingBase && !EnchantmentHelper.hasFrostWalker((EntityLivingBase)entityIn))
+        if (!entityIn.isImmuneToFire() && entityIn instanceof EntityLivingBase && !EnchantmentHelper.hasFrostWalkerEnchantment((EntityLivingBase)entityIn))
         {
             entityIn.attackEntityFrom(DamageSource.HOT_FLOOR, 1.0F);
         }
@@ -52,6 +52,10 @@ public class BlockMagma extends Block
         super.onEntityWalk(worldIn, pos, entityIn);
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#getPackedLightmapCoords(IBlockAccess,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public int getPackedLightmapCoords(IBlockState state, IBlockAccess source, BlockPos pos)
     {
         return 15728880;
@@ -74,6 +78,10 @@ public class BlockMagma extends Block
         }
     }
 
+    /**
+     * @return true if the passed entity is allowed to spawn on this block.
+     * @deprecated prefer calling {@link IBlockState#canEntitySpawn(Entity)}
+     */
     public boolean canEntitySpawn(IBlockState state, Entity entityIn)
     {
         return entityIn.isImmuneToFire();

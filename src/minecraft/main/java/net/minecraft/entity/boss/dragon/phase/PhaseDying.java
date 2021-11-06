@@ -21,7 +21,7 @@ public class PhaseDying extends PhaseBase
      * Generates particle effects appropriate to the phase (or sometimes sounds).
      * Called by dragon's onLivingUpdate. Only used when worldObj.isRemote.
      */
-    public void clientTick()
+    public void doClientRenderEffects()
     {
         if (this.time++ % 10 == 0)
         {
@@ -36,7 +36,7 @@ public class PhaseDying extends PhaseBase
      * Gives the phase a chance to update its status.
      * Called by dragon's onLivingUpdate. Only used when !worldObj.isRemote.
      */
-    public void serverTick()
+    public void doLocalUpdate()
     {
         ++this.time;
 

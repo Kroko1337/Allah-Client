@@ -104,9 +104,9 @@ public class LootTable
 
         while (p_186463_2_ > 0 && !list.isEmpty())
         {
-            ItemStack itemstack2 = list.remove(MathHelper.nextInt(rand, 0, list.size() - 1));
-            int i = MathHelper.nextInt(rand, 1, itemstack2.getCount() / 2);
-            ItemStack itemstack1 = itemstack2.split(i);
+            ItemStack itemstack2 = list.remove(MathHelper.getInt(rand, 0, list.size() - 1));
+            int i = MathHelper.getInt(rand, 1, itemstack2.getCount() / 2);
+            ItemStack itemstack1 = itemstack2.splitStack(i);
 
             if (itemstack2.getCount() > 1 && rand.nextBoolean())
             {

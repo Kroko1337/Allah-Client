@@ -53,9 +53,9 @@ public class EntityLlamaSpit extends Entity implements IProjectile
     /**
      * Called to update the entity's position/logic.
      */
-    public void tick()
+    public void onUpdate()
     {
-        super.tick();
+        super.onUpdate();
 
         if (this.ownerNbt != null)
         {
@@ -70,7 +70,7 @@ public class EntityLlamaSpit extends Entity implements IProjectile
 
         if (raytraceresult != null)
         {
-            vec3d1 = new Vec3d(raytraceresult.hitResult.x, raytraceresult.hitResult.y, raytraceresult.hitResult.z);
+            vec3d1 = new Vec3d(raytraceresult.hitVec.x, raytraceresult.hitVec.y, raytraceresult.hitVec.z);
         }
 
         Entity entity = this.getHitEntity(vec3d, vec3d1);
@@ -116,13 +116,13 @@ public class EntityLlamaSpit extends Entity implements IProjectile
         float f1 = 0.99F;
         float f2 = 0.06F;
 
-        if (!this.world.isMaterialInBB(this.getBoundingBox(), Material.AIR))
+        if (!this.world.isMaterialInBB(this.getEntityBoundingBox(), Material.AIR))
         {
-            this.remove();
+            this.setDead();
         }
         else if (this.isInWater())
         {
-            this.remove();
+            this.setDead();
         }
         else
         {
@@ -163,19 +163,19 @@ public class EntityLlamaSpit extends Entity implements IProjectile
     private Entity getHitEntity(Vec3d p_190538_1_, Vec3d p_190538_2_)
     {
         Entity entity = null;
-        List<Entity> list = this.world.getEntitiesWithinAABBExcludingEntity(this, this.getBoundingBox().expand(this.motionX, this.motionY, this.motionZ).grow(1.0D));
+        List<Entity> list = this.world.getEntitiesWithinAABBExcludingEntity(this, this.getEntityBoundingBox().expand(this.motionX, this.motionY, this.motionZ).grow(1.0D));
         double d0 = 0.0D;
 
         for (Entity entity1 : list)
         {
             if (entity1 != this.owner)
             {
-                AxisAlignedBB axisalignedbb = entity1.getBoundingBox().grow(0.30000001192092896D);
+                AxisAlignedBB axisalignedbb = entity1.getEntityBoundingBox().grow(0.30000001192092896D);
                 RayTraceResult raytraceresult = axisalignedbb.calculateIntercept(p_190538_1_, p_190538_2_);
 
                 if (raytraceresult != null)
                 {
-                    double d1 = p_190538_1_.squareDistanceTo(raytraceresult.hitResult);
+                    double d1 = p_190538_1_.squareDistanceTo(raytraceresult.hitVec);
 
                     if (d1 < d0 || d0 == 0.0D)
                     {
@@ -223,32 +223,35 @@ public class EntityLlamaSpit extends Entity implements IProjectile
 
         if (!this.world.isRemote)
         {
-            this.remove();
+            this.setDead();
         }
     }
 
-    protected void registerData()
+    protected void entityInit()
     {
     }
 
     /**
      * (abstract) Protected helper method to read subclass entity data from NBT.
      */
-    protected void readAdditional(NBTTagCompound compound)
+    protected void readEntityFromNBT(NBTTagCompound compound)
     {
-        if (compound.contains("Owner", 10))
+        if (compound.hasKey("Owner", 10))
         {
-            this.ownerNbt = compound.getCompound("Owner");
+            this.ownerNbt = compound.getCompoundTag("Owner");
         }
     }
 
+    /**
+     * (abstract) Protected helper method to write subclass entity data to NBT.
+     */
     protected void writeEntityToNBT(NBTTagCompound compound)
     {
         if (this.owner != null)
         {
             NBTTagCompound nbttagcompound = new NBTTagCompound();
             UUID uuid = this.owner.getUniqueID();
-            nbttagcompound.putUniqueId("OwnerUUID", uuid);
+            nbttagcompound.setUniqueId("OwnerUUID", uuid);
             compound.setTag("Owner", nbttagcompound);
         }
     }
@@ -259,7 +262,7 @@ public class EntityLlamaSpit extends Entity implements IProjectile
         {
             UUID uuid = this.ownerNbt.getUniqueId("OwnerUUID");
 
-            for (EntityLlama entityllama : this.world.getEntitiesWithinAABB(EntityLlama.class, this.getBoundingBox().grow(15.0D)))
+            for (EntityLlama entityllama : this.world.getEntitiesWithinAABB(EntityLlama.class, this.getEntityBoundingBox().grow(15.0D)))
             {
                 if (entityllama.getUniqueID().equals(uuid))
                 {

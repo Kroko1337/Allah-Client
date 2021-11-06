@@ -32,7 +32,7 @@ public class StateMap extends StateMapperBase
 
         if (this.name == null)
         {
-            s = ((ResourceLocation)Block.REGISTRY.getKey(state.getBlock())).toString();
+            s = ((ResourceLocation)Block.REGISTRY.getNameForObject(state.getBlock())).toString();
         }
         else
         {

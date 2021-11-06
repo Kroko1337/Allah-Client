@@ -99,12 +99,12 @@ public class RecipesMapExtending extends ShapedRecipes
         itemstack = itemstack.copy();
         itemstack.setCount(1);
 
-        if (itemstack.getTag() == null)
+        if (itemstack.getTagCompound() == null)
         {
-            itemstack.setTag(new NBTTagCompound());
+            itemstack.setTagCompound(new NBTTagCompound());
         }
 
-        itemstack.getTag().putInt("map_scale_direction", 1);
+        itemstack.getTagCompound().setInteger("map_scale_direction", 1);
         return itemstack;
     }
 

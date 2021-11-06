@@ -19,16 +19,25 @@ public class BlockGlowstone extends Block
         this.setCreativeTab(CreativeTabs.BUILDING_BLOCKS);
     }
 
+    /**
+     * Get the quantity dropped based on the given fortune level
+     */
     public int quantityDroppedWithBonus(int fortune, Random random)
     {
         return MathHelper.clamp(this.quantityDropped(random) + random.nextInt(fortune + 1), 1, 4);
     }
 
+    /**
+     * Returns the quantity of items to drop on block destruction.
+     */
     public int quantityDropped(Random random)
     {
         return 2 + random.nextInt(3);
     }
 
+    /**
+     * Get the Item that this Block should drop when harvested.
+     */
     public Item getItemDropped(IBlockState state, Random rand, int fortune)
     {
         return Items.GLOWSTONE_DUST;
@@ -39,7 +48,7 @@ public class BlockGlowstone extends Block
      * @deprecated call via {@link IBlockState#getMapColor(IBlockAccess,BlockPos)} whenever possible.
      * Implementing/overriding is fine.
      */
-    public MapColor getMaterialColor(IBlockState state, IBlockAccess worldIn, BlockPos pos)
+    public MapColor getMapColor(IBlockState state, IBlockAccess worldIn, BlockPos pos)
     {
         return MapColor.SAND;
     }

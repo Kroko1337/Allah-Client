@@ -28,6 +28,9 @@ public abstract class Team
      */
     public abstract String getName();
 
+    /**
+     * Formats the given text as a member of this team, using the prefix and suffix.
+     */
     public abstract String formatString(String input);
 
     /**

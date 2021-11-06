@@ -118,14 +118,26 @@ public class EntityPlayerMP extends EntityPlayer implements IContainerListener
 {
     private static final Logger LOGGER = LogManager.getLogger();
     private String language = "en_US";
+
+    /**
+     * The NetServerHandler assigned to this player by the ServerConfigurationManager.
+     */
     public NetHandlerPlayServer connection;
+
+    /** Reference to the MinecraftServer object. */
     public final MinecraftServer server;
+
+    /** The player interaction manager for this player */
     public final PlayerInteractionManager interactionManager;
+
+    /** player X position as seen by PlayerManager */
     public double managedPosX;
+
+    /** player Z position as seen by PlayerManager */
     public double managedPosZ;
     private final List<Integer> entityRemoveQueue = Lists.<Integer>newLinkedList();
     private final PlayerAdvancements advancements;
-    private final StatisticsManagerServer stats;
+    private final StatisticsManagerServer statsFile;
 
     /**
      * the total health of the player, includes actual health and absorption health. Updated every tick.
@@ -136,9 +148,17 @@ public class EntityPlayerMP extends EntityPlayer implements IContainerListener
     private int lastArmorScore = Integer.MIN_VALUE;
     private int lastLevelScore = Integer.MIN_VALUE;
     private int lastExperienceScore = Integer.MIN_VALUE;
+
+    /** amount of health the client was last set to */
     private float lastHealth = -1.0E8F;
+
+    /** set to foodStats.GetFoodLevel */
     private int lastFoodLevel = -99999999;
+
+    /** set to foodStats.getSaturationLevel() == 0.0F each tick */
     private boolean wasHungry = true;
+
+    /** Amount of experience the client was last set to */
     private int lastExperience = -99999999;
     private int respawnInvulnerabilityTicks = 60;
     private EntityPlayer.EnumChatVisibility chatVisibility;
@@ -150,13 +170,30 @@ public class EntityPlayerMP extends EntityPlayer implements IContainerListener
     private boolean invulnerableDimensionChange;
     private boolean seenCredits;
     private final RecipeBookServer recipeBook = new RecipeBookServer();
+
+    /** The position this player started levitating at. */
     private Vec3d levitationStartPos;
+
+    /** The value of ticksExisted when this player started levitating. */
     private int levitatingSince;
     private boolean disconnected;
     private Vec3d enteredNetherPosition;
+
+    /**
+     * The currently in use window ID. Incremented every time a window is opened.
+     */
     private int currentWindowId;
+
+    /**
+     * set to true when player is moving quantity of items from one inventory to another(crafting) but item in either
+     * slot is not changed
+     */
     public boolean isChangingQuantityOnly;
     public int ping;
+
+    /**
+     * True when the player has left the End using an the exit portal, but has not yet been respawned in the overworld
+     */
     public boolean queuedEndExit;
 
     public EntityPlayerMP(MinecraftServer server, WorldServer worldIn, GameProfile profile, PlayerInteractionManager interactionManagerIn)
@@ -166,7 +203,7 @@ public class EntityPlayerMP extends EntityPlayer implements IContainerListener
         this.interactionManager = interactionManagerIn;
         BlockPos blockpos = worldIn.getSpawnPoint();
 
-        if (worldIn.dimension.hasSkyLight() && worldIn.getWorldInfo().getGameType() != GameType.ADVENTURE)
+        if (worldIn.provider.hasSkyLight() && worldIn.getWorldInfo().getGameType() != GameType.ADVENTURE)
         {
             int i = Math.max(0, server.getSpawnRadius(worldIn));
             int j = MathHelper.floor(worldIn.getWorldBorder().getClosestDistance((double)blockpos.getX(), (double)blockpos.getZ()));
@@ -185,12 +222,12 @@ public class EntityPlayerMP extends EntityPlayer implements IContainerListener
         }
 
         this.server = server;
-        this.stats = server.getPlayerList().getPlayerStats(this);
+        this.statsFile = server.getPlayerList().getPlayerStatsFile(this);
         this.advancements = server.getPlayerList().getPlayerAdvancements(this);
         this.stepHeight = 1.0F;
         this.moveToBlockPosAndAngles(blockpos, 0.0F, 0.0F);
 
-        while (!worldIn.getCollisionBoxes(this, this.getBoundingBox()).isEmpty() && this.posY < 255.0D)
+        while (!worldIn.getCollisionBoxes(this, this.getEntityBoundingBox()).isEmpty() && this.posY < 255.0D)
         {
             this.setPosition(this.posX, this.posY + 1.0D, this.posZ);
         }
@@ -199,11 +236,11 @@ public class EntityPlayerMP extends EntityPlayer implements IContainerListener
     /**
      * (abstract) Protected helper method to read subclass entity data from NBT.
      */
-    public void readAdditional(NBTTagCompound compound)
+    public void readEntityFromNBT(NBTTagCompound compound)
     {
-        super.readAdditional(compound);
+        super.readEntityFromNBT(compound);
 
-        if (compound.contains("playerGameType", 99))
+        if (compound.hasKey("playerGameType", 99))
         {
             if (this.getServer().getForceGamemode())
             {
@@ -211,21 +248,21 @@ public class EntityPlayerMP extends EntityPlayer implements IContainerListener
             }
             else
             {
-                this.interactionManager.setGameType(GameType.getByID(compound.getInt("playerGameType")));
+                this.interactionManager.setGameType(GameType.getByID(compound.getInteger("playerGameType")));
             }
         }
 
-        if (compound.contains("enteredNetherPosition", 10))
+        if (compound.hasKey("enteredNetherPosition", 10))
         {
-            NBTTagCompound nbttagcompound = compound.getCompound("enteredNetherPosition");
+            NBTTagCompound nbttagcompound = compound.getCompoundTag("enteredNetherPosition");
             this.enteredNetherPosition = new Vec3d(nbttagcompound.getDouble("x"), nbttagcompound.getDouble("y"), nbttagcompound.getDouble("z"));
         }
 
         this.seenCredits = compound.getBoolean("seenCredits");
 
-        if (compound.contains("recipeBook", 10))
+        if (compound.hasKey("recipeBook", 10))
         {
-            this.recipeBook.read(compound.getCompound("recipeBook"));
+            this.recipeBook.read(compound.getCompoundTag("recipeBook"));
         }
     }
 
@@ -235,13 +272,13 @@ public class EntityPlayerMP extends EntityPlayer implements IContainerListener
         {
             public NBTTagCompound process(IDataFixer fixer, NBTTagCompound compound, int versionIn)
             {
-                if (compound.contains("RootVehicle", 10))
+                if (compound.hasKey("RootVehicle", 10))
                 {
-                    NBTTagCompound nbttagcompound = compound.getCompound("RootVehicle");
+                    NBTTagCompound nbttagcompound = compound.getCompoundTag("RootVehicle");
 
-                    if (nbttagcompound.contains("Entity", 10))
+                    if (nbttagcompound.hasKey("Entity", 10))
                     {
-                        nbttagcompound.setTag("Entity", fixer.process(FixTypes.ENTITY, nbttagcompound.getCompound("Entity"), versionIn));
+                        nbttagcompound.setTag("Entity", fixer.process(FixTypes.ENTITY, nbttagcompound.getCompoundTag("Entity"), versionIn));
                     }
                 }
 
@@ -250,18 +287,21 @@ public class EntityPlayerMP extends EntityPlayer implements IContainerListener
         });
     }
 
+    /**
+     * (abstract) Protected helper method to write subclass entity data to NBT.
+     */
     public void writeEntityToNBT(NBTTagCompound compound)
     {
         super.writeEntityToNBT(compound);
-        compound.putInt("playerGameType", this.interactionManager.getGameType().getID());
-        compound.putBoolean("seenCredits", this.seenCredits);
+        compound.setInteger("playerGameType", this.interactionManager.getGameType().getID());
+        compound.setBoolean("seenCredits", this.seenCredits);
 
         if (this.enteredNetherPosition != null)
         {
             NBTTagCompound nbttagcompound = new NBTTagCompound();
-            nbttagcompound.putDouble("x", this.enteredNetherPosition.x);
-            nbttagcompound.putDouble("y", this.enteredNetherPosition.y);
-            nbttagcompound.putDouble("z", this.enteredNetherPosition.z);
+            nbttagcompound.setDouble("x", this.enteredNetherPosition.x);
+            nbttagcompound.setDouble("y", this.enteredNetherPosition.y);
+            nbttagcompound.setDouble("z", this.enteredNetherPosition.z);
             compound.setTag("enteredNetherPosition", nbttagcompound);
         }
 
@@ -272,8 +312,8 @@ public class EntityPlayerMP extends EntityPlayer implements IContainerListener
         {
             NBTTagCompound nbttagcompound1 = new NBTTagCompound();
             NBTTagCompound nbttagcompound2 = new NBTTagCompound();
-            entity1.writeUnlessPassenger(nbttagcompound2);
-            nbttagcompound1.putUniqueId("Attach", entity.getUniqueID());
+            entity1.writeToNBTOptional(nbttagcompound2);
+            nbttagcompound1.setUniqueId("Attach", entity.getUniqueID());
             nbttagcompound1.setTag("Entity", nbttagcompound2);
             compound.setTag("RootVehicle", nbttagcompound1);
         }
@@ -332,9 +372,9 @@ public class EntityPlayerMP extends EntityPlayer implements IContainerListener
     /**
      * Called to update the entity's position/logic.
      */
-    public void tick()
+    public void onUpdate()
     {
-        this.interactionManager.tick();
+        this.interactionManager.updateBlockRemoving();
         --this.respawnInvulnerabilityTicks;
 
         if (this.hurtResistantTime > 0)
@@ -347,7 +387,7 @@ public class EntityPlayerMP extends EntityPlayer implements IContainerListener
         if (!this.world.isRemote && !this.openContainer.canInteractWith(this))
         {
             this.closeScreen();
-            this.openContainer = this.container;
+            this.openContainer = this.inventoryContainer;
         }
 
         while (!this.entityRemoveQueue.isEmpty())
@@ -370,7 +410,7 @@ public class EntityPlayerMP extends EntityPlayer implements IContainerListener
 
         if (entity != this)
         {
-            if (entity.isAlive())
+            if (entity.isEntityAlive())
             {
                 this.setPositionAndRotation(entity.posX, entity.posY, entity.posZ, entity.rotationYaw, entity.rotationPitch);
                 this.server.getPlayerList().serverUpdateMovingPlayer(this);
@@ -396,19 +436,19 @@ public class EntityPlayerMP extends EntityPlayer implements IContainerListener
         this.advancements.flushDirty(this);
     }
 
-    public void playerTick()
+    public void onUpdateEntity()
     {
         try
         {
-            super.tick();
+            super.onUpdate();
 
             for (int i = 0; i < this.inventory.getSizeInventory(); ++i)
             {
                 ItemStack itemstack = this.inventory.getStackInSlot(i);
 
-                if (!itemstack.isEmpty() && itemstack.getItem().isComplex())
+                if (!itemstack.isEmpty() && itemstack.getItem().isMap())
                 {
-                    Packet<?> packet = ((ItemMapBase)itemstack.getItem()).getUpdatePacket(itemstack, this.world, this);
+                    Packet<?> packet = ((ItemMapBase)itemstack.getItem()).createMapDataPacket(itemstack, this.world, this);
 
                     if (packet != null)
                     {
@@ -476,7 +516,7 @@ public class EntityPlayerMP extends EntityPlayer implements IContainerListener
         {
             CrashReport crashreport = CrashReport.makeCrashReport(throwable, "Ticking player");
             CrashReportCategory crashreportcategory = crashreport.makeCategory("Player being ticked");
-            this.fillCrashReport(crashreportcategory);
+            this.addEntityCrashInfo(crashreportcategory);
             throw new ReportedException(crashreport);
         }
     }
@@ -622,7 +662,7 @@ public class EntityPlayerMP extends EntityPlayer implements IContainerListener
      */
     public boolean attackEntityFrom(DamageSource source, float amount)
     {
-        if (this.isInvulnerableTo(source))
+        if (this.isEntityInvulnerable(source))
         {
             return false;
         }
@@ -709,7 +749,7 @@ public class EntityPlayerMP extends EntityPlayer implements IContainerListener
             }
 
             this.server.getPlayerList().changePlayerDimension(this, dimensionIn);
-            this.connection.sendPacket(new SPacketEffect(1032, BlockPos.ZERO, 0, false));
+            this.connection.sendPacket(new SPacketEffect(1032, BlockPos.ORIGIN, 0, false));
             this.lastExperience = -1;
             this.lastHealth = -1.0F;
             this.lastFoodLevel = -1;
@@ -768,9 +808,12 @@ public class EntityPlayerMP extends EntityPlayer implements IContainerListener
         return entityplayer$sleepresult;
     }
 
+    /**
+     * Wake up the player if they're sleeping.
+     */
     public void wakeUpPlayer(boolean immediately, boolean updateWorldFlag, boolean setSpawn)
     {
-        if (this.isSleeping())
+        if (this.isPlayerSleeping())
         {
             this.getServerWorld().getEntityTracker().sendToTrackingAndSelf(this, new SPacketAnimation(this, 2));
         }
@@ -807,10 +850,10 @@ public class EntityPlayerMP extends EntityPlayer implements IContainerListener
     /**
      * Dismounts this entity from the entity it is riding.
      */
-    public void stopRiding()
+    public void dismountRidingEntity()
     {
         Entity entity = this.getRidingEntity();
-        super.stopRiding();
+        super.dismountRidingEntity();
         Entity entity1 = this.getRidingEntity();
 
         if (entity1 != entity && this.connection != null)
@@ -822,9 +865,9 @@ public class EntityPlayerMP extends EntityPlayer implements IContainerListener
     /**
      * Returns whether this Entity is invulnerable to the given DamageSource.
      */
-    public boolean isInvulnerableTo(DamageSource source)
+    public boolean isEntityInvulnerable(DamageSource source)
     {
-        return super.isInvulnerableTo(source) || this.isInvulnerableDimensionChange();
+        return super.isEntityInvulnerable(source) || this.isInvulnerableDimensionChange();
     }
 
     protected void updateFallState(double y, boolean onGroundIn, IBlockState state, BlockPos pos)
@@ -866,7 +909,7 @@ public class EntityPlayerMP extends EntityPlayer implements IContainerListener
         super.updateFallState(y, onGroundIn, iblockstate, blockpos);
     }
 
-    public void openSignEditor(TileEntitySign signTile)
+    public void openEditSign(TileEntitySign signTile)
     {
         signTile.setPlayer(this);
         this.connection.sendPacket(new SPacketSignEditorOpen(signTile.getPos()));
@@ -896,6 +939,9 @@ public class EntityPlayerMP extends EntityPlayer implements IContainerListener
         }
     }
 
+    /**
+     * Displays the GUI for interacting with a chest inventory.
+     */
     public void displayGUIChest(IInventory chestInventory)
     {
         if (chestInventory instanceof ILootContainer && ((ILootContainer)chestInventory).getLootTable() != null && this.isSpectator())
@@ -904,7 +950,7 @@ public class EntityPlayerMP extends EntityPlayer implements IContainerListener
         }
         else
         {
-            if (this.openContainer != this.container)
+            if (this.openContainer != this.inventoryContainer)
             {
                 this.closeScreen();
             }
@@ -959,9 +1005,9 @@ public class EntityPlayerMP extends EntityPlayer implements IContainerListener
         }
     }
 
-    public void openHorseInventory(AbstractHorse horse, IInventory inventoryIn)
+    public void openGuiHorseInventory(AbstractHorse horse, IInventory inventoryIn)
     {
-        if (this.openContainer != this.container)
+        if (this.openContainer != this.inventoryContainer)
         {
             this.closeScreen();
         }
@@ -985,7 +1031,7 @@ public class EntityPlayerMP extends EntityPlayer implements IContainerListener
         }
     }
 
-    public void openCommandBlock(TileEntityCommandBlock commandBlock)
+    public void displayGuiCommandBlock(TileEntityCommandBlock commandBlock)
     {
         commandBlock.setSendToClient(true);
         this.sendTileEntityUpdate(commandBlock);
@@ -999,7 +1045,7 @@ public class EntityPlayerMP extends EntityPlayer implements IContainerListener
     {
         if (!(containerToSend.getSlot(slotInd) instanceof SlotCrafting))
         {
-            if (containerToSend == this.container)
+            if (containerToSend == this.inventoryContainer)
             {
                 CriteriaTriggers.INVENTORY_CHANGED.trigger(this, this.inventory);
             }
@@ -1069,12 +1115,12 @@ public class EntityPlayerMP extends EntityPlayer implements IContainerListener
     public void closeContainer()
     {
         this.openContainer.onContainerClosed(this);
-        this.openContainer = this.container;
+        this.openContainer = this.inventoryContainer;
     }
 
     public void setEntityActionState(float strafe, float forward, boolean jumping, boolean sneaking)
     {
-        if (this.isPassenger())
+        if (this.isRiding())
         {
             if (strafe >= -1.0F && strafe <= 1.0F)
             {
@@ -1098,7 +1144,7 @@ public class EntityPlayerMP extends EntityPlayer implements IContainerListener
     {
         if (stat != null)
         {
-            this.stats.increment(this, stat, amount);
+            this.statsFile.increaseStat(this, stat, amount);
 
             for (ScoreObjective scoreobjective : this.getWorldScoreboard().getObjectivesFromCriteria(stat.getCriteria()))
             {
@@ -1111,7 +1157,7 @@ public class EntityPlayerMP extends EntityPlayer implements IContainerListener
     {
         if (stat != null)
         {
-            this.stats.setValue(this, stat, 0);
+            this.statsFile.unlockAchievement(this, stat, 0);
 
             for (ScoreObjective scoreobjective : this.getWorldScoreboard().getObjectivesFromCriteria(stat.getCriteria()))
             {
@@ -1142,7 +1188,7 @@ public class EntityPlayerMP extends EntityPlayer implements IContainerListener
         this.recipeBook.remove(p_192022_1_, this);
     }
 
-    public void disconnect()
+    public void mountEntityAndWakeUp()
     {
         this.disconnected = true;
         this.removePassengers();
@@ -1209,7 +1255,7 @@ public class EntityPlayerMP extends EntityPlayer implements IContainerListener
         }
 
         this.xpSeed = that.xpSeed;
-        this.enterChestInventory = that.enterChestInventory;
+        this.enderChest = that.enderChest;
         this.getDataManager().set(PLAYER_MODEL_FLAG, that.getDataManager().get(PLAYER_MODEL_FLAG));
         this.lastExperience = -1;
         this.lastHealth = -1.0F;
@@ -1236,9 +1282,9 @@ public class EntityPlayerMP extends EntityPlayer implements IContainerListener
         CriteriaTriggers.EFFECTS_CHANGED.trigger(this);
     }
 
-    protected void onChangedPotionEffect(PotionEffect id, boolean reapply)
+    protected void onChangedPotionEffect(PotionEffect id, boolean p_70695_2_)
     {
-        super.onChangedPotionEffect(id, reapply);
+        super.onChangedPotionEffect(id, p_70695_2_);
         this.connection.sendPacket(new SPacketEntityEffect(this.getEntityId(), id));
         CriteriaTriggers.EFFECTS_CHANGED.trigger(this);
     }
@@ -1284,7 +1330,7 @@ public class EntityPlayerMP extends EntityPlayer implements IContainerListener
     {
         if (this.connection != null)
         {
-            this.connection.sendPacket(new SPacketPlayerAbilities(this.abilities));
+            this.connection.sendPacket(new SPacketPlayerAbilities(this.capabilities));
             this.updatePotionMetadata();
         }
     }
@@ -1305,7 +1351,7 @@ public class EntityPlayerMP extends EntityPlayer implements IContainerListener
         if (gameType == GameType.SPECTATOR)
         {
             this.spawnShoulderEntities();
-            this.stopRiding();
+            this.dismountRidingEntity();
         }
         else
         {
@@ -1337,6 +1383,9 @@ public class EntityPlayerMP extends EntityPlayer implements IContainerListener
         this.connection.sendPacket(new SPacketChat(component));
     }
 
+    /**
+     * Returns {@code true} if the CommandSender is allowed to execute the command, {@code false} if not
+     */
     public boolean canUseCommand(int permLevel, String commandName)
     {
         if ("seed".equals(commandName) && !this.server.isDedicatedServer())
@@ -1413,9 +1462,12 @@ public class EntityPlayerMP extends EntityPlayer implements IContainerListener
         this.playerLastActiveTime = MinecraftServer.getCurrentTimeMillis();
     }
 
-    public StatisticsManagerServer getStats()
+    /**
+     * Gets the stats file for reading achievements
+     */
+    public StatisticsManagerServer getStatFile()
     {
-        return this.stats;
+        return this.statsFile;
     }
 
     public RecipeBookServer getRecipeBook()

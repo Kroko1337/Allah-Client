@@ -20,7 +20,7 @@ public class GuiBossOverlay extends Gui
         this.client = clientIn;
     }
 
-    public void render()
+    public void renderBossHealth()
     {
         if (!this.mapBossInfos.isEmpty())
         {

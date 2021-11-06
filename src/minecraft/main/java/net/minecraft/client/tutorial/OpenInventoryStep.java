@@ -18,7 +18,7 @@ public class OpenInventoryStep implements ITutorialStep
         this.tutorial = tutorial;
     }
 
-    public void tick()
+    public void update()
     {
         ++this.timeWaiting;
 

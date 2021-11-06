@@ -10,6 +10,7 @@ import net.minecraft.util.math.BlockPos;
 
 public abstract class TabCompleter
 {
+    /** The {@link GuiTextField} that is backing this {@link TabCompleter} */
     protected final GuiTextField textField;
     protected final boolean hasTargetBlock;
     protected boolean didComplete;
@@ -23,6 +24,10 @@ public abstract class TabCompleter
         this.hasTargetBlock = hasTargetBlockIn;
     }
 
+    /**
+     * Called when tab key pressed. If it's the first time we tried to complete this string, we ask the server for
+     * completions. When the server responds, this method gets called again (via setCompletions).
+     */
     public void complete()
     {
         if (this.didComplete)
@@ -59,7 +64,7 @@ public abstract class TabCompleter
     {
         if (prefix.length() >= 1)
         {
-            Minecraft.getInstance().player.connection.sendPacket(new CPacketTabComplete(prefix, this.getTargetBlockPos(), this.hasTargetBlock));
+            Minecraft.getMinecraft().player.connection.sendPacket(new CPacketTabComplete(prefix, this.getTargetBlockPos(), this.hasTargetBlock));
             this.requestedCompletions = true;
         }
     }
@@ -67,6 +72,9 @@ public abstract class TabCompleter
     @Nullable
     public abstract BlockPos getTargetBlockPos();
 
+    /**
+     * Only actually sets completions if they were requested (via requestCompletions)
+     */
     public void setCompletions(String... newCompl)
     {
         if (this.requestedCompletions)
@@ -99,6 +107,9 @@ public abstract class TabCompleter
         }
     }
 
+    /**
+     * Called when new text is entered, or backspace pressed
+     */
     public void resetDidComplete()
     {
         this.didComplete = false;

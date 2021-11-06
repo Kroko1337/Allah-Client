@@ -16,16 +16,19 @@ public class EntityAILandOnOwnersShoulder extends EntityAIBase
     }
 
     /**
-     * Returns whether execution should begin. You can also read and cache any state necessary for execution in this
-     * method as well.
+     * Returns whether the EntityAIBase should begin execution.
      */
     public boolean shouldExecute()
     {
         EntityLivingBase entitylivingbase = this.entity.getOwner();
-        boolean flag = entitylivingbase != null && !((EntityPlayer)entitylivingbase).isSpectator() && !((EntityPlayer)entitylivingbase).abilities.isFlying && !entitylivingbase.isInWater();
+        boolean flag = entitylivingbase != null && !((EntityPlayer)entitylivingbase).isSpectator() && !((EntityPlayer)entitylivingbase).capabilities.isFlying && !entitylivingbase.isInWater();
         return !this.entity.isSitting() && flag && this.entity.canSitOnShoulder();
     }
 
+    /**
+     * Determine if this AI Task is interruptible by a higher (= lower value) priority task. All vanilla AITask have
+     * this value set to true.
+     */
     public boolean isInterruptible()
     {
         return !this.isSittingOnShoulder;
@@ -43,11 +46,11 @@ public class EntityAILandOnOwnersShoulder extends EntityAIBase
     /**
      * Keep ticking a continuous task that has already been started
      */
-    public void tick()
+    public void updateTask()
     {
         if (!this.isSittingOnShoulder && !this.entity.isSitting() && !this.entity.getLeashed())
         {
-            if (this.entity.getBoundingBox().intersects(this.owner.getBoundingBox()))
+            if (this.entity.getEntityBoundingBox().intersects(this.owner.getEntityBoundingBox()))
             {
                 this.isSittingOnShoulder = this.entity.setEntityOnShoulder(this.owner);
             }

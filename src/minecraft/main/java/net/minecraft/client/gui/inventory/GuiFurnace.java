@@ -10,6 +10,8 @@ import net.minecraft.util.ResourceLocation;
 public class GuiFurnace extends GuiContainer
 {
     private static final ResourceLocation FURNACE_GUI_TEXTURES = new ResourceLocation("textures/gui/container/furnace.png");
+
+    /** The player inventory bound to this GUI. */
     private final InventoryPlayer playerInventory;
     private final IInventory tileFurnace;
 
@@ -20,6 +22,9 @@ public class GuiFurnace extends GuiContainer
         this.tileFurnace = furnaceInv;
     }
 
+    /**
+     * Draws the screen and all the components in it.
+     */
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         this.drawDefaultBackground();

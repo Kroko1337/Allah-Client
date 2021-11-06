@@ -25,6 +25,7 @@ import net.minecraft.util.math.Vec3d;
 
 public class RenderPlayer extends RenderLivingBase<AbstractClientPlayer>
 {
+    /** this field is used to indicate the 3-pixel wide arms */
     private final boolean smallArms;
 
     public RenderPlayer(RenderManager renderManager)
@@ -51,6 +52,9 @@ public class RenderPlayer extends RenderLivingBase<AbstractClientPlayer>
         return (ModelPlayer)super.getMainModel();
     }
 
+    /**
+     * Renders the desired {@code T} type Entity.
+     */
     public void doRender(AbstractClientPlayer entity, double x, double y, double z, float entityYaw, float partialTicks)
     {
         if (!entity.isUser() || this.renderManager.renderViewEntity == entity)
@@ -100,7 +104,7 @@ public class RenderPlayer extends RenderLivingBase<AbstractClientPlayer>
 
                 if (clientPlayer.getItemInUseCount() > 0)
                 {
-                    EnumAction enumaction = itemstack.getUseAction();
+                    EnumAction enumaction = itemstack.getItemUseAction();
 
                     if (enumaction == EnumAction.BLOCK)
                     {
@@ -119,7 +123,7 @@ public class RenderPlayer extends RenderLivingBase<AbstractClientPlayer>
 
                 if (clientPlayer.getItemInUseCount() > 0)
                 {
-                    EnumAction enumaction1 = itemstack1.getUseAction();
+                    EnumAction enumaction1 = itemstack1.getItemUseAction();
 
                     if (enumaction1 == EnumAction.BLOCK)
                     {
@@ -142,7 +146,7 @@ public class RenderPlayer extends RenderLivingBase<AbstractClientPlayer>
     }
 
     /**
-     * Returns the location of an entity's texture.
+     * Returns the location of an entity's texture. Doesn't seem to be called unless you call Render.bindEntityTexture.
      */
     public ResourceLocation getEntityTexture(AbstractClientPlayer entity)
     {
@@ -154,6 +158,9 @@ public class RenderPlayer extends RenderLivingBase<AbstractClientPlayer>
         GlStateManager.translate(0.0F, 0.1875F, 0.0F);
     }
 
+    /**
+     * Allows the render to do state modifications necessary before the model is rendered.
+     */
     protected void preRenderCallback(AbstractClientPlayer entitylivingbaseIn, float partialTickTime)
     {
         float f = 0.9375F;
@@ -214,9 +221,12 @@ public class RenderPlayer extends RenderLivingBase<AbstractClientPlayer>
         GlStateManager.disableBlend();
     }
 
+    /**
+     * Sets a simple glTranslate on a LivingEntity.
+     */
     protected void renderLivingAt(AbstractClientPlayer entityLivingBaseIn, double x, double y, double z)
     {
-        if (entityLivingBaseIn.isAlive() && entityLivingBaseIn.isSleeping())
+        if (entityLivingBaseIn.isEntityAlive() && entityLivingBaseIn.isPlayerSleeping())
         {
             super.renderLivingAt(entityLivingBaseIn, x + (double)entityLivingBaseIn.renderOffsetX, y + (double)entityLivingBaseIn.renderOffsetY, z + (double)entityLivingBaseIn.renderOffsetZ);
         }
@@ -228,7 +238,7 @@ public class RenderPlayer extends RenderLivingBase<AbstractClientPlayer>
 
     protected void applyRotations(AbstractClientPlayer entityLiving, float ageInTicks, float rotationYaw, float partialTicks)
     {
-        if (entityLiving.isAlive() && entityLiving.isSleeping())
+        if (entityLiving.isEntityAlive() && entityLiving.isPlayerSleeping())
         {
             GlStateManager.rotate(entityLiving.getBedOrientationInDegrees(), 0.0F, 1.0F, 0.0F);
             GlStateManager.rotate(this.getDeathMaxRotation(entityLiving), 0.0F, 0.0F, 1.0F);

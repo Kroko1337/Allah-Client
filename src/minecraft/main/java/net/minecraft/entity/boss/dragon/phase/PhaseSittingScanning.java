@@ -18,7 +18,7 @@ public class PhaseSittingScanning extends PhaseSittingBase
      * Gives the phase a chance to update its status.
      * Called by dragon's onLivingUpdate. Only used when !worldObj.isRemote.
      */
-    public void serverTick()
+    public void doLocalUpdate()
     {
         ++this.scanningTime;
         EntityLivingBase entitylivingbase = this.dragon.world.getNearestAttackablePlayer(this.dragon, 20.0D, 10.0D);

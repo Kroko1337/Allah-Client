@@ -28,6 +28,9 @@ public class EntityHusk extends EntityZombie
         EntityLiving.registerFixesMob(fixer, EntityHusk.class);
     }
 
+    /**
+     * Checks if the entity's current position is a valid location to spawn this entity.
+     */
     public boolean getCanSpawnHere()
     {
         return super.getCanSpawnHere() && this.world.canSeeSky(new BlockPos(this));

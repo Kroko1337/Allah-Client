@@ -24,9 +24,11 @@ public class EntityAINearestAttackableTarget<T extends EntityLivingBase> extends
 {
     protected final Class<T> targetClass;
     private final int targetChance;
+
+    /** Instance of EntityAINearestAttackableTargetSorter. */
     protected final EntityAINearestAttackableTarget.Sorter sorter;
     protected final Predicate <? super T > targetEntitySelector;
-    protected T nearestTarget;
+    protected T targetEntity;
 
     public EntityAINearestAttackableTarget(EntityCreature creature, Class<T> classTarget, boolean checkSight)
     {
@@ -66,18 +68,17 @@ public class EntityAINearestAttackableTarget<T extends EntityLivingBase> extends
     }
 
     /**
-     * Returns whether execution should begin. You can also read and cache any state necessary for execution in this
-     * method as well.
+     * Returns whether the EntityAIBase should begin execution.
      */
     public boolean shouldExecute()
     {
-        if (this.targetChance > 0 && this.goalOwner.getRNG().nextInt(this.targetChance) != 0)
+        if (this.targetChance > 0 && this.taskOwner.getRNG().nextInt(this.targetChance) != 0)
         {
             return false;
         }
         else if (this.targetClass != EntityPlayer.class && this.targetClass != EntityPlayerMP.class)
         {
-            List<T> list = this.goalOwner.world.<T>getEntitiesWithinAABB(this.targetClass, this.getTargetableArea(this.getTargetDistance()), this.targetEntitySelector);
+            List<T> list = this.taskOwner.world.<T>getEntitiesWithinAABB(this.targetClass, this.getTargetableArea(this.getTargetDistance()), this.targetEntitySelector);
 
             if (list.isEmpty())
             {
@@ -86,13 +87,13 @@ public class EntityAINearestAttackableTarget<T extends EntityLivingBase> extends
             else
             {
                 Collections.sort(list, this.sorter);
-                this.nearestTarget = list.get(0);
+                this.targetEntity = list.get(0);
                 return true;
             }
         }
         else
         {
-            this.nearestTarget = (T)this.goalOwner.world.getNearestAttackablePlayer(this.goalOwner.posX, this.goalOwner.posY + (double)this.goalOwner.getEyeHeight(), this.goalOwner.posZ, this.getTargetDistance(), this.getTargetDistance(), new Function<EntityPlayer, Double>()
+            this.targetEntity = (T)this.taskOwner.world.getNearestAttackablePlayer(this.taskOwner.posX, this.taskOwner.posY + (double)this.taskOwner.getEyeHeight(), this.taskOwner.posZ, this.getTargetDistance(), this.getTargetDistance(), new Function<EntityPlayer, Double>()
             {
                 @Nullable
                 public Double apply(@Nullable EntityPlayer p_apply_1_)
@@ -101,10 +102,10 @@ public class EntityAINearestAttackableTarget<T extends EntityLivingBase> extends
 
                     if (itemstack.getItem() == Items.SKULL)
                     {
-                        int i = itemstack.getDamage();
-                        boolean flag = EntityAINearestAttackableTarget.this.goalOwner instanceof EntitySkeleton && i == 0;
-                        boolean flag1 = EntityAINearestAttackableTarget.this.goalOwner instanceof EntityZombie && i == 2;
-                        boolean flag2 = EntityAINearestAttackableTarget.this.goalOwner instanceof EntityCreeper && i == 4;
+                        int i = itemstack.getItemDamage();
+                        boolean flag = EntityAINearestAttackableTarget.this.taskOwner instanceof EntitySkeleton && i == 0;
+                        boolean flag1 = EntityAINearestAttackableTarget.this.taskOwner instanceof EntityZombie && i == 2;
+                        boolean flag2 = EntityAINearestAttackableTarget.this.taskOwner instanceof EntityCreeper && i == 4;
 
                         if (flag || flag1 || flag2)
                         {
@@ -115,13 +116,13 @@ public class EntityAINearestAttackableTarget<T extends EntityLivingBase> extends
                     return 1.0D;
                 }
             }, (Predicate<EntityPlayer>)this.targetEntitySelector);
-            return this.nearestTarget != null;
+            return this.targetEntity != null;
         }
     }
 
     protected AxisAlignedBB getTargetableArea(double targetDistance)
     {
-        return this.goalOwner.getBoundingBox().grow(targetDistance, 4.0D, targetDistance);
+        return this.taskOwner.getEntityBoundingBox().grow(targetDistance, 4.0D, targetDistance);
     }
 
     /**
@@ -129,7 +130,7 @@ public class EntityAINearestAttackableTarget<T extends EntityLivingBase> extends
      */
     public void startExecuting()
     {
-        this.goalOwner.setAttackTarget(this.nearestTarget);
+        this.taskOwner.setAttackTarget(this.targetEntity);
         super.startExecuting();
     }
 

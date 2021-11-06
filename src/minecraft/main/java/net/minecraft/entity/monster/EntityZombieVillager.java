@@ -33,7 +33,16 @@ public class EntityZombieVillager extends EntityZombie
 {
     private static final DataParameter<Boolean> CONVERTING = EntityDataManager.<Boolean>createKey(EntityZombieVillager.class, DataSerializers.BOOLEAN);
     private static final DataParameter<Integer> PROFESSION = EntityDataManager.<Integer>createKey(EntityZombieVillager.class, DataSerializers.VARINT);
+
+    /**
+     * Ticker used to determine the time remaining for this zombie to convert into a villager when cured.
+     */
     private int conversionTime;
+
+    /**
+     * The entity that started the conversion, used for the {@link CriteriaTriggers#CURED_ZOMBIE_VILLAGER} advancement
+     * criteria
+     */
     private UUID converstionStarter;
 
     public EntityZombieVillager(World worldIn)
@@ -41,9 +50,9 @@ public class EntityZombieVillager extends EntityZombie
         super(worldIn);
     }
 
-    protected void registerData()
+    protected void entityInit()
     {
-        super.registerData();
+        super.entityInit();
         this.dataManager.register(CONVERTING, Boolean.valueOf(false));
         this.dataManager.register(PROFESSION, Integer.valueOf(0));
     }
@@ -63,33 +72,51 @@ public class EntityZombieVillager extends EntityZombie
         EntityLiving.registerFixesMob(fixer, EntityZombieVillager.class);
     }
 
+    /**
+     * (abstract) Protected helper method to write subclass entity data to NBT.
+     */
     public void writeEntityToNBT(NBTTagCompound compound)
     {
         super.writeEntityToNBT(compound);
-        compound.putInt("Profession", this.getProfession());
-        compound.putInt("ConversionTime", this.isConverting() ? this.conversionTime : -1);
+        compound.setInteger("Profession", this.getProfession());
+        compound.setInteger("ConversionTime", this.isConverting() ? this.conversionTime : -1);
 
         if (this.converstionStarter != null)
         {
-            compound.putUniqueId("ConversionPlayer", this.converstionStarter);
+            compound.setUniqueId("ConversionPlayer", this.converstionStarter);
         }
     }
 
     /**
      * (abstract) Protected helper method to read subclass entity data from NBT.
      */
-    public void readAdditional(NBTTagCompound compound)
+    public void readEntityFromNBT(NBTTagCompound compound)
     {
-        super.readAdditional(compound);
-        this.setProfession(compound.getInt("Profession"));
+        super.readEntityFromNBT(compound);
+        this.setProfession(compound.getInteger("Profession"));
 
-        if (compound.contains("ConversionTime", 99) && compound.getInt("ConversionTime") > -1)
+        if (compound.hasKey("ConversionTime", 99) && compound.getInteger("ConversionTime") > -1)
         {
-            this.startConverting(compound.hasUniqueId("ConversionPlayer") ? compound.getUniqueId("ConversionPlayer") : null, compound.getInt("ConversionTime"));
+            this.startConverting(compound.hasUniqueId("ConversionPlayer") ? compound.getUniqueId("ConversionPlayer") : null, compound.getInteger("ConversionTime"));
         }
     }
 
     @Nullable
+
+    /**
+     * Called only once on an entity when first time spawned, via egg, mob spawner, natural spawning etc, but not called
+     * when entity is reloaded from nbt. Mainly used for initializing attributes and inventory.
+     *  
+     * The livingdata parameter is used to pass data between all instances during a pack spawn. It will be null on the
+     * first call. Subclasses may check if it's null, and then create a new one and return it if so, initializing all
+     * entities in the pack with the contained data.
+     *  
+     * @return The IEntityLivingData to pass to this method for other instances of this entity class within the same
+     * pack
+     *  
+     * @param difficulty The current local difficulty
+     * @param livingdata Shared spawn data. Will usually be null. (See return value for more information)
+     */
     public IEntityLivingData onInitialSpawn(DifficultyInstance difficulty, @Nullable IEntityLivingData livingdata)
     {
         this.setProfession(this.world.rand.nextInt(6));
@@ -99,7 +126,7 @@ public class EntityZombieVillager extends EntityZombie
     /**
      * Called to update the entity's position/logic.
      */
-    public void tick()
+    public void onUpdate()
     {
         if (!this.world.isRemote && this.isConverting())
         {
@@ -112,7 +139,7 @@ public class EntityZombieVillager extends EntityZombie
             }
         }
 
-        super.tick();
+        super.onUpdate();
     }
 
     public boolean processInteract(EntityPlayer player, EnumHand hand)
@@ -121,7 +148,7 @@ public class EntityZombieVillager extends EntityZombie
 
         if (itemstack.getItem() == Items.GOLDEN_APPLE && itemstack.getMetadata() == 0 && this.isPotionActive(MobEffects.WEAKNESS))
         {
-            if (!player.abilities.isCreativeMode)
+            if (!player.capabilities.isCreativeMode)
             {
                 itemstack.shrink(1);
             }
@@ -139,6 +166,9 @@ public class EntityZombieVillager extends EntityZombie
         }
     }
 
+    /**
+     * Determines if an entity can be despawned, used on idle far away entities
+     */
     protected boolean canDespawn()
     {
         return !this.isConverting();
@@ -154,6 +184,9 @@ public class EntityZombieVillager extends EntityZombie
 
     /**
      * Starts conversion of this zombie villager to a villager
+     *  
+     * @param conversionStarterIn The entity that started the conversion's UUID
+     * @param conversionTimeIn The time that it will take to finish conversion
      */
     protected void startConverting(@Nullable UUID conversionStarterIn, int conversionTimeIn)
     {
@@ -202,10 +235,10 @@ public class EntityZombieVillager extends EntityZombie
         if (this.hasCustomName())
         {
             entityvillager.setCustomNameTag(this.getCustomNameTag());
-            entityvillager.setCustomNameVisible(this.isCustomNameVisible());
+            entityvillager.setAlwaysRenderNameTag(this.getAlwaysRenderNameTag());
         }
 
-        this.world.addEntity0(entityvillager);
+        this.world.spawnEntity(entityvillager);
 
         if (this.converstionStarter != null)
         {

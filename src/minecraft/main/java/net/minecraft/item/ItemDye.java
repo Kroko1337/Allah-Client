@@ -40,6 +40,9 @@ public class ItemDye extends Item
         return super.getTranslationKey() + "." + EnumDyeColor.byDyeDamage(i).getTranslationKey();
     }
 
+    /**
+     * Called when a Block is right-clicked with this Item
+     */
     public EnumActionResult onItemUse(EntityPlayer player, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
         ItemStack itemstack = player.getHeldItem(hand);
@@ -69,7 +72,7 @@ public class ItemDye extends Item
                 IBlockState iblockstate = worldIn.getBlockState(pos);
                 Block block = iblockstate.getBlock();
 
-                if (block == Blocks.LOG && iblockstate.get(BlockOldLog.VARIANT) == BlockPlanks.EnumType.JUNGLE)
+                if (block == Blocks.LOG && iblockstate.getValue(BlockOldLog.VARIANT) == BlockPlanks.EnumType.JUNGLE)
                 {
                     if (facing == EnumFacing.DOWN || facing == EnumFacing.UP)
                     {
@@ -83,7 +86,7 @@ public class ItemDye extends Item
                         IBlockState iblockstate1 = Blocks.COCOA.getStateForPlacement(worldIn, pos, facing, hitX, hitY, hitZ, 0, player);
                         worldIn.setBlockState(pos, iblockstate1, 10);
 
-                        if (!player.abilities.isCreativeMode)
+                        if (!player.capabilities.isCreativeMode)
                         {
                             itemstack.shrink(1);
                         }
@@ -139,10 +142,10 @@ public class ItemDye extends Item
         {
             for (int i = 0; i < amount; ++i)
             {
-                double d0 = random.nextGaussian() * 0.02D;
-                double d1 = random.nextGaussian() * 0.02D;
-                double d2 = random.nextGaussian() * 0.02D;
-                worldIn.spawnParticle(EnumParticleTypes.VILLAGER_HAPPY, (double)((float)pos.getX() + random.nextFloat()), (double)pos.getY() + (double)random.nextFloat() * iblockstate.getBoundingBox(worldIn, pos).maxY, (double)((float)pos.getZ() + random.nextFloat()), d0, d1, d2);
+                double d0 = itemRand.nextGaussian() * 0.02D;
+                double d1 = itemRand.nextGaussian() * 0.02D;
+                double d2 = itemRand.nextGaussian() * 0.02D;
+                worldIn.spawnParticle(EnumParticleTypes.VILLAGER_HAPPY, (double)((float)pos.getX() + itemRand.nextFloat()), (double)pos.getY() + (double)itemRand.nextFloat() * iblockstate.getBoundingBox(worldIn, pos).maxY, (double)((float)pos.getZ() + itemRand.nextFloat()), d0, d1, d2);
             }
         }
     }
@@ -174,9 +177,9 @@ public class ItemDye extends Item
     /**
      * returns a list of items with the same ID, but different meta (eg: dye returns 16 items)
      */
-    public void fillItemGroup(CreativeTabs group, NonNullList<ItemStack> items)
+    public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> items)
     {
-        if (this.isInGroup(group))
+        if (this.isInCreativeTab(tab))
         {
             for (int i = 0; i < 16; ++i)
             {

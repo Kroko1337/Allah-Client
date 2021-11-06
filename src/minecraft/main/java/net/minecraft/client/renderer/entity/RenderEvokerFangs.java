@@ -10,11 +10,14 @@ public class RenderEvokerFangs extends Render<EntityEvokerFangs>
     private static final ResourceLocation EVOKER_ILLAGER_FANGS = new ResourceLocation("textures/entity/illager/fangs.png");
     private final ModelEvokerFangs model = new ModelEvokerFangs();
 
-    public RenderEvokerFangs(RenderManager renderManagerIn)
+    public RenderEvokerFangs(RenderManager p_i47208_1_)
     {
-        super(renderManagerIn);
+        super(p_i47208_1_);
     }
 
+    /**
+     * Renders the desired {@code T} type Entity.
+     */
     public void doRender(EntityEvokerFangs entity, double x, double y, double z, float entityYaw, float partialTicks)
     {
         float f = entity.getAnimationProgress(partialTicks);
@@ -45,7 +48,7 @@ public class RenderEvokerFangs extends Render<EntityEvokerFangs>
     }
 
     /**
-     * Returns the location of an entity's texture.
+     * Returns the location of an entity's texture. Doesn't seem to be called unless you call Render.bindEntityTexture.
      */
     protected ResourceLocation getEntityTexture(EntityEvokerFangs entity)
     {

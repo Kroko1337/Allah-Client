@@ -13,7 +13,7 @@ public class RenderSpectralArrow extends RenderArrow<EntitySpectralArrow>
     }
 
     /**
-     * Returns the location of an entity's texture.
+     * Returns the location of an entity's texture. Doesn't seem to be called unless you call Render.bindEntityTexture.
      */
     protected ResourceLocation getEntityTexture(EntitySpectralArrow entity)
     {

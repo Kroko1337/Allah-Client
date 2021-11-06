@@ -21,15 +21,15 @@ public class BlockDynamicLiquid extends BlockLiquid
 
     private void placeStaticBlock(World worldIn, BlockPos pos, IBlockState currentState)
     {
-        worldIn.setBlockState(pos, getStaticBlock(this.material).getDefaultState().withProperty(LEVEL, currentState.get(LEVEL)), 2);
+        worldIn.setBlockState(pos, getStaticBlock(this.material).getDefaultState().withProperty(LEVEL, currentState.getValue(LEVEL)), 2);
     }
 
     public void updateTick(World worldIn, BlockPos pos, IBlockState state, Random rand)
     {
-        int i = ((Integer)state.get(LEVEL)).intValue();
+        int i = ((Integer)state.getValue(LEVEL)).intValue();
         int j = 1;
 
-        if (this.material == Material.LAVA && !worldIn.dimension.doesWaterVaporize())
+        if (this.material == Material.LAVA && !worldIn.provider.doesWaterVaporize())
         {
             j = 2;
         }
@@ -75,7 +75,7 @@ public class BlockDynamicLiquid extends BlockLiquid
                 {
                     i1 = 0;
                 }
-                else if (iblockstate.getMaterial() == this.material && ((Integer)iblockstate.get(LEVEL)).intValue() == 0)
+                else if (iblockstate.getMaterial() == this.material && ((Integer)iblockstate.getValue(LEVEL)).intValue() == 0)
                 {
                     i1 = 0;
                 }
@@ -185,7 +185,7 @@ public class BlockDynamicLiquid extends BlockLiquid
                 BlockPos blockpos = pos.offset(enumfacing);
                 IBlockState iblockstate = worldIn.getBlockState(blockpos);
 
-                if (!this.isBlocked(worldIn, blockpos, iblockstate) && (iblockstate.getMaterial() != this.material || ((Integer)iblockstate.get(LEVEL)).intValue() > 0))
+                if (!this.isBlocked(worldIn, blockpos, iblockstate) && (iblockstate.getMaterial() != this.material || ((Integer)iblockstate.getValue(LEVEL)).intValue() > 0))
                 {
                     if (!this.isBlocked(worldIn, blockpos.down(), iblockstate))
                     {
@@ -210,7 +210,7 @@ public class BlockDynamicLiquid extends BlockLiquid
 
     private int getSlopeFindDistance(World worldIn)
     {
-        return this.material == Material.LAVA && !worldIn.dimension.doesWaterVaporize() ? 2 : 4;
+        return this.material == Material.LAVA && !worldIn.provider.doesWaterVaporize() ? 2 : 4;
     }
 
     private Set<EnumFacing> getPossibleFlowDirections(World worldIn, BlockPos pos)
@@ -223,7 +223,7 @@ public class BlockDynamicLiquid extends BlockLiquid
             BlockPos blockpos = pos.offset(enumfacing);
             IBlockState iblockstate = worldIn.getBlockState(blockpos);
 
-            if (!this.isBlocked(worldIn, blockpos, iblockstate) && (iblockstate.getMaterial() != this.material || ((Integer)iblockstate.get(LEVEL)).intValue() > 0))
+            if (!this.isBlocked(worldIn, blockpos, iblockstate) && (iblockstate.getMaterial() != this.material || ((Integer)iblockstate.getValue(LEVEL)).intValue() > 0))
             {
                 int j;
 
@@ -296,6 +296,9 @@ public class BlockDynamicLiquid extends BlockLiquid
         return material != this.material && material != Material.LAVA && !this.isBlocked(worldIn, pos, state);
     }
 
+    /**
+     * Called after the block is set in the Chunk data, but before the Tile Entity is set
+     */
     public void onBlockAdded(World worldIn, BlockPos pos, IBlockState state)
     {
         if (!this.checkForMixing(worldIn, pos, state))

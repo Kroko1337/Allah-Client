@@ -232,7 +232,7 @@ public class MapGenCaves extends MapGenBase
         {
             return true;
         }
-        else if (p_175793_1_.getBlock() == Blocks.TERRACOTTA)
+        else if (p_175793_1_.getBlock() == Blocks.HARDENED_CLAY)
         {
             return true;
         }
@@ -262,6 +262,9 @@ public class MapGenCaves extends MapGenBase
         }
     }
 
+    /**
+     * Recursively called by generate()
+     */
     protected void recursiveGenerate(World worldIn, int chunkX, int chunkZ, int originalX, int originalZ, ChunkPrimer chunkPrimerIn)
     {
         int i = this.rand.nextInt(this.rand.nextInt(this.rand.nextInt(15) + 1) + 1);

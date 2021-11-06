@@ -32,7 +32,7 @@ import org.apache.logging.log4j.Logger;
 
 public class BlockAnvil extends BlockFalling
 {
-    public static final PropertyDirection FACING = BlockHorizontal.HORIZONTAL_FACING;
+    public static final PropertyDirection FACING = BlockHorizontal.FACING;
     public static final PropertyInteger DAMAGE = PropertyInteger.create("damage", 0, 2);
     protected static final AxisAlignedBB X_AXIS_AABB = new AxisAlignedBB(0.0D, 0.0D, 0.125D, 1.0D, 1.0D, 0.875D);
     protected static final AxisAlignedBB Z_AXIS_AABB = new AxisAlignedBB(0.125D, 0.0D, 0.0D, 0.875D, 1.0D, 1.0D);
@@ -41,26 +41,48 @@ public class BlockAnvil extends BlockFalling
     protected BlockAnvil()
     {
         super(Material.ANVIL);
-        this.setDefaultState(this.stateContainer.getBaseState().withProperty(FACING, EnumFacing.NORTH).withProperty(DAMAGE, Integer.valueOf(0)));
+        this.setDefaultState(this.blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH).withProperty(DAMAGE, Integer.valueOf(0)));
         this.setLightOpacity(0);
         this.setCreativeTab(CreativeTabs.DECORATIONS);
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#isFullCube()} whenever possible. Implementing/overriding is fine.
+     */
     public boolean isFullCube(IBlockState state)
     {
         return false;
     }
 
+    /**
+     * Get the geometry of the queried face at the given position and state. This is used to decide whether things like
+     * buttons are allowed to be placed on the face, or how glass panes connect to the face, among other things.
+     * <p>
+     * Common values are {@code SOLID}, which is the default, and {@code UNDEFINED}, which represents something that
+     * does not fit the other descriptions and will generally cause other things not to connect to the face.
+
+     * @return an approximation of the form of the given face
+     * @deprecated call via {@link IBlockState#getBlockFaceShape(IBlockAccess,BlockPos,EnumFacing)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public BlockFaceShape getBlockFaceShape(IBlockAccess worldIn, IBlockState state, BlockPos pos, EnumFacing face)
     {
         return BlockFaceShape.UNDEFINED;
     }
 
+    /**
+     * Used to determine ambient occlusion and culling when rebuilding chunks for render
+     * @deprecated call via {@link IBlockState#isOpaqueCube()} whenever possible. Implementing/overriding is fine.
+     */
     public boolean isOpaqueCube(IBlockState state)
     {
         return false;
     }
 
+    /**
+     * Called by ItemBlocks just before a block is actually set in the world, to allow for adjustments to the
+     * IBlockstate
+     */
     public IBlockState getStateForPlacement(World worldIn, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer)
     {
         EnumFacing enumfacing = placer.getHorizontalFacing().rotateY();
@@ -85,6 +107,9 @@ public class BlockAnvil extends BlockFalling
         }
     }
 
+    /**
+     * Called when the block is right clicked by a player.
+     */
     public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
         if (!worldIn.isRemote)
@@ -95,21 +120,29 @@ public class BlockAnvil extends BlockFalling
         return true;
     }
 
+    /**
+     * Gets the metadata of the item this Block can drop. This method is called when the block gets destroyed. It
+     * returns the metadata of the dropped item based on the old metadata of the block.
+     */
     public int damageDropped(IBlockState state)
     {
-        return ((Integer)state.get(DAMAGE)).intValue();
+        return ((Integer)state.getValue(DAMAGE)).intValue();
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#getBoundingBox(IBlockAccess,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
     {
-        EnumFacing enumfacing = (EnumFacing)state.get(FACING);
+        EnumFacing enumfacing = (EnumFacing)state.getValue(FACING);
         return enumfacing.getAxis() == EnumFacing.Axis.X ? X_AXIS_AABB : Z_AXIS_AABB;
     }
 
     /**
      * returns a list of blocks with the same ID, but different meta (eg: wood returns 4 blocks)
      */
-    public void fillItemGroup(CreativeTabs group, NonNullList<ItemStack> items)
+    public void getSubBlocks(CreativeTabs itemIn, NonNullList<ItemStack> items)
     {
         items.add(new ItemStack(this));
         items.add(new ItemStack(this, 1, 1));
@@ -132,23 +165,30 @@ public class BlockAnvil extends BlockFalling
     }
 
     /**
-     * ""
+     * @deprecated call via {@link IBlockState#shouldSideBeRendered(IBlockAccess,BlockPos,EnumFacing)} whenever
+     * possible. Implementing/overriding is fine.
      */
     public boolean shouldSideBeRendered(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side)
     {
         return true;
     }
 
+    /**
+     * Convert the given metadata into a BlockState for this Block
+     */
     public IBlockState getStateFromMeta(int meta)
     {
         return this.getDefaultState().withProperty(FACING, EnumFacing.byHorizontalIndex(meta & 3)).withProperty(DAMAGE, Integer.valueOf((meta & 15) >> 2));
     }
 
+    /**
+     * Convert the BlockState into the correct metadata value
+     */
     public int getMetaFromState(IBlockState state)
     {
         int i = 0;
-        i = i | ((EnumFacing)state.get(FACING)).getHorizontalIndex();
-        i = i | ((Integer)state.get(DAMAGE)).intValue() << 2;
+        i = i | ((EnumFacing)state.getValue(FACING)).getHorizontalIndex();
+        i = i | ((Integer)state.getValue(DAMAGE)).intValue() << 2;
         return i;
     }
 
@@ -158,9 +198,9 @@ public class BlockAnvil extends BlockFalling
      * @deprecated call via {@link IBlockState#withRotation(Rotation)} whenever possible. Implementing/overriding is
      * fine.
      */
-    public IBlockState rotate(IBlockState state, Rotation rot)
+    public IBlockState withRotation(IBlockState state, Rotation rot)
     {
-        return state.getBlock() != this ? state : state.withProperty(FACING, rot.rotate((EnumFacing)state.get(FACING)));
+        return state.getBlock() != this ? state : state.withProperty(FACING, rot.rotate((EnumFacing)state.getValue(FACING)));
     }
 
     protected BlockStateContainer createBlockState()

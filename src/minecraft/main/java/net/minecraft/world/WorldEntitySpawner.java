@@ -27,6 +27,10 @@ public final class WorldEntitySpawner
     private static final int MOB_COUNT_DIV = (int)Math.pow(17.0D, 2.0D);
     private final Set<ChunkPos> eligibleChunksForSpawning = Sets.<ChunkPos>newHashSet();
 
+    /**
+     * adds all chunks within the spawn radius of the players to eligibleChunksForSpawning. pars: the world,
+     * hostileCreatures, passiveCreatures. returns number of eligible chunks.
+     */
     public int findChunksForSpawning(WorldServer worldServerIn, boolean spawnHostileMobs, boolean spawnPeacefulMobs, boolean spawnOnSetTickRate)
     {
         if (!spawnHostileMobs && !spawnPeacefulMobs)
@@ -153,11 +157,11 @@ public final class WorldEntitySpawner
                                                     if (entityliving.isNotColliding())
                                                     {
                                                         ++j2;
-                                                        worldServerIn.addEntity0(entityliving);
+                                                        worldServerIn.spawnEntity(entityliving);
                                                     }
                                                     else
                                                     {
-                                                        entityliving.remove();
+                                                        entityliving.setDead();
                                                     }
 
                                                     if (j2 >= entityliving.getMaxSpawnedInChunk())
@@ -245,10 +249,15 @@ public final class WorldEntitySpawner
 
     /**
      * Called during chunk generation to spawn initial creatures.
+     *  
+     * @param centerX The X coordinate of the point to spawn mobs arround.
+     * @param centerZ The Z coordinate of the point to spawn mobs arround.
+     * @param diameterX The X diameter of the rectangle to spawn mobs in
+     * @param diameterZ The Z diameter of the rectangle to spawn mobs in
      */
     public static void performWorldGenSpawning(World worldIn, Biome biomeIn, int centerX, int centerZ, int diameterX, int diameterZ, Random randomIn)
     {
-        List<Biome.SpawnListEntry> list = biomeIn.getSpawns(EnumCreatureType.CREATURE);
+        List<Biome.SpawnListEntry> list = biomeIn.getSpawnableList(EnumCreatureType.CREATURE);
 
         if (!list.isEmpty())
         {
@@ -285,7 +294,7 @@ public final class WorldEntitySpawner
                             }
 
                             entityliving.setLocationAndAngles((double)((float)j + 0.5F), (double)blockpos.getY(), (double)((float)k + 0.5F), randomIn.nextFloat() * 360.0F, 0.0F);
-                            worldIn.addEntity0(entityliving);
+                            worldIn.spawnEntity(entityliving);
                             ientitylivingdata = entityliving.onInitialSpawn(worldIn.getDifficultyForLocation(new BlockPos(entityliving)), ientitylivingdata);
                             flag = true;
                         }

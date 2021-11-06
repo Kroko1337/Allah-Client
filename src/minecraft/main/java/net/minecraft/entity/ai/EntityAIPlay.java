@@ -20,8 +20,7 @@ public class EntityAIPlay extends EntityAIBase
     }
 
     /**
-     * Returns whether execution should begin. You can also read and cache any state necessary for execution in this
-     * method as well.
+     * Returns whether the EntityAIBase should begin execution.
      */
     public boolean shouldExecute()
     {
@@ -35,7 +34,7 @@ public class EntityAIPlay extends EntityAIBase
         }
         else
         {
-            List<EntityVillager> list = this.villager.world.<EntityVillager>getEntitiesWithinAABB(EntityVillager.class, this.villager.getBoundingBox().grow(6.0D, 3.0D, 6.0D));
+            List<EntityVillager> list = this.villager.world.<EntityVillager>getEntitiesWithinAABB(EntityVillager.class, this.villager.getEntityBoundingBox().grow(6.0D, 3.0D, 6.0D));
             double d0 = Double.MAX_VALUE;
 
             for (EntityVillager entityvillager : list)
@@ -99,7 +98,7 @@ public class EntityAIPlay extends EntityAIBase
     /**
      * Keep ticking a continuous task that has already been started
      */
-    public void tick()
+    public void updateTask()
     {
         --this.playTime;
 

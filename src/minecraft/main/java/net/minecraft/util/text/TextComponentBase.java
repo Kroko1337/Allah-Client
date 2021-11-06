@@ -86,6 +86,9 @@ public abstract class TextComponentBase implements ITextComponent
         return Iterators.<ITextComponent>concat(Iterators.forArray(this), createDeepCopyIterator(this.siblings));
     }
 
+    /**
+     * Gets the text of this component <em>and all sibling components</em>, without any formatting codes.
+     */
     public final String getUnformattedText()
     {
         StringBuilder stringbuilder = new StringBuilder();
@@ -133,7 +136,7 @@ public abstract class TextComponentBase implements ITextComponent
         {
             public ITextComponent apply(@Nullable ITextComponent p_apply_1_)
             {
-                ITextComponent itextcomponent = p_apply_1_.shallowCopy();
+                ITextComponent itextcomponent = p_apply_1_.createCopy();
                 itextcomponent.setStyle(itextcomponent.getStyle().createDeepCopy());
                 return itextcomponent;
             }

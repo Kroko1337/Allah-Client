@@ -31,11 +31,23 @@ public class GuiScreenBook extends GuiScreen
 {
     private static final Logger LOGGER = LogManager.getLogger();
     private static final ResourceLocation BOOK_GUI_TEXTURES = new ResourceLocation("textures/gui/book.png");
+
+    /** The player editing the book */
     private final EntityPlayer editingPlayer;
     private final ItemStack book;
+
+    /** Whether the book is signed or can still be edited */
     private final boolean bookIsUnsigned;
+
+    /**
+     * Whether the book's title or contents has been modified since being opened
+     */
     private boolean bookIsModified;
+
+    /** Determines if the signing screen is open */
     private boolean bookGettingSigned;
+
+    /** Update ticks since the gui was opened */
     private int updateCount;
     private final int bookImageWidth = 192;
     private final int bookImageHeight = 192;
@@ -48,6 +60,8 @@ public class GuiScreenBook extends GuiScreen
     private GuiScreenBook.NextPageButton buttonNextPage;
     private GuiScreenBook.NextPageButton buttonPreviousPage;
     private GuiButton buttonDone;
+
+    /** The GuiButton to sign this book. */
     private GuiButton buttonSign;
     private GuiButton buttonFinalize;
     private GuiButton buttonCancel;
@@ -58,10 +72,10 @@ public class GuiScreenBook extends GuiScreen
         this.book = book;
         this.bookIsUnsigned = isUnsigned;
 
-        if (book.hasTag())
+        if (book.hasTagCompound())
         {
-            NBTTagCompound nbttagcompound = book.getTag();
-            this.bookPages = nbttagcompound.getList("pages", 8).copy();
+            NBTTagCompound nbttagcompound = book.getTagCompound();
+            this.bookPages = nbttagcompound.getTagList("pages", 8).copy();
             this.bookTotalPages = this.bookPages.tagCount();
 
             if (this.bookTotalPages < 1)
@@ -78,12 +92,19 @@ public class GuiScreenBook extends GuiScreen
         }
     }
 
+    /**
+     * Called from the main game loop to update the screen.
+     */
     public void updateScreen()
     {
         super.updateScreen();
         ++this.updateCount;
     }
 
+    /**
+     * Adds the buttons (and other controls) to the screen in question. Called when the GUI is displayed and when the
+     * window resizes, the buttonList is cleared beforehand.
+     */
     public void initGui()
     {
         this.buttonList.clear();
@@ -108,6 +129,9 @@ public class GuiScreenBook extends GuiScreen
         this.updateButtons();
     }
 
+    /**
+     * Called when the screen is unloaded. Used to disable keyboard repeat events
+     */
     public void onGuiClosed()
     {
         Keyboard.enableRepeatEvents(false);
@@ -136,7 +160,7 @@ public class GuiScreenBook extends GuiScreen
             {
                 while (this.bookPages.tagCount() > 1)
                 {
-                    String s = this.bookPages.getString(this.bookPages.tagCount() - 1);
+                    String s = this.bookPages.getStringTagAt(this.bookPages.tagCount() - 1);
 
                     if (!s.isEmpty())
                     {
@@ -146,9 +170,9 @@ public class GuiScreenBook extends GuiScreen
                     this.bookPages.removeTag(this.bookPages.tagCount() - 1);
                 }
 
-                if (this.book.hasTag())
+                if (this.book.hasTagCompound())
                 {
-                    NBTTagCompound nbttagcompound = this.book.getTag();
+                    NBTTagCompound nbttagcompound = this.book.getTagCompound();
                     nbttagcompound.setTag("pages", this.bookPages);
                 }
                 else
@@ -172,6 +196,9 @@ public class GuiScreenBook extends GuiScreen
         }
     }
 
+    /**
+     * Called by the controls from the buttonList when activated. (Mouse pressed for buttons)
+     */
     protected void actionPerformed(GuiButton button) throws IOException
     {
         if (button.enabled)
@@ -232,6 +259,10 @@ public class GuiScreenBook extends GuiScreen
         }
     }
 
+    /**
+     * Fired when a key is typed (except F11 which toggles full screen). This is the equivalent of
+     * KeyListener.keyTyped(KeyEvent e). Args : character (character on the key), keyCode (lwjgl Keyboard key code)
+     */
     protected void keyTyped(char typedChar, int keyCode) throws IOException
     {
         super.keyTyped(typedChar, keyCode);
@@ -249,6 +280,9 @@ public class GuiScreenBook extends GuiScreen
         }
     }
 
+    /**
+     * Processes keystrokes when editing the text of a book
+     */
     private void keyTypedInBook(char typedChar, int keyCode)
     {
         if (GuiScreen.isKeyComboCtrlV(keyCode))
@@ -283,6 +317,9 @@ public class GuiScreenBook extends GuiScreen
         }
     }
 
+    /**
+     * Processes keystrokes when editing the title of a book
+     */
     private void keyTypedInTitle(char typedChar, int keyCode) throws IOException
     {
         switch (keyCode)
@@ -316,11 +353,17 @@ public class GuiScreenBook extends GuiScreen
         }
     }
 
+    /**
+     * Returns the entire text of the current page as determined by currPage
+     */
     private String pageGetCurrent()
     {
-        return this.bookPages != null && this.currPage >= 0 && this.currPage < this.bookPages.tagCount() ? this.bookPages.getString(this.currPage) : "";
+        return this.bookPages != null && this.currPage >= 0 && this.currPage < this.bookPages.tagCount() ? this.bookPages.getStringTagAt(this.currPage) : "";
     }
 
+    /**
+     * Sets the text of the current page as determined by currPage
+     */
     private void pageSetCurrent(String p_146457_1_)
     {
         if (this.bookPages != null && this.currPage >= 0 && this.currPage < this.bookPages.tagCount())
@@ -330,6 +373,9 @@ public class GuiScreenBook extends GuiScreen
         }
     }
 
+    /**
+     * Processes any text getting inserted into the current page, enforcing the page size limit
+     */
     private void pageInsertIntoCurrent(String p_146459_1_)
     {
         String s = this.pageGetCurrent();
@@ -342,6 +388,9 @@ public class GuiScreenBook extends GuiScreen
         }
     }
 
+    /**
+     * Draws the screen and all the components in it.
+     */
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
@@ -384,7 +433,7 @@ public class GuiScreenBook extends GuiScreen
 
             if (this.bookPages != null && this.currPage >= 0 && this.currPage < this.bookPages.tagCount())
             {
-                s5 = this.bookPages.getString(this.currPage);
+                s5 = this.bookPages.getStringTagAt(this.currPage);
             }
 
             if (this.bookIsUnsigned)
@@ -404,11 +453,11 @@ public class GuiScreenBook extends GuiScreen
             }
             else if (this.cachedPage != this.currPage)
             {
-                if (ItemWrittenBook.validBookTagContents(this.book.getTag()))
+                if (ItemWrittenBook.validBookTagContents(this.book.getTagCompound()))
                 {
                     try
                     {
-                        ITextComponent itextcomponent = ITextComponent.Serializer.fromJson(s5);
+                        ITextComponent itextcomponent = ITextComponent.Serializer.jsonToComponent(s5);
                         this.cachedComponents = itextcomponent != null ? GuiUtilRenderComponents.splitText(itextcomponent, 116, this.fontRenderer, true, true) : null;
                     }
                     catch (JsonParseException var13)
@@ -454,6 +503,9 @@ public class GuiScreenBook extends GuiScreen
         super.drawScreen(mouseX, mouseY, partialTicks);
     }
 
+    /**
+     * Called when the mouse is clicked. Args : mouseX, mouseY, clickedButton
+     */
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
     {
         if (mouseButton == 0)
@@ -469,6 +521,9 @@ public class GuiScreenBook extends GuiScreen
         super.mouseClicked(mouseX, mouseY, mouseButton);
     }
 
+    /**
+     * Executes the click event specified by the given chat component
+     */
     public boolean handleComponentClick(ITextComponent component)
     {
         ClickEvent clickevent = component.getStyle().getClickEvent();

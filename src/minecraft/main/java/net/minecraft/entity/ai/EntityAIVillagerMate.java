@@ -22,8 +22,7 @@ public class EntityAIVillagerMate extends EntityAIBase
     }
 
     /**
-     * Returns whether execution should begin. You can also read and cache any state necessary for execution in this
-     * method as well.
+     * Returns whether the EntityAIBase should begin execution.
      */
     public boolean shouldExecute()
     {
@@ -45,7 +44,7 @@ public class EntityAIVillagerMate extends EntityAIBase
             }
             else if (this.checkSufficientDoorsPresentForNewVillager() && this.villager.getIsWillingToMate(true))
             {
-                Entity entity = this.world.findNearestEntityWithinAABB(EntityVillager.class, this.villager.getBoundingBox().grow(8.0D, 3.0D, 8.0D), this.villager);
+                Entity entity = this.world.findNearestEntityWithinAABB(EntityVillager.class, this.villager.getEntityBoundingBox().grow(8.0D, 3.0D, 8.0D), this.villager);
 
                 if (entity == null)
                 {
@@ -94,10 +93,10 @@ public class EntityAIVillagerMate extends EntityAIBase
     /**
      * Keep ticking a continuous task that has already been started
      */
-    public void tick()
+    public void updateTask()
     {
         --this.matingTimeout;
-        this.villager.getLookController().setLookPositionWithEntity(this.mate, 10.0F, 30.0F);
+        this.villager.getLookHelper().setLookPositionWithEntity(this.mate, 10.0F, 30.0F);
 
         if (this.villager.getDistanceSq(this.mate) > 2.25D)
         {
@@ -136,7 +135,7 @@ public class EntityAIVillagerMate extends EntityAIBase
         this.villager.setIsWillingToMate(false);
         entityvillager.setGrowingAge(-24000);
         entityvillager.setLocationAndAngles(this.villager.posX, this.villager.posY, this.villager.posZ, 0.0F, 0.0F);
-        this.world.addEntity0(entityvillager);
+        this.world.spawnEntity(entityvillager);
         this.world.setEntityState(entityvillager, (byte)12);
     }
 }

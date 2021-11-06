@@ -12,13 +12,13 @@ public class RenderHorse extends RenderLiving<EntityHorse>
 {
     private static final Map<String, ResourceLocation> LAYERED_LOCATION_CACHE = Maps.<String, ResourceLocation>newHashMap();
 
-    public RenderHorse(RenderManager renderManagerIn)
+    public RenderHorse(RenderManager p_i47205_1_)
     {
-        super(renderManagerIn, new ModelHorse(), 0.75F);
+        super(p_i47205_1_, new ModelHorse(), 0.75F);
     }
 
     /**
-     * Returns the location of an entity's texture.
+     * Returns the location of an entity's texture. Doesn't seem to be called unless you call Render.bindEntityTexture.
      */
     protected ResourceLocation getEntityTexture(EntityHorse entity)
     {
@@ -28,7 +28,7 @@ public class RenderHorse extends RenderLiving<EntityHorse>
         if (resourcelocation == null)
         {
             resourcelocation = new ResourceLocation(s);
-            Minecraft.getInstance().getTextureManager().loadTexture(resourcelocation, new LayeredTexture(entity.getVariantTexturePaths()));
+            Minecraft.getMinecraft().getTextureManager().loadTexture(resourcelocation, new LayeredTexture(entity.getVariantTexturePaths()));
             LAYERED_LOCATION_CACHE.put(s, resourcelocation);
         }
 

@@ -26,7 +26,7 @@ import net.minecraft.world.World;
 
 public class BlockBanner extends BlockContainer
 {
-    public static final PropertyDirection FACING = BlockHorizontal.HORIZONTAL_FACING;
+    public static final PropertyDirection FACING = BlockHorizontal.FACING;
     public static final PropertyInteger ROTATION = PropertyInteger.create("rotation", 0, 15);
     protected static final AxisAlignedBB STANDING_AABB = new AxisAlignedBB(0.25D, 0.0D, 0.25D, 0.75D, 1.0D, 0.75D);
 
@@ -35,27 +35,45 @@ public class BlockBanner extends BlockContainer
         super(Material.WOOD);
     }
 
+    /**
+     * Gets the localized name of this block. Used for the statistics page.
+     */
     public String getLocalizedName()
     {
         return I18n.translateToLocal("item.banner.white.name");
     }
 
     @Nullable
+
+    /**
+     * @deprecated call via {@link IBlockState#getCollisionBoundingBox(IBlockAccess,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public AxisAlignedBB getCollisionBoundingBox(IBlockState blockState, IBlockAccess worldIn, BlockPos pos)
     {
         return NULL_AABB;
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#isFullCube()} whenever possible. Implementing/overriding is fine.
+     */
     public boolean isFullCube(IBlockState state)
     {
         return false;
     }
 
+    /**
+     * Determines if an entity can path through this block
+     */
     public boolean isPassable(IBlockAccess worldIn, BlockPos pos)
     {
         return true;
     }
 
+    /**
+     * Used to determine ambient occlusion and culling when rebuilding chunks for render
+     * @deprecated call via {@link IBlockState#isOpaqueCube()} whenever possible. Implementing/overriding is fine.
+     */
     public boolean isOpaqueCube(IBlockState state)
     {
         return false;
@@ -69,11 +87,17 @@ public class BlockBanner extends BlockContainer
         return true;
     }
 
+    /**
+     * Returns a new instance of a block's tile entity class. Called on placing the block.
+     */
     public TileEntity createNewTileEntity(World worldIn, int meta)
     {
         return new TileEntityBanner();
     }
 
+    /**
+     * Get the Item that this Block should drop when harvested.
+     */
     public Item getItemDropped(IBlockState state, Random rand, int fortune)
     {
         return Items.BANNER;
@@ -91,6 +115,9 @@ public class BlockBanner extends BlockContainer
         return itemstack.isEmpty() ? new ItemStack(Items.BANNER) : itemstack;
     }
 
+    /**
+     * Spawns this Block's drops into the World as EntityItems.
+     */
     public void dropBlockAsItemWithChance(World worldIn, BlockPos pos, IBlockState state, float chance, int fortune)
     {
         ItemStack itemstack = this.getTileDataItemStack(worldIn, pos);
@@ -105,6 +132,9 @@ public class BlockBanner extends BlockContainer
         }
     }
 
+    /**
+     * Checks if this block can be placed exactly at the given position.
+     */
     public boolean canPlaceBlockAt(World worldIn, BlockPos pos)
     {
         return !this.hasInvalidNeighbor(worldIn, pos) && super.canPlaceBlockAt(worldIn, pos);
@@ -128,6 +158,17 @@ public class BlockBanner extends BlockContainer
         }
     }
 
+    /**
+     * Get the geometry of the queried face at the given position and state. This is used to decide whether things like
+     * buttons are allowed to be placed on the face, or how glass panes connect to the face, among other things.
+     * <p>
+     * Common values are {@code SOLID}, which is the default, and {@code UNDEFINED}, which represents something that
+     * does not fit the other descriptions and will generally cause other things not to connect to the face.
+
+     * @return an approximation of the form of the given face
+     * @deprecated call via {@link IBlockState#getBlockFaceShape(IBlockAccess,BlockPos,EnumFacing)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public BlockFaceShape getBlockFaceShape(IBlockAccess worldIn, IBlockState state, BlockPos pos, EnumFacing face)
     {
         return BlockFaceShape.UNDEFINED;
@@ -142,22 +183,22 @@ public class BlockBanner extends BlockContainer
 
         public BlockBannerHanging()
         {
-            this.setDefaultState(this.stateContainer.getBaseState().withProperty(FACING, EnumFacing.NORTH));
+            this.setDefaultState(this.blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH));
         }
 
-        public IBlockState rotate(IBlockState state, Rotation rot)
+        public IBlockState withRotation(IBlockState state, Rotation rot)
         {
-            return state.withProperty(FACING, rot.rotate((EnumFacing)state.get(FACING)));
+            return state.withProperty(FACING, rot.rotate((EnumFacing)state.getValue(FACING)));
         }
 
-        public IBlockState mirror(IBlockState state, Mirror mirrorIn)
+        public IBlockState withMirror(IBlockState state, Mirror mirrorIn)
         {
-            return state.rotate(mirrorIn.toRotation((EnumFacing)state.get(FACING)));
+            return state.withRotation(mirrorIn.toRotation((EnumFacing)state.getValue(FACING)));
         }
 
         public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
         {
-            switch ((EnumFacing)state.get(FACING))
+            switch ((EnumFacing)state.getValue(FACING))
             {
                 case NORTH:
                 default:
@@ -176,7 +217,7 @@ public class BlockBanner extends BlockContainer
 
         public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos)
         {
-            EnumFacing enumfacing = (EnumFacing)state.get(FACING);
+            EnumFacing enumfacing = (EnumFacing)state.getValue(FACING);
 
             if (!worldIn.getBlockState(pos.offset(enumfacing.getOpposite())).getMaterial().isSolid())
             {
@@ -201,7 +242,7 @@ public class BlockBanner extends BlockContainer
 
         public int getMetaFromState(IBlockState state)
         {
-            return ((EnumFacing)state.get(FACING)).getIndex();
+            return ((EnumFacing)state.getValue(FACING)).getIndex();
         }
 
         protected BlockStateContainer createBlockState()
@@ -214,7 +255,7 @@ public class BlockBanner extends BlockContainer
     {
         public BlockBannerStanding()
         {
-            this.setDefaultState(this.stateContainer.getBaseState().withProperty(ROTATION, Integer.valueOf(0)));
+            this.setDefaultState(this.blockState.getBaseState().withProperty(ROTATION, Integer.valueOf(0)));
         }
 
         public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
@@ -222,14 +263,14 @@ public class BlockBanner extends BlockContainer
             return STANDING_AABB;
         }
 
-        public IBlockState rotate(IBlockState state, Rotation rot)
+        public IBlockState withRotation(IBlockState state, Rotation rot)
         {
-            return state.withProperty(ROTATION, Integer.valueOf(rot.rotate(((Integer)state.get(ROTATION)).intValue(), 16)));
+            return state.withProperty(ROTATION, Integer.valueOf(rot.rotate(((Integer)state.getValue(ROTATION)).intValue(), 16)));
         }
 
-        public IBlockState mirror(IBlockState state, Mirror mirrorIn)
+        public IBlockState withMirror(IBlockState state, Mirror mirrorIn)
         {
-            return state.withProperty(ROTATION, Integer.valueOf(mirrorIn.mirrorRotation(((Integer)state.get(ROTATION)).intValue(), 16)));
+            return state.withProperty(ROTATION, Integer.valueOf(mirrorIn.mirrorRotation(((Integer)state.getValue(ROTATION)).intValue(), 16)));
         }
 
         public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos)
@@ -250,7 +291,7 @@ public class BlockBanner extends BlockContainer
 
         public int getMetaFromState(IBlockState state)
         {
-            return ((Integer)state.get(ROTATION)).intValue();
+            return ((Integer)state.getValue(ROTATION)).intValue();
         }
 
         protected BlockStateContainer createBlockState()

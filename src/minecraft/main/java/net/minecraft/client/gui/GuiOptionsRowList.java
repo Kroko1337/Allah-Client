@@ -37,6 +37,9 @@ public class GuiOptionsRowList extends GuiListExtended
         }
     }
 
+    /**
+     * Gets the IGuiListEntry object for the given index
+     */
     public GuiOptionsRowList.Row getListEntry(int index)
     {
         return this.options.get(index);
@@ -47,6 +50,9 @@ public class GuiOptionsRowList extends GuiListExtended
         return this.options.size();
     }
 
+    /**
+     * Gets the width of the list
+     */
     public int getListWidth()
     {
         return 400;
@@ -59,7 +65,7 @@ public class GuiOptionsRowList extends GuiListExtended
 
     public static class Row implements GuiListExtended.IGuiListEntry
     {
-        private final Minecraft client = Minecraft.getInstance();
+        private final Minecraft client = Minecraft.getMinecraft();
         private final GuiButton buttonA;
         private final GuiButton buttonB;
 

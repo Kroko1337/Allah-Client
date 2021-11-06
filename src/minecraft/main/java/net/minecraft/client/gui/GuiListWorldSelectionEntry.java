@@ -44,7 +44,7 @@ public class GuiListWorldSelectionEntry implements GuiListExtended.IGuiListEntry
         this.containingListSel = listWorldSelIn;
         this.worldSelScreen = listWorldSelIn.getGuiWorldSelection();
         this.worldSummary = worldSummaryIn;
-        this.client = Minecraft.getInstance();
+        this.client = Minecraft.getMinecraft();
         this.iconLocation = new ResourceLocation("worlds/" + worldSummaryIn.getFileName() + "/icon");
         this.iconFile = saveFormat.getFile(worldSummaryIn.getFileName(), "icon.png");
 
@@ -151,6 +151,10 @@ public class GuiListWorldSelectionEntry implements GuiListExtended.IGuiListEntry
         }
     }
 
+    /**
+     * Called when the mouse is clicked within this entry. Returning true means that something within this entry was
+     * clicked and the list should not be dragged.
+     */
     public boolean mousePressed(int slotIndex, int mouseX, int mouseY, int mouseEvent, int relativeX, int relativeY)
     {
         this.containingListSel.selectWorld(slotIndex);
@@ -239,7 +243,7 @@ public class GuiListWorldSelectionEntry implements GuiListExtended.IGuiListEntry
 
     private void loadWorld()
     {
-        this.client.getSoundHandler().play(PositionedSoundRecord.master(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+        this.client.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0F));
 
         if (this.client.getSaveLoader().canLoadWorld(this.worldSummary.getFileName()))
         {
@@ -284,6 +288,9 @@ public class GuiListWorldSelectionEntry implements GuiListExtended.IGuiListEntry
         }
     }
 
+    /**
+     * Fired when the mouse button is released. Arguments: index, x, y, mouseEvent, relativeX, relativeY
+     */
     public void mouseReleased(int slotIndex, int x, int y, int mouseEvent, int relativeX, int relativeY)
     {
     }

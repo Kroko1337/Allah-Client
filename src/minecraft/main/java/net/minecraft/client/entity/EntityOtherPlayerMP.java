@@ -30,7 +30,7 @@ public class EntityOtherPlayerMP extends AbstractClientPlayer
      */
     public boolean isInRangeToRenderDist(double distance)
     {
-        double d0 = this.getBoundingBox().getAverageEdgeLength() * 10.0D;
+        double d0 = this.getEntityBoundingBox().getAverageEdgeLength() * 10.0D;
 
         if (Double.isNaN(d0))
         {
@@ -65,10 +65,10 @@ public class EntityOtherPlayerMP extends AbstractClientPlayer
     /**
      * Called to update the entity's position/logic.
      */
-    public void tick()
+    public void onUpdate()
     {
         this.renderOffsetY = 0.0F;
-        super.tick();
+        super.onUpdate();
         this.prevLimbSwingAmount = this.limbSwingAmount;
         double d0 = this.posX - this.prevPosX;
         double d1 = this.posZ - this.prevPosZ;
@@ -87,7 +87,7 @@ public class EntityOtherPlayerMP extends AbstractClientPlayer
      * Called frequently so the entity can update its state every tick as required. For example, zombies and skeletons
      * use this to react to sunlight and start to burn.
      */
-    public void livingTick()
+    public void onLivingUpdate()
     {
         if (this.otherPlayerMPPosRotationIncrements > 0)
         {
@@ -145,9 +145,12 @@ public class EntityOtherPlayerMP extends AbstractClientPlayer
      */
     public void sendMessage(ITextComponent component)
     {
-        Minecraft.getInstance().ingameGUI.getChatGUI().printChatMessage(component);
+        Minecraft.getMinecraft().ingameGUI.getChatGUI().printChatMessage(component);
     }
 
+    /**
+     * Returns {@code true} if the CommandSender is allowed to execute the command, {@code false} if not
+     */
     public boolean canUseCommand(int permLevel, String commandName)
     {
         return false;

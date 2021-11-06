@@ -13,8 +13,14 @@ public class RecipeList
 {
     private List<IRecipe> recipes = Lists.<IRecipe>newArrayList();
     private final BitSet craftable = new BitSet();
+
+    /** Tracks which recipes can fit in the current container */
     private final BitSet canFit = new BitSet();
     private final BitSet inBook = new BitSet();
+
+    /**
+     * True if all recipes in this button create the same ItemStack (via IRecipe.getRecipeOutput)
+     */
     private boolean singleResultItem = true;
 
     /**

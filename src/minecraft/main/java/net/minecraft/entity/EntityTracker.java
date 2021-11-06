@@ -52,12 +52,14 @@ public class EntityTracker
     private final WorldServer world;
     private final Set<EntityTrackerEntry> entries = Sets.<EntityTrackerEntry>newHashSet();
     private final IntHashMap<EntityTrackerEntry> trackedEntityHashTable = new IntHashMap<EntityTrackerEntry>();
+
+    /** "Max track distance", measured in blocks. */
     private int maxTrackingDistanceThreshold;
 
     public EntityTracker(WorldServer theWorldIn)
     {
         this.world = theWorldIn;
-        this.maxTrackingDistanceThreshold = theWorldIn.getServer().getPlayerList().getEntityViewDistance();
+        this.maxTrackingDistanceThreshold = theWorldIn.getMinecraftServer().getPlayerList().getEntityViewDistance();
     }
 
     public static long getPositionLong(double value)
@@ -210,6 +212,9 @@ public class EntityTracker
         this.track(entityIn, trackingRange, updateFrequency, false);
     }
 
+    /**
+     * Args : Entity, trackingRange, updateFrequency, sendVelocityUpdates
+     */
     public void track(Entity entityIn, int trackingRange, final int updateFrequency, boolean sendVelocityUpdates)
     {
         try
@@ -228,7 +233,7 @@ public class EntityTracker
         {
             CrashReport crashreport = CrashReport.makeCrashReport(throwable, "Adding entity to track");
             CrashReportCategory crashreportcategory = crashreport.makeCategory("Entity To Track");
-            crashreportcategory.addDetail("Tracking range", trackingRange + " blocks");
+            crashreportcategory.addCrashSection("Tracking range", trackingRange + " blocks");
             crashreportcategory.addDetail("Update interval", new ICrashReportDetail<String>()
             {
                 public String call() throws Exception
@@ -243,8 +248,8 @@ public class EntityTracker
                     return s;
                 }
             });
-            entityIn.fillCrashReport(crashreportcategory);
-            ((EntityTrackerEntry)this.trackedEntityHashTable.lookup(entityIn.getEntityId())).getTrackedEntity().fillCrashReport(crashreport.makeCategory("Entity That Is Already Tracked"));
+            entityIn.addEntityCrashInfo(crashreportcategory);
+            ((EntityTrackerEntry)this.trackedEntityHashTable.lookup(entityIn.getEntityId())).getTrackedEntity().addEntityCrashInfo(crashreport.makeCategory("Entity That Is Already Tracked"));
 
             try
             {
@@ -257,6 +262,11 @@ public class EntityTracker
         }
     }
 
+    /**
+     * Removes the given entity, sending removal packets to all players tracking it. Called when the entity is dead.
+     *  
+     * @param entityIn The entity to untrack
+     */
     public void untrack(Entity entityIn)
     {
         if (entityIn instanceof EntityPlayerMP)
@@ -354,6 +364,10 @@ public class EntityTracker
         }
     }
 
+    /**
+     * Send packets to player for every tracked entity in this chunk that is either leashed to something or someone, or
+     * has passengers
+     */
     public void sendLeashedEntitiesInChunk(EntityPlayerMP player, Chunk chunkIn)
     {
         List<Entity> list = Lists.<Entity>newArrayList();
@@ -396,6 +410,12 @@ public class EntityTracker
         }
     }
 
+    /**
+     * Sets the view distance used on the server. For the dedicated server, this is the <code>view-distance</code> value
+     * in server.properties. For the integrated server, this is the host's render distance (which may change).
+     *  
+     * @param distance Distance to track, in chunks
+     */
     public void setViewDistance(int distance)
     {
         this.maxTrackingDistanceThreshold = (distance - 1) * 16;

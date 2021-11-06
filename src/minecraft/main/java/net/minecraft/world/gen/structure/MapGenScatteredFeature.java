@@ -15,9 +15,13 @@ import net.minecraft.world.biome.Biome;
 
 public class MapGenScatteredFeature extends MapGenStructure
 {
-    private static final List<Biome> BIOMELIST = Arrays.<Biome>asList(Biomes.DESERT, Biomes.DESERT_HILLS, Biomes.JUNGLE, Biomes.JUNGLE_HILLS, Biomes.SWAMP, Biomes.SNOWY_TUNDRA, Biomes.SNOWY_TAIGA);
+    private static final List<Biome> BIOMELIST = Arrays.<Biome>asList(Biomes.DESERT, Biomes.DESERT_HILLS, Biomes.JUNGLE, Biomes.JUNGLE_HILLS, Biomes.SWAMPLAND, Biomes.ICE_PLAINS, Biomes.COLD_TAIGA);
     private final List<Biome.SpawnListEntry> monsters;
+
+    /** the maximum distance between scattered features */
     private int maxDistanceBetweenScatteredFeatures;
+
+    /** the minimum distance between scattered features */
     private final int minDistanceBetweenScatteredFeatures;
 
     public MapGenScatteredFeature()
@@ -138,14 +142,14 @@ public class MapGenScatteredFeature extends MapGenStructure
 
             if (biomeIn != Biomes.JUNGLE && biomeIn != Biomes.JUNGLE_HILLS)
             {
-                if (biomeIn == Biomes.SWAMP)
+                if (biomeIn == Biomes.SWAMPLAND)
                 {
                     ComponentScatteredFeaturePieces.SwampHut componentscatteredfeaturepieces$swamphut = new ComponentScatteredFeaturePieces.SwampHut(random, chunkX * 16, chunkZ * 16);
                     this.components.add(componentscatteredfeaturepieces$swamphut);
                 }
                 else if (biomeIn != Biomes.DESERT && biomeIn != Biomes.DESERT_HILLS)
                 {
-                    if (biomeIn == Biomes.SNOWY_TUNDRA || biomeIn == Biomes.SNOWY_TAIGA)
+                    if (biomeIn == Biomes.ICE_PLAINS || biomeIn == Biomes.COLD_TAIGA)
                     {
                         ComponentScatteredFeaturePieces.Igloo componentscatteredfeaturepieces$igloo = new ComponentScatteredFeaturePieces.Igloo(random, chunkX * 16, chunkZ * 16);
                         this.components.add(componentscatteredfeaturepieces$igloo);

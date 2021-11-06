@@ -13,9 +13,9 @@ public class StringToUUID implements IFixableData
 
     public NBTTagCompound fixTagCompound(NBTTagCompound compound)
     {
-        if (compound.contains("UUID", 8))
+        if (compound.hasKey("UUID", 8))
         {
-            compound.putUniqueId("UUID", UUID.fromString(compound.getString("UUID")));
+            compound.setUniqueId("UUID", UUID.fromString(compound.getString("UUID")));
         }
 
         return compound;

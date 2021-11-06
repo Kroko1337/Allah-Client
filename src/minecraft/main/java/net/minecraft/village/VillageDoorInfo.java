@@ -5,8 +5,11 @@ import net.minecraft.util.math.BlockPos;
 
 public class VillageDoorInfo
 {
+    /** a block representing the door. Could be either upper or lower part */
     private final BlockPos doorBlockPos;
     private final BlockPos insideBlock;
+
+    /** the inside direction is where can see less sky */
     private final EnumFacing insideDirection;
     private int lastActivityTimestamp;
     private boolean isDetachedFromVillageFlag;
@@ -41,6 +44,9 @@ public class VillageDoorInfo
         this.lastActivityTimestamp = timestamp;
     }
 
+    /**
+     * Returns the squared distance between this door and the given coordinate.
+     */
     public int getDistanceSquared(int x, int y, int z)
     {
         return (int)this.doorBlockPos.distanceSq((double)x, (double)y, (double)z);

@@ -88,7 +88,7 @@ public class ConditionPropertyValue implements ICondition
             {
                 public boolean apply(@Nullable IBlockState p_apply_1_)
                 {
-                    return p_apply_1_ != null && p_apply_1_.get(property).equals(optional.get());
+                    return p_apply_1_ != null && p_apply_1_.getValue(property).equals(optional.get());
                 }
             };
         }

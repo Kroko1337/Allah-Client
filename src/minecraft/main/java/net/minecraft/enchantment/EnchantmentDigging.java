@@ -20,6 +20,9 @@ public class EnchantmentDigging extends Enchantment
         return 1 + 10 * (enchantmentLevel - 1);
     }
 
+    /**
+     * Returns the maximum value of enchantability nedded on the enchantment level passed.
+     */
     public int getMaxEnchantability(int enchantmentLevel)
     {
         return super.getMinEnchantability(enchantmentLevel) + 50;

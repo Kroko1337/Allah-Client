@@ -62,11 +62,11 @@ public class ItemPredicate
         {
             return false;
         }
-        else if (this.durability != MinMaxBounds.UNBOUNDED && !item.isDamageable())
+        else if (this.durability != MinMaxBounds.UNBOUNDED && !item.isItemStackDamageable())
         {
             return false;
         }
-        else if (!this.durability.test((float)(item.getMaxDamage() - item.getDamage())))
+        else if (!this.durability.test((float)(item.getMaxDamage() - item.getItemDamage())))
         {
             return false;
         }
@@ -113,7 +113,7 @@ public class ItemPredicate
             if (jsonobject.has("item"))
             {
                 ResourceLocation resourcelocation = new ResourceLocation(JsonUtils.getString(jsonobject, "item"));
-                item = Item.REGISTRY.getOrDefault(resourcelocation);
+                item = Item.REGISTRY.getObject(resourcelocation);
 
                 if (item == null)
                 {
@@ -133,7 +133,7 @@ public class ItemPredicate
                     throw new JsonSyntaxException("Unknown potion '" + resourcelocation1 + "'");
                 }
 
-                potiontype = PotionType.REGISTRY.getOrDefault(resourcelocation1);
+                potiontype = PotionType.REGISTRY.getObject(resourcelocation1);
             }
 
             return new ItemPredicate(item, integer, minmaxbounds, minmaxbounds1, aenchantmentpredicate, potiontype, nbtpredicate);

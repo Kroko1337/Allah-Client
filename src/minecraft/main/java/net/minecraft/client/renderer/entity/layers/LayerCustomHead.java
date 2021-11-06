@@ -37,7 +37,7 @@ public class LayerCustomHead implements LayerRenderer<EntityLivingBase>
         if (!itemstack.isEmpty())
         {
             Item item = itemstack.getItem();
-            Minecraft minecraft = Minecraft.getInstance();
+            Minecraft minecraft = Minecraft.getMinecraft();
             GlStateManager.pushMatrix();
 
             if (entitylivingbaseIn.isSneaking())
@@ -71,15 +71,15 @@ public class LayerCustomHead implements LayerRenderer<EntityLivingBase>
 
                 GameProfile gameprofile = null;
 
-                if (itemstack.hasTag())
+                if (itemstack.hasTagCompound())
                 {
-                    NBTTagCompound nbttagcompound = itemstack.getTag();
+                    NBTTagCompound nbttagcompound = itemstack.getTagCompound();
 
-                    if (nbttagcompound.contains("SkullOwner", 10))
+                    if (nbttagcompound.hasKey("SkullOwner", 10))
                     {
-                        gameprofile = NBTUtil.readGameProfile(nbttagcompound.getCompound("SkullOwner"));
+                        gameprofile = NBTUtil.readGameProfileFromNBT(nbttagcompound.getCompoundTag("SkullOwner"));
                     }
-                    else if (nbttagcompound.contains("SkullOwner", 8))
+                    else if (nbttagcompound.hasKey("SkullOwner", 8))
                     {
                         String s = nbttagcompound.getString("SkullOwner");
 
@@ -105,7 +105,7 @@ public class LayerCustomHead implements LayerRenderer<EntityLivingBase>
                     GlStateManager.translate(0.0F, 0.1875F, 0.0F);
                 }
 
-                minecraft.getFirstPersonRenderer().renderItem(entitylivingbaseIn, itemstack, ItemCameraTransforms.TransformType.HEAD);
+                minecraft.getItemRenderer().renderItem(entitylivingbaseIn, itemstack, ItemCameraTransforms.TransformType.HEAD);
             }
 
             GlStateManager.popMatrix();

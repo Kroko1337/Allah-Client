@@ -31,27 +31,30 @@ public class ParticleFallingDust extends Particle
         this.particleScale *= 0.75F;
         this.particleScale *= 0.9F;
         this.oSize = this.particleScale;
-        this.maxAge = (int)(32.0D / (Math.random() * 0.8D + 0.2D));
-        this.maxAge = (int)((float)this.maxAge * 0.9F);
+        this.particleMaxAge = (int)(32.0D / (Math.random() * 0.8D + 0.2D));
+        this.particleMaxAge = (int)((float)this.particleMaxAge * 0.9F);
         this.rotSpeed = ((float)Math.random() - 0.5F) * 0.1F;
         this.particleAngle = (float)Math.random() * ((float)Math.PI * 2F);
     }
 
+    /**
+     * Renders the particle
+     */
     public void renderParticle(BufferBuilder buffer, Entity entityIn, float partialTicks, float rotationX, float rotationZ, float rotationYZ, float rotationXY, float rotationXZ)
     {
-        float f = ((float)this.age + partialTicks) / (float)this.maxAge * 32.0F;
+        float f = ((float)this.particleAge + partialTicks) / (float)this.particleMaxAge * 32.0F;
         f = MathHelper.clamp(f, 0.0F, 1.0F);
         this.particleScale = this.oSize * f;
         super.renderParticle(buffer, entityIn, partialTicks, rotationX, rotationZ, rotationYZ, rotationXY, rotationXZ);
     }
 
-    public void tick()
+    public void onUpdate()
     {
         this.prevPosX = this.posX;
         this.prevPosY = this.posY;
         this.prevPosZ = this.posZ;
 
-        if (this.age++ >= this.maxAge)
+        if (this.particleAge++ >= this.particleMaxAge)
         {
             this.setExpired();
         }
@@ -64,7 +67,7 @@ public class ParticleFallingDust extends Particle
             this.prevParticleAngle = this.particleAngle = 0.0F;
         }
 
-        this.setParticleTextureIndex(7 - this.age * 8 / this.maxAge);
+        this.setParticleTextureIndex(7 - this.particleAge * 8 / this.particleMaxAge);
         this.move(this.motionX, this.motionY, this.motionZ);
         this.motionY -= 0.003000000026077032D;
         this.motionY = Math.max(this.motionY, -0.14000000059604645D);
@@ -83,7 +86,7 @@ public class ParticleFallingDust extends Particle
             }
             else
             {
-                int i = Minecraft.getInstance().getBlockColors().getColorOrMaterialColor(iblockstate, worldIn, new BlockPos(xCoordIn, yCoordIn, zCoordIn));
+                int i = Minecraft.getMinecraft().getBlockColors().getColor(iblockstate, worldIn, new BlockPos(xCoordIn, yCoordIn, zCoordIn));
 
                 if (iblockstate.getBlock() instanceof BlockFalling)
                 {

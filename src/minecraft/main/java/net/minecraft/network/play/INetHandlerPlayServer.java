@@ -41,6 +41,9 @@ public interface INetHandlerPlayServer extends INetHandler
      */
     void processChatMessage(CPacketChatMessage packetIn);
 
+    /**
+     * Retrieves possible tab completions for the requested command string and sends them to the client
+     */
     void processTabComplete(CPacketTabComplete packetIn);
 
     /**
@@ -75,7 +78,7 @@ public interface INetHandlerPlayServer extends INetHandler
      */
     void processClickWindow(CPacketClickWindow packetIn);
 
-    void processPlaceRecipe(CPacketPlaceRecipe packetIn);
+    void func_194308_a(CPacketPlaceRecipe p_194308_1_);
 
     /**
      * Processes the client closing windows (container)
@@ -153,7 +156,7 @@ public interface INetHandlerPlayServer extends INetHandler
 
     void processConfirmTeleport(CPacketConfirmTeleport packetIn);
 
-    void handleRecipeBookUpdate(CPacketRecipeInfo packetIn);
+    void handleRecipeBookUpdate(CPacketRecipeInfo p_191984_1_);
 
-    void handleSeenAdvancements(CPacketSeenAdvancements packetIn);
+    void handleSeenAdvancements(CPacketSeenAdvancements p_194027_1_);
 }

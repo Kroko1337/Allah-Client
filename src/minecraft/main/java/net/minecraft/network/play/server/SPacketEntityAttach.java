@@ -10,8 +10,6 @@ import net.minecraft.network.play.INetHandlerPlayClient;
 public class SPacketEntityAttach implements Packet<INetHandlerPlayClient>
 {
     private int entityId;
-
-    /** The entity that is holding the leash, or -1 to clear the holder. */
     private int vehicleEntityId;
 
     public SPacketEntityAttach()

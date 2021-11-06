@@ -23,17 +23,25 @@ import org.lwjgl.input.Keyboard;
 public class GuiRepair extends GuiContainer implements IContainerListener
 {
     private static final ResourceLocation ANVIL_RESOURCE = new ResourceLocation("textures/gui/container/anvil.png");
+
+    /**
+     * The same reference as {@link GuiContainer#inventorySlots}, downcasted to {@link ContainerRepair}.
+     */
     private final ContainerRepair anvil;
     private GuiTextField nameField;
     private final InventoryPlayer playerInventory;
 
     public GuiRepair(InventoryPlayer inventoryIn, World worldIn)
     {
-        super(new ContainerRepair(inventoryIn, worldIn, Minecraft.getInstance().player));
+        super(new ContainerRepair(inventoryIn, worldIn, Minecraft.getMinecraft().player));
         this.playerInventory = inventoryIn;
-        this.anvil = (ContainerRepair)this.container;
+        this.anvil = (ContainerRepair)this.inventorySlots;
     }
 
+    /**
+     * Adds the buttons (and other controls) to the screen in question. Called when the GUI is displayed and when the
+     * window resizes, the buttonList is cleared beforehand.
+     */
     public void initGui()
     {
         super.initGui();
@@ -45,15 +53,18 @@ public class GuiRepair extends GuiContainer implements IContainerListener
         this.nameField.setDisabledTextColour(-1);
         this.nameField.setEnableBackgroundDrawing(false);
         this.nameField.setMaxStringLength(35);
-        this.container.removeListener(this);
-        this.container.addListener(this);
+        this.inventorySlots.removeListener(this);
+        this.inventorySlots.addListener(this);
     }
 
+    /**
+     * Called when the screen is unloaded. Used to disable keyboard repeat events
+     */
     public void onGuiClosed()
     {
         super.onGuiClosed();
         Keyboard.enableRepeatEvents(false);
-        this.container.removeListener(this);
+        this.inventorySlots.removeListener(this);
     }
 
     /**
@@ -71,7 +82,7 @@ public class GuiRepair extends GuiContainer implements IContainerListener
             boolean flag = true;
             String s = I18n.format("container.repair.cost", this.anvil.maximumCost);
 
-            if (this.anvil.maximumCost >= 40 && !this.mc.player.abilities.isCreativeMode)
+            if (this.anvil.maximumCost >= 40 && !this.mc.player.capabilities.isCreativeMode)
             {
                 s = I18n.format("container.repair.expensive");
                 i = 16736352;
@@ -110,6 +121,10 @@ public class GuiRepair extends GuiContainer implements IContainerListener
         GlStateManager.enableLighting();
     }
 
+    /**
+     * Fired when a key is typed (except F11 which toggles full screen). This is the equivalent of
+     * KeyListener.keyTyped(KeyEvent e). Args : character (character on the key), keyCode (lwjgl Keyboard key code)
+     */
     protected void keyTyped(char typedChar, int keyCode) throws IOException
     {
         if (this.nameField.textboxKeyTyped(typedChar, keyCode))
@@ -136,12 +151,18 @@ public class GuiRepair extends GuiContainer implements IContainerListener
         this.mc.player.connection.sendPacket(new CPacketCustomPayload("MC|ItemName", (new PacketBuffer(Unpooled.buffer())).writeString(s)));
     }
 
+    /**
+     * Called when the mouse is clicked. Args : mouseX, mouseY, clickedButton
+     */
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
     {
         super.mouseClicked(mouseX, mouseY, mouseButton);
         this.nameField.mouseClicked(mouseX, mouseY, mouseButton);
     }
 
+    /**
+     * Draws the screen and all the components in it.
+     */
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         this.drawDefaultBackground();

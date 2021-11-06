@@ -20,6 +20,8 @@ public class GuiCreateFlatWorld extends GuiScreen
 {
     private final GuiCreateWorld createWorldGui;
     private FlatGeneratorInfo generatorInfo = FlatGeneratorInfo.getDefaultFlatGenerator();
+
+    /** The title given to the flat world currently in creation */
     private String flatWorldTitle;
 
     /** The text used to identify the material for a layer */
@@ -28,7 +30,11 @@ public class GuiCreateFlatWorld extends GuiScreen
     /** The text used to identify the height of a layer */
     private String heightText;
     private GuiCreateFlatWorld.Details createFlatWorldListSlotGui;
+
+    /** The (unused and permenantly hidden) add layer button */
     private GuiButton addLayerButton;
+
+    /** The (unused and permenantly hidden) edit layer button */
     private GuiButton editLayerButton;
 
     /** The remove layer button */
@@ -40,16 +46,26 @@ public class GuiCreateFlatWorld extends GuiScreen
         this.setPreset(preset);
     }
 
+    /**
+     * Gets the superflat preset in the text format described on the Superflat article on the Minecraft Wiki
+     */
     public String getPreset()
     {
         return this.generatorInfo.toString();
     }
 
+    /**
+     * Sets the superflat preset. Invalid or null values will result in the default superflat preset being used.
+     */
     public void setPreset(String preset)
     {
         this.generatorInfo = FlatGeneratorInfo.createFlatGeneratorFromString(preset);
     }
 
+    /**
+     * Adds the buttons (and other controls) to the screen in question. Called when the GUI is displayed and when the
+     * window resizes, the buttonList is cleared beforehand.
+     */
     public void initGui()
     {
         this.buttonList.clear();
@@ -69,12 +85,18 @@ public class GuiCreateFlatWorld extends GuiScreen
         this.onLayersChanged();
     }
 
+    /**
+     * Handles mouse input.
+     */
     public void handleMouseInput() throws IOException
     {
         super.handleMouseInput();
         this.createFlatWorldListSlotGui.handleMouseInput();
     }
 
+    /**
+     * Called by the controls from the buttonList when activated. (Mouse pressed for buttons)
+     */
     protected void actionPerformed(GuiButton button) throws IOException
     {
         int i = this.generatorInfo.getFlatLayers().size() - this.createFlatWorldListSlotGui.selectedLayer - 1;
@@ -123,6 +145,9 @@ public class GuiCreateFlatWorld extends GuiScreen
         return this.createFlatWorldListSlotGui.selectedLayer > -1 && this.createFlatWorldListSlotGui.selectedLayer < this.generatorInfo.getFlatLayers().size();
     }
 
+    /**
+     * Draws the screen and all the components in it.
+     */
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         this.drawDefaultBackground();

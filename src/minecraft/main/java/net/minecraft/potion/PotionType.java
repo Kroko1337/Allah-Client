@@ -13,32 +13,36 @@ public class PotionType
     private static final ResourceLocation EMPTY = new ResourceLocation("empty");
     public static final RegistryNamespacedDefaultedByKey<ResourceLocation, PotionType> REGISTRY = new RegistryNamespacedDefaultedByKey<ResourceLocation, PotionType>(EMPTY);
     private static int nextPotionTypeId;
+
+    /**
+     * The unlocalized name of this PotionType. If null, the registry name is used.
+     */
     private final String baseName;
     private final ImmutableList<PotionEffect> effects;
 
     @Nullable
-    public static PotionType getPotionTypeForName(String name)
+    public static PotionType getPotionTypeForName(String p_185168_0_)
     {
-        return REGISTRY.getOrDefault(new ResourceLocation(name));
+        return REGISTRY.getObject(new ResourceLocation(p_185168_0_));
     }
 
-    public PotionType(PotionEffect... effectsIn)
+    public PotionType(PotionEffect... p_i46739_1_)
     {
-        this((String)null, effectsIn);
+        this((String)null, p_i46739_1_);
     }
 
-    public PotionType(@Nullable String baseNameIn, PotionEffect... effectsIn)
+    public PotionType(@Nullable String p_i46740_1_, PotionEffect... p_i46740_2_)
     {
-        this.baseName = baseNameIn;
-        this.effects = ImmutableList.copyOf(effectsIn);
+        this.baseName = p_i46740_1_;
+        this.effects = ImmutableList.copyOf(p_i46740_2_);
     }
 
     /**
      * Gets the name of this PotionType with a prefix (such as "Splash" or "Lingering") prepended
      */
-    public String getNamePrefixed(String prefix)
+    public String getNamePrefixed(String p_185174_1_)
     {
-        return this.baseName == null ? prefix + ((ResourceLocation)REGISTRY.getKey(this)).getPath() : prefix + this.baseName;
+        return this.baseName == null ? p_185174_1_ + ((ResourceLocation)REGISTRY.getNameForObject(this)).getPath() : p_185174_1_ + this.baseName;
     }
 
     public List<PotionEffect> getEffects()

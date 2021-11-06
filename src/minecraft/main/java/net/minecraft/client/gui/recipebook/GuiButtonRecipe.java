@@ -55,6 +55,9 @@ public class GuiButtonRecipe extends GuiButton
         this.y = p_191770_2_;
     }
 
+    /**
+     * Draws this button to the screen.
+     */
     public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks)
     {
         if (this.visible)
@@ -102,11 +105,11 @@ public class GuiButtonRecipe extends GuiButton
 
             if (this.list.hasSingleResultItem() && this.getOrderedRecipes().size() > 1)
             {
-                mc.getItemRenderer().renderItemAndEffectIntoGUI(itemstack, this.x + k + 1, this.y + k + 1);
+                mc.getRenderItem().renderItemAndEffectIntoGUI(itemstack, this.x + k + 1, this.y + k + 1);
                 --k;
             }
 
-            mc.getItemRenderer().renderItemAndEffectIntoGUI(itemstack, this.x + k, this.y + k);
+            mc.getRenderItem().renderItemAndEffectIntoGUI(itemstack, this.x + k, this.y + k);
 
             if (flag)
             {

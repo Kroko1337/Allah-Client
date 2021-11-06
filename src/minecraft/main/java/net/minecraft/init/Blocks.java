@@ -95,7 +95,7 @@ public class Blocks
     public static final Block OBSIDIAN;
     public static final Block TORCH;
     public static final BlockFire FIRE;
-    public static final Block SPAWNER;
+    public static final Block MOB_SPAWNER;
     public static final Block OAK_STAIRS;
     public static final BlockChest CHEST;
     public static final BlockRedstoneWire REDSTONE_WIRE;
@@ -143,7 +143,7 @@ public class Blocks
     public static final Block NETHERRACK;
     public static final Block SOUL_SAND;
     public static final Block GLOWSTONE;
-    public static final BlockPortal NETHER_PORTAL;
+    public static final BlockPortal PORTAL;
     public static final Block LIT_PUMPKIN;
     public static final Block CAKE;
     public static final BlockRedstoneRepeater UNPOWERED_REPEATER;
@@ -155,7 +155,7 @@ public class Blocks
     public static final Block RED_MUSHROOM_BLOCK;
     public static final Block IRON_BARS;
     public static final Block GLASS_PANE;
-    public static final Block MELON;
+    public static final Block MELON_BLOCK;
     public static final Block PUMPKIN_STEM;
     public static final Block MELON_STEM;
     public static final Block VINE;
@@ -222,7 +222,7 @@ public class Blocks
     public static final Block IRON_TRAPDOOR;
     public static final Block HAY_BLOCK;
     public static final Block CARPET;
-    public static final Block TERRACOTTA;
+    public static final Block HARDENED_CLAY;
     public static final Block COAL_BLOCK;
     public static final Block PACKED_ICE;
     public static final Block ACACIA_STAIRS;
@@ -297,9 +297,13 @@ public class Blocks
     public static final Block STRUCTURE_BLOCK;
 
     @Nullable
+
+    /**
+     * Returns the Block in the blockRegistry with the specified name.
+     */
     private static Block getRegisteredBlock(String blockName)
     {
-        Block block = Block.REGISTRY.getOrDefault(new ResourceLocation(blockName));
+        Block block = Block.REGISTRY.getObject(new ResourceLocation(blockName));
 
         if (!CACHE.add(block))
         {
@@ -374,7 +378,7 @@ public class Blocks
             OBSIDIAN = getRegisteredBlock("obsidian");
             TORCH = getRegisteredBlock("torch");
             FIRE = (BlockFire)getRegisteredBlock("fire");
-            SPAWNER = getRegisteredBlock("mob_spawner");
+            MOB_SPAWNER = getRegisteredBlock("mob_spawner");
             OAK_STAIRS = getRegisteredBlock("oak_stairs");
             CHEST = (BlockChest)getRegisteredBlock("chest");
             REDSTONE_WIRE = (BlockRedstoneWire)getRegisteredBlock("redstone_wire");
@@ -422,7 +426,7 @@ public class Blocks
             NETHERRACK = getRegisteredBlock("netherrack");
             SOUL_SAND = getRegisteredBlock("soul_sand");
             GLOWSTONE = getRegisteredBlock("glowstone");
-            NETHER_PORTAL = (BlockPortal)getRegisteredBlock("portal");
+            PORTAL = (BlockPortal)getRegisteredBlock("portal");
             LIT_PUMPKIN = getRegisteredBlock("lit_pumpkin");
             CAKE = getRegisteredBlock("cake");
             UNPOWERED_REPEATER = (BlockRedstoneRepeater)getRegisteredBlock("unpowered_repeater");
@@ -434,7 +438,7 @@ public class Blocks
             RED_MUSHROOM_BLOCK = getRegisteredBlock("red_mushroom_block");
             IRON_BARS = getRegisteredBlock("iron_bars");
             GLASS_PANE = getRegisteredBlock("glass_pane");
-            MELON = getRegisteredBlock("melon_block");
+            MELON_BLOCK = getRegisteredBlock("melon_block");
             PUMPKIN_STEM = getRegisteredBlock("pumpkin_stem");
             MELON_STEM = getRegisteredBlock("melon_stem");
             VINE = getRegisteredBlock("vine");
@@ -501,7 +505,7 @@ public class Blocks
             IRON_TRAPDOOR = getRegisteredBlock("iron_trapdoor");
             HAY_BLOCK = getRegisteredBlock("hay_block");
             CARPET = getRegisteredBlock("carpet");
-            TERRACOTTA = getRegisteredBlock("hardened_clay");
+            HARDENED_CLAY = getRegisteredBlock("hardened_clay");
             COAL_BLOCK = getRegisteredBlock("coal_block");
             PACKED_ICE = getRegisteredBlock("packed_ice");
             ACACIA_STAIRS = getRegisteredBlock("acacia_stairs");

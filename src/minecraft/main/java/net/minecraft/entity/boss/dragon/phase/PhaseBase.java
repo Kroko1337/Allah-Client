@@ -28,7 +28,7 @@ public abstract class PhaseBase implements IPhase
      * Generates particle effects appropriate to the phase (or sometimes sounds).
      * Called by dragon's onLivingUpdate. Only used when worldObj.isRemote.
      */
-    public void clientTick()
+    public void doClientRenderEffects()
     {
     }
 
@@ -36,7 +36,7 @@ public abstract class PhaseBase implements IPhase
      * Gives the phase a chance to update its status.
      * Called by dragon's onLivingUpdate. Only used when !worldObj.isRemote.
      */
-    public void serverTick()
+    public void doLocalUpdate()
     {
     }
 
@@ -73,6 +73,10 @@ public abstract class PhaseBase implements IPhase
         return null;
     }
 
+    /**
+     * Normally, just returns damage. If dragon is sitting and src is an arrow, arrow is enflamed and zero damage
+     * returned.
+     */
     public float getAdjustedDamage(MultiPartEntityPart pt, DamageSource src, float damage)
     {
         return damage;

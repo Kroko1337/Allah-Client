@@ -35,13 +35,17 @@ public class BlockWall extends Block
     public BlockWall(Block modelBlock)
     {
         super(modelBlock.material);
-        this.setDefaultState(this.stateContainer.getBaseState().withProperty(UP, Boolean.valueOf(false)).withProperty(NORTH, Boolean.valueOf(false)).withProperty(EAST, Boolean.valueOf(false)).withProperty(SOUTH, Boolean.valueOf(false)).withProperty(WEST, Boolean.valueOf(false)).withProperty(VARIANT, BlockWall.EnumType.NORMAL));
+        this.setDefaultState(this.blockState.getBaseState().withProperty(UP, Boolean.valueOf(false)).withProperty(NORTH, Boolean.valueOf(false)).withProperty(EAST, Boolean.valueOf(false)).withProperty(SOUTH, Boolean.valueOf(false)).withProperty(WEST, Boolean.valueOf(false)).withProperty(VARIANT, BlockWall.EnumType.NORMAL));
         this.setHardness(modelBlock.blockHardness);
         this.setResistance(modelBlock.blockResistance / 3.0F);
-        this.setSoundType(modelBlock.soundType);
+        this.setSoundType(modelBlock.blockSoundType);
         this.setCreativeTab(CreativeTabs.DECORATIONS);
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#getBoundingBox(IBlockAccess,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
     {
         state = this.getActualState(state, source, pos);
@@ -59,6 +63,11 @@ public class BlockWall extends Block
     }
 
     @Nullable
+
+    /**
+     * @deprecated call via {@link IBlockState#getCollisionBoundingBox(IBlockAccess,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public AxisAlignedBB getCollisionBoundingBox(IBlockState blockState, IBlockAccess worldIn, BlockPos pos)
     {
         blockState = this.getActualState(blockState, worldIn, pos);
@@ -69,22 +78,22 @@ public class BlockWall extends Block
     {
         int i = 0;
 
-        if (((Boolean)state.get(NORTH)).booleanValue())
+        if (((Boolean)state.getValue(NORTH)).booleanValue())
         {
             i |= 1 << EnumFacing.NORTH.getHorizontalIndex();
         }
 
-        if (((Boolean)state.get(EAST)).booleanValue())
+        if (((Boolean)state.getValue(EAST)).booleanValue())
         {
             i |= 1 << EnumFacing.EAST.getHorizontalIndex();
         }
 
-        if (((Boolean)state.get(SOUTH)).booleanValue())
+        if (((Boolean)state.getValue(SOUTH)).booleanValue())
         {
             i |= 1 << EnumFacing.SOUTH.getHorizontalIndex();
         }
 
-        if (((Boolean)state.get(WEST)).booleanValue())
+        if (((Boolean)state.getValue(WEST)).booleanValue())
         {
             i |= 1 << EnumFacing.WEST.getHorizontalIndex();
         }
@@ -92,21 +101,34 @@ public class BlockWall extends Block
         return i;
     }
 
+    /**
+     * Gets the localized name of this block. Used for the statistics page.
+     */
     public String getLocalizedName()
     {
         return I18n.translateToLocal(this.getTranslationKey() + "." + BlockWall.EnumType.NORMAL.getTranslationKey() + ".name");
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#isFullCube()} whenever possible. Implementing/overriding is fine.
+     */
     public boolean isFullCube(IBlockState state)
     {
         return false;
     }
 
+    /**
+     * Determines if an entity can path through this block
+     */
     public boolean isPassable(IBlockAccess worldIn, BlockPos pos)
     {
         return false;
     }
 
+    /**
+     * Used to determine ambient occlusion and culling when rebuilding chunks for render
+     * @deprecated call via {@link IBlockState#isOpaqueCube()} whenever possible. Implementing/overriding is fine.
+     */
     public boolean isOpaqueCube(IBlockState state)
     {
         return false;
@@ -123,13 +145,13 @@ public class BlockWall extends Block
 
     protected static boolean isExcepBlockForAttachWithPiston(Block p_194143_0_)
     {
-        return Block.isExceptBlockForAttachWithPiston(p_194143_0_) || p_194143_0_ == Blocks.BARRIER || p_194143_0_ == Blocks.MELON || p_194143_0_ == Blocks.PUMPKIN || p_194143_0_ == Blocks.LIT_PUMPKIN;
+        return Block.isExceptBlockForAttachWithPiston(p_194143_0_) || p_194143_0_ == Blocks.BARRIER || p_194143_0_ == Blocks.MELON_BLOCK || p_194143_0_ == Blocks.PUMPKIN || p_194143_0_ == Blocks.LIT_PUMPKIN;
     }
 
     /**
      * returns a list of blocks with the same ID, but different meta (eg: wood returns 4 blocks)
      */
-    public void fillItemGroup(CreativeTabs group, NonNullList<ItemStack> items)
+    public void getSubBlocks(CreativeTabs itemIn, NonNullList<ItemStack> items)
     {
         for (BlockWall.EnumType blockwall$enumtype : BlockWall.EnumType.values())
         {
@@ -137,29 +159,44 @@ public class BlockWall extends Block
         }
     }
 
+    /**
+     * Gets the metadata of the item this Block can drop. This method is called when the block gets destroyed. It
+     * returns the metadata of the dropped item based on the old metadata of the block.
+     */
     public int damageDropped(IBlockState state)
     {
-        return ((BlockWall.EnumType)state.get(VARIANT)).getMetadata();
+        return ((BlockWall.EnumType)state.getValue(VARIANT)).getMetadata();
     }
 
     /**
-     * ""
+     * @deprecated call via {@link IBlockState#shouldSideBeRendered(IBlockAccess,BlockPos,EnumFacing)} whenever
+     * possible. Implementing/overriding is fine.
      */
     public boolean shouldSideBeRendered(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side)
     {
         return side == EnumFacing.DOWN ? super.shouldSideBeRendered(blockState, blockAccess, pos, side) : true;
     }
 
+    /**
+     * Convert the given metadata into a BlockState for this Block
+     */
     public IBlockState getStateFromMeta(int meta)
     {
         return this.getDefaultState().withProperty(VARIANT, BlockWall.EnumType.byMetadata(meta));
     }
 
+    /**
+     * Convert the BlockState into the correct metadata value
+     */
     public int getMetaFromState(IBlockState state)
     {
-        return ((BlockWall.EnumType)state.get(VARIANT)).getMetadata();
+        return ((BlockWall.EnumType)state.getValue(VARIANT)).getMetadata();
     }
 
+    /**
+     * Get the actual Block state of this Block at the given position. This applies properties not visible in the
+     * metadata, such as fence connections.
+     */
     public IBlockState getActualState(IBlockState state, IBlockAccess worldIn, BlockPos pos)
     {
         boolean flag = this.canConnectTo(worldIn, pos.north(), EnumFacing.SOUTH);
@@ -175,6 +212,17 @@ public class BlockWall extends Block
         return new BlockStateContainer(this, new IProperty[] {UP, NORTH, EAST, WEST, SOUTH, VARIANT});
     }
 
+    /**
+     * Get the geometry of the queried face at the given position and state. This is used to decide whether things like
+     * buttons are allowed to be placed on the face, or how glass panes connect to the face, among other things.
+     * <p>
+     * Common values are {@code SOLID}, which is the default, and {@code UNDEFINED}, which represents something that
+     * does not fit the other descriptions and will generally cause other things not to connect to the face.
+
+     * @return an approximation of the form of the given face
+     * @deprecated call via {@link IBlockState#getBlockFaceShape(IBlockAccess,BlockPos,EnumFacing)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public BlockFaceShape getBlockFaceShape(IBlockAccess worldIn, IBlockState state, BlockPos pos, EnumFacing face)
     {
         return face != EnumFacing.UP && face != EnumFacing.DOWN ? BlockFaceShape.MIDDLE_POLE_THICK : BlockFaceShape.CENTER_BIG;

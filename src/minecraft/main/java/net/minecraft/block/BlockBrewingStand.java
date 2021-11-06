@@ -40,14 +40,21 @@ public class BlockBrewingStand extends BlockContainer
     public BlockBrewingStand()
     {
         super(Material.IRON);
-        this.setDefaultState(this.stateContainer.getBaseState().withProperty(HAS_BOTTLE[0], Boolean.valueOf(false)).withProperty(HAS_BOTTLE[1], Boolean.valueOf(false)).withProperty(HAS_BOTTLE[2], Boolean.valueOf(false)));
+        this.setDefaultState(this.blockState.getBaseState().withProperty(HAS_BOTTLE[0], Boolean.valueOf(false)).withProperty(HAS_BOTTLE[1], Boolean.valueOf(false)).withProperty(HAS_BOTTLE[2], Boolean.valueOf(false)));
     }
 
+    /**
+     * Gets the localized name of this block. Used for the statistics page.
+     */
     public String getLocalizedName()
     {
         return I18n.translateToLocal("item.brewingStand.name");
     }
 
+    /**
+     * Used to determine ambient occlusion and culling when rebuilding chunks for render
+     * @deprecated call via {@link IBlockState#isOpaqueCube()} whenever possible. Implementing/overriding is fine.
+     */
     public boolean isOpaqueCube(IBlockState state)
     {
         return false;
@@ -63,11 +70,17 @@ public class BlockBrewingStand extends BlockContainer
         return EnumBlockRenderType.MODEL;
     }
 
+    /**
+     * Returns a new instance of a block's tile entity class. Called on placing the block.
+     */
     public TileEntity createNewTileEntity(World worldIn, int meta)
     {
         return new TileEntityBrewingStand();
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#isFullCube()} whenever possible. Implementing/overriding is fine.
+     */
     public boolean isFullCube(IBlockState state)
     {
         return false;
@@ -79,11 +92,18 @@ public class BlockBrewingStand extends BlockContainer
         addCollisionBoxToList(pos, entityBox, collidingBoxes, BASE_AABB);
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#getBoundingBox(IBlockAccess,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
     {
         return BASE_AABB;
     }
 
+    /**
+     * Called when the block is right clicked by a player.
+     */
     public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
         if (worldIn.isRemote)
@@ -97,7 +117,7 @@ public class BlockBrewingStand extends BlockContainer
             if (tileentity instanceof TileEntityBrewingStand)
             {
                 playerIn.displayGUIChest((TileEntityBrewingStand)tileentity);
-                playerIn.addStat(StatList.INTERACT_WITH_BREWINGSTAND);
+                playerIn.addStat(StatList.BREWINGSTAND_INTERACTION);
             }
 
             return true;
@@ -125,7 +145,7 @@ public class BlockBrewingStand extends BlockContainer
      * this method is unrelated to {@link randomTick} and {@link #needsRandomTick}, and will always be called regardless
      * of whether the block can receive random update ticks
      */
-    public void animateTick(IBlockState stateIn, World worldIn, BlockPos pos, Random rand)
+    public void randomDisplayTick(IBlockState stateIn, World worldIn, BlockPos pos, Random rand)
     {
         double d0 = (double)((float)pos.getX() + 0.4F + rand.nextFloat() * 0.2F);
         double d1 = (double)((float)pos.getY() + 0.7F + rand.nextFloat() * 0.3F);
@@ -133,6 +153,9 @@ public class BlockBrewingStand extends BlockContainer
         worldIn.spawnParticle(EnumParticleTypes.SMOKE_NORMAL, d0, d1, d2, 0.0D, 0.0D, 0.0D);
     }
 
+    /**
+     * Called serverside after this block is replaced with another in Chunk, but before the Tile Entity is updated
+     */
     public void breakBlock(World worldIn, BlockPos pos, IBlockState state)
     {
         TileEntity tileentity = worldIn.getTileEntity(pos);
@@ -145,6 +168,9 @@ public class BlockBrewingStand extends BlockContainer
         super.breakBlock(worldIn, pos, state);
     }
 
+    /**
+     * Get the Item that this Block should drop when harvested.
+     */
     public Item getItemDropped(IBlockState state, Random rand, int fortune)
     {
         return Items.BREWING_STAND;
@@ -173,11 +199,18 @@ public class BlockBrewingStand extends BlockContainer
         return Container.calcRedstone(worldIn.getTileEntity(pos));
     }
 
+    /**
+     * Gets the render layer this block will render on. SOLID for solid blocks, CUTOUT or CUTOUT_MIPPED for on-off
+     * transparency (glass, reeds), TRANSLUCENT for fully blended transparency (stained glass)
+     */
     public BlockRenderLayer getRenderLayer()
     {
         return BlockRenderLayer.CUTOUT;
     }
 
+    /**
+     * Convert the given metadata into a BlockState for this Block
+     */
     public IBlockState getStateFromMeta(int meta)
     {
         IBlockState iblockstate = this.getDefaultState();
@@ -190,13 +223,16 @@ public class BlockBrewingStand extends BlockContainer
         return iblockstate;
     }
 
+    /**
+     * Convert the BlockState into the correct metadata value
+     */
     public int getMetaFromState(IBlockState state)
     {
         int i = 0;
 
         for (int j = 0; j < 3; ++j)
         {
-            if (((Boolean)state.get(HAS_BOTTLE[j])).booleanValue())
+            if (((Boolean)state.getValue(HAS_BOTTLE[j])).booleanValue())
             {
                 i |= 1 << j;
             }
@@ -210,6 +246,17 @@ public class BlockBrewingStand extends BlockContainer
         return new BlockStateContainer(this, new IProperty[] {HAS_BOTTLE[0], HAS_BOTTLE[1], HAS_BOTTLE[2]});
     }
 
+    /**
+     * Get the geometry of the queried face at the given position and state. This is used to decide whether things like
+     * buttons are allowed to be placed on the face, or how glass panes connect to the face, among other things.
+     * <p>
+     * Common values are {@code SOLID}, which is the default, and {@code UNDEFINED}, which represents something that
+     * does not fit the other descriptions and will generally cause other things not to connect to the face.
+
+     * @return an approximation of the form of the given face
+     * @deprecated call via {@link IBlockState#getBlockFaceShape(IBlockAccess,BlockPos,EnumFacing)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public BlockFaceShape getBlockFaceShape(IBlockAccess worldIn, IBlockState state, BlockPos pos, EnumFacing face)
     {
         return BlockFaceShape.UNDEFINED;

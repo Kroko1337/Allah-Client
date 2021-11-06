@@ -37,7 +37,7 @@ public class BlockRailDetector extends BlockRailBase
     public BlockRailDetector()
     {
         super(true);
-        this.setDefaultState(this.stateContainer.getBaseState().withProperty(POWERED, Boolean.valueOf(false)).withProperty(SHAPE, BlockRailBase.EnumRailDirection.NORTH_SOUTH));
+        this.setDefaultState(this.blockState.getBaseState().withProperty(POWERED, Boolean.valueOf(false)).withProperty(SHAPE, BlockRailBase.EnumRailDirection.NORTH_SOUTH));
         this.setTickRandomly(true);
     }
 
@@ -58,24 +58,30 @@ public class BlockRailDetector extends BlockRailBase
         return true;
     }
 
+    /**
+     * Called When an Entity Collided with the Block
+     */
     public void onEntityCollision(World worldIn, BlockPos pos, IBlockState state, Entity entityIn)
     {
         if (!worldIn.isRemote)
         {
-            if (!((Boolean)state.get(POWERED)).booleanValue())
+            if (!((Boolean)state.getValue(POWERED)).booleanValue())
             {
                 this.updatePoweredState(worldIn, pos, state);
             }
         }
     }
 
+    /**
+     * Called randomly when setTickRandomly is set to true (used by e.g. crops to grow, etc.)
+     */
     public void randomTick(World worldIn, BlockPos pos, IBlockState state, Random random)
     {
     }
 
     public void updateTick(World worldIn, BlockPos pos, IBlockState state, Random rand)
     {
-        if (!worldIn.isRemote && ((Boolean)state.get(POWERED)).booleanValue())
+        if (!worldIn.isRemote && ((Boolean)state.getValue(POWERED)).booleanValue())
         {
             this.updatePoweredState(worldIn, pos, state);
         }
@@ -87,7 +93,7 @@ public class BlockRailDetector extends BlockRailBase
      */
     public int getWeakPower(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side)
     {
-        return ((Boolean)blockState.get(POWERED)).booleanValue() ? 15 : 0;
+        return ((Boolean)blockState.getValue(POWERED)).booleanValue() ? 15 : 0;
     }
 
     /**
@@ -96,7 +102,7 @@ public class BlockRailDetector extends BlockRailBase
      */
     public int getStrongPower(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side)
     {
-        if (!((Boolean)blockState.get(POWERED)).booleanValue())
+        if (!((Boolean)blockState.getValue(POWERED)).booleanValue())
         {
             return 0;
         }
@@ -108,7 +114,7 @@ public class BlockRailDetector extends BlockRailBase
 
     private void updatePoweredState(World worldIn, BlockPos pos, IBlockState state)
     {
-        boolean flag = ((Boolean)state.get(POWERED)).booleanValue();
+        boolean flag = ((Boolean)state.getValue(POWERED)).booleanValue();
         boolean flag1 = false;
         List<EntityMinecart> list = this.<EntityMinecart>findMinecarts(worldIn, pos, EntityMinecart.class);
 
@@ -158,6 +164,9 @@ public class BlockRailDetector extends BlockRailBase
         }
     }
 
+    /**
+     * Called after the block is set in the Chunk data, but before the Tile Entity is set
+     */
     public void onBlockAdded(World worldIn, BlockPos pos, IBlockState state)
     {
         super.onBlockAdded(worldIn, pos, state);
@@ -184,7 +193,7 @@ public class BlockRailDetector extends BlockRailBase
      */
     public int getComparatorInputOverride(IBlockState blockState, World worldIn, BlockPos pos)
     {
-        if (((Boolean)blockState.get(POWERED)).booleanValue())
+        if (((Boolean)blockState.getValue(POWERED)).booleanValue())
         {
             List<EntityMinecartCommandBlock> list = this.<EntityMinecartCommandBlock>findMinecarts(worldIn, pos, EntityMinecartCommandBlock.class);
 
@@ -216,17 +225,23 @@ public class BlockRailDetector extends BlockRailBase
         return new AxisAlignedBB((double)((float)pos.getX() + 0.2F), (double)pos.getY(), (double)((float)pos.getZ() + 0.2F), (double)((float)(pos.getX() + 1) - 0.2F), (double)((float)(pos.getY() + 1) - 0.2F), (double)((float)(pos.getZ() + 1) - 0.2F));
     }
 
+    /**
+     * Convert the given metadata into a BlockState for this Block
+     */
     public IBlockState getStateFromMeta(int meta)
     {
         return this.getDefaultState().withProperty(SHAPE, BlockRailBase.EnumRailDirection.byMetadata(meta & 7)).withProperty(POWERED, Boolean.valueOf((meta & 8) > 0));
     }
 
+    /**
+     * Convert the BlockState into the correct metadata value
+     */
     public int getMetaFromState(IBlockState state)
     {
         int i = 0;
-        i = i | ((BlockRailBase.EnumRailDirection)state.get(SHAPE)).getMetadata();
+        i = i | ((BlockRailBase.EnumRailDirection)state.getValue(SHAPE)).getMetadata();
 
-        if (((Boolean)state.get(POWERED)).booleanValue())
+        if (((Boolean)state.getValue(POWERED)).booleanValue())
         {
             i |= 8;
         }
@@ -242,12 +257,12 @@ public class BlockRailDetector extends BlockRailBase
      * @deprecated call via {@link IBlockState#withRotation(Rotation)} whenever possible. Implementing/overriding is
      * fine.
      */
-    public IBlockState rotate(IBlockState state, Rotation rot)
+    public IBlockState withRotation(IBlockState state, Rotation rot)
     {
         switch (rot)
         {
             case CLOCKWISE_180:
-                switch ((BlockRailBase.EnumRailDirection)state.get(SHAPE))
+                switch ((BlockRailBase.EnumRailDirection)state.getValue(SHAPE))
                 {
                     case ASCENDING_EAST:
                         return state.withProperty(SHAPE, BlockRailBase.EnumRailDirection.ASCENDING_WEST);
@@ -275,7 +290,7 @@ public class BlockRailDetector extends BlockRailBase
                 }
 
             case COUNTERCLOCKWISE_90:
-                switch ((BlockRailBase.EnumRailDirection)state.get(SHAPE))
+                switch ((BlockRailBase.EnumRailDirection)state.getValue(SHAPE))
                 {
                     case ASCENDING_EAST:
                         return state.withProperty(SHAPE, BlockRailBase.EnumRailDirection.ASCENDING_NORTH);
@@ -309,7 +324,7 @@ public class BlockRailDetector extends BlockRailBase
                 }
 
             case CLOCKWISE_90:
-                switch ((BlockRailBase.EnumRailDirection)state.get(SHAPE))
+                switch ((BlockRailBase.EnumRailDirection)state.getValue(SHAPE))
                 {
                     case ASCENDING_EAST:
                         return state.withProperty(SHAPE, BlockRailBase.EnumRailDirection.ASCENDING_SOUTH);
@@ -354,9 +369,9 @@ public class BlockRailDetector extends BlockRailBase
      * blockstate.
      * @deprecated call via {@link IBlockState#withMirror(Mirror)} whenever possible. Implementing/overriding is fine.
      */
-    public IBlockState mirror(IBlockState state, Mirror mirrorIn)
+    public IBlockState withMirror(IBlockState state, Mirror mirrorIn)
     {
-        BlockRailBase.EnumRailDirection blockrailbase$enumraildirection = (BlockRailBase.EnumRailDirection)state.get(SHAPE);
+        BlockRailBase.EnumRailDirection blockrailbase$enumraildirection = (BlockRailBase.EnumRailDirection)state.getValue(SHAPE);
 
         switch (mirrorIn)
         {
@@ -382,7 +397,7 @@ public class BlockRailDetector extends BlockRailBase
                         return state.withProperty(SHAPE, BlockRailBase.EnumRailDirection.SOUTH_EAST);
 
                     default:
-                        return super.mirror(state, mirrorIn);
+                        return super.withMirror(state, mirrorIn);
                 }
 
             case FRONT_BACK:
@@ -413,7 +428,7 @@ public class BlockRailDetector extends BlockRailBase
                 }
         }
 
-        return super.mirror(state, mirrorIn);
+        return super.withMirror(state, mirrorIn);
     }
 
     protected BlockStateContainer createBlockState()

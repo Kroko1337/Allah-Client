@@ -55,6 +55,10 @@ public class GuiContainerCreative extends InventoryEffectRenderer
 
     /** True if the scrollbar is being dragged */
     private boolean isScrolling;
+
+    /**
+     * True if the left mouse button was held down last time drawScreen was called.
+     */
     private boolean wasClicking;
     private GuiTextField searchField;
     private List<Slot> originalSlots;
@@ -65,12 +69,15 @@ public class GuiContainerCreative extends InventoryEffectRenderer
     public GuiContainerCreative(EntityPlayer player)
     {
         super(new GuiContainerCreative.ContainerCreative(player));
-        player.openContainer = this.container;
+        player.openContainer = this.inventorySlots;
         this.allowUserInput = true;
         this.ySize = 136;
         this.xSize = 195;
     }
 
+    /**
+     * Called from the main game loop to update the screen.
+     */
     public void updateScreen()
     {
         if (!this.mc.playerController.isInCreativeMode())
@@ -103,7 +110,7 @@ public class GuiContainerCreative extends InventoryEffectRenderer
 
                 if (mouseButton == 1)
                 {
-                    ItemStack itemstack6 = inventoryplayer1.getItemStack().split(1);
+                    ItemStack itemstack6 = inventoryplayer1.getItemStack().splitStack(1);
                     this.mc.player.dropItem(itemstack6, true);
                     this.mc.playerController.sendPacketDropItem(itemstack6);
                 }
@@ -118,7 +125,7 @@ public class GuiContainerCreative extends InventoryEffectRenderer
 
             if (slotIn == this.destroyItemSlot && flag)
             {
-                for (int j = 0; j < this.mc.player.container.getInventory().size(); ++j)
+                for (int j = 0; j < this.mc.player.inventoryContainer.getInventory().size(); ++j)
                 {
                     this.mc.playerController.sendSlotPacket(ItemStack.EMPTY, j);
                 }
@@ -145,8 +152,8 @@ public class GuiContainerCreative extends InventoryEffectRenderer
                 }
                 else
                 {
-                    this.mc.player.container.slotClick(slotIn == null ? slotId : ((GuiContainerCreative.CreativeSlot)slotIn).slot.slotNumber, mouseButton, type, this.mc.player);
-                    this.mc.player.container.detectAndSendChanges();
+                    this.mc.player.inventoryContainer.slotClick(slotIn == null ? slotId : ((GuiContainerCreative.CreativeSlot)slotIn).slot.slotNumber, mouseButton, type, this.mc.player);
+                    this.mc.player.inventoryContainer.detectAndSendChanges();
                 }
             }
             else if (type != ClickType.QUICK_CRAFT && slotIn.inventory == basicInventory)
@@ -162,7 +169,7 @@ public class GuiContainerCreative extends InventoryEffectRenderer
                         ItemStack itemstack10 = itemstack7.copy();
                         itemstack10.setCount(itemstack10.getMaxStackSize());
                         this.mc.player.inventory.setInventorySlotContents(mouseButton, itemstack10);
-                        this.mc.player.container.detectAndSendChanges();
+                        this.mc.player.inventoryContainer.detectAndSendChanges();
                     }
 
                     return;
@@ -230,27 +237,27 @@ public class GuiContainerCreative extends InventoryEffectRenderer
                     inventoryplayer.getItemStack().shrink(1);
                 }
             }
-            else if (this.container != null)
+            else if (this.inventorySlots != null)
             {
-                ItemStack itemstack3 = slotIn == null ? ItemStack.EMPTY : this.container.getSlot(slotIn.slotNumber).getStack();
-                this.container.slotClick(slotIn == null ? slotId : slotIn.slotNumber, mouseButton, type, this.mc.player);
+                ItemStack itemstack3 = slotIn == null ? ItemStack.EMPTY : this.inventorySlots.getSlot(slotIn.slotNumber).getStack();
+                this.inventorySlots.slotClick(slotIn == null ? slotId : slotIn.slotNumber, mouseButton, type, this.mc.player);
 
                 if (Container.getDragEvent(mouseButton) == 2)
                 {
                     for (int k = 0; k < 9; ++k)
                     {
-                        this.mc.playerController.sendSlotPacket(this.container.getSlot(45 + k).getStack(), 36 + k);
+                        this.mc.playerController.sendSlotPacket(this.inventorySlots.getSlot(45 + k).getStack(), 36 + k);
                     }
                 }
                 else if (slotIn != null)
                 {
-                    ItemStack itemstack4 = this.container.getSlot(slotIn.slotNumber).getStack();
-                    this.mc.playerController.sendSlotPacket(itemstack4, slotIn.slotNumber - this.container.inventorySlots.size() + 9 + 36);
+                    ItemStack itemstack4 = this.inventorySlots.getSlot(slotIn.slotNumber).getStack();
+                    this.mc.playerController.sendSlotPacket(itemstack4, slotIn.slotNumber - this.inventorySlots.inventorySlots.size() + 9 + 36);
                     int i = 45 + mouseButton;
 
                     if (type == ClickType.SWAP)
                     {
-                        this.mc.playerController.sendSlotPacket(itemstack3, i - this.container.inventorySlots.size() + 9 + 36);
+                        this.mc.playerController.sendSlotPacket(itemstack3, i - this.inventorySlots.inventorySlots.size() + 9 + 36);
                     }
                     else if (type == ClickType.THROW && !itemstack3.isEmpty())
                     {
@@ -260,7 +267,7 @@ public class GuiContainerCreative extends InventoryEffectRenderer
                         this.mc.playerController.sendPacketDropItem(itemstack2);
                     }
 
-                    this.mc.player.container.detectAndSendChanges();
+                    this.mc.player.inventoryContainer.detectAndSendChanges();
                 }
             }
         }
@@ -277,6 +284,10 @@ public class GuiContainerCreative extends InventoryEffectRenderer
         }
     }
 
+    /**
+     * Adds the buttons (and other controls) to the screen in question. Called when the GUI is displayed and when the
+     * window resizes, the buttonList is cleared beforehand.
+     */
     public void initGui()
     {
         if (this.mc.playerController.isInCreativeMode())
@@ -291,9 +302,9 @@ public class GuiContainerCreative extends InventoryEffectRenderer
             this.searchField.setTextColor(16777215);
             int i = selectedTabIndex;
             selectedTabIndex = -1;
-            this.setCurrentCreativeTab(CreativeTabs.GROUPS[i]);
+            this.setCurrentCreativeTab(CreativeTabs.CREATIVE_TAB_ARRAY[i]);
             this.listener = new CreativeCrafting(this.mc);
-            this.mc.player.container.addListener(this.listener);
+            this.mc.player.inventoryContainer.addListener(this.listener);
         }
         else
         {
@@ -301,18 +312,25 @@ public class GuiContainerCreative extends InventoryEffectRenderer
         }
     }
 
+    /**
+     * Called when the screen is unloaded. Used to disable keyboard repeat events
+     */
     public void onGuiClosed()
     {
         super.onGuiClosed();
 
         if (this.mc.player != null && this.mc.player.inventory != null)
         {
-            this.mc.player.container.removeListener(this.listener);
+            this.mc.player.inventoryContainer.removeListener(this.listener);
         }
 
         Keyboard.enableRepeatEvents(false);
     }
 
+    /**
+     * Fired when a key is typed (except F11 which toggles full screen). This is the equivalent of
+     * KeyListener.keyTyped(KeyEvent e). Args : character (character on the key), keyCode (lwjgl Keyboard key code)
+     */
     protected void keyTyped(char typedChar, int keyCode) throws IOException
     {
         if (selectedTabIndex != CreativeTabs.SEARCH.getIndex())
@@ -350,14 +368,14 @@ public class GuiContainerCreative extends InventoryEffectRenderer
 
     private void updateCreativeSearch()
     {
-        GuiContainerCreative.ContainerCreative guicontainercreative$containercreative = (GuiContainerCreative.ContainerCreative)this.container;
+        GuiContainerCreative.ContainerCreative guicontainercreative$containercreative = (GuiContainerCreative.ContainerCreative)this.inventorySlots;
         guicontainercreative$containercreative.itemList.clear();
 
         if (this.searchField.getText().isEmpty())
         {
             for (Item item : Item.REGISTRY)
             {
-                item.fillItemGroup(CreativeTabs.SEARCH, guicontainercreative$containercreative.itemList);
+                item.getSubItems(CreativeTabs.SEARCH, guicontainercreative$containercreative.itemList);
             }
         }
         else
@@ -374,7 +392,7 @@ public class GuiContainerCreative extends InventoryEffectRenderer
      */
     protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY)
     {
-        CreativeTabs creativetabs = CreativeTabs.GROUPS[selectedTabIndex];
+        CreativeTabs creativetabs = CreativeTabs.CREATIVE_TAB_ARRAY[selectedTabIndex];
 
         if (creativetabs.drawInForegroundOfTab())
         {
@@ -383,6 +401,9 @@ public class GuiContainerCreative extends InventoryEffectRenderer
         }
     }
 
+    /**
+     * Called when the mouse is clicked. Args : mouseX, mouseY, clickedButton
+     */
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
     {
         if (mouseButton == 0)
@@ -390,7 +411,7 @@ public class GuiContainerCreative extends InventoryEffectRenderer
             int i = mouseX - this.guiLeft;
             int j = mouseY - this.guiTop;
 
-            for (CreativeTabs creativetabs : CreativeTabs.GROUPS)
+            for (CreativeTabs creativetabs : CreativeTabs.CREATIVE_TAB_ARRAY)
             {
                 if (this.isMouseOverTab(creativetabs, i, j))
                 {
@@ -402,6 +423,9 @@ public class GuiContainerCreative extends InventoryEffectRenderer
         super.mouseClicked(mouseX, mouseY, mouseButton);
     }
 
+    /**
+     * Called when a mouse button is released.
+     */
     protected void mouseReleased(int mouseX, int mouseY, int state)
     {
         if (state == 0)
@@ -409,7 +433,7 @@ public class GuiContainerCreative extends InventoryEffectRenderer
             int i = mouseX - this.guiLeft;
             int j = mouseY - this.guiTop;
 
-            for (CreativeTabs creativetabs : CreativeTabs.GROUPS)
+            for (CreativeTabs creativetabs : CreativeTabs.CREATIVE_TAB_ARRAY)
             {
                 if (this.isMouseOverTab(creativetabs, i, j))
                 {
@@ -427,7 +451,7 @@ public class GuiContainerCreative extends InventoryEffectRenderer
      */
     private boolean needsScrollBars()
     {
-        return selectedTabIndex != CreativeTabs.INVENTORY.getIndex() && CreativeTabs.GROUPS[selectedTabIndex].hasScrollbar() && ((GuiContainerCreative.ContainerCreative)this.container).canScroll();
+        return selectedTabIndex != CreativeTabs.INVENTORY.getIndex() && CreativeTabs.CREATIVE_TAB_ARRAY[selectedTabIndex].hasScrollbar() && ((GuiContainerCreative.ContainerCreative)this.inventorySlots).canScroll();
     }
 
     /**
@@ -437,7 +461,7 @@ public class GuiContainerCreative extends InventoryEffectRenderer
     {
         int i = selectedTabIndex;
         selectedTabIndex = tab.getIndex();
-        GuiContainerCreative.ContainerCreative guicontainercreative$containercreative = (GuiContainerCreative.ContainerCreative)this.container;
+        GuiContainerCreative.ContainerCreative guicontainercreative$containercreative = (GuiContainerCreative.ContainerCreative)this.inventorySlots;
         this.dragSplittingSlots.clear();
         guicontainercreative$containercreative.itemList.clear();
 
@@ -454,7 +478,7 @@ public class GuiContainerCreative extends InventoryEffectRenderer
                         if (k == j)
                         {
                             ItemStack itemstack = new ItemStack(Items.PAPER);
-                            itemstack.getOrCreateChildTag("CustomCreativeLock");
+                            itemstack.getOrCreateSubCompound("CustomCreativeLock");
                             String s = GameSettings.getKeyDisplayString(this.mc.gameSettings.keyBindsHotbar[j].getKeyCode());
                             String s1 = GameSettings.getKeyDisplayString(this.mc.gameSettings.keyBindSaveToolbar.getKeyCode());
                             itemstack.setStackDisplayName((new TextComponentTranslation("inventory.hotbarInfo", new Object[] {s1, s})).getUnformattedText());
@@ -474,12 +498,12 @@ public class GuiContainerCreative extends InventoryEffectRenderer
         }
         else if (tab != CreativeTabs.SEARCH)
         {
-            tab.fill(guicontainercreative$containercreative.itemList);
+            tab.displayAllRelevantItems(guicontainercreative$containercreative.itemList);
         }
 
         if (tab == CreativeTabs.INVENTORY)
         {
-            Container container = this.mc.player.container;
+            Container container = this.mc.player.inventoryContainer;
 
             if (this.originalSlots == null)
             {
@@ -544,7 +568,7 @@ public class GuiContainerCreative extends InventoryEffectRenderer
             {
                 this.searchField.setVisible(true);
                 this.searchField.setCanLoseFocus(false);
-                this.searchField.setFocused2(true);
+                this.searchField.setFocused(true);
                 this.searchField.setText("");
                 this.updateCreativeSearch();
             }
@@ -552,7 +576,7 @@ public class GuiContainerCreative extends InventoryEffectRenderer
             {
                 this.searchField.setVisible(false);
                 this.searchField.setCanLoseFocus(true);
-                this.searchField.setFocused2(false);
+                this.searchField.setFocused(false);
             }
         }
 
@@ -560,6 +584,9 @@ public class GuiContainerCreative extends InventoryEffectRenderer
         guicontainercreative$containercreative.scrollTo(0.0F);
     }
 
+    /**
+     * Handles mouse input.
+     */
     public void handleMouseInput() throws IOException
     {
         super.handleMouseInput();
@@ -567,7 +594,7 @@ public class GuiContainerCreative extends InventoryEffectRenderer
 
         if (i != 0 && this.needsScrollBars())
         {
-            int j = (((GuiContainerCreative.ContainerCreative)this.container).itemList.size() + 9 - 1) / 9 - 5;
+            int j = (((GuiContainerCreative.ContainerCreative)this.inventorySlots).itemList.size() + 9 - 1) / 9 - 5;
 
             if (i > 0)
             {
@@ -581,10 +608,13 @@ public class GuiContainerCreative extends InventoryEffectRenderer
 
             this.currentScroll = (float)((double)this.currentScroll - (double)i / (double)j);
             this.currentScroll = MathHelper.clamp(this.currentScroll, 0.0F, 1.0F);
-            ((GuiContainerCreative.ContainerCreative)this.container).scrollTo(this.currentScroll);
+            ((GuiContainerCreative.ContainerCreative)this.inventorySlots).scrollTo(this.currentScroll);
         }
     }
 
+    /**
+     * Draws the screen and all the components in it.
+     */
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         this.drawDefaultBackground();
@@ -612,12 +642,12 @@ public class GuiContainerCreative extends InventoryEffectRenderer
         {
             this.currentScroll = ((float)(mouseY - l) - 7.5F) / ((float)(j1 - l) - 15.0F);
             this.currentScroll = MathHelper.clamp(this.currentScroll, 0.0F, 1.0F);
-            ((GuiContainerCreative.ContainerCreative)this.container).scrollTo(this.currentScroll);
+            ((GuiContainerCreative.ContainerCreative)this.inventorySlots).scrollTo(this.currentScroll);
         }
 
         super.drawScreen(mouseX, mouseY, partialTicks);
 
-        for (CreativeTabs creativetabs : CreativeTabs.GROUPS)
+        for (CreativeTabs creativetabs : CreativeTabs.CREATIVE_TAB_ARRAY)
         {
             if (this.renderCreativeInventoryHoveringText(creativetabs, mouseX, mouseY))
             {
@@ -640,7 +670,7 @@ public class GuiContainerCreative extends InventoryEffectRenderer
         if (selectedTabIndex == CreativeTabs.SEARCH.getIndex())
         {
             List<String> list = stack.getTooltip(this.mc.player, this.mc.gameSettings.advancedItemTooltips ? ITooltipFlag.TooltipFlags.ADVANCED : ITooltipFlag.TooltipFlags.NORMAL);
-            CreativeTabs creativetabs = stack.getItem().getGroup();
+            CreativeTabs creativetabs = stack.getItem().getCreativeTab();
 
             if (creativetabs == null && stack.getItem() == Items.ENCHANTED_BOOK)
             {
@@ -650,7 +680,7 @@ public class GuiContainerCreative extends InventoryEffectRenderer
                 {
                     Enchantment enchantment = map.keySet().iterator().next();
 
-                    for (CreativeTabs creativetabs1 : CreativeTabs.GROUPS)
+                    for (CreativeTabs creativetabs1 : CreativeTabs.CREATIVE_TAB_ARRAY)
                     {
                         if (creativetabs1.hasRelevantEnchantmentType(enchantment.type))
                         {
@@ -693,9 +723,9 @@ public class GuiContainerCreative extends InventoryEffectRenderer
     {
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         RenderHelper.enableGUIStandardItemLighting();
-        CreativeTabs creativetabs = CreativeTabs.GROUPS[selectedTabIndex];
+        CreativeTabs creativetabs = CreativeTabs.CREATIVE_TAB_ARRAY[selectedTabIndex];
 
-        for (CreativeTabs creativetabs1 : CreativeTabs.GROUPS)
+        for (CreativeTabs creativetabs1 : CreativeTabs.CREATIVE_TAB_ARRAY)
         {
             this.mc.getTextureManager().bindTexture(CREATIVE_INVENTORY_TABS);
 
@@ -727,6 +757,9 @@ public class GuiContainerCreative extends InventoryEffectRenderer
         }
     }
 
+    /**
+     * Checks if the mouse is over the given tab. Returns true if so.
+     */
     protected boolean isMouseOverTab(CreativeTabs tab, int mouseX, int mouseY)
     {
         int i = tab.getColumn();
@@ -848,11 +881,14 @@ public class GuiContainerCreative extends InventoryEffectRenderer
         this.zLevel = 0.0F;
     }
 
+    /**
+     * Called by the controls from the buttonList when activated. (Mouse pressed for buttons)
+     */
     protected void actionPerformed(GuiButton button) throws IOException
     {
         if (button.id == 1)
         {
-            this.mc.displayGuiScreen(new GuiStats(this, this.mc.player.getStats()));
+            this.mc.displayGuiScreen(new GuiStats(this, this.mc.player.getStatFileWriter()));
         }
     }
 
@@ -879,7 +915,7 @@ public class GuiContainerCreative extends InventoryEffectRenderer
                 client.playerController.sendSlotPacket(itemstack, 36 + i);
             }
 
-            entityplayersp.container.detectAndSendChanges();
+            entityplayersp.inventoryContainer.detectAndSendChanges();
         }
         else if (save)
         {
@@ -891,7 +927,7 @@ public class GuiContainerCreative extends InventoryEffectRenderer
             String s = GameSettings.getKeyDisplayString(client.gameSettings.keyBindsHotbar[index].getKeyCode());
             String s1 = GameSettings.getKeyDisplayString(client.gameSettings.keyBindLoadToolbar.getKeyCode());
             client.ingameGUI.setOverlayMessage(new TextComponentTranslation("inventory.hotbarSaved", new Object[] {s1, s}), false);
-            creativesettings.save();
+            creativesettings.write();
         }
     }
 
@@ -907,13 +943,13 @@ public class GuiContainerCreative extends InventoryEffectRenderer
             {
                 for (int j = 0; j < 9; ++j)
                 {
-                    this.addSlot(new GuiContainerCreative.LockedSlot(GuiContainerCreative.basicInventory, i * 9 + j, 9 + j * 18, 18 + i * 18));
+                    this.addSlotToContainer(new GuiContainerCreative.LockedSlot(GuiContainerCreative.basicInventory, i * 9 + j, 9 + j * 18, 18 + i * 18));
                 }
             }
 
             for (int k = 0; k < 9; ++k)
             {
-                this.addSlot(new Slot(inventoryplayer, k, 9 + k * 18, 112));
+                this.addSlotToContainer(new Slot(inventoryplayer, k, 9 + k * 18, 112));
             }
 
             this.scrollTo(0.0F);
@@ -1063,16 +1099,16 @@ public class GuiContainerCreative extends InventoryEffectRenderer
 
     static class LockedSlot extends Slot
     {
-        public LockedSlot(IInventory inventoryIn, int index, int xPosition, int yPosition)
+        public LockedSlot(IInventory p_i47453_1_, int p_i47453_2_, int p_i47453_3_, int p_i47453_4_)
         {
-            super(inventoryIn, index, xPosition, yPosition);
+            super(p_i47453_1_, p_i47453_2_, p_i47453_3_, p_i47453_4_);
         }
 
         public boolean canTakeStack(EntityPlayer playerIn)
         {
             if (super.canTakeStack(playerIn) && this.getHasStack())
             {
-                return this.getStack().getChildTag("CustomCreativeLock") == null;
+                return this.getStack().getSubCompound("CustomCreativeLock") == null;
             }
             else
             {

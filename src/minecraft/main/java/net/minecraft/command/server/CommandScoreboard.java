@@ -37,21 +37,33 @@ import net.minecraft.util.text.TextFormatting;
 
 public class CommandScoreboard extends CommandBase
 {
+    /**
+     * Gets the name of the command
+     */
     public String getName()
     {
         return "scoreboard";
     }
 
+    /**
+     * Return the required permission level for this command.
+     */
     public int getRequiredPermissionLevel()
     {
         return 2;
     }
 
+    /**
+     * Gets the usage string for the command.
+     */
     public String getUsage(ICommandSender sender)
     {
         return "commands.scoreboard.usage";
     }
 
+    /**
+     * Callback for when the command is executed
+     */
     public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
     {
         if (!this.handleUserWildcards(server, sender, args))
@@ -1450,6 +1462,9 @@ public class CommandScoreboard extends CommandBase
         return list;
     }
 
+    /**
+     * Return whether the specified command parameter index is a username parameter.
+     */
     public boolean isUsernameIndex(String[] args, int index)
     {
         if (!"players".equalsIgnoreCase(args[0]))

@@ -13,9 +13,12 @@ public class SwimNodeProcessor extends NodeProcessor
 {
     public PathPoint getStart()
     {
-        return this.openPoint(MathHelper.floor(this.entity.getBoundingBox().minX), MathHelper.floor(this.entity.getBoundingBox().minY + 0.5D), MathHelper.floor(this.entity.getBoundingBox().minZ));
+        return this.openPoint(MathHelper.floor(this.entity.getEntityBoundingBox().minX), MathHelper.floor(this.entity.getEntityBoundingBox().minY + 0.5D), MathHelper.floor(this.entity.getEntityBoundingBox().minZ));
     }
 
+    /**
+     * Returns PathPoint for given coordinates
+     */
     public PathPoint getPathPointToCoords(double x, double y, double z)
     {
         return this.openPoint(MathHelper.floor(x - (double)(this.entity.width / 2.0F)), MathHelper.floor(y + 0.5D), MathHelper.floor(z - (double)(this.entity.width / 2.0F)));

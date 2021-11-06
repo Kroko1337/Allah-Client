@@ -24,7 +24,7 @@ public abstract class ResourcePackListEntry implements GuiListExtended.IGuiListE
     public ResourcePackListEntry(GuiScreenResourcePacks resourcePacksGUIIn)
     {
         this.resourcePacksGUI = resourcePacksGUIIn;
-        this.mc = Minecraft.getInstance();
+        this.mc = Minecraft.getMinecraft();
     }
 
     public void drawEntry(int slotIndex, int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isSelected, float partialTicks)
@@ -166,6 +166,10 @@ public abstract class ResourcePackListEntry implements GuiListExtended.IGuiListE
         return i >= 0 && i < list.size() - 1 && ((ResourcePackListEntry)list.get(i + 1)).showHoverOverlay();
     }
 
+    /**
+     * Called when the mouse is clicked within this entry. Returning true means that something within this entry was
+     * clicked and the list should not be dragged.
+     */
     public boolean mousePressed(int slotIndex, int mouseX, int mouseY, int mouseEvent, int relativeX, int relativeY)
     {
         if (this.showHoverOverlay() && relativeX <= 32)
@@ -240,6 +244,9 @@ public abstract class ResourcePackListEntry implements GuiListExtended.IGuiListE
     {
     }
 
+    /**
+     * Fired when the mouse button is released. Arguments: index, x, y, mouseEvent, relativeX, relativeY
+     */
     public void mouseReleased(int slotIndex, int x, int y, int mouseEvent, int relativeX, int relativeY)
     {
     }

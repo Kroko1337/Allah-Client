@@ -23,6 +23,9 @@ public abstract class BlockLog extends BlockRotatedPillar
         this.setSoundType(SoundType.WOOD);
     }
 
+    /**
+     * Called serverside after this block is replaced with another in Chunk, but before the Tile Entity is updated
+     */
     public void breakBlock(World worldIn, BlockPos pos, IBlockState state)
     {
         int i = 4;
@@ -34,7 +37,7 @@ public abstract class BlockLog extends BlockRotatedPillar
             {
                 IBlockState iblockstate = worldIn.getBlockState(blockpos);
 
-                if (iblockstate.getMaterial() == Material.LEAVES && !((Boolean)iblockstate.get(BlockLeaves.CHECK_DECAY)).booleanValue())
+                if (iblockstate.getMaterial() == Material.LEAVES && !((Boolean)iblockstate.getValue(BlockLeaves.CHECK_DECAY)).booleanValue())
                 {
                     worldIn.setBlockState(blockpos, iblockstate.withProperty(BlockLeaves.CHECK_DECAY, Boolean.valueOf(true)), 4);
                 }
@@ -42,6 +45,10 @@ public abstract class BlockLog extends BlockRotatedPillar
         }
     }
 
+    /**
+     * Called by ItemBlocks just before a block is actually set in the world, to allow for adjustments to the
+     * IBlockstate
+     */
     public IBlockState getStateForPlacement(World worldIn, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer)
     {
         return this.getStateFromMeta(meta).withProperty(LOG_AXIS, BlockLog.EnumAxis.fromFacingAxis(facing.getAxis()));
@@ -53,13 +60,13 @@ public abstract class BlockLog extends BlockRotatedPillar
      * @deprecated call via {@link IBlockState#withRotation(Rotation)} whenever possible. Implementing/overriding is
      * fine.
      */
-    public IBlockState rotate(IBlockState state, Rotation rot)
+    public IBlockState withRotation(IBlockState state, Rotation rot)
     {
         switch (rot)
         {
             case COUNTERCLOCKWISE_90:
             case CLOCKWISE_90:
-                switch ((BlockLog.EnumAxis)state.get(LOG_AXIS))
+                switch ((BlockLog.EnumAxis)state.getValue(LOG_AXIS))
                 {
                     case X:
                         return state.withProperty(LOG_AXIS, BlockLog.EnumAxis.Z);

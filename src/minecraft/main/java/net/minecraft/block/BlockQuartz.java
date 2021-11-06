@@ -25,10 +25,14 @@ public class BlockQuartz extends Block
     public BlockQuartz()
     {
         super(Material.ROCK);
-        this.setDefaultState(this.stateContainer.getBaseState().withProperty(VARIANT, BlockQuartz.EnumType.DEFAULT));
+        this.setDefaultState(this.blockState.getBaseState().withProperty(VARIANT, BlockQuartz.EnumType.DEFAULT));
         this.setCreativeTab(CreativeTabs.BUILDING_BLOCKS);
     }
 
+    /**
+     * Called by ItemBlocks just before a block is actually set in the world, to allow for adjustments to the
+     * IBlockstate
+     */
     public IBlockState getStateForPlacement(World worldIn, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer)
     {
         if (meta == BlockQuartz.EnumType.LINES_Y.getMetadata())
@@ -49,22 +53,26 @@ public class BlockQuartz extends Block
         return meta == BlockQuartz.EnumType.CHISELED.getMetadata() ? this.getDefaultState().withProperty(VARIANT, BlockQuartz.EnumType.CHISELED) : this.getDefaultState().withProperty(VARIANT, BlockQuartz.EnumType.DEFAULT);
     }
 
+    /**
+     * Gets the metadata of the item this Block can drop. This method is called when the block gets destroyed. It
+     * returns the metadata of the dropped item based on the old metadata of the block.
+     */
     public int damageDropped(IBlockState state)
     {
-        BlockQuartz.EnumType blockquartz$enumtype = (BlockQuartz.EnumType)state.get(VARIANT);
+        BlockQuartz.EnumType blockquartz$enumtype = (BlockQuartz.EnumType)state.getValue(VARIANT);
         return blockquartz$enumtype != BlockQuartz.EnumType.LINES_X && blockquartz$enumtype != BlockQuartz.EnumType.LINES_Z ? blockquartz$enumtype.getMetadata() : BlockQuartz.EnumType.LINES_Y.getMetadata();
     }
 
     protected ItemStack getSilkTouchDrop(IBlockState state)
     {
-        BlockQuartz.EnumType blockquartz$enumtype = (BlockQuartz.EnumType)state.get(VARIANT);
+        BlockQuartz.EnumType blockquartz$enumtype = (BlockQuartz.EnumType)state.getValue(VARIANT);
         return blockquartz$enumtype != BlockQuartz.EnumType.LINES_X && blockquartz$enumtype != BlockQuartz.EnumType.LINES_Z ? super.getSilkTouchDrop(state) : new ItemStack(Item.getItemFromBlock(this), 1, BlockQuartz.EnumType.LINES_Y.getMetadata());
     }
 
     /**
      * returns a list of blocks with the same ID, but different meta (eg: wood returns 4 blocks)
      */
-    public void fillItemGroup(CreativeTabs group, NonNullList<ItemStack> items)
+    public void getSubBlocks(CreativeTabs itemIn, NonNullList<ItemStack> items)
     {
         items.add(new ItemStack(this, 1, BlockQuartz.EnumType.DEFAULT.getMetadata()));
         items.add(new ItemStack(this, 1, BlockQuartz.EnumType.CHISELED.getMetadata()));
@@ -76,19 +84,25 @@ public class BlockQuartz extends Block
      * @deprecated call via {@link IBlockState#getMapColor(IBlockAccess,BlockPos)} whenever possible.
      * Implementing/overriding is fine.
      */
-    public MapColor getMaterialColor(IBlockState state, IBlockAccess worldIn, BlockPos pos)
+    public MapColor getMapColor(IBlockState state, IBlockAccess worldIn, BlockPos pos)
     {
         return MapColor.QUARTZ;
     }
 
+    /**
+     * Convert the given metadata into a BlockState for this Block
+     */
     public IBlockState getStateFromMeta(int meta)
     {
         return this.getDefaultState().withProperty(VARIANT, BlockQuartz.EnumType.byMetadata(meta));
     }
 
+    /**
+     * Convert the BlockState into the correct metadata value
+     */
     public int getMetaFromState(IBlockState state)
     {
-        return ((BlockQuartz.EnumType)state.get(VARIANT)).getMetadata();
+        return ((BlockQuartz.EnumType)state.getValue(VARIANT)).getMetadata();
     }
 
     /**
@@ -97,13 +111,13 @@ public class BlockQuartz extends Block
      * @deprecated call via {@link IBlockState#withRotation(Rotation)} whenever possible. Implementing/overriding is
      * fine.
      */
-    public IBlockState rotate(IBlockState state, Rotation rot)
+    public IBlockState withRotation(IBlockState state, Rotation rot)
     {
         switch (rot)
         {
             case COUNTERCLOCKWISE_90:
             case CLOCKWISE_90:
-                switch ((BlockQuartz.EnumType)state.get(VARIANT))
+                switch ((BlockQuartz.EnumType)state.getValue(VARIANT))
                 {
                     case LINES_X:
                         return state.withProperty(VARIANT, BlockQuartz.EnumType.LINES_Z);

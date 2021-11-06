@@ -66,20 +66,27 @@ public class GuiEditStructure extends GuiScreen
         this.decimalFormat.setDecimalFormatSymbols(new DecimalFormatSymbols(Locale.US));
     }
 
+    /**
+     * Called from the main game loop to update the screen.
+     */
     public void updateScreen()
     {
-        this.nameEdit.tick();
-        this.posXEdit.tick();
-        this.posYEdit.tick();
-        this.posZEdit.tick();
-        this.sizeXEdit.tick();
-        this.sizeYEdit.tick();
-        this.sizeZEdit.tick();
-        this.integrityEdit.tick();
-        this.seedEdit.tick();
-        this.dataEdit.tick();
+        this.nameEdit.updateCursorCounter();
+        this.posXEdit.updateCursorCounter();
+        this.posYEdit.updateCursorCounter();
+        this.posZEdit.updateCursorCounter();
+        this.sizeXEdit.updateCursorCounter();
+        this.sizeYEdit.updateCursorCounter();
+        this.sizeZEdit.updateCursorCounter();
+        this.integrityEdit.updateCursorCounter();
+        this.seedEdit.updateCursorCounter();
+        this.dataEdit.updateCursorCounter();
     }
 
+    /**
+     * Adds the buttons (and other controls) to the screen in question. Called when the GUI is displayed and when the
+     * window resizes, the buttonList is cleared beforehand.
+     */
     public void initGui()
     {
         Keyboard.enableRepeatEvents(true);
@@ -154,11 +161,17 @@ public class GuiEditStructure extends GuiScreen
         this.updateToggleBoundingBox();
     }
 
+    /**
+     * Called when the screen is unloaded. Used to disable keyboard repeat events
+     */
     public void onGuiClosed()
     {
         Keyboard.enableRepeatEvents(false);
     }
 
+    /**
+     * Called by the controls from the buttonList when activated. (Mouse pressed for buttons)
+     */
     protected void actionPerformed(GuiButton button) throws IOException
     {
         if (button.enabled)
@@ -354,18 +367,18 @@ public class GuiEditStructure extends GuiScreen
 
     private void updateMode()
     {
-        this.nameEdit.setFocused2(false);
-        this.posXEdit.setFocused2(false);
-        this.posYEdit.setFocused2(false);
-        this.posZEdit.setFocused2(false);
-        this.sizeXEdit.setFocused2(false);
-        this.sizeYEdit.setFocused2(false);
-        this.sizeZEdit.setFocused2(false);
-        this.integrityEdit.setFocused2(false);
-        this.seedEdit.setFocused2(false);
-        this.dataEdit.setFocused2(false);
+        this.nameEdit.setFocused(false);
+        this.posXEdit.setFocused(false);
+        this.posYEdit.setFocused(false);
+        this.posZEdit.setFocused(false);
+        this.sizeXEdit.setFocused(false);
+        this.sizeYEdit.setFocused(false);
+        this.sizeZEdit.setFocused(false);
+        this.integrityEdit.setFocused(false);
+        this.seedEdit.setFocused(false);
+        this.dataEdit.setFocused(false);
         this.nameEdit.setVisible(false);
-        this.nameEdit.setFocused2(false);
+        this.nameEdit.setFocused(false);
         this.posXEdit.setVisible(false);
         this.posYEdit.setVisible(false);
         this.posZEdit.setVisible(false);
@@ -391,7 +404,7 @@ public class GuiEditStructure extends GuiScreen
         {
             case SAVE:
                 this.nameEdit.setVisible(true);
-                this.nameEdit.setFocused2(true);
+                this.nameEdit.setFocused(true);
                 this.posXEdit.setVisible(true);
                 this.posYEdit.setVisible(true);
                 this.posZEdit.setVisible(true);
@@ -406,7 +419,7 @@ public class GuiEditStructure extends GuiScreen
 
             case LOAD:
                 this.nameEdit.setVisible(true);
-                this.nameEdit.setFocused2(true);
+                this.nameEdit.setFocused(true);
                 this.posXEdit.setVisible(true);
                 this.posYEdit.setVisible(true);
                 this.posZEdit.setVisible(true);
@@ -425,12 +438,12 @@ public class GuiEditStructure extends GuiScreen
 
             case CORNER:
                 this.nameEdit.setVisible(true);
-                this.nameEdit.setFocused2(true);
+                this.nameEdit.setFocused(true);
                 break;
 
             case DATA:
                 this.dataEdit.setVisible(true);
-                this.dataEdit.setFocused2(true);
+                this.dataEdit.setFocused(true);
         }
 
         this.modeButton.displayString = I18n.format("structure_block.mode." + this.tileStructure.getMode().getName());
@@ -505,6 +518,10 @@ public class GuiEditStructure extends GuiScreen
         }
     }
 
+    /**
+     * Fired when a key is typed (except F11 which toggles full screen). This is the equivalent of
+     * KeyListener.keyTyped(KeyEvent e). Args : character (character on the key), keyCode (lwjgl Keyboard key code)
+     */
     protected void keyTyped(char typedChar, int keyCode) throws IOException
     {
         if (this.nameEdit.getVisible() && isValidCharacterForName(typedChar, keyCode))
@@ -590,8 +607,8 @@ public class GuiEditStructure extends GuiScreen
 
             if (guitextfield1 != null && guitextfield1 != guitextfield)
             {
-                guitextfield.setFocused2(false);
-                guitextfield1.setFocused2(true);
+                guitextfield.setFocused(false);
+                guitextfield1.setFocused(true);
             }
         }
 
@@ -632,6 +649,9 @@ public class GuiEditStructure extends GuiScreen
         return flag;
     }
 
+    /**
+     * Called when the mouse is clicked. Args : mouseX, mouseY, clickedButton
+     */
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
     {
         super.mouseClicked(mouseX, mouseY, mouseButton);
@@ -687,6 +707,9 @@ public class GuiEditStructure extends GuiScreen
         }
     }
 
+    /**
+     * Draws the screen and all the components in it.
+     */
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         this.drawDefaultBackground();
@@ -745,6 +768,9 @@ public class GuiEditStructure extends GuiScreen
         super.drawScreen(mouseX, mouseY, partialTicks);
     }
 
+    /**
+     * Returns true if this GUI should pause the game when it is displayed in single-player
+     */
     public boolean doesGuiPauseGame()
     {
         return false;

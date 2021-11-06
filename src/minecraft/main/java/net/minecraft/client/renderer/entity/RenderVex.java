@@ -14,30 +14,36 @@ public class RenderVex extends RenderBiped<EntityVex>
     public RenderVex(RenderManager renderManagerIn)
     {
         super(renderManagerIn, new ModelVex(), 0.3F);
-        this.modelVersion = ((ModelVex)this.entityModel).getModelVersion();
+        this.modelVersion = ((ModelVex)this.mainModel).getModelVersion();
     }
 
     /**
-     * Returns the location of an entity's texture.
+     * Returns the location of an entity's texture. Doesn't seem to be called unless you call Render.bindEntityTexture.
      */
     protected ResourceLocation getEntityTexture(EntityVex entity)
     {
         return entity.isCharging() ? VEX_CHARGING_TEXTURE : VEX_TEXTURE;
     }
 
+    /**
+     * Renders the desired {@code T} type Entity.
+     */
     public void doRender(EntityVex entity, double x, double y, double z, float entityYaw, float partialTicks)
     {
-        int i = ((ModelVex)this.entityModel).getModelVersion();
+        int i = ((ModelVex)this.mainModel).getModelVersion();
 
         if (i != this.modelVersion)
         {
-            this.entityModel = new ModelVex();
+            this.mainModel = new ModelVex();
             this.modelVersion = i;
         }
 
         super.doRender(entity, x, y, z, entityYaw, partialTicks);
     }
 
+    /**
+     * Allows the render to do state modifications necessary before the model is rendered.
+     */
     protected void preRenderCallback(EntityVex entitylivingbaseIn, float partialTickTime)
     {
         GlStateManager.scale(0.4F, 0.4F, 0.4F);

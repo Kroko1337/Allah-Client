@@ -29,22 +29,28 @@ import net.minecraft.world.World;
 
 public class BlockFurnace extends BlockContainer
 {
-    public static final PropertyDirection FACING = BlockHorizontal.HORIZONTAL_FACING;
+    public static final PropertyDirection FACING = BlockHorizontal.FACING;
     private final boolean isBurning;
     private static boolean keepInventory;
 
     protected BlockFurnace(boolean isBurning)
     {
         super(Material.ROCK);
-        this.setDefaultState(this.stateContainer.getBaseState().withProperty(FACING, EnumFacing.NORTH));
+        this.setDefaultState(this.blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH));
         this.isBurning = isBurning;
     }
 
+    /**
+     * Get the Item that this Block should drop when harvested.
+     */
     public Item getItemDropped(IBlockState state, Random rand, int fortune)
     {
         return Item.getItemFromBlock(Blocks.FURNACE);
     }
 
+    /**
+     * Called after the block is set in the Chunk data, but before the Tile Entity is set
+     */
     public void onBlockAdded(World worldIn, BlockPos pos, IBlockState state)
     {
         this.setDefaultFacing(worldIn, pos, state);
@@ -58,7 +64,7 @@ public class BlockFurnace extends BlockContainer
             IBlockState iblockstate1 = worldIn.getBlockState(pos.south());
             IBlockState iblockstate2 = worldIn.getBlockState(pos.west());
             IBlockState iblockstate3 = worldIn.getBlockState(pos.east());
-            EnumFacing enumfacing = (EnumFacing)state.get(FACING);
+            EnumFacing enumfacing = (EnumFacing)state.getValue(FACING);
 
             if (enumfacing == EnumFacing.NORTH && iblockstate.isFullBlock() && !iblockstate1.isFullBlock())
             {
@@ -88,11 +94,11 @@ public class BlockFurnace extends BlockContainer
      * this method is unrelated to {@link randomTick} and {@link #needsRandomTick}, and will always be called regardless
      * of whether the block can receive random update ticks
      */
-    public void animateTick(IBlockState stateIn, World worldIn, BlockPos pos, Random rand)
+    public void randomDisplayTick(IBlockState stateIn, World worldIn, BlockPos pos, Random rand)
     {
         if (this.isBurning)
         {
-            EnumFacing enumfacing = (EnumFacing)stateIn.get(FACING);
+            EnumFacing enumfacing = (EnumFacing)stateIn.getValue(FACING);
             double d0 = (double)pos.getX() + 0.5D;
             double d1 = (double)pos.getY() + rand.nextDouble() * 6.0D / 16.0D;
             double d2 = (double)pos.getZ() + 0.5D;
@@ -128,6 +134,9 @@ public class BlockFurnace extends BlockContainer
         }
     }
 
+    /**
+     * Called when the block is right clicked by a player.
+     */
     public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
         if (worldIn.isRemote)
@@ -141,7 +150,7 @@ public class BlockFurnace extends BlockContainer
             if (tileentity instanceof TileEntityFurnace)
             {
                 playerIn.displayGUIChest((TileEntityFurnace)tileentity);
-                playerIn.addStat(StatList.INTERACT_WITH_FURNACE);
+                playerIn.addStat(StatList.FURNACE_INTERACTION);
             }
 
             return true;
@@ -156,13 +165,13 @@ public class BlockFurnace extends BlockContainer
 
         if (active)
         {
-            worldIn.setBlockState(pos, Blocks.LIT_FURNACE.getDefaultState().withProperty(FACING, iblockstate.get(FACING)), 3);
-            worldIn.setBlockState(pos, Blocks.LIT_FURNACE.getDefaultState().withProperty(FACING, iblockstate.get(FACING)), 3);
+            worldIn.setBlockState(pos, Blocks.LIT_FURNACE.getDefaultState().withProperty(FACING, iblockstate.getValue(FACING)), 3);
+            worldIn.setBlockState(pos, Blocks.LIT_FURNACE.getDefaultState().withProperty(FACING, iblockstate.getValue(FACING)), 3);
         }
         else
         {
-            worldIn.setBlockState(pos, Blocks.FURNACE.getDefaultState().withProperty(FACING, iblockstate.get(FACING)), 3);
-            worldIn.setBlockState(pos, Blocks.FURNACE.getDefaultState().withProperty(FACING, iblockstate.get(FACING)), 3);
+            worldIn.setBlockState(pos, Blocks.FURNACE.getDefaultState().withProperty(FACING, iblockstate.getValue(FACING)), 3);
+            worldIn.setBlockState(pos, Blocks.FURNACE.getDefaultState().withProperty(FACING, iblockstate.getValue(FACING)), 3);
         }
 
         keepInventory = false;
@@ -174,11 +183,18 @@ public class BlockFurnace extends BlockContainer
         }
     }
 
+    /**
+     * Returns a new instance of a block's tile entity class. Called on placing the block.
+     */
     public TileEntity createNewTileEntity(World worldIn, int meta)
     {
         return new TileEntityFurnace();
     }
 
+    /**
+     * Called by ItemBlocks just before a block is actually set in the world, to allow for adjustments to the
+     * IBlockstate
+     */
     public IBlockState getStateForPlacement(World worldIn, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer)
     {
         return this.getDefaultState().withProperty(FACING, placer.getHorizontalFacing().getOpposite());
@@ -202,6 +218,9 @@ public class BlockFurnace extends BlockContainer
         }
     }
 
+    /**
+     * Called serverside after this block is replaced with another in Chunk, but before the Tile Entity is updated
+     */
     public void breakBlock(World worldIn, BlockPos pos, IBlockState state)
     {
         if (!keepInventory)
@@ -251,6 +270,9 @@ public class BlockFurnace extends BlockContainer
         return EnumBlockRenderType.MODEL;
     }
 
+    /**
+     * Convert the given metadata into a BlockState for this Block
+     */
     public IBlockState getStateFromMeta(int meta)
     {
         EnumFacing enumfacing = EnumFacing.byIndex(meta);
@@ -263,9 +285,12 @@ public class BlockFurnace extends BlockContainer
         return this.getDefaultState().withProperty(FACING, enumfacing);
     }
 
+    /**
+     * Convert the BlockState into the correct metadata value
+     */
     public int getMetaFromState(IBlockState state)
     {
-        return ((EnumFacing)state.get(FACING)).getIndex();
+        return ((EnumFacing)state.getValue(FACING)).getIndex();
     }
 
     /**
@@ -274,9 +299,9 @@ public class BlockFurnace extends BlockContainer
      * @deprecated call via {@link IBlockState#withRotation(Rotation)} whenever possible. Implementing/overriding is
      * fine.
      */
-    public IBlockState rotate(IBlockState state, Rotation rot)
+    public IBlockState withRotation(IBlockState state, Rotation rot)
     {
-        return state.withProperty(FACING, rot.rotate((EnumFacing)state.get(FACING)));
+        return state.withProperty(FACING, rot.rotate((EnumFacing)state.getValue(FACING)));
     }
 
     /**
@@ -284,9 +309,9 @@ public class BlockFurnace extends BlockContainer
      * blockstate.
      * @deprecated call via {@link IBlockState#withMirror(Mirror)} whenever possible. Implementing/overriding is fine.
      */
-    public IBlockState mirror(IBlockState state, Mirror mirrorIn)
+    public IBlockState withMirror(IBlockState state, Mirror mirrorIn)
     {
-        return state.rotate(mirrorIn.toRotation((EnumFacing)state.get(FACING)));
+        return state.withRotation(mirrorIn.toRotation((EnumFacing)state.getValue(FACING)));
     }
 
     protected BlockStateContainer createBlockState()

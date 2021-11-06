@@ -10,21 +10,33 @@ import net.minecraft.server.MinecraftServer;
 
 public class CommandEntityData extends CommandBase
 {
+    /**
+     * Gets the name of the command
+     */
     public String getName()
     {
         return "entitydata";
     }
 
+    /**
+     * Return the required permission level for this command.
+     */
     public int getRequiredPermissionLevel()
     {
         return 2;
     }
 
+    /**
+     * Gets the usage string for the command.
+     */
     public String getUsage(ICommandSender sender)
     {
         return "commands.entitydata.usage";
     }
 
+    /**
+     * Callback for when the command is executed
+     */
     public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
     {
         if (args.length < 2)
@@ -64,13 +76,16 @@ public class CommandEntityData extends CommandBase
                 }
                 else
                 {
-                    entity.read(nbttagcompound);
+                    entity.readFromNBT(nbttagcompound);
                     notifyCommandListener(sender, this, "commands.entitydata.success", new Object[] {nbttagcompound.toString()});
                 }
             }
         }
     }
 
+    /**
+     * Return whether the specified command parameter index is a username parameter.
+     */
     public boolean isUsernameIndex(String[] args, int index)
     {
         return index == 0;

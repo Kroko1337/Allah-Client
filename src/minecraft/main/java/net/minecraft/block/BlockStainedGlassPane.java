@@ -24,19 +24,23 @@ public class BlockStainedGlassPane extends BlockPane
     public BlockStainedGlassPane()
     {
         super(Material.GLASS, false);
-        this.setDefaultState(this.stateContainer.getBaseState().withProperty(NORTH, Boolean.valueOf(false)).withProperty(EAST, Boolean.valueOf(false)).withProperty(SOUTH, Boolean.valueOf(false)).withProperty(WEST, Boolean.valueOf(false)).withProperty(COLOR, EnumDyeColor.WHITE));
+        this.setDefaultState(this.blockState.getBaseState().withProperty(NORTH, Boolean.valueOf(false)).withProperty(EAST, Boolean.valueOf(false)).withProperty(SOUTH, Boolean.valueOf(false)).withProperty(WEST, Boolean.valueOf(false)).withProperty(COLOR, EnumDyeColor.WHITE));
         this.setCreativeTab(CreativeTabs.DECORATIONS);
     }
 
+    /**
+     * Gets the metadata of the item this Block can drop. This method is called when the block gets destroyed. It
+     * returns the metadata of the dropped item based on the old metadata of the block.
+     */
     public int damageDropped(IBlockState state)
     {
-        return ((EnumDyeColor)state.get(COLOR)).getMetadata();
+        return ((EnumDyeColor)state.getValue(COLOR)).getMetadata();
     }
 
     /**
      * returns a list of blocks with the same ID, but different meta (eg: wood returns 4 blocks)
      */
-    public void fillItemGroup(CreativeTabs group, NonNullList<ItemStack> items)
+    public void getSubBlocks(CreativeTabs itemIn, NonNullList<ItemStack> items)
     {
         for (int i = 0; i < EnumDyeColor.values().length; ++i)
         {
@@ -49,24 +53,34 @@ public class BlockStainedGlassPane extends BlockPane
      * @deprecated call via {@link IBlockState#getMapColor(IBlockAccess,BlockPos)} whenever possible.
      * Implementing/overriding is fine.
      */
-    public MapColor getMaterialColor(IBlockState state, IBlockAccess worldIn, BlockPos pos)
+    public MapColor getMapColor(IBlockState state, IBlockAccess worldIn, BlockPos pos)
     {
-        return MapColor.getBlockColor((EnumDyeColor)state.get(COLOR));
+        return MapColor.getBlockColor((EnumDyeColor)state.getValue(COLOR));
     }
 
+    /**
+     * Gets the render layer this block will render on. SOLID for solid blocks, CUTOUT or CUTOUT_MIPPED for on-off
+     * transparency (glass, reeds), TRANSLUCENT for fully blended transparency (stained glass)
+     */
     public BlockRenderLayer getRenderLayer()
     {
         return BlockRenderLayer.TRANSLUCENT;
     }
 
+    /**
+     * Convert the given metadata into a BlockState for this Block
+     */
     public IBlockState getStateFromMeta(int meta)
     {
         return this.getDefaultState().withProperty(COLOR, EnumDyeColor.byMetadata(meta));
     }
 
+    /**
+     * Convert the BlockState into the correct metadata value
+     */
     public int getMetaFromState(IBlockState state)
     {
-        return ((EnumDyeColor)state.get(COLOR)).getMetadata();
+        return ((EnumDyeColor)state.getValue(COLOR)).getMetadata();
     }
 
     /**
@@ -75,18 +89,18 @@ public class BlockStainedGlassPane extends BlockPane
      * @deprecated call via {@link IBlockState#withRotation(Rotation)} whenever possible. Implementing/overriding is
      * fine.
      */
-    public IBlockState rotate(IBlockState state, Rotation rot)
+    public IBlockState withRotation(IBlockState state, Rotation rot)
     {
         switch (rot)
         {
             case CLOCKWISE_180:
-                return state.withProperty(NORTH, state.get(SOUTH)).withProperty(EAST, state.get(WEST)).withProperty(SOUTH, state.get(NORTH)).withProperty(WEST, state.get(EAST));
+                return state.withProperty(NORTH, state.getValue(SOUTH)).withProperty(EAST, state.getValue(WEST)).withProperty(SOUTH, state.getValue(NORTH)).withProperty(WEST, state.getValue(EAST));
 
             case COUNTERCLOCKWISE_90:
-                return state.withProperty(NORTH, state.get(EAST)).withProperty(EAST, state.get(SOUTH)).withProperty(SOUTH, state.get(WEST)).withProperty(WEST, state.get(NORTH));
+                return state.withProperty(NORTH, state.getValue(EAST)).withProperty(EAST, state.getValue(SOUTH)).withProperty(SOUTH, state.getValue(WEST)).withProperty(WEST, state.getValue(NORTH));
 
             case CLOCKWISE_90:
-                return state.withProperty(NORTH, state.get(WEST)).withProperty(EAST, state.get(NORTH)).withProperty(SOUTH, state.get(EAST)).withProperty(WEST, state.get(SOUTH));
+                return state.withProperty(NORTH, state.getValue(WEST)).withProperty(EAST, state.getValue(NORTH)).withProperty(SOUTH, state.getValue(EAST)).withProperty(WEST, state.getValue(SOUTH));
 
             default:
                 return state;
@@ -98,18 +112,18 @@ public class BlockStainedGlassPane extends BlockPane
      * blockstate.
      * @deprecated call via {@link IBlockState#withMirror(Mirror)} whenever possible. Implementing/overriding is fine.
      */
-    public IBlockState mirror(IBlockState state, Mirror mirrorIn)
+    public IBlockState withMirror(IBlockState state, Mirror mirrorIn)
     {
         switch (mirrorIn)
         {
             case LEFT_RIGHT:
-                return state.withProperty(NORTH, state.get(SOUTH)).withProperty(SOUTH, state.get(NORTH));
+                return state.withProperty(NORTH, state.getValue(SOUTH)).withProperty(SOUTH, state.getValue(NORTH));
 
             case FRONT_BACK:
-                return state.withProperty(EAST, state.get(WEST)).withProperty(WEST, state.get(EAST));
+                return state.withProperty(EAST, state.getValue(WEST)).withProperty(WEST, state.getValue(EAST));
 
             default:
-                return super.mirror(state, mirrorIn);
+                return super.withMirror(state, mirrorIn);
         }
     }
 
@@ -118,6 +132,9 @@ public class BlockStainedGlassPane extends BlockPane
         return new BlockStateContainer(this, new IProperty[] {NORTH, EAST, WEST, SOUTH, COLOR});
     }
 
+    /**
+     * Called after the block is set in the Chunk data, but before the Tile Entity is set
+     */
     public void onBlockAdded(World worldIn, BlockPos pos, IBlockState state)
     {
         if (!worldIn.isRemote)
@@ -126,6 +143,9 @@ public class BlockStainedGlassPane extends BlockPane
         }
     }
 
+    /**
+     * Called serverside after this block is replaced with another in Chunk, but before the Tile Entity is updated
+     */
     public void breakBlock(World worldIn, BlockPos pos, IBlockState state)
     {
         if (!worldIn.isRemote)

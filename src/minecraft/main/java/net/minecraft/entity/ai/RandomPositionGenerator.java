@@ -11,6 +11,10 @@ import net.minecraft.util.math.Vec3d;
 
 public class RandomPositionGenerator
 {
+    /**
+     * used to store a driection when the user passes a point to move towards or away from. WARNING: NEVER THREAD SAFE.
+     * MULTIPLE findTowards and findAway calls, will share this var
+     */
     private static Vec3d staticVector = Vec3d.ZERO;
 
     @Nullable
@@ -24,9 +28,9 @@ public class RandomPositionGenerator
     }
 
     @Nullable
-    public static Vec3d getLandPos(EntityCreature creature, int maxXZ, int maxY)
+    public static Vec3d getLandPos(EntityCreature p_191377_0_, int p_191377_1_, int p_191377_2_)
     {
-        return generateRandomPos(creature, maxXZ, maxY, (Vec3d)null, false);
+        return generateRandomPos(p_191377_0_, p_191377_1_, p_191377_2_, (Vec3d)null, false);
     }
 
     @Nullable
@@ -52,6 +56,11 @@ public class RandomPositionGenerator
     }
 
     @Nullable
+
+    /**
+     * searches 10 blocks at random in a within par1(x,z) and par2 (y) distance, ignores those not in the direction of
+     * par3Vec3, then points to the tile for which creature.getBlockPathWeight returns the highest number
+     */
     private static Vec3d findRandomTargetBlock(EntityCreature entitycreatureIn, int xz, int y, @Nullable Vec3d targetVec3)
     {
         return generateRandomPos(entitycreatureIn, xz, y, targetVec3, true);

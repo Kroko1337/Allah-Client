@@ -7,6 +7,8 @@ import net.minecraft.util.ResourceLocation;
 public class Enchantments
 {
     public static final Enchantment PROTECTION = getRegisteredEnchantment("protection");
+
+    /** Protection against fire */
     public static final Enchantment FIRE_PROTECTION = getRegisteredEnchantment("fire_protection");
     public static final Enchantment FEATHER_FALLING = getRegisteredEnchantment("feather_falling");
     public static final Enchantment BLAST_PROTECTION = getRegisteredEnchantment("blast_protection");
@@ -21,6 +23,8 @@ public class Enchantments
     public static final Enchantment SMITE = getRegisteredEnchantment("smite");
     public static final Enchantment BANE_OF_ARTHROPODS = getRegisteredEnchantment("bane_of_arthropods");
     public static final Enchantment KNOCKBACK = getRegisteredEnchantment("knockback");
+
+    /** Lights mobs on fire */
     public static final Enchantment FIRE_ASPECT = getRegisteredEnchantment("fire_aspect");
     public static final Enchantment LOOTING = getRegisteredEnchantment("looting");
     public static final Enchantment SWEEPING = getRegisteredEnchantment("sweeping");
@@ -40,7 +44,7 @@ public class Enchantments
     @Nullable
     private static Enchantment getRegisteredEnchantment(String id)
     {
-        Enchantment enchantment = Enchantment.REGISTRY.getOrDefault(new ResourceLocation(id));
+        Enchantment enchantment = Enchantment.REGISTRY.getObject(new ResourceLocation(id));
 
         if (enchantment == null)
         {

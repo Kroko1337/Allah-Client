@@ -20,14 +20,13 @@ public class EntityAIMoveIndoors extends EntityAIBase
     }
 
     /**
-     * Returns whether execution should begin. You can also read and cache any state necessary for execution in this
-     * method as well.
+     * Returns whether the EntityAIBase should begin execution.
      */
     public boolean shouldExecute()
     {
         BlockPos blockpos = new BlockPos(this.entity);
 
-        if ((!this.entity.world.isDaytime() || this.entity.world.isRaining() && !this.entity.world.getBiome(blockpos).canRain()) && this.entity.world.dimension.hasSkyLight())
+        if ((!this.entity.world.isDaytime() || this.entity.world.isRaining() && !this.entity.world.getBiome(blockpos).canRain()) && this.entity.world.provider.hasSkyLight())
         {
             if (this.entity.getRNG().nextInt(50) != 0)
             {

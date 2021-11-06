@@ -42,7 +42,7 @@ public class ItemPotion extends Item
     {
         EntityPlayer entityplayer = entityLiving instanceof EntityPlayer ? (EntityPlayer)entityLiving : null;
 
-        if (entityplayer == null || !entityplayer.abilities.isCreativeMode)
+        if (entityplayer == null || !entityplayer.capabilities.isCreativeMode)
         {
             stack.shrink(1);
         }
@@ -72,7 +72,7 @@ public class ItemPotion extends Item
             entityplayer.addStat(StatList.getObjectUseStats(this));
         }
 
-        if (entityplayer == null || !entityplayer.abilities.isCreativeMode)
+        if (entityplayer == null || !entityplayer.capabilities.isCreativeMode)
         {
             if (stack.isEmpty())
             {
@@ -91,7 +91,7 @@ public class ItemPotion extends Item
     /**
      * How long it takes to use or consume an item
      */
-    public int getUseDuration(ItemStack stack)
+    public int getMaxItemUseDuration(ItemStack stack)
     {
         return 32;
     }
@@ -99,7 +99,7 @@ public class ItemPotion extends Item
     /**
      * returns the action that specifies what animation to play when the items is being used
      */
-    public EnumAction getUseAction(ItemStack stack)
+    public EnumAction getItemUseAction(ItemStack stack)
     {
         return EnumAction.DRINK;
     }
@@ -139,9 +139,9 @@ public class ItemPotion extends Item
     /**
      * returns a list of items with the same ID, but different meta (eg: dye returns 16 items)
      */
-    public void fillItemGroup(CreativeTabs group, NonNullList<ItemStack> items)
+    public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> items)
     {
-        if (this.isInGroup(group))
+        if (this.isInCreativeTab(tab))
         {
             for (PotionType potiontype : PotionType.REGISTRY)
             {

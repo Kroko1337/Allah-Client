@@ -57,13 +57,12 @@ public class EntityAIFindEntityNearest extends EntityAIBase
     }
 
     /**
-     * Returns whether execution should begin. You can also read and cache any state necessary for execution in this
-     * method as well.
+     * Returns whether the EntityAIBase should begin execution.
      */
     public boolean shouldExecute()
     {
         double d0 = this.getFollowRange();
-        List<EntityLivingBase> list = this.mob.world.<EntityLivingBase>getEntitiesWithinAABB(this.classToCheck, this.mob.getBoundingBox().grow(d0, 4.0D, d0), this.predicate);
+        List<EntityLivingBase> list = this.mob.world.<EntityLivingBase>getEntitiesWithinAABB(this.classToCheck, this.mob.getEntityBoundingBox().grow(d0, 4.0D, d0), this.predicate);
         Collections.sort(list, this.sorter);
 
         if (list.isEmpty())
@@ -88,7 +87,7 @@ public class EntityAIFindEntityNearest extends EntityAIBase
         {
             return false;
         }
-        else if (!entitylivingbase.isAlive())
+        else if (!entitylivingbase.isEntityAlive())
         {
             return false;
         }
@@ -127,7 +126,7 @@ public class EntityAIFindEntityNearest extends EntityAIBase
 
     protected double getFollowRange()
     {
-        IAttributeInstance iattributeinstance = this.mob.getAttribute(SharedMonsterAttributes.FOLLOW_RANGE);
-        return iattributeinstance == null ? 16.0D : iattributeinstance.getValue();
+        IAttributeInstance iattributeinstance = this.mob.getEntityAttribute(SharedMonsterAttributes.FOLLOW_RANGE);
+        return iattributeinstance == null ? 16.0D : iattributeinstance.getAttributeValue();
     }
 }

@@ -10,17 +10,41 @@ import net.minecraft.pathfinding.PathNavigateGround;
 
 public class EntityAITempt extends EntityAIBase
 {
-    private final EntityCreature creature;
+    /** The entity using this AI that is tempted by the player. */
+    private final EntityCreature temptedEntity;
     private final double speed;
+
+    /** X position of player tempting this mob */
     private double targetX;
+
+    /** Y position of player tempting this mob */
     private double targetY;
+
+    /** Z position of player tempting this mob */
     private double targetZ;
+
+    /** Tempting player's pitch */
     private double pitch;
+
+    /** Tempting player's yaw */
     private double yaw;
-    private EntityPlayer closestPlayer;
+
+    /** The player that is tempting the entity that is using this AI. */
+    private EntityPlayer temptingPlayer;
+
+    /**
+     * A counter that is decremented each time the shouldExecute method is called. The shouldExecute method will always
+     * return false if delayTemptCounter is greater than 0.
+     */
     private int delayTemptCounter;
+
+    /** True if this EntityAITempt task is running */
     private boolean isRunning;
     private final Set<Item> temptItem;
+
+    /**
+     * Whether the entity using this AI will be scared by the tempter's sudden movement.
+     */
     private final boolean scaredByPlayerMovement;
 
     public EntityAITempt(EntityCreature temptedEntityIn, double speedIn, Item temptItemIn, boolean scaredByPlayerMovementIn)
@@ -30,7 +54,7 @@ public class EntityAITempt extends EntityAIBase
 
     public EntityAITempt(EntityCreature temptedEntityIn, double speedIn, boolean scaredByPlayerMovementIn, Set<Item> temptItemIn)
     {
-        this.creature = temptedEntityIn;
+        this.temptedEntity = temptedEntityIn;
         this.speed = speedIn;
         this.temptItem = temptItemIn;
         this.scaredByPlayerMovement = scaredByPlayerMovementIn;
@@ -43,8 +67,7 @@ public class EntityAITempt extends EntityAIBase
     }
 
     /**
-     * Returns whether execution should begin. You can also read and cache any state necessary for execution in this
-     * method as well.
+     * Returns whether the EntityAIBase should begin execution.
      */
     public boolean shouldExecute()
     {
@@ -55,15 +78,15 @@ public class EntityAITempt extends EntityAIBase
         }
         else
         {
-            this.closestPlayer = this.creature.world.getClosestPlayerToEntity(this.creature, 10.0D);
+            this.temptingPlayer = this.temptedEntity.world.getClosestPlayerToEntity(this.temptedEntity, 10.0D);
 
-            if (this.closestPlayer == null)
+            if (this.temptingPlayer == null)
             {
                 return false;
             }
             else
             {
-                return this.isTempting(this.closestPlayer.getHeldItemMainhand()) || this.isTempting(this.closestPlayer.getHeldItemOffhand());
+                return this.isTempting(this.temptingPlayer.getHeldItemMainhand()) || this.isTempting(this.temptingPlayer.getHeldItemOffhand());
             }
         }
     }
@@ -80,27 +103,27 @@ public class EntityAITempt extends EntityAIBase
     {
         if (this.scaredByPlayerMovement)
         {
-            if (this.creature.getDistanceSq(this.closestPlayer) < 36.0D)
+            if (this.temptedEntity.getDistanceSq(this.temptingPlayer) < 36.0D)
             {
-                if (this.closestPlayer.getDistanceSq(this.targetX, this.targetY, this.targetZ) > 0.010000000000000002D)
+                if (this.temptingPlayer.getDistanceSq(this.targetX, this.targetY, this.targetZ) > 0.010000000000000002D)
                 {
                     return false;
                 }
 
-                if (Math.abs((double)this.closestPlayer.rotationPitch - this.pitch) > 5.0D || Math.abs((double)this.closestPlayer.rotationYaw - this.yaw) > 5.0D)
+                if (Math.abs((double)this.temptingPlayer.rotationPitch - this.pitch) > 5.0D || Math.abs((double)this.temptingPlayer.rotationYaw - this.yaw) > 5.0D)
                 {
                     return false;
                 }
             }
             else
             {
-                this.targetX = this.closestPlayer.posX;
-                this.targetY = this.closestPlayer.posY;
-                this.targetZ = this.closestPlayer.posZ;
+                this.targetX = this.temptingPlayer.posX;
+                this.targetY = this.temptingPlayer.posY;
+                this.targetZ = this.temptingPlayer.posZ;
             }
 
-            this.pitch = (double)this.closestPlayer.rotationPitch;
-            this.yaw = (double)this.closestPlayer.rotationYaw;
+            this.pitch = (double)this.temptingPlayer.rotationPitch;
+            this.yaw = (double)this.temptingPlayer.rotationYaw;
         }
 
         return this.shouldExecute();
@@ -111,9 +134,9 @@ public class EntityAITempt extends EntityAIBase
      */
     public void startExecuting()
     {
-        this.targetX = this.closestPlayer.posX;
-        this.targetY = this.closestPlayer.posY;
-        this.targetZ = this.closestPlayer.posZ;
+        this.targetX = this.temptingPlayer.posX;
+        this.targetY = this.temptingPlayer.posY;
+        this.targetZ = this.temptingPlayer.posZ;
         this.isRunning = true;
     }
 
@@ -122,8 +145,8 @@ public class EntityAITempt extends EntityAIBase
      */
     public void resetTask()
     {
-        this.closestPlayer = null;
-        this.creature.getNavigator().clearPath();
+        this.temptingPlayer = null;
+        this.temptedEntity.getNavigator().clearPath();
         this.delayTemptCounter = 100;
         this.isRunning = false;
     }
@@ -131,17 +154,17 @@ public class EntityAITempt extends EntityAIBase
     /**
      * Keep ticking a continuous task that has already been started
      */
-    public void tick()
+    public void updateTask()
     {
-        this.creature.getLookController().setLookPositionWithEntity(this.closestPlayer, (float)(this.creature.getHorizontalFaceSpeed() + 20), (float)this.creature.getVerticalFaceSpeed());
+        this.temptedEntity.getLookHelper().setLookPositionWithEntity(this.temptingPlayer, (float)(this.temptedEntity.getHorizontalFaceSpeed() + 20), (float)this.temptedEntity.getVerticalFaceSpeed());
 
-        if (this.creature.getDistanceSq(this.closestPlayer) < 6.25D)
+        if (this.temptedEntity.getDistanceSq(this.temptingPlayer) < 6.25D)
         {
-            this.creature.getNavigator().clearPath();
+            this.temptedEntity.getNavigator().clearPath();
         }
         else
         {
-            this.creature.getNavigator().tryMoveToEntityLiving(this.closestPlayer, this.speed);
+            this.temptedEntity.getNavigator().tryMoveToEntityLiving(this.temptingPlayer, this.speed);
         }
     }
 

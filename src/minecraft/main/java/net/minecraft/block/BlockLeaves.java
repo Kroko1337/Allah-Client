@@ -32,6 +32,9 @@ public abstract class BlockLeaves extends Block
         this.setSoundType(SoundType.PLANT);
     }
 
+    /**
+     * Called serverside after this block is replaced with another in Chunk, but before the Tile Entity is updated
+     */
     public void breakBlock(World worldIn, BlockPos pos, IBlockState state)
     {
         int i = 1;
@@ -51,7 +54,7 @@ public abstract class BlockLeaves extends Block
                         BlockPos blockpos = pos.add(j1, k1, l1);
                         IBlockState iblockstate = worldIn.getBlockState(blockpos);
 
-                        if (iblockstate.getMaterial() == Material.LEAVES && !((Boolean)iblockstate.get(CHECK_DECAY)).booleanValue())
+                        if (iblockstate.getMaterial() == Material.LEAVES && !((Boolean)iblockstate.getValue(CHECK_DECAY)).booleanValue())
                         {
                             worldIn.setBlockState(blockpos, iblockstate.withProperty(CHECK_DECAY, Boolean.valueOf(true)), 4);
                         }
@@ -65,7 +68,7 @@ public abstract class BlockLeaves extends Block
     {
         if (!worldIn.isRemote)
         {
-            if (((Boolean)state.get(CHECK_DECAY)).booleanValue() && ((Boolean)state.get(DECAYABLE)).booleanValue())
+            if (((Boolean)state.getValue(CHECK_DECAY)).booleanValue() && ((Boolean)state.getValue(DECAYABLE)).booleanValue())
             {
                 int i = 4;
                 int j = 5;
@@ -178,7 +181,7 @@ public abstract class BlockLeaves extends Block
      * this method is unrelated to {@link randomTick} and {@link #needsRandomTick}, and will always be called regardless
      * of whether the block can receive random update ticks
      */
-    public void animateTick(IBlockState stateIn, World worldIn, BlockPos pos, Random rand)
+    public void randomDisplayTick(IBlockState stateIn, World worldIn, BlockPos pos, Random rand)
     {
         if (worldIn.isRainingAt(pos.up()) && !worldIn.getBlockState(pos.down()).isTopSolid() && rand.nextInt(15) == 1)
         {
@@ -195,16 +198,25 @@ public abstract class BlockLeaves extends Block
         worldIn.setBlockToAir(pos);
     }
 
+    /**
+     * Returns the quantity of items to drop on block destruction.
+     */
     public int quantityDropped(Random random)
     {
         return random.nextInt(20) == 0 ? 1 : 0;
     }
 
+    /**
+     * Get the Item that this Block should drop when harvested.
+     */
     public Item getItemDropped(IBlockState state, Random rand, int fortune)
     {
         return Item.getItemFromBlock(Blocks.SAPLING);
     }
 
+    /**
+     * Spawns this Block's drops into the World as EntityItems.
+     */
     public void dropBlockAsItemWithChance(World worldIn, BlockPos pos, IBlockState state, float chance, int fortune)
     {
         if (!worldIn.isRemote)
@@ -252,21 +264,35 @@ public abstract class BlockLeaves extends Block
         return 20;
     }
 
+    /**
+     * Used to determine ambient occlusion and culling when rebuilding chunks for render
+     * @deprecated call via {@link IBlockState#isOpaqueCube()} whenever possible. Implementing/overriding is fine.
+     */
     public boolean isOpaqueCube(IBlockState state)
     {
         return !this.leavesFancy;
     }
 
+    /**
+     * Pass true to draw this block using fancy graphics, or false for fast graphics.
+     */
     public void setGraphicsLevel(boolean fancy)
     {
         this.leavesFancy = fancy;
     }
 
+    /**
+     * Gets the render layer this block will render on. SOLID for solid blocks, CUTOUT or CUTOUT_MIPPED for on-off
+     * transparency (glass, reeds), TRANSLUCENT for fully blended transparency (stained glass)
+     */
     public BlockRenderLayer getRenderLayer()
     {
         return this.leavesFancy ? BlockRenderLayer.CUTOUT_MIPPED : BlockRenderLayer.SOLID;
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#causesSuffocation()} whenever possible. Implementing/overriding is fine.
+     */
     public boolean causesSuffocation(IBlockState state)
     {
         return false;
@@ -275,7 +301,8 @@ public abstract class BlockLeaves extends Block
     public abstract BlockPlanks.EnumType getWoodType(int meta);
 
     /**
-     * ""
+     * @deprecated call via {@link IBlockState#shouldSideBeRendered(IBlockAccess,BlockPos,EnumFacing)} whenever
+     * possible. Implementing/overriding is fine.
      */
     public boolean shouldSideBeRendered(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side)
     {

@@ -11,6 +11,10 @@ public class GuiChest extends GuiContainer
     /** The ResourceLocation containing the chest GUI texture. */
     private static final ResourceLocation CHEST_GUI_TEXTURE = new ResourceLocation("textures/gui/container/generic_54.png");
     private final IInventory upperChestInventory;
+
+    /**
+     * The chest's inventory. Number of slots will vary based off of the type of chest.
+     */
     private final IInventory lowerChestInventory;
 
     /**
@@ -20,7 +24,7 @@ public class GuiChest extends GuiContainer
 
     public GuiChest(IInventory upperInv, IInventory lowerInv)
     {
-        super(new ContainerChest(upperInv, lowerInv, Minecraft.getInstance().player));
+        super(new ContainerChest(upperInv, lowerInv, Minecraft.getMinecraft().player));
         this.upperChestInventory = upperInv;
         this.lowerChestInventory = lowerInv;
         this.allowUserInput = false;
@@ -30,6 +34,9 @@ public class GuiChest extends GuiContainer
         this.ySize = 114 + this.inventoryRows * 18;
     }
 
+    /**
+     * Draws the screen and all the components in it.
+     */
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         this.drawDefaultBackground();

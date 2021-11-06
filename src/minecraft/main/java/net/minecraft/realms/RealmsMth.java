@@ -168,6 +168,6 @@ public class RealmsMth
 
     public static int nextInt(Random p_nextInt_0_, int p_nextInt_1_, int p_nextInt_2_)
     {
-        return MathHelper.nextInt(p_nextInt_0_, p_nextInt_1_, p_nextInt_2_);
+        return MathHelper.getInt(p_nextInt_0_, p_nextInt_1_, p_nextInt_2_);
     }
 }

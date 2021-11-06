@@ -27,6 +27,11 @@ import net.minecraft.world.storage.loot.LootTable;
 public abstract class EntityMinecartContainer extends EntityMinecart implements ILockableContainer, ILootContainer
 {
     private NonNullList<ItemStack> minecartContainerItems = NonNullList.<ItemStack>withSize(36, ItemStack.EMPTY);
+
+    /**
+     * When set to true, the minecart will drop all items when setDead() is called. When false (such as when travelling
+     * dimensions) it preserves its contents.
+     */
     private boolean dropContentsWhenDead = true;
     private ResourceLocation lootTable;
     private long lootTableSeed;
@@ -128,7 +133,7 @@ public abstract class EntityMinecartContainer extends EntityMinecart implements 
      */
     public boolean isUsableByPlayer(EntityPlayer player)
     {
-        if (this.removed)
+        if (this.isDead)
         {
             return false;
         }
@@ -171,18 +176,21 @@ public abstract class EntityMinecartContainer extends EntityMinecart implements 
     }
 
     /**
-     * Queues the entity for removal from the world on the next tick.
+     * Will get destroyed next tick.
      */
-    public void remove()
+    public void setDead()
     {
         if (this.dropContentsWhenDead)
         {
             InventoryHelper.dropInventoryItems(this.world, this, this);
         }
 
-        super.remove();
+        super.setDead();
     }
 
+    /**
+     * Sets whether this entity should drop its items when setDead() is called. This applies to container minecarts.
+     */
     public void setDropItemsWhenDead(boolean dropWhenDead)
     {
         this.dropContentsWhenDead = dropWhenDead;
@@ -194,17 +202,20 @@ public abstract class EntityMinecartContainer extends EntityMinecart implements 
         p_190574_0_.registerWalker(FixTypes.ENTITY, new ItemStackDataLists(p_190574_1_, new String[] {"Items"}));
     }
 
+    /**
+     * (abstract) Protected helper method to write subclass entity data to NBT.
+     */
     protected void writeEntityToNBT(NBTTagCompound compound)
     {
         super.writeEntityToNBT(compound);
 
         if (this.lootTable != null)
         {
-            compound.putString("LootTable", this.lootTable.toString());
+            compound.setString("LootTable", this.lootTable.toString());
 
             if (this.lootTableSeed != 0L)
             {
-                compound.putLong("LootTableSeed", this.lootTableSeed);
+                compound.setLong("LootTableSeed", this.lootTableSeed);
             }
         }
         else
@@ -216,12 +227,12 @@ public abstract class EntityMinecartContainer extends EntityMinecart implements 
     /**
      * (abstract) Protected helper method to read subclass entity data from NBT.
      */
-    protected void readAdditional(NBTTagCompound compound)
+    protected void readEntityFromNBT(NBTTagCompound compound)
     {
-        super.readAdditional(compound);
+        super.readEntityFromNBT(compound);
         this.minecartContainerItems = NonNullList.<ItemStack>withSize(this.getSizeInventory(), ItemStack.EMPTY);
 
-        if (compound.contains("LootTable", 8))
+        if (compound.hasKey("LootTable", 8))
         {
             this.lootTable = new ResourceLocation(compound.getString("LootTable"));
             this.lootTableSeed = compound.getLong("LootTableSeed");

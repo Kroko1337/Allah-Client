@@ -53,7 +53,7 @@ public class LocationPredicate
         {
             return false;
         }
-        else if (this.dimension != null && this.dimension != world.dimension.getType())
+        else if (this.dimension != null && this.dimension != world.provider.getDimensionType())
         {
             return false;
         }
@@ -88,7 +88,7 @@ public class LocationPredicate
             if (jsonobject.has("biome"))
             {
                 ResourceLocation resourcelocation = new ResourceLocation(JsonUtils.getString(jsonobject, "biome"));
-                biome = Biome.REGISTRY.getOrDefault(resourcelocation);
+                biome = Biome.REGISTRY.getObject(resourcelocation);
 
                 if (biome == null)
                 {

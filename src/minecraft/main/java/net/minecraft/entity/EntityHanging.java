@@ -47,7 +47,7 @@ public abstract class EntityHanging extends Entity
         this.hangingPosition = hangingPositionIn;
     }
 
-    protected void registerData()
+    protected void entityInit()
     {
     }
 
@@ -102,7 +102,7 @@ public abstract class EntityHanging extends Entity
             d6 = d6 / 32.0D;
             d7 = d7 / 32.0D;
             d8 = d8 / 32.0D;
-            this.setBoundingBox(new AxisAlignedBB(d0 - d6, d1 - d7, d2 - d8, d0 + d6, d1 + d7, d2 + d8));
+            this.setEntityBoundingBox(new AxisAlignedBB(d0 - d6, d1 - d7, d2 - d8, d0 + d6, d1 + d7, d2 + d8));
         }
     }
 
@@ -114,7 +114,7 @@ public abstract class EntityHanging extends Entity
     /**
      * Called to update the entity's position/logic.
      */
-    public void tick()
+    public void onUpdate()
     {
         this.prevPosX = this.posX;
         this.prevPosY = this.posY;
@@ -124,9 +124,9 @@ public abstract class EntityHanging extends Entity
         {
             this.tickCounter1 = 0;
 
-            if (!this.removed && !this.onValidSurface())
+            if (!this.isDead && !this.onValidSurface())
             {
-                this.remove();
+                this.setDead();
                 this.onBroken((Entity)null);
             }
         }
@@ -137,7 +137,7 @@ public abstract class EntityHanging extends Entity
      */
     public boolean onValidSurface()
     {
-        if (!this.world.getCollisionBoxes(this, this.getBoundingBox()).isEmpty())
+        if (!this.world.getCollisionBoxes(this, this.getEntityBoundingBox()).isEmpty())
         {
             return false;
         }
@@ -165,7 +165,7 @@ public abstract class EntityHanging extends Entity
                 }
             }
 
-            return this.world.getEntitiesInAABBexcluding(this, this.getBoundingBox(), IS_HANGING_ENTITY).isEmpty();
+            return this.world.getEntitiesInAABBexcluding(this, this.getEntityBoundingBox(), IS_HANGING_ENTITY).isEmpty();
         }
     }
 
@@ -198,15 +198,15 @@ public abstract class EntityHanging extends Entity
      */
     public boolean attackEntityFrom(DamageSource source, float amount)
     {
-        if (this.isInvulnerableTo(source))
+        if (this.isEntityInvulnerable(source))
         {
             return false;
         }
         else
         {
-            if (!this.removed && !this.world.isRemote)
+            if (!this.isDead && !this.world.isRemote)
             {
-                this.remove();
+                this.setDead();
                 this.markVelocityChanged();
                 this.onBroken(source.getTrueSource());
             }
@@ -215,11 +215,14 @@ public abstract class EntityHanging extends Entity
         }
     }
 
+    /**
+     * Tries to move the entity towards the specified location.
+     */
     public void move(MoverType type, double x, double y, double z)
     {
-        if (!this.world.isRemote && !this.removed && x * x + y * y + z * z > 0.0D)
+        if (!this.world.isRemote && !this.isDead && x * x + y * y + z * z > 0.0D)
         {
-            this.remove();
+            this.setDead();
             this.onBroken((Entity)null);
         }
     }
@@ -229,28 +232,31 @@ public abstract class EntityHanging extends Entity
      */
     public void addVelocity(double x, double y, double z)
     {
-        if (!this.world.isRemote && !this.removed && x * x + y * y + z * z > 0.0D)
+        if (!this.world.isRemote && !this.isDead && x * x + y * y + z * z > 0.0D)
         {
-            this.remove();
+            this.setDead();
             this.onBroken((Entity)null);
         }
     }
 
+    /**
+     * (abstract) Protected helper method to write subclass entity data to NBT.
+     */
     public void writeEntityToNBT(NBTTagCompound compound)
     {
-        compound.putByte("Facing", (byte)this.facingDirection.getHorizontalIndex());
+        compound.setByte("Facing", (byte)this.facingDirection.getHorizontalIndex());
         BlockPos blockpos = this.getHangingPosition();
-        compound.putInt("TileX", blockpos.getX());
-        compound.putInt("TileY", blockpos.getY());
-        compound.putInt("TileZ", blockpos.getZ());
+        compound.setInteger("TileX", blockpos.getX());
+        compound.setInteger("TileY", blockpos.getY());
+        compound.setInteger("TileZ", blockpos.getZ());
     }
 
     /**
      * (abstract) Protected helper method to read subclass entity data from NBT.
      */
-    public void readAdditional(NBTTagCompound compound)
+    public void readEntityFromNBT(NBTTagCompound compound)
     {
-        this.hangingPosition = new BlockPos(compound.getInt("TileX"), compound.getInt("TileY"), compound.getInt("TileZ"));
+        this.hangingPosition = new BlockPos(compound.getInteger("TileX"), compound.getInteger("TileY"), compound.getInteger("TileZ"));
         this.updateFacingWithBoundingBox(EnumFacing.byHorizontalIndex(compound.getByte("Facing")));
     }
 
@@ -272,7 +278,7 @@ public abstract class EntityHanging extends Entity
     {
         EntityItem entityitem = new EntityItem(this.world, this.posX + (double)((float)this.facingDirection.getXOffset() * 0.15F), this.posY + (double)offsetY, this.posZ + (double)((float)this.facingDirection.getZOffset() * 0.15F), stack);
         entityitem.setDefaultPickupDelay();
-        this.world.addEntity0(entityitem);
+        this.world.spawnEntity(entityitem);
         return entityitem;
     }
 

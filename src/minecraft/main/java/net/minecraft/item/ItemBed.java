@@ -29,6 +29,9 @@ public class ItemBed extends Item
         this.setHasSubtypes(true);
     }
 
+    /**
+     * Called when a Block is right-clicked with this Item
+     */
     public EnumActionResult onItemUse(EntityPlayer player, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
         if (worldIn.isRemote)
@@ -64,7 +67,7 @@ public class ItemBed extends Item
 
                 if (flag2 && flag3 && worldIn.getBlockState(pos.down()).isTopSolid() && worldIn.getBlockState(blockpos.down()).isTopSolid())
                 {
-                    IBlockState iblockstate2 = Blocks.BED.getDefaultState().withProperty(BlockBed.OCCUPIED, Boolean.valueOf(false)).withProperty(BlockBed.HORIZONTAL_FACING, enumfacing).withProperty(BlockBed.PART, BlockBed.EnumPartType.FOOT);
+                    IBlockState iblockstate2 = Blocks.BED.getDefaultState().withProperty(BlockBed.OCCUPIED, Boolean.valueOf(false)).withProperty(BlockBed.FACING, enumfacing).withProperty(BlockBed.PART, BlockBed.EnumPartType.FOOT);
                     worldIn.setBlockState(pos, iblockstate2, 10);
                     worldIn.setBlockState(blockpos, iblockstate2.withProperty(BlockBed.PART, BlockBed.EnumPartType.HEAD), 10);
                     SoundType soundtype = iblockstate2.getBlock().getSoundType();
@@ -118,9 +121,9 @@ public class ItemBed extends Item
     /**
      * returns a list of items with the same ID, but different meta (eg: dye returns 16 items)
      */
-    public void fillItemGroup(CreativeTabs group, NonNullList<ItemStack> items)
+    public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> items)
     {
-        if (this.isInGroup(group))
+        if (this.isInCreativeTab(tab))
         {
             for (int i = 0; i < 16; ++i)
             {

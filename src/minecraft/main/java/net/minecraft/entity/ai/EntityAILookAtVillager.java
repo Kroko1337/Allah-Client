@@ -16,8 +16,7 @@ public class EntityAILookAtVillager extends EntityAIBase
     }
 
     /**
-     * Returns whether execution should begin. You can also read and cache any state necessary for execution in this
-     * method as well.
+     * Returns whether the EntityAIBase should begin execution.
      */
     public boolean shouldExecute()
     {
@@ -31,7 +30,7 @@ public class EntityAILookAtVillager extends EntityAIBase
         }
         else
         {
-            this.villager = (EntityVillager)this.ironGolem.world.findNearestEntityWithinAABB(EntityVillager.class, this.ironGolem.getBoundingBox().grow(6.0D, 2.0D, 6.0D), this.ironGolem);
+            this.villager = (EntityVillager)this.ironGolem.world.findNearestEntityWithinAABB(EntityVillager.class, this.ironGolem.getEntityBoundingBox().grow(6.0D, 2.0D, 6.0D), this.ironGolem);
             return this.villager != null;
         }
     }
@@ -65,9 +64,9 @@ public class EntityAILookAtVillager extends EntityAIBase
     /**
      * Keep ticking a continuous task that has already been started
      */
-    public void tick()
+    public void updateTask()
     {
-        this.ironGolem.getLookController().setLookPositionWithEntity(this.villager, 30.0F, 30.0F);
+        this.ironGolem.getLookHelper().setLookPositionWithEntity(this.villager, 30.0F, 30.0F);
         --this.lookTime;
     }
 }

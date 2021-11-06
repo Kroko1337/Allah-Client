@@ -25,6 +25,9 @@ public class EnchantmentThorns extends Enchantment
         return 10 + 20 * (enchantmentLevel - 1);
     }
 
+    /**
+     * Returns the maximum value of enchantability nedded on the enchantment level passed.
+     */
     public int getMaxEnchantability(int enchantmentLevel)
     {
         return super.getMinEnchantability(enchantmentLevel) + 50;

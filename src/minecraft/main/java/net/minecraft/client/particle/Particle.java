@@ -26,6 +26,8 @@ public class Particle
     protected double motionZ;
     private AxisAlignedBB boundingBox;
     protected boolean onGround;
+
+    /** Determines if particle to block collision is to be used */
     protected boolean canCollide;
     protected boolean isExpired;
     protected float width;
@@ -35,16 +37,34 @@ public class Particle
     protected int particleTextureIndexY;
     protected float particleTextureJitterX;
     protected float particleTextureJitterY;
-    protected int age;
-    protected int maxAge;
+    protected int particleAge;
+    protected int particleMaxAge;
     protected float particleScale;
     protected float particleGravity;
+
+    /** The red amount of color. Used as a percentage, 1.0 = 255 and 0.0 = 0. */
     protected float particleRed;
+
+    /**
+     * The green amount of color. Used as a percentage, 1.0 = 255 and 0.0 = 0.
+     */
     protected float particleGreen;
+
+    /**
+     * The blue amount of color. Used as a percentage, 1.0 = 255 and 0.0 = 0.
+     */
     protected float particleBlue;
+
+    /** Particle alpha */
     protected float particleAlpha;
     protected TextureAtlasSprite particleTexture;
+
+    /** The amount the particle will be rotated in rendering. */
     protected float particleAngle;
+
+    /**
+     * The particle angle from the last tick. Appears to be used for calculating the rendered angle with partial ticks.
+     */
     protected float prevParticleAngle;
     public static double interpPosX;
     public static double interpPosY;
@@ -70,8 +90,8 @@ public class Particle
         this.particleTextureJitterX = this.rand.nextFloat() * 3.0F;
         this.particleTextureJitterY = this.rand.nextFloat() * 3.0F;
         this.particleScale = (this.rand.nextFloat() * 0.5F + 0.5F) * 2.0F;
-        this.maxAge = (int)(4.0F / (this.rand.nextFloat() * 0.9F + 0.1F));
-        this.age = 0;
+        this.particleMaxAge = (int)(4.0F / (this.rand.nextFloat() * 0.9F + 0.1F));
+        this.particleAge = 0;
         this.canCollide = true;
     }
 
@@ -96,14 +116,14 @@ public class Particle
         return this;
     }
 
-    public Particle multiplyParticleScaleBy(float scale)
+    public Particle multipleParticleScaleBy(float scale)
     {
         this.setSize(0.2F * scale, 0.2F * scale);
         this.particleScale *= scale;
         return this;
     }
 
-    public void setColor(float particleRedIn, float particleGreenIn, float particleBlueIn)
+    public void setRBGColorF(float particleRedIn, float particleGreenIn, float particleBlueIn)
     {
         this.particleRed = particleRedIn;
         this.particleGreen = particleGreenIn;
@@ -140,16 +160,16 @@ public class Particle
 
     public void setMaxAge(int particleLifeTime)
     {
-        this.maxAge = particleLifeTime;
+        this.particleMaxAge = particleLifeTime;
     }
 
-    public void tick()
+    public void onUpdate()
     {
         this.prevPosX = this.posX;
         this.prevPosY = this.posY;
         this.prevPosZ = this.posZ;
 
-        if (this.age++ >= this.maxAge)
+        if (this.particleAge++ >= this.particleMaxAge)
         {
             this.setExpired();
         }
@@ -167,6 +187,9 @@ public class Particle
         }
     }
 
+    /**
+     * Renders the particle
+     */
     public void renderParticle(BufferBuilder buffer, Entity entityIn, float partialTicks, float rotationX, float rotationZ, float rotationYZ, float rotationXY, float rotationXZ)
     {
         float f = (float)this.particleTextureIndexX / 16.0F;
@@ -212,11 +235,18 @@ public class Particle
         buffer.pos((double)f5 + avec3d[3].x, (double)f6 + avec3d[3].y, (double)f7 + avec3d[3].z).tex((double)f, (double)f3).color(this.particleRed, this.particleGreen, this.particleBlue, this.particleAlpha).lightmap(j, k).endVertex();
     }
 
+    /**
+     * Retrieve what effect layer (what texture) the particle should be rendered with. 0 for the particle sprite sheet,
+     * 1 for the main Texture atlas, and 3 for a custom texture
+     */
     public int getFXLayer()
     {
         return 0;
     }
 
+    /**
+     * Sets the texture used by the particle.
+     */
     public void setParticleTexture(TextureAtlasSprite texture)
     {
         int i = this.getFXLayer();
@@ -231,6 +261,9 @@ public class Particle
         }
     }
 
+    /**
+     * Public method to set private field particleTextureIndex.
+     */
     public void setParticleTextureIndex(int particleTextureIndex)
     {
         if (this.getFXLayer() != 0)
@@ -251,7 +284,7 @@ public class Particle
 
     public String toString()
     {
-        return this.getClass().getSimpleName() + ", Pos (" + this.posX + "," + this.posY + "," + this.posZ + "), RGBA (" + this.particleRed + "," + this.particleGreen + "," + this.particleBlue + "," + this.particleAlpha + "), Age " + this.age;
+        return this.getClass().getSimpleName() + ", Pos (" + this.posX + "," + this.posY + "," + this.posZ + "), RGBA (" + this.particleRed + "," + this.particleGreen + "," + this.particleBlue + "," + this.particleAlpha + "), Age " + this.particleAge;
     }
 
     /**

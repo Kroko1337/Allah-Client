@@ -6,6 +6,8 @@ import net.minecraft.entity.passive.EntityTameable;
 public class EntityAISit extends EntityAIBase
 {
     private final EntityTameable tameable;
+
+    /** If the EntityTameable is sitting. */
     private boolean isSitting;
 
     public EntityAISit(EntityTameable entityIn)
@@ -15,8 +17,7 @@ public class EntityAISit extends EntityAIBase
     }
 
     /**
-     * Returns whether execution should begin. You can also read and cache any state necessary for execution in this
-     * method as well.
+     * Returns whether the EntityAIBase should begin execution.
      */
     public boolean shouldExecute()
     {

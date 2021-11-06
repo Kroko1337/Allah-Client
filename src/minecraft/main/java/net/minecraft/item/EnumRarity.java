@@ -9,7 +9,10 @@ public enum EnumRarity
     RARE(TextFormatting.AQUA, "Rare"),
     EPIC(TextFormatting.LIGHT_PURPLE, "Epic");
 
+    /** The color assigned to this rarity type. */
     public final TextFormatting color;
+
+    /** Rarity name. */
     public final String rarityName;
 
     private EnumRarity(TextFormatting color, String name)

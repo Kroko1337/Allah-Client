@@ -30,12 +30,21 @@ public class Village
 {
     private World world;
     private final List<VillageDoorInfo> villageDoorInfoList = Lists.<VillageDoorInfo>newArrayList();
-    private BlockPos centerHelper = BlockPos.ZERO;
-    private BlockPos center = BlockPos.ZERO;
+
+    /**
+     * This is the sum of all door coordinates and used to calculate the actual village center by dividing by the number
+     * of doors.
+     */
+    private BlockPos centerHelper = BlockPos.ORIGIN;
+
+    /** This is the actual village center. */
+    private BlockPos center = BlockPos.ORIGIN;
     private int villageRadius;
     private int lastAddDoorTimestamp;
     private int tickCounter;
     private int numVillagers;
+
+    /** Timestamp of tick count when villager last bred */
     private int noBreedTicks;
     private final Map<String, Integer> playerReputation = Maps.<String, Integer>newHashMap();
     private final List<Village.VillageAggressor> villageAgressors = Lists.<Village.VillageAggressor>newArrayList();
@@ -55,6 +64,9 @@ public class Village
         this.world = worldIn;
     }
 
+    /**
+     * Called periodically by VillageCollection
+     */
     public void tick(int tickCounterIn)
     {
         this.tickCounter = tickCounterIn;
@@ -81,7 +93,7 @@ public class Village
             {
                 EntityIronGolem entityirongolem = new EntityIronGolem(this.world);
                 entityirongolem.setPosition(vec3d.x, vec3d.y, vec3d.z);
-                this.world.addEntity0(entityirongolem);
+                this.world.spawnEntity(entityirongolem);
                 ++this.numIronGolems;
             }
         }
@@ -102,6 +114,9 @@ public class Village
         return null;
     }
 
+    /**
+     * Checks to see if the volume around blockLocation is clear and able to fit blockSize
+     */
     private boolean isAreaClearAround(BlockPos blockSize, BlockPos blockLocation)
     {
         if (!this.world.getBlockState(blockLocation.down()).isTopSolid())
@@ -158,6 +173,10 @@ public class Village
         return this.villageRadius;
     }
 
+    /**
+     * Actually get num village door info entries, but that boils down to number of doors. Called by
+     * EntityAIVillagerMate and VillageSiege
+     */
     public int getNumVillageDoors()
     {
         return this.villageDoorInfoList.size();
@@ -173,6 +192,10 @@ public class Village
         return this.numVillagers;
     }
 
+    /**
+     * Checks to see if the distance squared between this BlockPos and the center of this Village is less than this
+     * Village's villageRadius squared
+     */
     public boolean isBlockPosWithinSqVillageRadius(BlockPos pos)
     {
         return this.center.distanceSq(pos) < (double)(this.villageRadius * this.villageRadius);
@@ -202,6 +225,9 @@ public class Village
         return villagedoorinfo;
     }
 
+    /**
+     * Returns {@link net.minecraft.village.VillageDoorInfo VillageDoorInfo} from given block position
+     */
     public VillageDoorInfo getDoorInfo(BlockPos pos)
     {
         VillageDoorInfo villagedoorinfo = null;
@@ -237,6 +263,10 @@ public class Village
     }
 
     @Nullable
+
+    /**
+     * if door not existed in this village, null will be returned
+     */
     public VillageDoorInfo getExistedDoor(BlockPos doorBlock)
     {
         if (this.center.distanceSq(doorBlock) > (double)(this.villageRadius * this.villageRadius))
@@ -265,6 +295,9 @@ public class Village
         this.lastAddDoorTimestamp = doorInfo.getLastActivityTimestamp();
     }
 
+    /**
+     * Returns true, if there is not a single village door left. Called by VillageCollection
+     */
     public boolean isAnnihilated()
     {
         return this.villageDoorInfoList.isEmpty();
@@ -340,7 +373,7 @@ public class Village
         {
             Village.VillageAggressor village$villageaggressor = iterator.next();
 
-            if (!village$villageaggressor.agressor.isAlive() || Math.abs(this.tickCounter - village$villageaggressor.agressionTime) > 300)
+            if (!village$villageaggressor.agressor.isEntityAlive() || Math.abs(this.tickCounter - village$villageaggressor.agressionTime) > 300)
             {
                 iterator.remove();
             }
@@ -398,7 +431,7 @@ public class Village
 
         if (i == 0)
         {
-            this.center = BlockPos.ZERO;
+            this.center = BlockPos.ORIGIN;
             this.villageRadius = 0;
         }
         else
@@ -415,12 +448,19 @@ public class Village
         }
     }
 
+    /**
+     * Return the village reputation for a player
+     */
     public int getPlayerReputation(String playerName)
     {
         Integer integer = this.playerReputation.get(playerName);
         return integer == null ? 0 : integer.intValue();
     }
 
+    /**
+     * Modify a players reputation in the village. Use positive values to increase reputation and negative values to
+     * decrease. <br>Note that a players reputation is clamped between -30 and 10
+     */
     public int modifyPlayerReputation(String playerName, int reputation)
     {
         int i = this.getPlayerReputation(playerName);
@@ -429,78 +469,87 @@ public class Village
         return j;
     }
 
+    /**
+     * Return whether this player has a too low reputation with this village.
+     */
     public boolean isPlayerReputationTooLow(String playerName)
     {
         return this.getPlayerReputation(playerName) <= -15;
     }
 
+    /**
+     * Read this village's data from NBT.
+     */
     public void readVillageDataFromNBT(NBTTagCompound compound)
     {
-        this.numVillagers = compound.getInt("PopSize");
-        this.villageRadius = compound.getInt("Radius");
-        this.numIronGolems = compound.getInt("Golems");
-        this.lastAddDoorTimestamp = compound.getInt("Stable");
-        this.tickCounter = compound.getInt("Tick");
-        this.noBreedTicks = compound.getInt("MTick");
-        this.center = new BlockPos(compound.getInt("CX"), compound.getInt("CY"), compound.getInt("CZ"));
-        this.centerHelper = new BlockPos(compound.getInt("ACX"), compound.getInt("ACY"), compound.getInt("ACZ"));
-        NBTTagList nbttaglist = compound.getList("Doors", 10);
+        this.numVillagers = compound.getInteger("PopSize");
+        this.villageRadius = compound.getInteger("Radius");
+        this.numIronGolems = compound.getInteger("Golems");
+        this.lastAddDoorTimestamp = compound.getInteger("Stable");
+        this.tickCounter = compound.getInteger("Tick");
+        this.noBreedTicks = compound.getInteger("MTick");
+        this.center = new BlockPos(compound.getInteger("CX"), compound.getInteger("CY"), compound.getInteger("CZ"));
+        this.centerHelper = new BlockPos(compound.getInteger("ACX"), compound.getInteger("ACY"), compound.getInteger("ACZ"));
+        NBTTagList nbttaglist = compound.getTagList("Doors", 10);
 
         for (int i = 0; i < nbttaglist.tagCount(); ++i)
         {
-            NBTTagCompound nbttagcompound = nbttaglist.getCompound(i);
-            VillageDoorInfo villagedoorinfo = new VillageDoorInfo(new BlockPos(nbttagcompound.getInt("X"), nbttagcompound.getInt("Y"), nbttagcompound.getInt("Z")), nbttagcompound.getInt("IDX"), nbttagcompound.getInt("IDZ"), nbttagcompound.getInt("TS"));
+            NBTTagCompound nbttagcompound = nbttaglist.getCompoundTagAt(i);
+            VillageDoorInfo villagedoorinfo = new VillageDoorInfo(new BlockPos(nbttagcompound.getInteger("X"), nbttagcompound.getInteger("Y"), nbttagcompound.getInteger("Z")), nbttagcompound.getInteger("IDX"), nbttagcompound.getInteger("IDZ"), nbttagcompound.getInteger("TS"));
             this.villageDoorInfoList.add(villagedoorinfo);
         }
 
-        NBTTagList nbttaglist1 = compound.getList("Players", 10);
+        NBTTagList nbttaglist1 = compound.getTagList("Players", 10);
 
         for (int j = 0; j < nbttaglist1.tagCount(); ++j)
         {
-            NBTTagCompound nbttagcompound1 = nbttaglist1.getCompound(j);
+            NBTTagCompound nbttagcompound1 = nbttaglist1.getCompoundTagAt(j);
 
-            if (nbttagcompound1.contains("UUID") && this.world != null && this.world.getServer() != null)
+            if (nbttagcompound1.hasKey("UUID") && this.world != null && this.world.getMinecraftServer() != null)
             {
-                PlayerProfileCache playerprofilecache = this.world.getServer().getPlayerProfileCache();
+                PlayerProfileCache playerprofilecache = this.world.getMinecraftServer().getPlayerProfileCache();
                 GameProfile gameprofile = playerprofilecache.getProfileByUUID(UUID.fromString(nbttagcompound1.getString("UUID")));
 
                 if (gameprofile != null)
                 {
-                    this.playerReputation.put(gameprofile.getName(), Integer.valueOf(nbttagcompound1.getInt("S")));
+                    this.playerReputation.put(gameprofile.getName(), Integer.valueOf(nbttagcompound1.getInteger("S")));
                 }
             }
             else
             {
-                this.playerReputation.put(nbttagcompound1.getString("Name"), Integer.valueOf(nbttagcompound1.getInt("S")));
+                this.playerReputation.put(nbttagcompound1.getString("Name"), Integer.valueOf(nbttagcompound1.getInteger("S")));
             }
         }
     }
 
+    /**
+     * Write this village's data to NBT.
+     */
     public void writeVillageDataToNBT(NBTTagCompound compound)
     {
-        compound.putInt("PopSize", this.numVillagers);
-        compound.putInt("Radius", this.villageRadius);
-        compound.putInt("Golems", this.numIronGolems);
-        compound.putInt("Stable", this.lastAddDoorTimestamp);
-        compound.putInt("Tick", this.tickCounter);
-        compound.putInt("MTick", this.noBreedTicks);
-        compound.putInt("CX", this.center.getX());
-        compound.putInt("CY", this.center.getY());
-        compound.putInt("CZ", this.center.getZ());
-        compound.putInt("ACX", this.centerHelper.getX());
-        compound.putInt("ACY", this.centerHelper.getY());
-        compound.putInt("ACZ", this.centerHelper.getZ());
+        compound.setInteger("PopSize", this.numVillagers);
+        compound.setInteger("Radius", this.villageRadius);
+        compound.setInteger("Golems", this.numIronGolems);
+        compound.setInteger("Stable", this.lastAddDoorTimestamp);
+        compound.setInteger("Tick", this.tickCounter);
+        compound.setInteger("MTick", this.noBreedTicks);
+        compound.setInteger("CX", this.center.getX());
+        compound.setInteger("CY", this.center.getY());
+        compound.setInteger("CZ", this.center.getZ());
+        compound.setInteger("ACX", this.centerHelper.getX());
+        compound.setInteger("ACY", this.centerHelper.getY());
+        compound.setInteger("ACZ", this.centerHelper.getZ());
         NBTTagList nbttaglist = new NBTTagList();
 
         for (VillageDoorInfo villagedoorinfo : this.villageDoorInfoList)
         {
             NBTTagCompound nbttagcompound = new NBTTagCompound();
-            nbttagcompound.putInt("X", villagedoorinfo.getDoorBlockPos().getX());
-            nbttagcompound.putInt("Y", villagedoorinfo.getDoorBlockPos().getY());
-            nbttagcompound.putInt("Z", villagedoorinfo.getDoorBlockPos().getZ());
-            nbttagcompound.putInt("IDX", villagedoorinfo.getInsideOffsetX());
-            nbttagcompound.putInt("IDZ", villagedoorinfo.getInsideOffsetZ());
-            nbttagcompound.putInt("TS", villagedoorinfo.getLastActivityTimestamp());
+            nbttagcompound.setInteger("X", villagedoorinfo.getDoorBlockPos().getX());
+            nbttagcompound.setInteger("Y", villagedoorinfo.getDoorBlockPos().getY());
+            nbttagcompound.setInteger("Z", villagedoorinfo.getDoorBlockPos().getZ());
+            nbttagcompound.setInteger("IDX", villagedoorinfo.getInsideOffsetX());
+            nbttagcompound.setInteger("IDZ", villagedoorinfo.getInsideOffsetZ());
+            nbttagcompound.setInteger("TS", villagedoorinfo.getLastActivityTimestamp());
             nbttaglist.appendTag(nbttagcompound);
         }
 
@@ -510,7 +559,7 @@ public class Village
         for (String s : this.playerReputation.keySet())
         {
             NBTTagCompound nbttagcompound1 = new NBTTagCompound();
-            PlayerProfileCache playerprofilecache = this.world.getServer().getPlayerProfileCache();
+            PlayerProfileCache playerprofilecache = this.world.getMinecraftServer().getPlayerProfileCache();
 
             try
             {
@@ -518,8 +567,8 @@ public class Village
 
                 if (gameprofile != null)
                 {
-                    nbttagcompound1.putString("UUID", gameprofile.getId().toString());
-                    nbttagcompound1.putInt("S", ((Integer)this.playerReputation.get(s)).intValue());
+                    nbttagcompound1.setString("UUID", gameprofile.getId().toString());
+                    nbttagcompound1.setInteger("S", ((Integer)this.playerReputation.get(s)).intValue());
                     nbttaglist1.appendTag(nbttagcompound1);
                 }
             }
@@ -532,11 +581,17 @@ public class Village
         compound.setTag("Players", nbttaglist1);
     }
 
+    /**
+     * Prevent villager breeding for a fixed interval of time
+     */
     public void endMatingSeason()
     {
         this.noBreedTicks = this.tickCounter;
     }
 
+    /**
+     * Return whether villagers mating refractory period has passed
+     */
     public boolean isMatingSeason()
     {
         return this.noBreedTicks == 0 || this.tickCounter - this.noBreedTicks >= 3600;

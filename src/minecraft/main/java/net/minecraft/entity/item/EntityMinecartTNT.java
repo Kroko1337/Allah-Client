@@ -36,7 +36,7 @@ public class EntityMinecartTNT extends EntityMinecart
         EntityMinecart.registerFixesMinecart(fixer, EntityMinecartTNT.class);
     }
 
-    public EntityMinecart.Type getMinecartType()
+    public EntityMinecart.Type getType()
     {
         return EntityMinecart.Type.TNT;
     }
@@ -49,9 +49,9 @@ public class EntityMinecartTNT extends EntityMinecart
     /**
      * Called to update the entity's position/logic.
      */
-    public void tick()
+    public void onUpdate()
     {
-        super.tick();
+        super.onUpdate();
 
         if (this.minecartTNTFuse > 0)
         {
@@ -132,7 +132,7 @@ public class EntityMinecartTNT extends EntityMinecart
             }
 
             this.world.createExplosion(this, this.posX, this.posY, this.posZ, (float)(4.0D + this.rand.nextDouble() * 1.5D * d0), true);
-            this.remove();
+            this.setDead();
         }
     }
 
@@ -223,19 +223,22 @@ public class EntityMinecartTNT extends EntityMinecart
     /**
      * (abstract) Protected helper method to read subclass entity data from NBT.
      */
-    protected void readAdditional(NBTTagCompound compound)
+    protected void readEntityFromNBT(NBTTagCompound compound)
     {
-        super.readAdditional(compound);
+        super.readEntityFromNBT(compound);
 
-        if (compound.contains("TNTFuse", 99))
+        if (compound.hasKey("TNTFuse", 99))
         {
-            this.minecartTNTFuse = compound.getInt("TNTFuse");
+            this.minecartTNTFuse = compound.getInteger("TNTFuse");
         }
     }
 
+    /**
+     * (abstract) Protected helper method to write subclass entity data to NBT.
+     */
     protected void writeEntityToNBT(NBTTagCompound compound)
     {
         super.writeEntityToNBT(compound);
-        compound.putInt("TNTFuse", this.minecartTNTFuse);
+        compound.setInteger("TNTFuse", this.minecartTNTFuse);
     }
 }

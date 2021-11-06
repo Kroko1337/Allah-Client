@@ -8,6 +8,8 @@ import net.minecraft.item.crafting.IRecipe;
 public class RecipeBook
 {
     protected final BitSet recipes = new BitSet();
+
+    /** Recipes the player has not yet seen, so the GUI can play an animation */
     protected final BitSet newRecipes = new BitSet();
     protected boolean isGuiOpen;
     protected boolean isFilteringCraftable;
@@ -42,7 +44,7 @@ public class RecipeBook
 
     protected static int getRecipeId(@Nullable IRecipe recipe)
     {
-        return CraftingManager.REGISTRY.getId(recipe);
+        return CraftingManager.REGISTRY.getIDForObject(recipe);
     }
 
     public boolean isNew(IRecipe recipe)

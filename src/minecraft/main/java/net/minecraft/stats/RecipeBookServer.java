@@ -61,13 +61,13 @@ public class RecipeBookServer extends RecipeBook
     public NBTTagCompound write()
     {
         NBTTagCompound nbttagcompound = new NBTTagCompound();
-        nbttagcompound.putBoolean("isGuiOpen", this.isGuiOpen);
-        nbttagcompound.putBoolean("isFilteringCraftable", this.isFilteringCraftable);
+        nbttagcompound.setBoolean("isGuiOpen", this.isGuiOpen);
+        nbttagcompound.setBoolean("isFilteringCraftable", this.isFilteringCraftable);
         NBTTagList nbttaglist = new NBTTagList();
 
         for (IRecipe irecipe : this.getRecipes())
         {
-            nbttaglist.appendTag(new NBTTagString(((ResourceLocation)CraftingManager.REGISTRY.getKey(irecipe)).toString()));
+            nbttaglist.appendTag(new NBTTagString(((ResourceLocation)CraftingManager.REGISTRY.getNameForObject(irecipe)).toString()));
         }
 
         nbttagcompound.setTag("recipes", nbttaglist);
@@ -75,7 +75,7 @@ public class RecipeBookServer extends RecipeBook
 
         for (IRecipe irecipe1 : this.getDisplayedRecipes())
         {
-            nbttaglist1.appendTag(new NBTTagString(((ResourceLocation)CraftingManager.REGISTRY.getKey(irecipe1)).toString()));
+            nbttaglist1.appendTag(new NBTTagString(((ResourceLocation)CraftingManager.REGISTRY.getNameForObject(irecipe1)).toString()));
         }
 
         nbttagcompound.setTag("toBeDisplayed", nbttaglist1);
@@ -86,11 +86,11 @@ public class RecipeBookServer extends RecipeBook
     {
         this.isGuiOpen = tag.getBoolean("isGuiOpen");
         this.isFilteringCraftable = tag.getBoolean("isFilteringCraftable");
-        NBTTagList nbttaglist = tag.getList("recipes", 8);
+        NBTTagList nbttaglist = tag.getTagList("recipes", 8);
 
         for (int i = 0; i < nbttaglist.tagCount(); ++i)
         {
-            ResourceLocation resourcelocation = new ResourceLocation(nbttaglist.getString(i));
+            ResourceLocation resourcelocation = new ResourceLocation(nbttaglist.getStringTagAt(i));
             IRecipe irecipe = CraftingManager.getRecipe(resourcelocation);
 
             if (irecipe == null)
@@ -103,11 +103,11 @@ public class RecipeBookServer extends RecipeBook
             }
         }
 
-        NBTTagList nbttaglist1 = tag.getList("toBeDisplayed", 8);
+        NBTTagList nbttaglist1 = tag.getTagList("toBeDisplayed", 8);
 
         for (int j = 0; j < nbttaglist1.tagCount(); ++j)
         {
-            ResourceLocation resourcelocation1 = new ResourceLocation(nbttaglist1.getString(j));
+            ResourceLocation resourcelocation1 = new ResourceLocation(nbttaglist1.getStringTagAt(j));
             IRecipe irecipe1 = CraftingManager.getRecipe(resourcelocation1);
 
             if (irecipe1 == null)

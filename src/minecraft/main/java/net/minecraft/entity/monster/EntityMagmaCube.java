@@ -26,26 +26,32 @@ public class EntityMagmaCube extends EntitySlime
         EntityLiving.registerFixesMob(fixer, EntityMagmaCube.class);
     }
 
-    protected void registerAttributes()
+    protected void applyEntityAttributes()
     {
-        super.registerAttributes();
-        this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.20000000298023224D);
+        super.applyEntityAttributes();
+        this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.20000000298023224D);
     }
 
+    /**
+     * Checks if the entity's current position is a valid location to spawn this entity.
+     */
     public boolean getCanSpawnHere()
     {
         return this.world.getDifficulty() != EnumDifficulty.PEACEFUL;
     }
 
+    /**
+     * Checks that the entity is not colliding with any blocks / liquids
+     */
     public boolean isNotColliding()
     {
-        return this.world.checkNoEntityCollision(this.getBoundingBox(), this) && this.world.getCollisionBoxes(this, this.getBoundingBox()).isEmpty() && !this.world.containsAnyLiquid(this.getBoundingBox());
+        return this.world.checkNoEntityCollision(this.getEntityBoundingBox(), this) && this.world.getCollisionBoxes(this, this.getEntityBoundingBox()).isEmpty() && !this.world.containsAnyLiquid(this.getEntityBoundingBox());
     }
 
     protected void setSlimeSize(int size, boolean resetHealth)
     {
         super.setSlimeSize(size, resetHealth);
-        this.getAttribute(SharedMonsterAttributes.ARMOR).setBaseValue((double)(size * 3));
+        this.getEntityAttribute(SharedMonsterAttributes.ARMOR).setBaseValue((double)(size * 3));
     }
 
     public int getBrightnessForRender()
@@ -107,7 +113,7 @@ public class EntityMagmaCube extends EntitySlime
         this.isAirBorne = true;
     }
 
-    protected void handleFluidJump()
+    protected void handleJumpLava()
     {
         this.motionY = (double)(0.22F + (float)this.getSlimeSize() * 0.05F);
         this.isAirBorne = true;
@@ -125,6 +131,9 @@ public class EntityMagmaCube extends EntitySlime
         return true;
     }
 
+    /**
+     * Gets the amount of damage dealt to the player when "attacked" by the slime.
+     */
     protected int getAttackStrength()
     {
         return super.getAttackStrength() + 2;
@@ -132,21 +141,21 @@ public class EntityMagmaCube extends EntitySlime
 
     protected SoundEvent getHurtSound(DamageSource damageSourceIn)
     {
-        return this.isSmallSlime() ? SoundEvents.ENTITY_MAGMA_CUBE_HURT_SMALL : SoundEvents.ENTITY_MAGMA_CUBE_HURT;
+        return this.isSmallSlime() ? SoundEvents.ENTITY_SMALL_MAGMACUBE_HURT : SoundEvents.ENTITY_MAGMACUBE_HURT;
     }
 
     protected SoundEvent getDeathSound()
     {
-        return this.isSmallSlime() ? SoundEvents.ENTITY_MAGMA_CUBE_DEATH_SMALL : SoundEvents.ENTITY_MAGMA_CUBE_DEATH;
+        return this.isSmallSlime() ? SoundEvents.ENTITY_SMALL_MAGMACUBE_DEATH : SoundEvents.ENTITY_MAGMACUBE_DEATH;
     }
 
     protected SoundEvent getSquishSound()
     {
-        return this.isSmallSlime() ? SoundEvents.ENTITY_MAGMA_CUBE_SQUISH_SMALL : SoundEvents.ENTITY_MAGMA_CUBE_SQUISH;
+        return this.isSmallSlime() ? SoundEvents.ENTITY_SMALL_MAGMACUBE_SQUISH : SoundEvents.ENTITY_MAGMACUBE_SQUISH;
     }
 
     protected SoundEvent getJumpSound()
     {
-        return SoundEvents.ENTITY_MAGMA_CUBE_JUMP;
+        return SoundEvents.ENTITY_MAGMACUBE_JUMP;
     }
 }

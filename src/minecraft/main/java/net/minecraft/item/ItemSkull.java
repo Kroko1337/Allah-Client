@@ -35,6 +35,9 @@ public class ItemSkull extends Item
         this.setHasSubtypes(true);
     }
 
+    /**
+     * Called when a Block is right-clicked with this Item
+     */
     public EnumActionResult onItemUse(EntityPlayer player, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
         if (facing == EnumFacing.DOWN)
@@ -85,15 +88,15 @@ public class ItemSkull extends Item
                         {
                             GameProfile gameprofile = null;
 
-                            if (itemstack.hasTag())
+                            if (itemstack.hasTagCompound())
                             {
-                                NBTTagCompound nbttagcompound = itemstack.getTag();
+                                NBTTagCompound nbttagcompound = itemstack.getTagCompound();
 
-                                if (nbttagcompound.contains("SkullOwner", 10))
+                                if (nbttagcompound.hasKey("SkullOwner", 10))
                                 {
-                                    gameprofile = NBTUtil.readGameProfile(nbttagcompound.getCompound("SkullOwner"));
+                                    gameprofile = NBTUtil.readGameProfileFromNBT(nbttagcompound.getCompoundTag("SkullOwner"));
                                 }
-                                else if (nbttagcompound.contains("SkullOwner", 8) && !StringUtils.isBlank(nbttagcompound.getString("SkullOwner")))
+                                else if (nbttagcompound.hasKey("SkullOwner", 8) && !StringUtils.isBlank(nbttagcompound.getString("SkullOwner")))
                                 {
                                     gameprofile = new GameProfile((UUID)null, nbttagcompound.getString("SkullOwner"));
                                 }
@@ -129,9 +132,9 @@ public class ItemSkull extends Item
     /**
      * returns a list of items with the same ID, but different meta (eg: dye returns 16 items)
      */
-    public void fillItemGroup(CreativeTabs group, NonNullList<ItemStack> items)
+    public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> items)
     {
-        if (this.isInGroup(group))
+        if (this.isInCreativeTab(tab))
         {
             for (int i = 0; i < SKULL_TYPES.length; ++i)
             {
@@ -140,6 +143,10 @@ public class ItemSkull extends Item
         }
     }
 
+    /**
+     * Converts the given ItemStack damage value into a metadata value to be placed in the world when this Item is
+     * placed as a Block (mostly used with ItemBlocks).
+     */
     public int getMetadata(int damage)
     {
         return damage;
@@ -163,18 +170,18 @@ public class ItemSkull extends Item
 
     public String getItemStackDisplayName(ItemStack stack)
     {
-        if (stack.getMetadata() == 3 && stack.hasTag())
+        if (stack.getMetadata() == 3 && stack.hasTagCompound())
         {
-            if (stack.getTag().contains("SkullOwner", 8))
+            if (stack.getTagCompound().hasKey("SkullOwner", 8))
             {
-                return I18n.translateToLocalFormatted("item.skull.player.name", stack.getTag().getString("SkullOwner"));
+                return I18n.translateToLocalFormatted("item.skull.player.name", stack.getTagCompound().getString("SkullOwner"));
             }
 
-            if (stack.getTag().contains("SkullOwner", 10))
+            if (stack.getTagCompound().hasKey("SkullOwner", 10))
             {
-                NBTTagCompound nbttagcompound = stack.getTag().getCompound("SkullOwner");
+                NBTTagCompound nbttagcompound = stack.getTagCompound().getCompoundTag("SkullOwner");
 
-                if (nbttagcompound.contains("Name", 8))
+                if (nbttagcompound.hasKey("Name", 8))
                 {
                     return I18n.translateToLocalFormatted("item.skull.player.name", nbttagcompound.getString("Name"));
                 }
@@ -191,7 +198,7 @@ public class ItemSkull extends Item
     {
         super.updateItemStackNBT(nbt);
 
-        if (nbt.contains("SkullOwner", 8) && !StringUtils.isBlank(nbt.getString("SkullOwner")))
+        if (nbt.hasKey("SkullOwner", 8) && !StringUtils.isBlank(nbt.getString("SkullOwner")))
         {
             GameProfile gameprofile = new GameProfile((UUID)null, nbt.getString("SkullOwner"));
             gameprofile = TileEntitySkull.updateGameProfile(gameprofile);

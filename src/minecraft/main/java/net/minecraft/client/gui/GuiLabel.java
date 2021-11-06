@@ -47,6 +47,9 @@ public class GuiLabel extends Gui
         this.labels.add(I18n.format(p_175202_1_));
     }
 
+    /**
+     * Sets the Label to be centered
+     */
     public GuiLabel setCentered()
     {
         this.centered = true;

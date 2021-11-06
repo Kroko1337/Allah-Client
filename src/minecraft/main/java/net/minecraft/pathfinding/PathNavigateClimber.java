@@ -28,10 +28,10 @@ public class PathNavigateClimber extends PathNavigateGround
     /**
      * Returns the path to the given EntityLiving. Args : entity
      */
-    public Path getPathToEntity(Entity entityIn)
+    public Path getPathToEntityLiving(Entity entityIn)
     {
         this.targetPosition = new BlockPos(entityIn);
-        return super.getPathToEntity(entityIn);
+        return super.getPathToEntityLiving(entityIn);
     }
 
     /**
@@ -39,7 +39,7 @@ public class PathNavigateClimber extends PathNavigateGround
      */
     public boolean tryMoveToEntityLiving(Entity entityIn, double speedIn)
     {
-        Path path = this.getPathToEntity(entityIn);
+        Path path = this.getPathToEntityLiving(entityIn);
 
         if (path != null)
         {
@@ -53,11 +53,11 @@ public class PathNavigateClimber extends PathNavigateGround
         }
     }
 
-    public void tick()
+    public void onUpdateNavigation()
     {
         if (!this.noPath())
         {
-            super.tick();
+            super.onUpdateNavigation();
         }
         else
         {

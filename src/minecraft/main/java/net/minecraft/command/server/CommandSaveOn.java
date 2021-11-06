@@ -8,16 +8,25 @@ import net.minecraft.world.WorldServer;
 
 public class CommandSaveOn extends CommandBase
 {
+    /**
+     * Gets the name of the command
+     */
     public String getName()
     {
         return "save-on";
     }
 
+    /**
+     * Gets the usage string for the command.
+     */
     public String getUsage(ICommandSender sender)
     {
         return "commands.save-on.usage";
     }
 
+    /**
+     * Callback for when the command is executed
+     */
     public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
     {
         boolean flag = false;

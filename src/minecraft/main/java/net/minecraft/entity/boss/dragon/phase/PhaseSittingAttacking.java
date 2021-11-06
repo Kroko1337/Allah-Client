@@ -16,16 +16,16 @@ public class PhaseSittingAttacking extends PhaseSittingBase
      * Generates particle effects appropriate to the phase (or sometimes sounds).
      * Called by dragon's onLivingUpdate. Only used when worldObj.isRemote.
      */
-    public void clientTick()
+    public void doClientRenderEffects()
     {
-        this.dragon.world.playSound(this.dragon.posX, this.dragon.posY, this.dragon.posZ, SoundEvents.ENTITY_ENDER_DRAGON_GROWL, this.dragon.getSoundCategory(), 2.5F, 0.8F + this.dragon.getRNG().nextFloat() * 0.3F, false);
+        this.dragon.world.playSound(this.dragon.posX, this.dragon.posY, this.dragon.posZ, SoundEvents.ENTITY_ENDERDRAGON_GROWL, this.dragon.getSoundCategory(), 2.5F, 0.8F + this.dragon.getRNG().nextFloat() * 0.3F, false);
     }
 
     /**
      * Gives the phase a chance to update its status.
      * Called by dragon's onLivingUpdate. Only used when !worldObj.isRemote.
      */
-    public void serverTick()
+    public void doLocalUpdate()
     {
         if (this.attackingTicks++ >= 40)
         {

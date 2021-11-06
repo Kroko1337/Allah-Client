@@ -76,7 +76,7 @@ public class BrewedPotionTrigger implements ICriterionTrigger<BrewedPotionTrigge
                 throw new JsonSyntaxException("Unknown potion '" + resourcelocation + "'");
             }
 
-            potiontype = PotionType.REGISTRY.getOrDefault(resourcelocation);
+            potiontype = PotionType.REGISTRY.getObject(resourcelocation);
         }
 
         return new BrewedPotionTrigger.Instance(potiontype);

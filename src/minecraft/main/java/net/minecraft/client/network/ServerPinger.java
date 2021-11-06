@@ -282,7 +282,7 @@ public class ServerPinger
 
                 if (networkmanager.isChannelOpen())
                 {
-                    networkmanager.tick();
+                    networkmanager.processReceivedPackets();
                 }
                 else
                 {

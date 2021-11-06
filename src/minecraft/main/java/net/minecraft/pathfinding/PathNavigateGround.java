@@ -31,7 +31,7 @@ public class PathNavigateGround extends PathNavigate
      */
     protected boolean canNavigate()
     {
-        return this.entity.onGround || this.getCanSwim() && this.isInLiquid() || this.entity.isPassenger();
+        return this.entity.onGround || this.getCanSwim() && this.isInLiquid() || this.entity.isRiding();
     }
 
     protected Vec3d getEntityPosition()
@@ -86,7 +86,7 @@ public class PathNavigateGround extends PathNavigate
     /**
      * Returns the path to the given EntityLiving. Args : entity
      */
-    public Path getPathToEntity(Entity entityIn)
+    public Path getPathToEntityLiving(Entity entityIn)
     {
         return this.getPathToPos(new BlockPos(entityIn));
     }
@@ -98,7 +98,7 @@ public class PathNavigateGround extends PathNavigate
     {
         if (this.entity.isInWater() && this.getCanSwim())
         {
-            int i = (int)this.entity.getBoundingBox().minY;
+            int i = (int)this.entity.getEntityBoundingBox().minY;
             Block block = this.world.getBlockState(new BlockPos(MathHelper.floor(this.entity.posX), i, MathHelper.floor(this.entity.posZ))).getBlock();
             int j = 0;
 
@@ -110,7 +110,7 @@ public class PathNavigateGround extends PathNavigate
 
                 if (j > 16)
                 {
-                    return (int)this.entity.getBoundingBox().minY;
+                    return (int)this.entity.getEntityBoundingBox().minY;
                 }
             }
 
@@ -118,20 +118,20 @@ public class PathNavigateGround extends PathNavigate
         }
         else
         {
-            return (int)(this.entity.getBoundingBox().minY + 0.5D);
+            return (int)(this.entity.getEntityBoundingBox().minY + 0.5D);
         }
     }
 
     /**
      * Trims path data from the end to the first sun covered block
      */
-    protected void trimPath()
+    protected void removeSunnyPath()
     {
-        super.trimPath();
+        super.removeSunnyPath();
 
         if (this.shouldAvoidSun)
         {
-            if (this.world.canSeeSky(new BlockPos(MathHelper.floor(this.entity.posX), (int)(this.entity.getBoundingBox().minY + 0.5D), MathHelper.floor(this.entity.posZ))))
+            if (this.world.canSeeSky(new BlockPos(MathHelper.floor(this.entity.posX), (int)(this.entity.getEntityBoundingBox().minY + 0.5D), MathHelper.floor(this.entity.posZ))))
             {
                 return;
             }

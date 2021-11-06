@@ -8,8 +8,14 @@ public class Vec3i implements Comparable<Vec3i>
 {
     /** An immutable vector with zero as all coordinates. */
     public static final Vec3i NULL_VECTOR = new Vec3i(0, 0, 0);
+
+    /** X coordinate */
     private final int x;
+
+    /** Y coordinate */
     private final int y;
+
+    /** Z coordinate */
     private final int z;
 
     public Vec3i(int xIn, int yIn, int zIn)
@@ -110,6 +116,9 @@ public class Vec3i implements Comparable<Vec3i>
         return Math.sqrt(d0 * d0 + d1 * d1 + d2 * d2);
     }
 
+    /**
+     * Calculate squared distance to the given coordinates
+     */
     public double distanceSq(double toX, double toY, double toZ)
     {
         double d0 = (double)this.getX() - toX;
@@ -118,6 +127,9 @@ public class Vec3i implements Comparable<Vec3i>
         return d0 * d0 + d1 * d1 + d2 * d2;
     }
 
+    /**
+     * Compute square of distance from point x, y, z to center of this Block
+     */
     public double distanceSqToCenter(double xIn, double yIn, double zIn)
     {
         double d0 = (double)this.getX() + 0.5D - xIn;

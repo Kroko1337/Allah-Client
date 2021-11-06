@@ -13,43 +13,43 @@ public class BannerItemColor implements IFixableData
 
     public NBTTagCompound fixTagCompound(NBTTagCompound compound)
     {
-        if ("minecraft:banner".equals(compound.getString("id")) && compound.contains("tag", 10))
+        if ("minecraft:banner".equals(compound.getString("id")) && compound.hasKey("tag", 10))
         {
-            NBTTagCompound nbttagcompound = compound.getCompound("tag");
+            NBTTagCompound nbttagcompound = compound.getCompoundTag("tag");
 
-            if (nbttagcompound.contains("BlockEntityTag", 10))
+            if (nbttagcompound.hasKey("BlockEntityTag", 10))
             {
-                NBTTagCompound nbttagcompound1 = nbttagcompound.getCompound("BlockEntityTag");
+                NBTTagCompound nbttagcompound1 = nbttagcompound.getCompoundTag("BlockEntityTag");
 
-                if (nbttagcompound1.contains("Base", 99))
+                if (nbttagcompound1.hasKey("Base", 99))
                 {
-                    compound.putShort("Damage", (short)(nbttagcompound1.getShort("Base") & 15));
+                    compound.setShort("Damage", (short)(nbttagcompound1.getShort("Base") & 15));
 
-                    if (nbttagcompound.contains("display", 10))
+                    if (nbttagcompound.hasKey("display", 10))
                     {
-                        NBTTagCompound nbttagcompound2 = nbttagcompound.getCompound("display");
+                        NBTTagCompound nbttagcompound2 = nbttagcompound.getCompoundTag("display");
 
-                        if (nbttagcompound2.contains("Lore", 9))
+                        if (nbttagcompound2.hasKey("Lore", 9))
                         {
-                            NBTTagList nbttaglist = nbttagcompound2.getList("Lore", 8);
+                            NBTTagList nbttaglist = nbttagcompound2.getTagList("Lore", 8);
 
-                            if (nbttaglist.tagCount() == 1 && "(+NBT)".equals(nbttaglist.getString(0)))
+                            if (nbttaglist.tagCount() == 1 && "(+NBT)".equals(nbttaglist.getStringTagAt(0)))
                             {
                                 return compound;
                             }
                         }
                     }
 
-                    nbttagcompound1.remove("Base");
+                    nbttagcompound1.removeTag("Base");
 
                     if (nbttagcompound1.isEmpty())
                     {
-                        nbttagcompound.remove("BlockEntityTag");
+                        nbttagcompound.removeTag("BlockEntityTag");
                     }
 
                     if (nbttagcompound.isEmpty())
                     {
-                        compound.remove("tag");
+                        compound.removeTag("tag");
                     }
                 }
             }

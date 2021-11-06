@@ -41,7 +41,7 @@ public class ServerListEntryNormal implements GuiListExtended.IGuiListEntry
     {
         this.owner = ownerIn;
         this.server = serverIn;
-        this.mc = Minecraft.getInstance();
+        this.mc = Minecraft.getMinecraft();
         this.serverIcon = new ResourceLocation("servers/" + serverIn.serverIP + "/icon");
         this.icon = (DynamicTexture)this.mc.getTextureManager().getTexture(this.serverIcon);
     }
@@ -293,6 +293,10 @@ public class ServerListEntryNormal implements GuiListExtended.IGuiListEntry
         }
     }
 
+    /**
+     * Called when the mouse is clicked within this entry. Returning true means that something within this entry was
+     * clicked and the list should not be dragged.
+     */
     public boolean mousePressed(int slotIndex, int mouseX, int mouseY, int mouseEvent, int relativeX, int relativeY)
     {
         if (relativeX <= 32)
@@ -332,6 +336,9 @@ public class ServerListEntryNormal implements GuiListExtended.IGuiListEntry
     {
     }
 
+    /**
+     * Fired when the mouse button is released. Arguments: index, x, y, mouseEvent, relativeX, relativeY
+     */
     public void mouseReleased(int slotIndex, int x, int y, int mouseEvent, int relativeX, int relativeY)
     {
     }

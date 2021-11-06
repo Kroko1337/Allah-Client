@@ -24,7 +24,7 @@ public class CraftPlanksStep implements ITutorialStep
         this.tutorial = tutorial;
     }
 
-    public void tick()
+    public void update()
     {
         ++this.timeWaiting;
 
@@ -73,6 +73,8 @@ public class CraftPlanksStep implements ITutorialStep
 
     /**
      * Called when the player pick up an ItemStack
+     *  
+     * @param stack The ItemStack
      */
     public void handleSetSlot(ItemStack stack)
     {
@@ -82,9 +84,14 @@ public class CraftPlanksStep implements ITutorialStep
         }
     }
 
+    /**
+     * Indicates if the players crafted at least one time planks.
+     *  
+     * @param player The player
+     */
     public static boolean didPlayerCraftedPlanks(EntityPlayerSP player)
     {
         StatBase statbase = StatList.getCraftStats(Item.getItemFromBlock(Blocks.PLANKS));
-        return statbase != null && player.getStats().getValue(statbase) > 0;
+        return statbase != null && player.getStatFileWriter().readStat(statbase) > 0;
     }
 }

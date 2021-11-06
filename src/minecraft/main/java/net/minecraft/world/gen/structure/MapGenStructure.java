@@ -25,6 +25,9 @@ public abstract class MapGenStructure extends MapGenBase
 
     public abstract String getStructureName();
 
+    /**
+     * Recursively called by generate()
+     */
     protected final synchronized void recursiveGenerate(World worldIn, final int chunkX, final int chunkZ, int originalX, int originalZ, ChunkPrimer chunkPrimerIn)
     {
         this.initializeStructureData(worldIn);
@@ -40,7 +43,7 @@ public abstract class MapGenStructure extends MapGenBase
                     StructureStart structurestart = this.getStructureStart(chunkX, chunkZ);
                     this.structureMap.put(ChunkPos.asLong(chunkX, chunkZ), structurestart);
 
-                    if (structurestart.isValid())
+                    if (structurestart.isSizeableStructure())
                     {
                         this.setStructureStart(chunkX, chunkZ, structurestart);
                     }
@@ -57,7 +60,7 @@ public abstract class MapGenStructure extends MapGenBase
                         return MapGenStructure.this.canSpawnStructureAtCoords(chunkX, chunkZ) ? "True" : "False";
                     }
                 });
-                crashreportcategory.addDetail("Chunk location", String.format("%d,%d", chunkX, chunkZ));
+                crashreportcategory.addCrashSection("Chunk location", String.format("%d,%d", chunkX, chunkZ));
                 crashreportcategory.addDetail("Chunk pos hash", new ICrashReportDetail<String>()
                 {
                     public String call() throws Exception
@@ -89,7 +92,7 @@ public abstract class MapGenStructure extends MapGenBase
         {
             StructureStart structurestart = (StructureStart)objectiterator.next();
 
-            if (structurestart.isValid() && structurestart.isValidForPostProcess(chunkCoord) && structurestart.getBoundingBox().intersectsWith(i, j, i + 15, j + 15))
+            if (structurestart.isSizeableStructure() && structurestart.isValidForPostProcess(chunkCoord) && structurestart.getBoundingBox().intersectsWith(i, j, i + 15, j + 15))
             {
                 structurestart.generateStructure(worldIn, randomIn, new StructureBoundingBox(i, j, i + 15, j + 15));
                 structurestart.notifyPostProcessAt(chunkCoord);
@@ -124,7 +127,7 @@ public abstract class MapGenStructure extends MapGenBase
         {
             StructureStart structurestart = (StructureStart)objectiterator.next();
 
-            if (structurestart.isValid() && structurestart.getBoundingBox().isVecInside(pos))
+            if (structurestart.isSizeableStructure() && structurestart.getBoundingBox().isVecInside(pos))
             {
                 Iterator<StructureComponent> iterator = structurestart.getComponents().iterator();
 
@@ -159,7 +162,7 @@ public abstract class MapGenStructure extends MapGenBase
         {
             StructureStart structurestart = (StructureStart)objectiterator.next();
 
-            if (structurestart.isValid() && structurestart.getBoundingBox().isVecInside(pos))
+            if (structurestart.isSizeableStructure() && structurestart.getBoundingBox().isVecInside(pos))
             {
                 return true;
             }
@@ -186,18 +189,18 @@ public abstract class MapGenStructure extends MapGenBase
             {
                 NBTTagCompound nbttagcompound = this.structureData.getTagCompound();
 
-                for (String s : nbttagcompound.keySet())
+                for (String s : nbttagcompound.getKeySet())
                 {
-                    NBTBase nbtbase = nbttagcompound.get(s);
+                    NBTBase nbtbase = nbttagcompound.getTag(s);
 
                     if (nbtbase.getId() == 10)
                     {
                         NBTTagCompound nbttagcompound1 = (NBTTagCompound)nbtbase;
 
-                        if (nbttagcompound1.contains("ChunkX") && nbttagcompound1.contains("ChunkZ"))
+                        if (nbttagcompound1.hasKey("ChunkX") && nbttagcompound1.hasKey("ChunkZ"))
                         {
-                            int i = nbttagcompound1.getInt("ChunkX");
-                            int j = nbttagcompound1.getInt("ChunkZ");
+                            int i = nbttagcompound1.getInteger("ChunkX");
+                            int j = nbttagcompound1.getInteger("ChunkZ");
                             StructureStart structurestart = MapGenStructureIO.getStructureStart(nbttagcompound1, worldIn);
 
                             if (structurestart != null)
@@ -213,7 +216,7 @@ public abstract class MapGenStructure extends MapGenBase
 
     private void setStructureStart(int chunkX, int chunkZ, StructureStart start)
     {
-        this.structureData.writeInstance(start.write(chunkX, chunkZ), chunkX, chunkZ);
+        this.structureData.writeInstance(start.writeStructureComponentsToNBT(chunkX, chunkZ), chunkX, chunkZ);
         this.structureData.markDirty();
     }
 

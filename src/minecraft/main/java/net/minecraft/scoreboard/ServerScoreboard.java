@@ -24,9 +24,9 @@ public class ServerScoreboard extends Scoreboard
         this.server = mcServer;
     }
 
-    public void onScoreChanged(Score scoreIn)
+    public void onScoreUpdated(Score scoreIn)
     {
-        super.onScoreChanged(scoreIn);
+        super.onScoreUpdated(scoreIn);
 
         if (this.addedObjectives.contains(scoreIn.getObjective()))
         {
@@ -36,16 +36,16 @@ public class ServerScoreboard extends Scoreboard
         this.markSaveDataDirty();
     }
 
-    public void onPlayerRemoved(String scoreName)
+    public void broadcastScoreUpdate(String scoreName)
     {
-        super.onPlayerRemoved(scoreName);
+        super.broadcastScoreUpdate(scoreName);
         this.server.getPlayerList().sendPacketToAllPlayers(new SPacketUpdateScore(scoreName));
         this.markSaveDataDirty();
     }
 
-    public void onPlayerScoreRemoved(String scoreName, ScoreObjective objective)
+    public void broadcastScoreUpdate(String scoreName, ScoreObjective objective)
     {
-        super.onPlayerScoreRemoved(scoreName, objective);
+        super.broadcastScoreUpdate(scoreName, objective);
         this.server.getPlayerList().sendPacketToAllPlayers(new SPacketUpdateScore(scoreName, objective));
         this.markSaveDataDirty();
     }
@@ -85,6 +85,9 @@ public class ServerScoreboard extends Scoreboard
         this.markSaveDataDirty();
     }
 
+    /**
+     * Adds a player to the given team
+     */
     public boolean addPlayerToTeam(String player, String newTeam)
     {
         if (super.addPlayerToTeam(player, newTeam))
@@ -111,9 +114,12 @@ public class ServerScoreboard extends Scoreboard
         this.markSaveDataDirty();
     }
 
-    public void onObjectiveAdded(ScoreObjective objective)
+    /**
+     * Called when a score objective is added
+     */
+    public void onScoreObjectiveAdded(ScoreObjective scoreObjectiveIn)
     {
-        super.onObjectiveAdded(objective);
+        super.onScoreObjectiveAdded(scoreObjectiveIn);
         this.markSaveDataDirty();
     }
 
@@ -129,9 +135,9 @@ public class ServerScoreboard extends Scoreboard
         this.markSaveDataDirty();
     }
 
-    public void onObjectiveRemoved(ScoreObjective objective)
+    public void onScoreObjectiveRemoved(ScoreObjective objective)
     {
-        super.onObjectiveRemoved(objective);
+        super.onScoreObjectiveRemoved(objective);
 
         if (this.addedObjectives.contains(objective))
         {
@@ -141,23 +147,29 @@ public class ServerScoreboard extends Scoreboard
         this.markSaveDataDirty();
     }
 
-    public void onTeamAdded(ScorePlayerTeam playerTeam)
+    /**
+     * This packet will notify the players that this team is created, and that will register it on the client
+     */
+    public void broadcastTeamCreated(ScorePlayerTeam playerTeam)
     {
-        super.onTeamAdded(playerTeam);
+        super.broadcastTeamCreated(playerTeam);
         this.server.getPlayerList().sendPacketToAllPlayers(new SPacketTeams(playerTeam, 0));
         this.markSaveDataDirty();
     }
 
-    public void onTeamChanged(ScorePlayerTeam playerTeam)
+    /**
+     * This packet will notify the players that this team is updated
+     */
+    public void broadcastTeamInfoUpdate(ScorePlayerTeam playerTeam)
     {
-        super.onTeamChanged(playerTeam);
+        super.broadcastTeamInfoUpdate(playerTeam);
         this.server.getPlayerList().sendPacketToAllPlayers(new SPacketTeams(playerTeam, 2));
         this.markSaveDataDirty();
     }
 
-    public void onTeamRemoved(ScorePlayerTeam playerTeam)
+    public void broadcastTeamRemove(ScorePlayerTeam playerTeam)
     {
-        super.onTeamRemoved(playerTeam);
+        super.broadcastTeamRemove(playerTeam);
         this.server.getPlayerList().sendPacketToAllPlayers(new SPacketTeams(playerTeam, 1));
         this.markSaveDataDirty();
     }

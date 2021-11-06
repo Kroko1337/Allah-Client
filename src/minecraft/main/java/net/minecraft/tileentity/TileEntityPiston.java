@@ -63,7 +63,7 @@ public class TileEntityPiston extends TileEntity implements ITickable
      */
     public NBTTagCompound getUpdateTag()
     {
-        return this.write(new NBTTagCompound());
+        return this.writeToNBT(new NBTTagCompound());
     }
 
     public int getBlockMetadata()
@@ -137,7 +137,7 @@ public class TileEntityPiston extends TileEntity implements ITickable
 
     private IBlockState getCollisionRelatedBlockState()
     {
-        return !this.isExtending() && this.shouldPistonHeadBeRendered() ? Blocks.PISTON_HEAD.getDefaultState().withProperty(BlockPistonExtension.TYPE, this.pistonState.getBlock() == Blocks.STICKY_PISTON ? BlockPistonExtension.EnumPistonType.STICKY : BlockPistonExtension.EnumPistonType.DEFAULT).withProperty(BlockPistonExtension.FACING, this.pistonState.get(BlockPistonBase.FACING)) : this.pistonState;
+        return !this.isExtending() && this.shouldPistonHeadBeRendered() ? Blocks.PISTON_HEAD.getDefaultState().withProperty(BlockPistonExtension.TYPE, this.pistonState.getBlock() == Blocks.STICKY_PISTON ? BlockPistonExtension.EnumPistonType.STICKY : BlockPistonExtension.EnumPistonType.DEFAULT).withProperty(BlockPistonExtension.FACING, this.pistonState.getValue(BlockPistonBase.FACING)) : this.pistonState;
     }
 
     private void moveCollidedEntities(float p_184322_1_)
@@ -145,7 +145,7 @@ public class TileEntityPiston extends TileEntity implements ITickable
         EnumFacing enumfacing = this.extending ? this.pistonFacing : this.pistonFacing.getOpposite();
         double d0 = (double)(p_184322_1_ - this.progress);
         List<AxisAlignedBB> list = Lists.<AxisAlignedBB>newArrayList();
-        this.getCollisionRelatedBlockState().addCollisionBoxToList(this.world, BlockPos.ZERO, new AxisAlignedBB(BlockPos.ZERO), list, (Entity)null, true);
+        this.getCollisionRelatedBlockState().addCollisionBoxToList(this.world, BlockPos.ORIGIN, new AxisAlignedBB(BlockPos.ORIGIN), list, (Entity)null, true);
 
         if (!list.isEmpty())
         {
@@ -184,7 +184,7 @@ public class TileEntityPiston extends TileEntity implements ITickable
                         for (int j = 0; j < list.size(); ++j)
                         {
                             AxisAlignedBB axisalignedbb1 = this.getMovementArea(this.moveByPositionAndProgress(list.get(j)), enumfacing, d0);
-                            AxisAlignedBB axisalignedbb2 = entity.getBoundingBox();
+                            AxisAlignedBB axisalignedbb2 = entity.getEntityBoundingBox();
 
                             if (axisalignedbb1.intersects(axisalignedbb2))
                             {
@@ -290,7 +290,7 @@ public class TileEntityPiston extends TileEntity implements ITickable
 
     private void fixEntityWithinPistonBase(Entity p_190605_1_, EnumFacing p_190605_2_, double p_190605_3_)
     {
-        AxisAlignedBB axisalignedbb = p_190605_1_.getBoundingBox();
+        AxisAlignedBB axisalignedbb = p_190605_1_.getEntityBoundingBox();
         AxisAlignedBB axisalignedbb1 = Block.FULL_BLOCK_AABB.offset(this.pos);
 
         if (axisalignedbb.intersects(axisalignedbb1))
@@ -334,7 +334,7 @@ public class TileEntityPiston extends TileEntity implements ITickable
             this.progress = 1.0F;
             this.lastProgress = this.progress;
             this.world.removeTileEntity(this.pos);
-            this.remove();
+            this.invalidate();
 
             if (this.world.getBlockState(this.pos).getBlock() == Blocks.PISTON_EXTENSION)
             {
@@ -344,14 +344,17 @@ public class TileEntityPiston extends TileEntity implements ITickable
         }
     }
 
-    public void tick()
+    /**
+     * Like the old updateEntity(), except more generic.
+     */
+    public void update()
     {
         this.lastProgress = this.progress;
 
         if (this.lastProgress >= 1.0F)
         {
             this.world.removeTileEntity(this.pos);
-            this.remove();
+            this.invalidate();
 
             if (this.world.getBlockState(this.pos).getBlock() == Blocks.PISTON_EXTENSION)
             {
@@ -376,26 +379,26 @@ public class TileEntityPiston extends TileEntity implements ITickable
     {
     }
 
-    public void read(NBTTagCompound compound)
+    public void readFromNBT(NBTTagCompound compound)
     {
-        super.read(compound);
-        this.pistonState = Block.getBlockById(compound.getInt("blockId")).getStateFromMeta(compound.getInt("blockData"));
-        this.pistonFacing = EnumFacing.byIndex(compound.getInt("facing"));
+        super.readFromNBT(compound);
+        this.pistonState = Block.getBlockById(compound.getInteger("blockId")).getStateFromMeta(compound.getInteger("blockData"));
+        this.pistonFacing = EnumFacing.byIndex(compound.getInteger("facing"));
         this.progress = compound.getFloat("progress");
         this.lastProgress = this.progress;
         this.extending = compound.getBoolean("extending");
         this.shouldHeadBeRendered = compound.getBoolean("source");
     }
 
-    public NBTTagCompound write(NBTTagCompound compound)
+    public NBTTagCompound writeToNBT(NBTTagCompound compound)
     {
-        super.write(compound);
-        compound.putInt("blockId", Block.getIdFromBlock(this.pistonState.getBlock()));
-        compound.putInt("blockData", this.pistonState.getBlock().getMetaFromState(this.pistonState));
-        compound.putInt("facing", this.pistonFacing.getIndex());
-        compound.putFloat("progress", this.lastProgress);
-        compound.putBoolean("extending", this.extending);
-        compound.putBoolean("source", this.shouldHeadBeRendered);
+        super.writeToNBT(compound);
+        compound.setInteger("blockId", Block.getIdFromBlock(this.pistonState.getBlock()));
+        compound.setInteger("blockData", this.pistonState.getBlock().getMetaFromState(this.pistonState));
+        compound.setInteger("facing", this.pistonFacing.getIndex());
+        compound.setFloat("progress", this.lastProgress);
+        compound.setBoolean("extending", this.extending);
+        compound.setBoolean("source", this.shouldHeadBeRendered);
         return compound;
     }
 

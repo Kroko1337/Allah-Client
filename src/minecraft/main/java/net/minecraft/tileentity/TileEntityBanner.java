@@ -24,16 +24,20 @@ public class TileEntityBanner extends TileEntity implements IWorldNameable
     private boolean patternDataSet;
     private List<BannerPattern> patternList;
     private List<EnumDyeColor> colorList;
+
+    /**
+     * This is a String representation of this banners pattern and color lists, used for texture caching.
+     */
     private String patternResourceLocation;
 
     public void setItemValues(ItemStack stack, boolean p_175112_2_)
     {
         this.patterns = null;
-        NBTTagCompound nbttagcompound = stack.getChildTag("BlockEntityTag");
+        NBTTagCompound nbttagcompound = stack.getSubCompound("BlockEntityTag");
 
-        if (nbttagcompound != null && nbttagcompound.contains("Patterns", 9))
+        if (nbttagcompound != null && nbttagcompound.hasKey("Patterns", 9))
         {
-            this.patterns = nbttagcompound.getList("Patterns", 10).copy();
+            this.patterns = nbttagcompound.getTagList("Patterns", 10).copy();
         }
 
         this.baseColor = p_175112_2_ ? getColor(stack) : ItemBanner.getBaseColor(stack);
@@ -44,25 +48,95 @@ public class TileEntityBanner extends TileEntity implements IWorldNameable
         this.name = stack.hasDisplayName() ? stack.getDisplayName() : null;
     }
 
+    /**
+     * Gets the name of this thing. This method has slightly different behavior depending on the interface (for <a
+     * href="https://github.com/ModCoderPack/MCPBot-Issues/issues/14">technical reasons</a> the same method is used for
+     * both IWorldNameable and ICommandSender):
+     *  
+     * <dl>
+     * <dt>{@link net.minecraft.util.INameable#getName() INameable.getName()}</dt>
+     * <dd>Returns the name of this inventory. If this {@linkplain net.minecraft.inventory#hasCustomName() has a custom
+     * name} then this <em>should</em> be a direct string; otherwise it <em>should</em> be a valid translation
+     * string.</dd>
+     * <dd>However, note that <strong>the translation string may be invalid</strong>, as is the case for {@link
+     * net.minecraft.tileentity.TileEntityBanner TileEntityBanner} (always returns nonexistent translation code
+     * <code>banner</code> without a custom name), {@link net.minecraft.block.BlockAnvil.Anvil BlockAnvil$Anvil} (always
+     * returns <code>anvil</code>), {@link net.minecraft.block.BlockWorkbench.InterfaceCraftingTable
+     * BlockWorkbench$InterfaceCraftingTable} (always returns <code>crafting_table</code>), {@link
+     * net.minecraft.inventory.InventoryCraftResult InventoryCraftResult} (always returns <code>Result</code>) and the
+     * {@link net.minecraft.entity.item.EntityMinecart EntityMinecart} family (uses the entity definition). This is not
+     * an exaustive list.</dd>
+     * <dd>In general, this method should be safe to use on tile entities that implement IInventory.</dd>
+     * <dt>{@link net.minecraft.command.ICommandSender#getName() ICommandSender.getName()} and {@link
+     * net.minecraft.entity.Entity#getName() Entity.getName()}</dt>
+     * <dd>Returns a valid, displayable name (which may be localized). For most entities, this is the translated version
+     * of its translation string (obtained via {@link net.minecraft.entity.EntityList#getEntityString
+     * EntityList.getEntityString}).</dd>
+     * <dd>If this entity has a custom name set, this will return that name.</dd>
+     * <dd>For some entities, this will attempt to translate a nonexistent translation string; see <a
+     * href="https://bugs.mojang.com/browse/MC-68446">MC-68446</a>. For {@linkplain
+     * net.minecraft.entity.player.EntityPlayer#getName() players} this returns the player's name. For {@linkplain
+     * net.minecraft.entity.passive.EntityOcelot ocelots} this may return the translation of
+     * <code>entity.Cat.name</code> if it is tamed. For {@linkplain net.minecraft.entity.item.EntityItem#getName() item
+     * entities}, this will attempt to return the name of the item in that item entity. In all cases other than players,
+     * the custom name will overrule this.</dd>
+     * <dd>For non-entity command senders, this will return some arbitrary name, such as "Rcon" or "Server".</dd>
+     * </dl>
+     */
     public String getName()
     {
         return this.hasCustomName() ? this.name : "banner";
     }
 
+    /**
+     * Checks if this thing has a custom name. This method has slightly different behavior depending on the interface
+     * (for <a href="https://github.com/ModCoderPack/MCPBot-Issues/issues/14">technical reasons</a> the same method is
+     * used for both IWorldNameable and Entity):
+     *  
+     * <dl>
+     * <dt>{@link net.minecraft.util.INameable#hasCustomName() INameable.hasCustomName()}</dt>
+     * <dd>If true, then {@link #getName()} probably returns a preformatted name; otherwise, it probably returns a
+     * translation string. However, exact behavior varies.</dd>
+     * <dt>{@link net.minecraft.entity.Entity#hasCustomName() Entity.hasCustomName()}</dt>
+     * <dd>If true, then {@link net.minecraft.entity.Entity#getCustomNameTag() Entity.getCustomNameTag()} will return a
+     * non-empty string, which will be used by {@link #getName()}.</dd>
+     * </dl>
+     */
     public boolean hasCustomName()
     {
         return this.name != null && !this.name.isEmpty();
     }
 
+    /**
+     * Returns a displayable component representing this thing's name. This method should be implemented slightly
+     * differently depending on the interface (for <a href="https://github.com/ModCoderPack/MCPBot-
+     * Issues/issues/14">technical reasons</a> the same method is used for both IWorldNameable and ICommandSender), but
+     * unlike {@link #getName()} this method will generally behave sanely.
+     *  
+     * <dl>
+     * <dt>{@link net.minecraft.util.INameable#getDisplayName() INameable.getDisplayName()}</dt>
+     * <dd>A normal component. Might be a translation component or a text component depending on the context. Usually
+     * implemented as:</dd>
+     * <dd><pre><code>return this.{@link net.minecraft.util.INameable#hasCustomName() hasCustomName()} ? new
+     * TextComponentString(this.{@link #getName()}) : new TextComponentTranslation(this.{@link
+     * #getName()});</code></pre></dd>
+     * <dt>{@link net.minecraft.command.ICommandSender#getDisplayName() ICommandSender.getDisplayName()} and {@link
+     * net.minecraft.entity.Entity#getDisplayName() Entity.getDisplayName()}</dt>
+     * <dd>For most entities, this returns the result of {@link #getName()}, with {@linkplain
+     * net.minecraft.scoreboard.ScorePlayerTeam#formatPlayerName scoreboard formatting} and a {@linkplain
+     * net.minecraft.entity.Entity#getHoverEvent special hover event}.</dd>
+     * <dd>For non-entity command senders, this will return the result of {@link #getName()} in a text component.</dd>
+     * </dl>
+     */
     public ITextComponent getDisplayName()
     {
         return (ITextComponent)(this.hasCustomName() ? new TextComponentString(this.getName()) : new TextComponentTranslation(this.getName(), new Object[0]));
     }
 
-    public NBTTagCompound write(NBTTagCompound compound)
+    public NBTTagCompound writeToNBT(NBTTagCompound compound)
     {
-        super.write(compound);
-        compound.putInt("Base", this.baseColor.getDyeDamage());
+        super.writeToNBT(compound);
+        compound.setInteger("Base", this.baseColor.getDyeDamage());
 
         if (this.patterns != null)
         {
@@ -71,23 +145,23 @@ public class TileEntityBanner extends TileEntity implements IWorldNameable
 
         if (this.hasCustomName())
         {
-            compound.putString("CustomName", this.name);
+            compound.setString("CustomName", this.name);
         }
 
         return compound;
     }
 
-    public void read(NBTTagCompound compound)
+    public void readFromNBT(NBTTagCompound compound)
     {
-        super.read(compound);
+        super.readFromNBT(compound);
 
-        if (compound.contains("CustomName", 8))
+        if (compound.hasKey("CustomName", 8))
         {
             this.name = compound.getString("CustomName");
         }
 
-        this.baseColor = EnumDyeColor.byDyeDamage(compound.getInt("Base"));
-        this.patterns = compound.getList("Patterns", 10);
+        this.baseColor = EnumDyeColor.byDyeDamage(compound.getInteger("Base"));
+        this.patterns = compound.getTagList("Patterns", 10);
         this.patternList = null;
         this.colorList = null;
         this.patternResourceLocation = null;
@@ -111,7 +185,7 @@ public class TileEntityBanner extends TileEntity implements IWorldNameable
      */
     public NBTTagCompound getUpdateTag()
     {
-        return this.write(new NBTTagCompound());
+        return this.writeToNBT(new NBTTagCompound());
     }
 
     /**
@@ -119,8 +193,8 @@ public class TileEntityBanner extends TileEntity implements IWorldNameable
      */
     public static int getPatterns(ItemStack stack)
     {
-        NBTTagCompound nbttagcompound = stack.getChildTag("BlockEntityTag");
-        return nbttagcompound != null && nbttagcompound.contains("Patterns") ? nbttagcompound.getList("Patterns", 10).tagCount() : 0;
+        NBTTagCompound nbttagcompound = stack.getSubCompound("BlockEntityTag");
+        return nbttagcompound != null && nbttagcompound.hasKey("Patterns") ? nbttagcompound.getTagList("Patterns", 10).tagCount() : 0;
     }
 
     public List<BannerPattern> getPatternList()
@@ -165,13 +239,13 @@ public class TileEntityBanner extends TileEntity implements IWorldNameable
                 {
                     for (int i = 0; i < this.patterns.tagCount(); ++i)
                     {
-                        NBTTagCompound nbttagcompound = this.patterns.getCompound(i);
+                        NBTTagCompound nbttagcompound = this.patterns.getCompoundTagAt(i);
                         BannerPattern bannerpattern = BannerPattern.byHash(nbttagcompound.getString("Pattern"));
 
                         if (bannerpattern != null)
                         {
                             this.patternList.add(bannerpattern);
-                            int j = nbttagcompound.getInt("Color");
+                            int j = nbttagcompound.getInteger("Color");
                             this.colorList.add(EnumDyeColor.byDyeDamage(j));
                             this.patternResourceLocation = this.patternResourceLocation + bannerpattern.getHashname() + j;
                         }
@@ -186,11 +260,11 @@ public class TileEntityBanner extends TileEntity implements IWorldNameable
      */
     public static void removeBannerData(ItemStack stack)
     {
-        NBTTagCompound nbttagcompound = stack.getChildTag("BlockEntityTag");
+        NBTTagCompound nbttagcompound = stack.getSubCompound("BlockEntityTag");
 
-        if (nbttagcompound != null && nbttagcompound.contains("Patterns", 9))
+        if (nbttagcompound != null && nbttagcompound.hasKey("Patterns", 9))
         {
-            NBTTagList nbttaglist = nbttagcompound.getList("Patterns", 10);
+            NBTTagList nbttaglist = nbttagcompound.getTagList("Patterns", 10);
 
             if (!nbttaglist.isEmpty())
             {
@@ -198,11 +272,11 @@ public class TileEntityBanner extends TileEntity implements IWorldNameable
 
                 if (nbttaglist.isEmpty())
                 {
-                    stack.getTag().remove("BlockEntityTag");
+                    stack.getTagCompound().removeTag("BlockEntityTag");
 
-                    if (stack.getTag().isEmpty())
+                    if (stack.getTagCompound().isEmpty())
                     {
-                        stack.setTag((NBTTagCompound)null);
+                        stack.setTagCompound((NBTTagCompound)null);
                     }
                 }
             }
@@ -223,7 +297,7 @@ public class TileEntityBanner extends TileEntity implements IWorldNameable
 
     public static EnumDyeColor getColor(ItemStack p_190616_0_)
     {
-        NBTTagCompound nbttagcompound = p_190616_0_.getChildTag("BlockEntityTag");
-        return nbttagcompound != null && nbttagcompound.contains("Base") ? EnumDyeColor.byDyeDamage(nbttagcompound.getInt("Base")) : EnumDyeColor.BLACK;
+        NBTTagCompound nbttagcompound = p_190616_0_.getSubCompound("BlockEntityTag");
+        return nbttagcompound != null && nbttagcompound.hasKey("Base") ? EnumDyeColor.byDyeDamage(nbttagcompound.getInteger("Base")) : EnumDyeColor.BLACK;
     }
 }

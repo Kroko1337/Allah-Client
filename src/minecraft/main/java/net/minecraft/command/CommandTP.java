@@ -15,21 +15,33 @@ import net.minecraft.util.math.MathHelper;
 
 public class CommandTP extends CommandBase
 {
+    /**
+     * Gets the name of the command
+     */
     public String getName()
     {
         return "tp";
     }
 
+    /**
+     * Return the required permission level for this command.
+     */
     public int getRequiredPermissionLevel()
     {
         return 2;
     }
 
+    /**
+     * Gets the usage string for the command.
+     */
     public String getUsage(ICommandSender sender)
     {
         return "commands.tp.usage";
     }
 
+    /**
+     * Callback for when the command is executed
+     */
     public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
     {
         if (args.length < 1)
@@ -80,7 +92,7 @@ public class CommandTP extends CommandBase
                 }
                 else
                 {
-                    entity.stopRiding();
+                    entity.dismountRidingEntity();
 
                     if (entity instanceof EntityPlayerMP)
                     {
@@ -97,6 +109,9 @@ public class CommandTP extends CommandBase
         }
     }
 
+    /**
+     * Teleports an entity to the specified coordinates
+     */
     private static void teleportEntityToCoordinates(Entity teleportingEntity, CommandBase.CoordinateArg argX, CommandBase.CoordinateArg argY, CommandBase.CoordinateArg argZ, CommandBase.CoordinateArg argYaw, CommandBase.CoordinateArg argPitch)
     {
         if (teleportingEntity instanceof EntityPlayerMP)
@@ -142,7 +157,7 @@ public class CommandTP extends CommandBase
                 f1 = MathHelper.wrapDegrees(f1);
             }
 
-            teleportingEntity.stopRiding();
+            teleportingEntity.dismountRidingEntity();
             ((EntityPlayerMP)teleportingEntity).connection.setPlayerLocation(argX.getAmount(), argY.getAmount(), argZ.getAmount(), f, f1, set);
             teleportingEntity.setRotationYawHead(f);
         }
@@ -167,6 +182,9 @@ public class CommandTP extends CommandBase
         return args.length != 1 && args.length != 2 ? Collections.emptyList() : getListOfStringsMatchingLastWord(args, server.getOnlinePlayerNames());
     }
 
+    /**
+     * Return whether the specified command parameter index is a username parameter.
+     */
     public boolean isUsernameIndex(String[] args, int index)
     {
         return index == 0;

@@ -28,17 +28,17 @@ public final class NBTUtil
     /**
      * Reads and returns a GameProfile that has been saved to the passed in NBTTagCompound
      */
-    public static GameProfile readGameProfile(NBTTagCompound compound)
+    public static GameProfile readGameProfileFromNBT(NBTTagCompound compound)
     {
         String s = null;
         String s1 = null;
 
-        if (compound.contains("Name", 8))
+        if (compound.hasKey("Name", 8))
         {
             s = compound.getString("Name");
         }
 
-        if (compound.contains("Id", 8))
+        if (compound.hasKey("Id", 8))
         {
             s1 = compound.getString("Id");
         }
@@ -58,20 +58,20 @@ public final class NBTUtil
 
             GameProfile gameprofile = new GameProfile(uuid, s);
 
-            if (compound.contains("Properties", 10))
+            if (compound.hasKey("Properties", 10))
             {
-                NBTTagCompound nbttagcompound = compound.getCompound("Properties");
+                NBTTagCompound nbttagcompound = compound.getCompoundTag("Properties");
 
-                for (String s2 : nbttagcompound.keySet())
+                for (String s2 : nbttagcompound.getKeySet())
                 {
-                    NBTTagList nbttaglist = nbttagcompound.getList(s2, 10);
+                    NBTTagList nbttaglist = nbttagcompound.getTagList(s2, 10);
 
                     for (int i = 0; i < nbttaglist.tagCount(); ++i)
                     {
-                        NBTTagCompound nbttagcompound1 = nbttaglist.getCompound(i);
+                        NBTTagCompound nbttagcompound1 = nbttaglist.getCompoundTagAt(i);
                         String s3 = nbttagcompound1.getString("Value");
 
-                        if (nbttagcompound1.contains("Signature", 8))
+                        if (nbttagcompound1.hasKey("Signature", 8))
                         {
                             gameprofile.getProperties().put(s2, new Property(s2, s3, nbttagcompound1.getString("Signature")));
                         }
@@ -98,12 +98,12 @@ public final class NBTUtil
     {
         if (!StringUtils.isNullOrEmpty(profile.getName()))
         {
-            tagCompound.putString("Name", profile.getName());
+            tagCompound.setString("Name", profile.getName());
         }
 
         if (profile.getId() != null)
         {
-            tagCompound.putString("Id", profile.getId().toString());
+            tagCompound.setString("Id", profile.getId().toString());
         }
 
         if (!profile.getProperties().isEmpty())
@@ -117,11 +117,11 @@ public final class NBTUtil
                 for (Property property : profile.getProperties().get(s))
                 {
                     NBTTagCompound nbttagcompound1 = new NBTTagCompound();
-                    nbttagcompound1.putString("Value", property.getValue());
+                    nbttagcompound1.setString("Value", property.getValue());
 
                     if (property.hasSignature())
                     {
-                        nbttagcompound1.putString("Signature", property.getSignature());
+                        nbttagcompound1.setString("Signature", property.getSignature());
                     }
 
                     nbttaglist.appendTag(nbttagcompound1);
@@ -160,11 +160,11 @@ public final class NBTUtil
             NBTTagCompound nbttagcompound = (NBTTagCompound)nbt1;
             NBTTagCompound nbttagcompound1 = (NBTTagCompound)nbt2;
 
-            for (String s : nbttagcompound.keySet())
+            for (String s : nbttagcompound.getKeySet())
             {
-                NBTBase nbtbase1 = nbttagcompound.get(s);
+                NBTBase nbtbase1 = nbttagcompound.getTag(s);
 
-                if (!areNBTEquals(nbtbase1, nbttagcompound1.get(s), compareTagList))
+                if (!areNBTEquals(nbtbase1, nbttagcompound1.getTag(s), compareTagList))
                 {
                     return false;
                 }
@@ -215,18 +215,18 @@ public final class NBTUtil
     /**
      * Creates a new NBTTagCompound which stores a UUID.
      */
-    public static NBTTagCompound writeUniqueId(UUID uuid)
+    public static NBTTagCompound createUUIDTag(UUID uuid)
     {
         NBTTagCompound nbttagcompound = new NBTTagCompound();
-        nbttagcompound.putLong("M", uuid.getMostSignificantBits());
-        nbttagcompound.putLong("L", uuid.getLeastSignificantBits());
+        nbttagcompound.setLong("M", uuid.getMostSignificantBits());
+        nbttagcompound.setLong("L", uuid.getLeastSignificantBits());
         return nbttagcompound;
     }
 
     /**
      * Reads a UUID from the passed NBTTagCompound.
      */
-    public static UUID readUniqueId(NBTTagCompound tag)
+    public static UUID getUUIDFromTag(NBTTagCompound tag)
     {
         return new UUID(tag.getLong("M"), tag.getLong("L"));
     }
@@ -234,20 +234,20 @@ public final class NBTUtil
     /**
      * Creates a BlockPos object from the data stored in the passed NBTTagCompound.
      */
-    public static BlockPos readBlockPos(NBTTagCompound tag)
+    public static BlockPos getPosFromTag(NBTTagCompound tag)
     {
-        return new BlockPos(tag.getInt("X"), tag.getInt("Y"), tag.getInt("Z"));
+        return new BlockPos(tag.getInteger("X"), tag.getInteger("Y"), tag.getInteger("Z"));
     }
 
     /**
      * Creates a new NBTTagCompound from a BlockPos.
      */
-    public static NBTTagCompound writeBlockPos(BlockPos pos)
+    public static NBTTagCompound createPosTag(BlockPos pos)
     {
         NBTTagCompound nbttagcompound = new NBTTagCompound();
-        nbttagcompound.putInt("X", pos.getX());
-        nbttagcompound.putInt("Y", pos.getY());
-        nbttagcompound.putInt("Z", pos.getZ());
+        nbttagcompound.setInteger("X", pos.getX());
+        nbttagcompound.setInteger("Y", pos.getY());
+        nbttagcompound.setInteger("Z", pos.getZ());
         return nbttagcompound;
     }
 
@@ -256,21 +256,21 @@ public final class NBTUtil
      */
     public static IBlockState readBlockState(NBTTagCompound tag)
     {
-        if (!tag.contains("Name", 8))
+        if (!tag.hasKey("Name", 8))
         {
             return Blocks.AIR.getDefaultState();
         }
         else
         {
-            Block block = Block.REGISTRY.getOrDefault(new ResourceLocation(tag.getString("Name")));
+            Block block = Block.REGISTRY.getObject(new ResourceLocation(tag.getString("Name")));
             IBlockState iblockstate = block.getDefaultState();
 
-            if (tag.contains("Properties", 10))
+            if (tag.hasKey("Properties", 10))
             {
-                NBTTagCompound nbttagcompound = tag.getCompound("Properties");
-                BlockStateContainer blockstatecontainer = block.getStateContainer();
+                NBTTagCompound nbttagcompound = tag.getCompoundTag("Properties");
+                BlockStateContainer blockstatecontainer = block.getBlockState();
 
-                for (String s : nbttagcompound.keySet())
+                for (String s : nbttagcompound.getKeySet())
                 {
                     IProperty<?> iproperty = blockstatecontainer.getProperty(s);
 
@@ -305,7 +305,7 @@ public final class NBTUtil
      */
     public static NBTTagCompound writeBlockState(NBTTagCompound tag, IBlockState state)
     {
-        tag.putString("Name", ((ResourceLocation)Block.REGISTRY.getKey(state.getBlock())).toString());
+        tag.setString("Name", ((ResourceLocation)Block.REGISTRY.getNameForObject(state.getBlock())).toString());
 
         if (!state.getProperties().isEmpty())
         {
@@ -316,7 +316,7 @@ public final class NBTUtil
             {
                 Entry < IProperty<?>, Comparable<? >> entry = (Entry)unmodifiableiterator.next();
                 IProperty<?> iproperty = (IProperty)entry.getKey();
-                nbttagcompound.putString(iproperty.getName(), getName(iproperty, entry.getValue()));
+                nbttagcompound.setString(iproperty.getName(), getName(iproperty, entry.getValue()));
             }
 
             tag.setTag("Properties", nbttagcompound);

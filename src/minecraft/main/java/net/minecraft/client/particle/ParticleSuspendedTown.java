@@ -17,7 +17,7 @@ public class ParticleSuspendedTown extends Particle
         this.motionX *= 0.019999999552965164D;
         this.motionY *= 0.019999999552965164D;
         this.motionZ *= 0.019999999552965164D;
-        this.maxAge = (int)(20.0D / (Math.random() * 0.8D + 0.2D));
+        this.particleMaxAge = (int)(20.0D / (Math.random() * 0.8D + 0.2D));
     }
 
     public void move(double x, double y, double z)
@@ -26,7 +26,7 @@ public class ParticleSuspendedTown extends Particle
         this.resetPositionToBB();
     }
 
-    public void tick()
+    public void onUpdate()
     {
         this.prevPosX = this.posX;
         this.prevPosY = this.posY;
@@ -36,7 +36,7 @@ public class ParticleSuspendedTown extends Particle
         this.motionY *= 0.99D;
         this.motionZ *= 0.99D;
 
-        if (this.maxAge-- <= 0)
+        if (this.particleMaxAge-- <= 0)
         {
             this.setExpired();
         }
@@ -56,7 +56,7 @@ public class ParticleSuspendedTown extends Particle
         {
             Particle particle = new ParticleSuspendedTown(worldIn, xCoordIn, yCoordIn, zCoordIn, xSpeedIn, ySpeedIn, zSpeedIn);
             particle.setParticleTextureIndex(82);
-            particle.setColor(1.0F, 1.0F, 1.0F);
+            particle.setRBGColorF(1.0F, 1.0F, 1.0F);
             return particle;
         }
     }

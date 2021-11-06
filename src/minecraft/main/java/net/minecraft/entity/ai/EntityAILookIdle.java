@@ -4,9 +4,18 @@ import net.minecraft.entity.EntityLiving;
 
 public class EntityAILookIdle extends EntityAIBase
 {
+    /** The entity that is looking idle. */
     private final EntityLiving idleEntity;
+
+    /** X offset to look at */
     private double lookX;
+
+    /** Z offset to look at */
     private double lookZ;
+
+    /**
+     * A decrementing tick that stops the entity from being idle once it reaches 0.
+     */
     private int idleTime;
 
     public EntityAILookIdle(EntityLiving entitylivingIn)
@@ -16,8 +25,7 @@ public class EntityAILookIdle extends EntityAIBase
     }
 
     /**
-     * Returns whether execution should begin. You can also read and cache any state necessary for execution in this
-     * method as well.
+     * Returns whether the EntityAIBase should begin execution.
      */
     public boolean shouldExecute()
     {
@@ -46,9 +54,9 @@ public class EntityAILookIdle extends EntityAIBase
     /**
      * Keep ticking a continuous task that has already been started
      */
-    public void tick()
+    public void updateTask()
     {
         --this.idleTime;
-        this.idleEntity.getLookController().setLookPosition(this.idleEntity.posX + this.lookX, this.idleEntity.posY + (double)this.idleEntity.getEyeHeight(), this.idleEntity.posZ + this.lookZ, (float)this.idleEntity.getHorizontalFaceSpeed(), (float)this.idleEntity.getVerticalFaceSpeed());
+        this.idleEntity.getLookHelper().setLookPosition(this.idleEntity.posX + this.lookX, this.idleEntity.posY + (double)this.idleEntity.getEyeHeight(), this.idleEntity.posZ + this.lookZ, (float)this.idleEntity.getHorizontalFaceSpeed(), (float)this.idleEntity.getVerticalFaceSpeed());
     }
 }

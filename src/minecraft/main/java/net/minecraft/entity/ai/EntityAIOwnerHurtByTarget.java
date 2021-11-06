@@ -17,8 +17,7 @@ public class EntityAIOwnerHurtByTarget extends EntityAITarget
     }
 
     /**
-     * Returns whether execution should begin. You can also read and cache any state necessary for execution in this
-     * method as well.
+     * Returns whether the EntityAIBase should begin execution.
      */
     public boolean shouldExecute()
     {
@@ -48,7 +47,7 @@ public class EntityAIOwnerHurtByTarget extends EntityAITarget
      */
     public void startExecuting()
     {
-        this.goalOwner.setAttackTarget(this.attacker);
+        this.taskOwner.setAttackTarget(this.attacker);
         EntityLivingBase entitylivingbase = this.tameable.getOwner();
 
         if (entitylivingbase != null)

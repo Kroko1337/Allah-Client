@@ -20,7 +20,7 @@ public class BlockNetherBrick extends Block
      * @deprecated call via {@link IBlockState#getMapColor(IBlockAccess,BlockPos)} whenever possible.
      * Implementing/overriding is fine.
      */
-    public MapColor getMaterialColor(IBlockState state, IBlockAccess worldIn, BlockPos pos)
+    public MapColor getMapColor(IBlockState state, IBlockAccess worldIn, BlockPos pos)
     {
         return MapColor.NETHERRACK;
     }

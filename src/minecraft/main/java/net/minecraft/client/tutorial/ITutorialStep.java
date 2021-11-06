@@ -14,7 +14,7 @@ default void onStop()
     {
     }
 
-default void tick()
+default void update()
     {
     }
 

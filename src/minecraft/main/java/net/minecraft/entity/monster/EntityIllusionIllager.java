@@ -56,40 +56,54 @@ public class EntityIllusionIllager extends EntitySpellcasterIllager implements I
         }
     }
 
-    protected void registerGoals()
+    protected void initEntityAI()
     {
-        super.registerGoals();
-        this.goalSelector.addGoal(0, new EntityAISwimming(this));
-        this.goalSelector.addGoal(1, new EntitySpellcasterIllager.AICastingApell());
-        this.goalSelector.addGoal(4, new EntityIllusionIllager.AIMirriorSpell());
-        this.goalSelector.addGoal(5, new EntityIllusionIllager.AIBlindnessSpell());
-        this.goalSelector.addGoal(6, new EntityAIAttackRangedBow(this, 0.5D, 20, 15.0F));
-        this.goalSelector.addGoal(8, new EntityAIWander(this, 0.6D));
-        this.goalSelector.addGoal(9, new EntityAIWatchClosest(this, EntityPlayer.class, 3.0F, 1.0F));
-        this.goalSelector.addGoal(10, new EntityAIWatchClosest(this, EntityLiving.class, 8.0F));
-        this.targetSelector.addGoal(1, new EntityAIHurtByTarget(this, true, new Class[] {EntityIllusionIllager.class}));
-        this.targetSelector.addGoal(2, (new EntityAINearestAttackableTarget(this, EntityPlayer.class, true)).setUnseenMemoryTicks(300));
-        this.targetSelector.addGoal(3, (new EntityAINearestAttackableTarget(this, EntityVillager.class, false)).setUnseenMemoryTicks(300));
-        this.targetSelector.addGoal(3, (new EntityAINearestAttackableTarget(this, EntityIronGolem.class, false)).setUnseenMemoryTicks(300));
+        super.initEntityAI();
+        this.tasks.addTask(0, new EntityAISwimming(this));
+        this.tasks.addTask(1, new EntitySpellcasterIllager.AICastingApell());
+        this.tasks.addTask(4, new EntityIllusionIllager.AIMirriorSpell());
+        this.tasks.addTask(5, new EntityIllusionIllager.AIBlindnessSpell());
+        this.tasks.addTask(6, new EntityAIAttackRangedBow(this, 0.5D, 20, 15.0F));
+        this.tasks.addTask(8, new EntityAIWander(this, 0.6D));
+        this.tasks.addTask(9, new EntityAIWatchClosest(this, EntityPlayer.class, 3.0F, 1.0F));
+        this.tasks.addTask(10, new EntityAIWatchClosest(this, EntityLiving.class, 8.0F));
+        this.targetTasks.addTask(1, new EntityAIHurtByTarget(this, true, new Class[] {EntityIllusionIllager.class}));
+        this.targetTasks.addTask(2, (new EntityAINearestAttackableTarget(this, EntityPlayer.class, true)).setUnseenMemoryTicks(300));
+        this.targetTasks.addTask(3, (new EntityAINearestAttackableTarget(this, EntityVillager.class, false)).setUnseenMemoryTicks(300));
+        this.targetTasks.addTask(3, (new EntityAINearestAttackableTarget(this, EntityIronGolem.class, false)).setUnseenMemoryTicks(300));
     }
 
-    protected void registerAttributes()
+    protected void applyEntityAttributes()
     {
-        super.registerAttributes();
-        this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.5D);
-        this.getAttribute(SharedMonsterAttributes.FOLLOW_RANGE).setBaseValue(18.0D);
-        this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(32.0D);
+        super.applyEntityAttributes();
+        this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.5D);
+        this.getEntityAttribute(SharedMonsterAttributes.FOLLOW_RANGE).setBaseValue(18.0D);
+        this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(32.0D);
     }
 
+    /**
+     * Called only once on an entity when first time spawned, via egg, mob spawner, natural spawning etc, but not called
+     * when entity is reloaded from nbt. Mainly used for initializing attributes and inventory.
+     *  
+     * The livingdata parameter is used to pass data between all instances during a pack spawn. It will be null on the
+     * first call. Subclasses may check if it's null, and then create a new one and return it if so, initializing all
+     * entities in the pack with the contained data.
+     *  
+     * @return The IEntityLivingData to pass to this method for other instances of this entity class within the same
+     * pack
+     *  
+     * @param difficulty The current local difficulty
+     * @param livingdata Shared spawn data. Will usually be null. (See return value for more information)
+     */
     public IEntityLivingData onInitialSpawn(DifficultyInstance difficulty, IEntityLivingData livingdata)
     {
         this.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, new ItemStack(Items.BOW));
         return super.onInitialSpawn(difficulty, livingdata);
     }
 
-    protected void registerData()
+    protected void entityInit()
     {
-        super.registerData();
+        super.entityInit();
     }
 
     protected ResourceLocation getLootTable()
@@ -103,16 +117,16 @@ public class EntityIllusionIllager extends EntitySpellcasterIllager implements I
      */
     public AxisAlignedBB getRenderBoundingBox()
     {
-        return this.getBoundingBox().grow(3.0D, 0.0D, 3.0D);
+        return this.getEntityBoundingBox().grow(3.0D, 0.0D, 3.0D);
     }
 
     /**
      * Called frequently so the entity can update its state every tick as required. For example, zombies and skeletons
      * use this to react to sunlight and start to burn.
      */
-    public void livingTick()
+    public void onLivingUpdate()
     {
-        super.livingTick();
+        super.onLivingUpdate();
 
         if (this.world.isRemote && this.isInvisible())
         {
@@ -153,7 +167,7 @@ public class EntityIllusionIllager extends EntitySpellcasterIllager implements I
                     this.world.spawnParticle(EnumParticleTypes.CLOUD, this.posX + (this.rand.nextDouble() - 0.5D) * (double)this.width, this.posY + this.rand.nextDouble() * (double)this.height, this.posZ + (this.rand.nextDouble() - 0.5D) * (double)this.width, 0.0D, 0.0D, 0.0D);
                 }
 
-                this.world.playSound(this.posX, this.posY, this.posZ, SoundEvents.ENTITY_ILLUSIONER_MIRROR_MOVE, this.getSoundCategory(), 1.0F, 1.0F, false);
+                this.world.playSound(this.posX, this.posY, this.posZ, SoundEvents.ENTITY_ILLAGER_MIRROR_MOVE, this.getSoundCategory(), 1.0F, 1.0F, false);
             }
         }
     }
@@ -200,22 +214,22 @@ public class EntityIllusionIllager extends EntitySpellcasterIllager implements I
 
     protected SoundEvent getAmbientSound()
     {
-        return SoundEvents.ENTITY_ILLUSIONER_AMBIENT;
+        return SoundEvents.ENTITY_ILLUSION_ILLAGER_AMBIENT;
     }
 
     protected SoundEvent getDeathSound()
     {
-        return SoundEvents.ENTITY_ILLUSIONER_DEATH;
+        return SoundEvents.ENTITY_ILLAGER_DEATH;
     }
 
     protected SoundEvent getHurtSound(DamageSource damageSourceIn)
     {
-        return SoundEvents.ENTITY_ILLUSIONER_HURT;
+        return SoundEvents.ENTITY_ILLUSION_ILLAGER_HURT;
     }
 
     protected SoundEvent getSpellSound()
     {
-        return SoundEvents.ENTITY_ILLUSIONER_CAST_SPELL;
+        return SoundEvents.ENTITY_ILLAGER_CAST_SPELL;
     }
 
     /**
@@ -225,12 +239,12 @@ public class EntityIllusionIllager extends EntitySpellcasterIllager implements I
     {
         EntityArrow entityarrow = this.createArrowEntity(distanceFactor);
         double d0 = target.posX - this.posX;
-        double d1 = target.getBoundingBox().minY + (double)(target.height / 3.0F) - entityarrow.posY;
+        double d1 = target.getEntityBoundingBox().minY + (double)(target.height / 3.0F) - entityarrow.posY;
         double d2 = target.posZ - this.posZ;
         double d3 = (double)MathHelper.sqrt(d0 * d0 + d2 * d2);
         entityarrow.shoot(d0, d1 + d3 * 0.20000000298023224D, d2, 1.6F, (float)(14 - this.world.getDifficulty().getId() * 4));
         this.playSound(SoundEvents.ENTITY_SKELETON_SHOOT, 1.0F, 1.0F / (this.getRNG().nextFloat() * 0.4F + 0.8F));
-        this.world.addEntity0(entityarrow);
+        this.world.spawnEntity(entityarrow);
     }
 
     protected EntityArrow createArrowEntity(float p_193097_1_)
@@ -313,7 +327,7 @@ public class EntityIllusionIllager extends EntitySpellcasterIllager implements I
 
         protected SoundEvent getSpellPrepareSound()
         {
-            return SoundEvents.ENTITY_ILLUSIONER_PREPARE_BLINDNESS;
+            return SoundEvents.ENTITY_ILLAGER_PREPARE_BLINDNESS;
         }
 
         protected EntitySpellcasterIllager.SpellType getSpellType()
@@ -358,7 +372,7 @@ public class EntityIllusionIllager extends EntitySpellcasterIllager implements I
         @Nullable
         protected SoundEvent getSpellPrepareSound()
         {
-            return SoundEvents.ENTITY_ILLUSIONER_PREPARE_MIRROR;
+            return SoundEvents.ENTITY_ILLAGER_PREPARE_MIRROR;
         }
 
         protected EntitySpellcasterIllager.SpellType getSpellType()

@@ -37,11 +37,11 @@ public class TileEntitySkull extends TileEntity implements ITickable
         sessionService = sessionServiceIn;
     }
 
-    public NBTTagCompound write(NBTTagCompound compound)
+    public NBTTagCompound writeToNBT(NBTTagCompound compound)
     {
-        super.write(compound);
-        compound.putByte("SkullType", (byte)(this.skullType & 255));
-        compound.putByte("Rot", (byte)(this.skullRotation & 255));
+        super.writeToNBT(compound);
+        compound.setByte("SkullType", (byte)(this.skullType & 255));
+        compound.setByte("Rot", (byte)(this.skullRotation & 255));
 
         if (this.playerProfile != null)
         {
@@ -53,19 +53,19 @@ public class TileEntitySkull extends TileEntity implements ITickable
         return compound;
     }
 
-    public void read(NBTTagCompound compound)
+    public void readFromNBT(NBTTagCompound compound)
     {
-        super.read(compound);
+        super.readFromNBT(compound);
         this.skullType = compound.getByte("SkullType");
         this.skullRotation = compound.getByte("Rot");
 
         if (this.skullType == 3)
         {
-            if (compound.contains("Owner", 10))
+            if (compound.hasKey("Owner", 10))
             {
-                this.playerProfile = NBTUtil.readGameProfile(compound.getCompound("Owner"));
+                this.playerProfile = NBTUtil.readGameProfileFromNBT(compound.getCompoundTag("Owner"));
             }
-            else if (compound.contains("ExtraType", 8))
+            else if (compound.hasKey("ExtraType", 8))
             {
                 String s = compound.getString("ExtraType");
 
@@ -78,7 +78,10 @@ public class TileEntitySkull extends TileEntity implements ITickable
         }
     }
 
-    public void tick()
+    /**
+     * Like the old updateEntity(), except more generic.
+     */
+    public void update()
     {
         if (this.skullType == 5)
         {
@@ -122,7 +125,7 @@ public class TileEntitySkull extends TileEntity implements ITickable
      */
     public NBTTagCompound getUpdateTag()
     {
-        return this.write(new NBTTagCompound());
+        return this.writeToNBT(new NBTTagCompound());
     }
 
     public void setType(int type)
@@ -200,7 +203,7 @@ public class TileEntitySkull extends TileEntity implements ITickable
 
     public void mirror(Mirror mirrorIn)
     {
-        if (this.world != null && this.world.getBlockState(this.getPos()).get(BlockSkull.FACING) == EnumFacing.UP)
+        if (this.world != null && this.world.getBlockState(this.getPos()).getValue(BlockSkull.FACING) == EnumFacing.UP)
         {
             this.skullRotation = mirrorIn.mirrorRotation(this.skullRotation, 16);
         }
@@ -208,7 +211,7 @@ public class TileEntitySkull extends TileEntity implements ITickable
 
     public void rotate(Rotation rotationIn)
     {
-        if (this.world != null && this.world.getBlockState(this.getPos()).get(BlockSkull.FACING) == EnumFacing.UP)
+        if (this.world != null && this.world.getBlockState(this.getPos()).getValue(BlockSkull.FACING) == EnumFacing.UP)
         {
             this.skullRotation = rotationIn.rotate(this.skullRotation, 16);
         }

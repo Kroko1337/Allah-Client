@@ -5,6 +5,7 @@ import net.minecraft.util.DamageSource;
 
 public class MultiPartEntityPart extends Entity
 {
+    /** The dragon entity this dragon part belongs to */
     public final IEntityMultiPart parent;
     public final String partName;
 
@@ -16,17 +17,20 @@ public class MultiPartEntityPart extends Entity
         this.partName = partName;
     }
 
-    protected void registerData()
+    protected void entityInit()
     {
     }
 
     /**
      * (abstract) Protected helper method to read subclass entity data from NBT.
      */
-    protected void readAdditional(NBTTagCompound compound)
+    protected void readEntityFromNBT(NBTTagCompound compound)
     {
     }
 
+    /**
+     * (abstract) Protected helper method to write subclass entity data to NBT.
+     */
     protected void writeEntityToNBT(NBTTagCompound compound)
     {
     }
@@ -44,7 +48,7 @@ public class MultiPartEntityPart extends Entity
      */
     public boolean attackEntityFrom(DamageSource source, float amount)
     {
-        return this.isInvulnerableTo(source) ? false : this.parent.attackEntityFromPart(this, source, amount);
+        return this.isEntityInvulnerable(source) ? false : this.parent.attackEntityFromPart(this, source, amount);
     }
 
     /**

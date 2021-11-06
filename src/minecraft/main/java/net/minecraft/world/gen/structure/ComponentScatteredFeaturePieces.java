@@ -60,15 +60,15 @@ public class ComponentScatteredFeaturePieces
         protected void writeStructureToNBT(NBTTagCompound tagCompound)
         {
             super.writeStructureToNBT(tagCompound);
-            tagCompound.putBoolean("hasPlacedChest0", this.hasPlacedChest[0]);
-            tagCompound.putBoolean("hasPlacedChest1", this.hasPlacedChest[1]);
-            tagCompound.putBoolean("hasPlacedChest2", this.hasPlacedChest[2]);
-            tagCompound.putBoolean("hasPlacedChest3", this.hasPlacedChest[3]);
+            tagCompound.setBoolean("hasPlacedChest0", this.hasPlacedChest[0]);
+            tagCompound.setBoolean("hasPlacedChest1", this.hasPlacedChest[1]);
+            tagCompound.setBoolean("hasPlacedChest2", this.hasPlacedChest[2]);
+            tagCompound.setBoolean("hasPlacedChest3", this.hasPlacedChest[3]);
         }
 
-        protected void readAdditional(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
+        protected void readStructureFromNBT(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
         {
-            super.readAdditional(tagCompound, p_143011_2_);
+            super.readStructureFromNBT(tagCompound, p_143011_2_);
             this.hasPlacedChest[0] = tagCompound.getBoolean("hasPlacedChest0");
             this.hasPlacedChest[1] = tagCompound.getBoolean("hasPlacedChest1");
             this.hasPlacedChest[2] = tagCompound.getBoolean("hasPlacedChest2");
@@ -309,18 +309,18 @@ public class ComponentScatteredFeaturePieces
 
         protected void writeStructureToNBT(NBTTagCompound tagCompound)
         {
-            tagCompound.putInt("Width", this.width);
-            tagCompound.putInt("Height", this.height);
-            tagCompound.putInt("Depth", this.depth);
-            tagCompound.putInt("HPos", this.horizontalPos);
+            tagCompound.setInteger("Width", this.width);
+            tagCompound.setInteger("Height", this.height);
+            tagCompound.setInteger("Depth", this.depth);
+            tagCompound.setInteger("HPos", this.horizontalPos);
         }
 
-        protected void readAdditional(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
+        protected void readStructureFromNBT(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
         {
-            this.width = tagCompound.getInt("Width");
-            this.height = tagCompound.getInt("Height");
-            this.depth = tagCompound.getInt("Depth");
-            this.horizontalPos = tagCompound.getInt("HPos");
+            this.width = tagCompound.getInteger("Width");
+            this.height = tagCompound.getInteger("Height");
+            this.depth = tagCompound.getInteger("Depth");
+            this.horizontalPos = tagCompound.getInteger("HPos");
         }
 
         protected boolean offsetToAverageGroundLevel(World worldIn, StructureBoundingBox structurebb, int yOffset)
@@ -343,7 +343,7 @@ public class ComponentScatteredFeaturePieces
 
                         if (structurebb.isVecInside(blockpos$mutableblockpos))
                         {
-                            i += Math.max(worldIn.getTopSolidOrLiquidBlock(blockpos$mutableblockpos).getY(), worldIn.dimension.getAverageGroundLevel());
+                            i += Math.max(worldIn.getTopSolidOrLiquidBlock(blockpos$mutableblockpos).getY(), worldIn.provider.getAverageGroundLevel());
                             ++j;
                         }
                     }
@@ -389,7 +389,7 @@ public class ComponentScatteredFeaturePieces
                 StructureBoundingBox structureboundingbox = this.getBoundingBox();
                 BlockPos blockpos = new BlockPos(structureboundingbox.minX, structureboundingbox.minY, structureboundingbox.minZ);
                 Rotation[] arotation = Rotation.values();
-                MinecraftServer minecraftserver = worldIn.getServer();
+                MinecraftServer minecraftserver = worldIn.getMinecraftServer();
                 TemplateManager templatemanager = worldIn.getSaveHandler().getStructureTemplateManager();
                 PlacementSettings placementsettings = (new PlacementSettings()).setRotation(arotation[randomIn.nextInt(arotation.length)]).setReplacedBlock(Blocks.STRUCTURE_VOID).setBoundingBox(structureboundingbox);
                 Template template = templatemanager.getTemplate(minecraftserver, IGLOO_TOP_ID);
@@ -457,15 +457,15 @@ public class ComponentScatteredFeaturePieces
         protected void writeStructureToNBT(NBTTagCompound tagCompound)
         {
             super.writeStructureToNBT(tagCompound);
-            tagCompound.putBoolean("placedMainChest", this.placedMainChest);
-            tagCompound.putBoolean("placedHiddenChest", this.placedHiddenChest);
-            tagCompound.putBoolean("placedTrap1", this.placedTrap1);
-            tagCompound.putBoolean("placedTrap2", this.placedTrap2);
+            tagCompound.setBoolean("placedMainChest", this.placedMainChest);
+            tagCompound.setBoolean("placedHiddenChest", this.placedHiddenChest);
+            tagCompound.setBoolean("placedTrap1", this.placedTrap1);
+            tagCompound.setBoolean("placedTrap2", this.placedTrap2);
         }
 
-        protected void readAdditional(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
+        protected void readStructureFromNBT(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
         {
-            super.readAdditional(tagCompound, p_143011_2_);
+            super.readStructureFromNBT(tagCompound, p_143011_2_);
             this.placedMainChest = tagCompound.getBoolean("placedMainChest");
             this.placedHiddenChest = tagCompound.getBoolean("placedHiddenChest");
             this.placedTrap1 = tagCompound.getBoolean("placedTrap1");
@@ -658,7 +658,7 @@ public class ComponentScatteredFeaturePieces
                 this.setBlockState(worldIn, Blocks.STICKY_PISTON.getDefaultState().withProperty(BlockPistonBase.FACING, EnumFacing.UP), 9, -2, 8, structureBoundingBoxIn);
                 this.setBlockState(worldIn, Blocks.STICKY_PISTON.getDefaultState().withProperty(BlockPistonBase.FACING, EnumFacing.WEST), 10, -2, 8, structureBoundingBoxIn);
                 this.setBlockState(worldIn, Blocks.STICKY_PISTON.getDefaultState().withProperty(BlockPistonBase.FACING, EnumFacing.WEST), 10, -1, 8, structureBoundingBoxIn);
-                this.setBlockState(worldIn, Blocks.UNPOWERED_REPEATER.getDefaultState().withProperty(BlockRedstoneRepeater.HORIZONTAL_FACING, EnumFacing.NORTH), 10, -2, 10, structureBoundingBoxIn);
+                this.setBlockState(worldIn, Blocks.UNPOWERED_REPEATER.getDefaultState().withProperty(BlockRedstoneRepeater.FACING, EnumFacing.NORTH), 10, -2, 10, structureBoundingBoxIn);
 
                 if (!this.placedHiddenChest)
                 {
@@ -705,12 +705,12 @@ public class ComponentScatteredFeaturePieces
         protected void writeStructureToNBT(NBTTagCompound tagCompound)
         {
             super.writeStructureToNBT(tagCompound);
-            tagCompound.putBoolean("Witch", this.hasWitch);
+            tagCompound.setBoolean("Witch", this.hasWitch);
         }
 
-        protected void readAdditional(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
+        protected void readStructureFromNBT(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
         {
-            super.readAdditional(tagCompound, p_143011_2_);
+            super.readStructureFromNBT(tagCompound, p_143011_2_);
             this.hasWitch = tagCompound.getBoolean("Witch");
         }
 
@@ -773,7 +773,7 @@ public class ComponentScatteredFeaturePieces
                         entitywitch.enablePersistence();
                         entitywitch.setLocationAndAngles((double)l + 0.5D, (double)i1, (double)k + 0.5D, 0.0F, 0.0F);
                         entitywitch.onInitialSpawn(worldIn.getDifficultyForLocation(new BlockPos(l, i1, k)), (IEntityLivingData)null);
-                        worldIn.addEntity0(entitywitch);
+                        worldIn.spawnEntity(entitywitch);
                     }
                 }
 

@@ -27,29 +27,29 @@ public class TileEntityFlowerPot extends TileEntity
     {
     }
 
-    public NBTTagCompound write(NBTTagCompound compound)
+    public NBTTagCompound writeToNBT(NBTTagCompound compound)
     {
-        super.write(compound);
-        ResourceLocation resourcelocation = Item.REGISTRY.getKey(this.flowerPotItem);
-        compound.putString("Item", resourcelocation == null ? "" : resourcelocation.toString());
-        compound.putInt("Data", this.flowerPotData);
+        super.writeToNBT(compound);
+        ResourceLocation resourcelocation = Item.REGISTRY.getNameForObject(this.flowerPotItem);
+        compound.setString("Item", resourcelocation == null ? "" : resourcelocation.toString());
+        compound.setInteger("Data", this.flowerPotData);
         return compound;
     }
 
-    public void read(NBTTagCompound compound)
+    public void readFromNBT(NBTTagCompound compound)
     {
-        super.read(compound);
+        super.readFromNBT(compound);
 
-        if (compound.contains("Item", 8))
+        if (compound.hasKey("Item", 8))
         {
             this.flowerPotItem = Item.getByNameOrId(compound.getString("Item"));
         }
         else
         {
-            this.flowerPotItem = Item.getItemById(compound.getInt("Item"));
+            this.flowerPotItem = Item.getItemById(compound.getInteger("Item"));
         }
 
-        this.flowerPotData = compound.getInt("Data");
+        this.flowerPotData = compound.getInteger("Data");
     }
 
     @Nullable
@@ -69,7 +69,7 @@ public class TileEntityFlowerPot extends TileEntity
      */
     public NBTTagCompound getUpdateTag()
     {
-        return this.write(new NBTTagCompound());
+        return this.writeToNBT(new NBTTagCompound());
     }
 
     public void setItemStack(ItemStack stack)

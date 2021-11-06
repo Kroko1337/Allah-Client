@@ -83,16 +83,19 @@ public class EntityPainting extends EntityHanging
         this.updateFacingWithBoundingBox(facing);
     }
 
+    /**
+     * (abstract) Protected helper method to write subclass entity data to NBT.
+     */
     public void writeEntityToNBT(NBTTagCompound compound)
     {
-        compound.putString("Motive", this.art.title);
+        compound.setString("Motive", this.art.title);
         super.writeEntityToNBT(compound);
     }
 
     /**
      * (abstract) Protected helper method to read subclass entity data from NBT.
      */
-    public void readAdditional(NBTTagCompound compound)
+    public void readEntityFromNBT(NBTTagCompound compound)
     {
         String s = compound.getString("Motive");
 
@@ -109,7 +112,7 @@ public class EntityPainting extends EntityHanging
             this.art = EntityPainting.EnumArt.KEBAB;
         }
 
-        super.readAdditional(compound);
+        super.readEntityFromNBT(compound);
     }
 
     public int getWidthPixels()
@@ -135,7 +138,7 @@ public class EntityPainting extends EntityHanging
             {
                 EntityPlayer entityplayer = (EntityPlayer)brokenEntity;
 
-                if (entityplayer.abilities.isCreativeMode)
+                if (entityplayer.capabilities.isCreativeMode)
                 {
                     return;
                 }

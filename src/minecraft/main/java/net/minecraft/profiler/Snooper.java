@@ -19,12 +19,18 @@ public class Snooper
     private final Map<String, Object> snooperStats = Maps.<String, Object>newHashMap();
     private final Map<String, Object> clientStats = Maps.<String, Object>newHashMap();
     private final String uniqueID = UUID.randomUUID().toString();
+
+    /** URL of the server to send the report to */
     private final URL serverUrl;
     private final ISnooperInfo playerStatsCollector;
-    private final Timer timer = new Timer("Snooper Timer", true);
+
+    /** set to fire the snooperThread every 15 mins */
+    private final Timer threadTrigger = new Timer("Snooper Timer", true);
     private final Object syncLock = new Object();
     private final long minecraftStartTimeMilis;
     private boolean isRunning;
+
+    /** incremented on every getSelfCounterFor */
     private int selfCounter;
 
     public Snooper(String side, ISnooperInfo playerStatCollector, long startTime)
@@ -45,13 +51,13 @@ public class Snooper
     /**
      * Note issuing start multiple times is not an error.
      */
-    public void start()
+    public void startSnooper()
     {
         if (!this.isRunning)
         {
             this.isRunning = true;
             this.addOSData();
-            this.timer.schedule(new TimerTask()
+            this.threadTrigger.schedule(new TimerTask()
             {
                 public void run()
                 {
@@ -80,6 +86,9 @@ public class Snooper
         }
     }
 
+    /**
+     * Add OS data into the snooper
+     */
     private void addOSData()
     {
         this.addJvmArgsToSnooper();
@@ -116,7 +125,7 @@ public class Snooper
         this.addStatToSnooper("memory_max", Long.valueOf(Runtime.getRuntime().maxMemory()));
         this.addStatToSnooper("memory_free", Long.valueOf(Runtime.getRuntime().freeMemory()));
         this.addStatToSnooper("cpu_cores", Integer.valueOf(Runtime.getRuntime().availableProcessors()));
-        this.playerStatsCollector.fillSnooper(this);
+        this.playerStatsCollector.addServerStatsToSnooper(this);
     }
 
     public void addClientStat(String statName, Object statValue)
@@ -162,9 +171,9 @@ public class Snooper
         return this.isRunning;
     }
 
-    public void stop()
+    public void stopSnooper()
     {
-        this.timer.cancel();
+        this.threadTrigger.cancel();
     }
 
     public String getUniqueID()

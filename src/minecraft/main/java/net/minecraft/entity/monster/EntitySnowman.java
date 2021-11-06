@@ -46,42 +46,45 @@ public class EntitySnowman extends EntityGolem implements IRangedAttackMob
         EntityLiving.registerFixesMob(fixer, EntitySnowman.class);
     }
 
-    protected void registerGoals()
+    protected void initEntityAI()
     {
-        this.goalSelector.addGoal(1, new EntityAIAttackRanged(this, 1.25D, 20, 10.0F));
-        this.goalSelector.addGoal(2, new EntityAIWanderAvoidWater(this, 1.0D, 1.0000001E-5F));
-        this.goalSelector.addGoal(3, new EntityAIWatchClosest(this, EntityPlayer.class, 6.0F));
-        this.goalSelector.addGoal(4, new EntityAILookIdle(this));
-        this.targetSelector.addGoal(1, new EntityAINearestAttackableTarget(this, EntityLiving.class, 10, true, false, IMob.MOB_SELECTOR));
+        this.tasks.addTask(1, new EntityAIAttackRanged(this, 1.25D, 20, 10.0F));
+        this.tasks.addTask(2, new EntityAIWanderAvoidWater(this, 1.0D, 1.0000001E-5F));
+        this.tasks.addTask(3, new EntityAIWatchClosest(this, EntityPlayer.class, 6.0F));
+        this.tasks.addTask(4, new EntityAILookIdle(this));
+        this.targetTasks.addTask(1, new EntityAINearestAttackableTarget(this, EntityLiving.class, 10, true, false, IMob.MOB_SELECTOR));
     }
 
-    protected void registerAttributes()
+    protected void applyEntityAttributes()
     {
-        super.registerAttributes();
-        this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(4.0D);
-        this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.20000000298023224D);
+        super.applyEntityAttributes();
+        this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(4.0D);
+        this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.20000000298023224D);
     }
 
-    protected void registerData()
+    protected void entityInit()
     {
-        super.registerData();
+        super.entityInit();
         this.dataManager.register(PUMPKIN_EQUIPPED, Byte.valueOf((byte)16));
     }
 
+    /**
+     * (abstract) Protected helper method to write subclass entity data to NBT.
+     */
     public void writeEntityToNBT(NBTTagCompound compound)
     {
         super.writeEntityToNBT(compound);
-        compound.putBoolean("Pumpkin", this.isPumpkinEquipped());
+        compound.setBoolean("Pumpkin", this.isPumpkinEquipped());
     }
 
     /**
      * (abstract) Protected helper method to read subclass entity data from NBT.
      */
-    public void readAdditional(NBTTagCompound compound)
+    public void readEntityFromNBT(NBTTagCompound compound)
     {
-        super.readAdditional(compound);
+        super.readEntityFromNBT(compound);
 
-        if (compound.contains("Pumpkin"))
+        if (compound.hasKey("Pumpkin"))
         {
             this.setPumpkinEquipped(compound.getBoolean("Pumpkin"));
         }
@@ -91,9 +94,9 @@ public class EntitySnowman extends EntityGolem implements IRangedAttackMob
      * Called frequently so the entity can update its state every tick as required. For example, zombies and skeletons
      * use this to react to sunlight and start to burn.
      */
-    public void livingTick()
+    public void onLivingUpdate()
     {
-        super.livingTick();
+        super.onLivingUpdate();
 
         if (!this.world.isRemote)
         {
@@ -106,7 +109,7 @@ public class EntitySnowman extends EntityGolem implements IRangedAttackMob
                 this.attackEntityFrom(DamageSource.DROWN, 1.0F);
             }
 
-            if (this.world.getBiome(new BlockPos(i, 0, k)).getTemperatureRaw(new BlockPos(i, j, k)) > 1.0F)
+            if (this.world.getBiome(new BlockPos(i, 0, k)).getTemperature(new BlockPos(i, j, k)) > 1.0F)
             {
                 this.attackEntityFrom(DamageSource.ON_FIRE, 1.0F);
             }
@@ -123,7 +126,7 @@ public class EntitySnowman extends EntityGolem implements IRangedAttackMob
                 k = MathHelper.floor(this.posZ + (double)((float)(l / 2 % 2 * 2 - 1) * 0.25F));
                 BlockPos blockpos = new BlockPos(i, j, k);
 
-                if (this.world.getBlockState(blockpos).getMaterial() == Material.AIR && this.world.getBiome(blockpos).getTemperatureRaw(blockpos) < 0.8F && Blocks.SNOW_LAYER.canPlaceBlockAt(this.world, blockpos))
+                if (this.world.getBlockState(blockpos).getMaterial() == Material.AIR && this.world.getBiome(blockpos).getTemperature(blockpos) < 0.8F && Blocks.SNOW_LAYER.canPlaceBlockAt(this.world, blockpos))
                 {
                     this.world.setBlockState(blockpos, Blocks.SNOW_LAYER.getDefaultState());
                 }
@@ -149,8 +152,8 @@ public class EntitySnowman extends EntityGolem implements IRangedAttackMob
         double d3 = target.posZ - this.posZ;
         float f = MathHelper.sqrt(d1 * d1 + d3 * d3) * 0.2F;
         entitysnowball.shoot(d1, d2 + (double)f, d3, 1.6F, 12.0F);
-        this.playSound(SoundEvents.ENTITY_SNOW_GOLEM_SHOOT, 1.0F, 1.0F / (this.getRNG().nextFloat() * 0.4F + 0.8F));
-        this.world.addEntity0(entitysnowball);
+        this.playSound(SoundEvents.ENTITY_SNOWMAN_SHOOT, 1.0F, 1.0F / (this.getRNG().nextFloat() * 0.4F + 0.8F));
+        this.world.spawnEntity(entitysnowball);
     }
 
     public float getEyeHeight()
@@ -193,19 +196,19 @@ public class EntitySnowman extends EntityGolem implements IRangedAttackMob
     @Nullable
     protected SoundEvent getAmbientSound()
     {
-        return SoundEvents.ENTITY_SNOW_GOLEM_AMBIENT;
+        return SoundEvents.ENTITY_SNOWMAN_AMBIENT;
     }
 
     @Nullable
     protected SoundEvent getHurtSound(DamageSource damageSourceIn)
     {
-        return SoundEvents.ENTITY_SNOW_GOLEM_HURT;
+        return SoundEvents.ENTITY_SNOWMAN_HURT;
     }
 
     @Nullable
     protected SoundEvent getDeathSound()
     {
-        return SoundEvents.ENTITY_SNOW_GOLEM_DEATH;
+        return SoundEvents.ENTITY_SNOWMAN_DEATH;
     }
 
     public void setSwingingArms(boolean swingingArms)

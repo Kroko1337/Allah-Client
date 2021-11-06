@@ -44,7 +44,7 @@ public class RecipeBookCloning implements IRecipe
             }
         }
 
-        return !itemstack.isEmpty() && itemstack.hasTag() && i > 0;
+        return !itemstack.isEmpty() && itemstack.hasTagCompound() && i > 0;
     }
 
     /**
@@ -82,11 +82,11 @@ public class RecipeBookCloning implements IRecipe
             }
         }
 
-        if (!itemstack.isEmpty() && itemstack.hasTag() && i >= 1 && ItemWrittenBook.getGeneration(itemstack) < 2)
+        if (!itemstack.isEmpty() && itemstack.hasTagCompound() && i >= 1 && ItemWrittenBook.getGeneration(itemstack) < 2)
         {
             ItemStack itemstack2 = new ItemStack(Items.WRITTEN_BOOK, i);
-            itemstack2.setTag(itemstack.getTag().copy());
-            itemstack2.getTag().putInt("generation", ItemWrittenBook.getGeneration(itemstack) + 1);
+            itemstack2.setTagCompound(itemstack.getTagCompound().copy());
+            itemstack2.getTagCompound().setInteger("generation", ItemWrittenBook.getGeneration(itemstack) + 1);
 
             if (itemstack.hasDisplayName())
             {

@@ -18,6 +18,10 @@ import org.apache.logging.log4j.Logger;
 public class SaveFormatOld implements ISaveFormat
 {
     private static final Logger LOGGER = LogManager.getLogger();
+
+    /**
+     * Reference to the File object representing the directory for the world saves
+     */
     protected final File savesDirectory;
     protected final DataFixer dataFixer;
 
@@ -33,6 +37,9 @@ public class SaveFormatOld implements ISaveFormat
         this.savesDirectory = savesDirectoryIn;
     }
 
+    /**
+     * Returns the name of the save format.
+     */
     public String getName()
     {
         return "Old Format";
@@ -98,7 +105,7 @@ public class SaveFormatOld implements ISaveFormat
         try
         {
             NBTTagCompound nbttagcompound = CompressedStreamTools.readCompressed(new FileInputStream(p_186353_0_));
-            NBTTagCompound nbttagcompound1 = nbttagcompound.getCompound("Data");
+            NBTTagCompound nbttagcompound1 = nbttagcompound.getCompoundTag("Data");
             return new WorldInfo(dataFixerIn.process(FixTypes.LEVEL, nbttagcompound1));
         }
         catch (Exception exception)
@@ -125,8 +132,8 @@ public class SaveFormatOld implements ISaveFormat
                 try
                 {
                     NBTTagCompound nbttagcompound = CompressedStreamTools.readCompressed(new FileInputStream(file2));
-                    NBTTagCompound nbttagcompound1 = nbttagcompound.getCompound("Data");
-                    nbttagcompound1.putString("LevelName", newName);
+                    NBTTagCompound nbttagcompound1 = nbttagcompound.getCompoundTag("Data");
+                    nbttagcompound1.setString("LevelName", newName);
                     CompressedStreamTools.writeCompressed(nbttagcompound, new FileOutputStream(file2));
                 }
                 catch (Exception exception)
@@ -204,6 +211,9 @@ public class SaveFormatOld implements ISaveFormat
         }
     }
 
+    /**
+     * Deletes a list of files and directories.
+     */
     protected static boolean deleteFiles(File[] files)
     {
         for (File file1 : files)
@@ -226,6 +236,9 @@ public class SaveFormatOld implements ISaveFormat
         return true;
     }
 
+    /**
+     * Returns back a loader for the specified save directory
+     */
     public ISaveHandler getSaveLoader(String saveName, boolean storePlayerdata)
     {
         return new SaveHandler(this.savesDirectory, saveName, storePlayerdata, this.dataFixer);
@@ -261,11 +274,8 @@ public class SaveFormatOld implements ISaveFormat
         return file1.isDirectory();
     }
 
-    /**
-     * Gets a file within the given world.
-     */
-    public File getFile(String saveName, String filePath)
+    public File getFile(String p_186352_1_, String p_186352_2_)
     {
-        return new File(new File(this.savesDirectory, saveName), filePath);
+        return new File(new File(this.savesDirectory, p_186352_1_), p_186352_2_);
     }
 }

@@ -34,7 +34,7 @@ import net.minecraft.util.math.BlockPos;
 
 public class TileEntityBeacon extends TileEntityLockable implements ITickable, ISidedInventory
 {
-    /** List of effects that Beacons can apply */
+    /** List of effects that Beacon can apply */
     public static final Potion[][] EFFECTS_LIST = new Potion[][] {{MobEffects.SPEED, MobEffects.HASTE}, {MobEffects.RESISTANCE, MobEffects.JUMP_BOOST}, {MobEffects.STRENGTH}, {MobEffects.REGENERATION}};
     private static final Set<Potion> VALID_EFFECTS = Sets.<Potion>newHashSet();
     private final List<TileEntityBeacon.BeamSegment> beamSegments = Lists.<TileEntityBeacon.BeamSegment>newArrayList();
@@ -46,22 +46,25 @@ public class TileEntityBeacon extends TileEntityLockable implements ITickable, I
     private int levels = -1;
     @Nullable
 
-    /** Primary potion effect given by this beacon */
+    /** Primary potion effect given by this beacon. */
     private Potion primaryEffect;
     @Nullable
 
     /** Secondary potion effect given by this beacon. */
     private Potion secondaryEffect;
+
+    /** Item given to this beacon as payment. */
     private ItemStack payment = ItemStack.EMPTY;
 
-    /**
-     * The custom name for this beacon. This was unused until 1.14; see https://bugs.mojang.com/browse/MC-124395
-     */
+    /** Currently unused; see https://bugs.mojang.com/browse/MC-124395 */
     private String customName;
 
-    public void tick()
+    /**
+     * Like the old updateEntity(), except more generic.
+     */
+    public void update()
     {
-        if (this.world.getGameTime() % 80L == 0L)
+        if (this.world.getTotalWorldTime() % 80L == 0L)
         {
             this.updateBeacon();
         }
@@ -131,7 +134,7 @@ public class TileEntityBeacon extends TileEntityLockable implements ITickable, I
 
             if (iblockstate.getBlock() == Blocks.STAINED_GLASS)
             {
-                afloat = ((EnumDyeColor)iblockstate.get(BlockStainedGlass.COLOR)).getColorComponentValues();
+                afloat = ((EnumDyeColor)iblockstate.getValue(BlockStainedGlass.COLOR)).getColorComponentValues();
             }
             else
             {
@@ -148,7 +151,7 @@ public class TileEntityBeacon extends TileEntityLockable implements ITickable, I
                     continue;
                 }
 
-                afloat = ((EnumDyeColor)iblockstate.get(BlockStainedGlassPane.COLOR)).getColorComponentValues();
+                afloat = ((EnumDyeColor)iblockstate.getValue(BlockStainedGlassPane.COLOR)).getColorComponentValues();
             }
 
             if (!flag)
@@ -230,8 +233,8 @@ public class TileEntityBeacon extends TileEntityLockable implements ITickable, I
         }
         else
         {
-            int i = (int)(this.world.getGameTime() - this.beamRenderCounter);
-            this.beamRenderCounter = this.world.getGameTime();
+            int i = (int)(this.world.getTotalWorldTime() - this.beamRenderCounter);
+            this.beamRenderCounter = this.world.getTotalWorldTime();
 
             if (i > 1)
             {
@@ -276,7 +279,7 @@ public class TileEntityBeacon extends TileEntityLockable implements ITickable, I
      */
     public NBTTagCompound getUpdateTag()
     {
-        return this.write(new NBTTagCompound());
+        return this.writeToNBT(new NBTTagCompound());
     }
 
     public double getMaxRenderDistanceSquared()
@@ -287,24 +290,24 @@ public class TileEntityBeacon extends TileEntityLockable implements ITickable, I
     @Nullable
     private static Potion isBeaconEffect(int p_184279_0_)
     {
-        Potion potion = Potion.get(p_184279_0_);
+        Potion potion = Potion.getPotionById(p_184279_0_);
         return VALID_EFFECTS.contains(potion) ? potion : null;
     }
 
-    public void read(NBTTagCompound compound)
+    public void readFromNBT(NBTTagCompound compound)
     {
-        super.read(compound);
-        this.primaryEffect = isBeaconEffect(compound.getInt("Primary"));
-        this.secondaryEffect = isBeaconEffect(compound.getInt("Secondary"));
-        this.levels = compound.getInt("Levels");
+        super.readFromNBT(compound);
+        this.primaryEffect = isBeaconEffect(compound.getInteger("Primary"));
+        this.secondaryEffect = isBeaconEffect(compound.getInteger("Secondary"));
+        this.levels = compound.getInteger("Levels");
     }
 
-    public NBTTagCompound write(NBTTagCompound compound)
+    public NBTTagCompound writeToNBT(NBTTagCompound compound)
     {
-        super.write(compound);
-        compound.putInt("Primary", Potion.getId(this.primaryEffect));
-        compound.putInt("Secondary", Potion.getId(this.secondaryEffect));
-        compound.putInt("Levels", this.levels);
+        super.writeToNBT(compound);
+        compound.setInteger("Primary", Potion.getIdFromPotion(this.primaryEffect));
+        compound.setInteger("Secondary", Potion.getIdFromPotion(this.secondaryEffect));
+        compound.setInteger("Levels", this.levels);
         return compound;
     }
 
@@ -344,7 +347,7 @@ public class TileEntityBeacon extends TileEntityLockable implements ITickable, I
             }
             else
             {
-                return this.payment.split(count);
+                return this.payment.splitStack(count);
             }
         }
         else
@@ -381,11 +384,60 @@ public class TileEntityBeacon extends TileEntityLockable implements ITickable, I
         }
     }
 
+    /**
+     * Gets the name of this thing. This method has slightly different behavior depending on the interface (for <a
+     * href="https://github.com/ModCoderPack/MCPBot-Issues/issues/14">technical reasons</a> the same method is used for
+     * both IWorldNameable and ICommandSender):
+     *  
+     * <dl>
+     * <dt>{@link net.minecraft.util.INameable#getName() INameable.getName()}</dt>
+     * <dd>Returns the name of this inventory. If this {@linkplain net.minecraft.inventory#hasCustomName() has a custom
+     * name} then this <em>should</em> be a direct string; otherwise it <em>should</em> be a valid translation
+     * string.</dd>
+     * <dd>However, note that <strong>the translation string may be invalid</strong>, as is the case for {@link
+     * net.minecraft.tileentity.TileEntityBanner TileEntityBanner} (always returns nonexistent translation code
+     * <code>banner</code> without a custom name), {@link net.minecraft.block.BlockAnvil.Anvil BlockAnvil$Anvil} (always
+     * returns <code>anvil</code>), {@link net.minecraft.block.BlockWorkbench.InterfaceCraftingTable
+     * BlockWorkbench$InterfaceCraftingTable} (always returns <code>crafting_table</code>), {@link
+     * net.minecraft.inventory.InventoryCraftResult InventoryCraftResult} (always returns <code>Result</code>) and the
+     * {@link net.minecraft.entity.item.EntityMinecart EntityMinecart} family (uses the entity definition). This is not
+     * an exaustive list.</dd>
+     * <dd>In general, this method should be safe to use on tile entities that implement IInventory.</dd>
+     * <dt>{@link net.minecraft.command.ICommandSender#getName() ICommandSender.getName()} and {@link
+     * net.minecraft.entity.Entity#getName() Entity.getName()}</dt>
+     * <dd>Returns a valid, displayable name (which may be localized). For most entities, this is the translated version
+     * of its translation string (obtained via {@link net.minecraft.entity.EntityList#getEntityString
+     * EntityList.getEntityString}).</dd>
+     * <dd>If this entity has a custom name set, this will return that name.</dd>
+     * <dd>For some entities, this will attempt to translate a nonexistent translation string; see <a
+     * href="https://bugs.mojang.com/browse/MC-68446">MC-68446</a>. For {@linkplain
+     * net.minecraft.entity.player.EntityPlayer#getName() players} this returns the player's name. For {@linkplain
+     * net.minecraft.entity.passive.EntityOcelot ocelots} this may return the translation of
+     * <code>entity.Cat.name</code> if it is tamed. For {@linkplain net.minecraft.entity.item.EntityItem#getName() item
+     * entities}, this will attempt to return the name of the item in that item entity. In all cases other than players,
+     * the custom name will overrule this.</dd>
+     * <dd>For non-entity command senders, this will return some arbitrary name, such as "Rcon" or "Server".</dd>
+     * </dl>
+     */
     public String getName()
     {
         return this.hasCustomName() ? this.customName : "container.beacon";
     }
 
+    /**
+     * Checks if this thing has a custom name. This method has slightly different behavior depending on the interface
+     * (for <a href="https://github.com/ModCoderPack/MCPBot-Issues/issues/14">technical reasons</a> the same method is
+     * used for both IWorldNameable and Entity):
+     *  
+     * <dl>
+     * <dt>{@link net.minecraft.util.INameable#hasCustomName() INameable.hasCustomName()}</dt>
+     * <dd>If true, then {@link #getName()} probably returns a preformatted name; otherwise, it probably returns a
+     * translation string. However, exact behavior varies.</dd>
+     * <dt>{@link net.minecraft.entity.Entity#hasCustomName() Entity.hasCustomName()}</dt>
+     * <dd>If true, then {@link net.minecraft.entity.Entity#getCustomNameTag() Entity.getCustomNameTag()} will return a
+     * non-empty string, which will be used by {@link #getName()}.</dd>
+     * </dl>
+     */
     public boolean hasCustomName()
     {
         return this.customName != null && !this.customName.isEmpty();
@@ -454,10 +506,10 @@ public class TileEntityBeacon extends TileEntityLockable implements ITickable, I
                 return this.levels;
 
             case 1:
-                return Potion.getId(this.primaryEffect);
+                return Potion.getIdFromPotion(this.primaryEffect);
 
             case 2:
-                return Potion.getId(this.secondaryEffect);
+                return Potion.getIdFromPotion(this.secondaryEffect);
 
             default:
                 return 0;

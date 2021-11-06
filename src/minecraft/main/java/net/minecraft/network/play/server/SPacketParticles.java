@@ -18,6 +18,10 @@ public class SPacketParticles implements Packet<INetHandlerPlayClient>
     private float particleSpeed;
     private int particleCount;
     private boolean longDistance;
+
+    /**
+     * These are the block/item ids and possibly metaData ids that are used to color or texture the particle.
+     */
     private int[] particleArguments;
 
     public SPacketParticles()
@@ -166,6 +170,10 @@ public class SPacketParticles implements Packet<INetHandlerPlayClient>
         return this.particleCount;
     }
 
+    /**
+     * Gets the particle arguments. Some particles rely on block and/or item ids and sometimes metadata ids to color or
+     * texture the particle.
+     */
     public int[] getParticleArgs()
     {
         return this.particleArguments;

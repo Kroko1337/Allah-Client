@@ -30,14 +30,14 @@ public class ScoreboardSaveData extends WorldSavedData
 
         if (this.delayedInitNbt != null)
         {
-            this.read(this.delayedInitNbt);
+            this.readFromNBT(this.delayedInitNbt);
         }
     }
 
     /**
      * reads in data from the NBTTagCompound into this MapDataBase
      */
-    public void read(NBTTagCompound nbt)
+    public void readFromNBT(NBTTagCompound nbt)
     {
         if (this.scoreboard == null)
         {
@@ -45,17 +45,17 @@ public class ScoreboardSaveData extends WorldSavedData
         }
         else
         {
-            this.readObjectives(nbt.getList("Objectives", 10));
-            this.readScores(nbt.getList("PlayerScores", 10));
+            this.readObjectives(nbt.getTagList("Objectives", 10));
+            this.readScores(nbt.getTagList("PlayerScores", 10));
 
-            if (nbt.contains("DisplaySlots", 10))
+            if (nbt.hasKey("DisplaySlots", 10))
             {
-                this.readDisplayConfig(nbt.getCompound("DisplaySlots"));
+                this.readDisplayConfig(nbt.getCompoundTag("DisplaySlots"));
             }
 
-            if (nbt.contains("Teams", 9))
+            if (nbt.hasKey("Teams", 9))
             {
-                this.readTeams(nbt.getList("Teams", 10));
+                this.readTeams(nbt.getTagList("Teams", 10));
             }
         }
     }
@@ -64,7 +64,7 @@ public class ScoreboardSaveData extends WorldSavedData
     {
         for (int i = 0; i < tagList.tagCount(); ++i)
         {
-            NBTTagCompound nbttagcompound = tagList.getCompound(i);
+            NBTTagCompound nbttagcompound = tagList.getCompoundTagAt(i);
             String s = nbttagcompound.getString("Name");
 
             if (s.length() > 16)
@@ -82,7 +82,7 @@ public class ScoreboardSaveData extends WorldSavedData
 
             scoreplayerteam.setDisplayName(s1);
 
-            if (nbttagcompound.contains("TeamColor", 8))
+            if (nbttagcompound.hasKey("TeamColor", 8))
             {
                 scoreplayerteam.setColor(TextFormatting.getValueByName(nbttagcompound.getString("TeamColor")));
             }
@@ -90,17 +90,17 @@ public class ScoreboardSaveData extends WorldSavedData
             scoreplayerteam.setPrefix(nbttagcompound.getString("Prefix"));
             scoreplayerteam.setSuffix(nbttagcompound.getString("Suffix"));
 
-            if (nbttagcompound.contains("AllowFriendlyFire", 99))
+            if (nbttagcompound.hasKey("AllowFriendlyFire", 99))
             {
                 scoreplayerteam.setAllowFriendlyFire(nbttagcompound.getBoolean("AllowFriendlyFire"));
             }
 
-            if (nbttagcompound.contains("SeeFriendlyInvisibles", 99))
+            if (nbttagcompound.hasKey("SeeFriendlyInvisibles", 99))
             {
                 scoreplayerteam.setSeeFriendlyInvisiblesEnabled(nbttagcompound.getBoolean("SeeFriendlyInvisibles"));
             }
 
-            if (nbttagcompound.contains("NameTagVisibility", 8))
+            if (nbttagcompound.hasKey("NameTagVisibility", 8))
             {
                 Team.EnumVisible team$enumvisible = Team.EnumVisible.getByName(nbttagcompound.getString("NameTagVisibility"));
 
@@ -110,7 +110,7 @@ public class ScoreboardSaveData extends WorldSavedData
                 }
             }
 
-            if (nbttagcompound.contains("DeathMessageVisibility", 8))
+            if (nbttagcompound.hasKey("DeathMessageVisibility", 8))
             {
                 Team.EnumVisible team$enumvisible1 = Team.EnumVisible.getByName(nbttagcompound.getString("DeathMessageVisibility"));
 
@@ -120,7 +120,7 @@ public class ScoreboardSaveData extends WorldSavedData
                 }
             }
 
-            if (nbttagcompound.contains("CollisionRule", 8))
+            if (nbttagcompound.hasKey("CollisionRule", 8))
             {
                 Team.CollisionRule team$collisionrule = Team.CollisionRule.getByName(nbttagcompound.getString("CollisionRule"));
 
@@ -130,7 +130,7 @@ public class ScoreboardSaveData extends WorldSavedData
                 }
             }
 
-            this.loadTeamPlayers(scoreplayerteam, nbttagcompound.getList("Players", 8));
+            this.loadTeamPlayers(scoreplayerteam, nbttagcompound.getTagList("Players", 8));
         }
     }
 
@@ -138,7 +138,7 @@ public class ScoreboardSaveData extends WorldSavedData
     {
         for (int i = 0; i < tagList.tagCount(); ++i)
         {
-            this.scoreboard.addPlayerToTeam(tagList.getString(i), playerTeam.getName());
+            this.scoreboard.addPlayerToTeam(tagList.getStringTagAt(i), playerTeam.getName());
         }
     }
 
@@ -146,7 +146,7 @@ public class ScoreboardSaveData extends WorldSavedData
     {
         for (int i = 0; i < 19; ++i)
         {
-            if (compound.contains("slot_" + i, 8))
+            if (compound.hasKey("slot_" + i, 8))
             {
                 String s = compound.getString("slot_" + i);
                 ScoreObjective scoreobjective = this.scoreboard.getObjective(s);
@@ -159,7 +159,7 @@ public class ScoreboardSaveData extends WorldSavedData
     {
         for (int i = 0; i < nbt.tagCount(); ++i)
         {
-            NBTTagCompound nbttagcompound = nbt.getCompound(i);
+            NBTTagCompound nbttagcompound = nbt.getCompoundTagAt(i);
             IScoreCriteria iscorecriteria = IScoreCriteria.INSTANCES.get(nbttagcompound.getString("CriteriaName"));
 
             if (iscorecriteria != null)
@@ -182,7 +182,7 @@ public class ScoreboardSaveData extends WorldSavedData
     {
         for (int i = 0; i < nbt.tagCount(); ++i)
         {
-            NBTTagCompound nbttagcompound = nbt.getCompound(i);
+            NBTTagCompound nbttagcompound = nbt.getCompoundTagAt(i);
             ScoreObjective scoreobjective = this.scoreboard.getObjective(nbttagcompound.getString("Objective"));
             String s = nbttagcompound.getString("Name");
 
@@ -192,16 +192,16 @@ public class ScoreboardSaveData extends WorldSavedData
             }
 
             Score score = this.scoreboard.getOrCreateScore(s, scoreobjective);
-            score.setScorePoints(nbttagcompound.getInt("Score"));
+            score.setScorePoints(nbttagcompound.getInteger("Score"));
 
-            if (nbttagcompound.contains("Locked"))
+            if (nbttagcompound.hasKey("Locked"))
             {
                 score.setLocked(nbttagcompound.getBoolean("Locked"));
             }
         }
     }
 
-    public NBTTagCompound write(NBTTagCompound compound)
+    public NBTTagCompound writeToNBT(NBTTagCompound compound)
     {
         if (this.scoreboard == null)
         {
@@ -225,21 +225,21 @@ public class ScoreboardSaveData extends WorldSavedData
         for (ScorePlayerTeam scoreplayerteam : this.scoreboard.getTeams())
         {
             NBTTagCompound nbttagcompound = new NBTTagCompound();
-            nbttagcompound.putString("Name", scoreplayerteam.getName());
-            nbttagcompound.putString("DisplayName", scoreplayerteam.getDisplayName());
+            nbttagcompound.setString("Name", scoreplayerteam.getName());
+            nbttagcompound.setString("DisplayName", scoreplayerteam.getDisplayName());
 
             if (scoreplayerteam.getColor().getColorIndex() >= 0)
             {
-                nbttagcompound.putString("TeamColor", scoreplayerteam.getColor().getFriendlyName());
+                nbttagcompound.setString("TeamColor", scoreplayerteam.getColor().getFriendlyName());
             }
 
-            nbttagcompound.putString("Prefix", scoreplayerteam.getPrefix());
-            nbttagcompound.putString("Suffix", scoreplayerteam.getSuffix());
-            nbttagcompound.putBoolean("AllowFriendlyFire", scoreplayerteam.getAllowFriendlyFire());
-            nbttagcompound.putBoolean("SeeFriendlyInvisibles", scoreplayerteam.getSeeFriendlyInvisiblesEnabled());
-            nbttagcompound.putString("NameTagVisibility", scoreplayerteam.getNameTagVisibility().internalName);
-            nbttagcompound.putString("DeathMessageVisibility", scoreplayerteam.getDeathMessageVisibility().internalName);
-            nbttagcompound.putString("CollisionRule", scoreplayerteam.getCollisionRule().name);
+            nbttagcompound.setString("Prefix", scoreplayerteam.getPrefix());
+            nbttagcompound.setString("Suffix", scoreplayerteam.getSuffix());
+            nbttagcompound.setBoolean("AllowFriendlyFire", scoreplayerteam.getAllowFriendlyFire());
+            nbttagcompound.setBoolean("SeeFriendlyInvisibles", scoreplayerteam.getSeeFriendlyInvisiblesEnabled());
+            nbttagcompound.setString("NameTagVisibility", scoreplayerteam.getNameTagVisibility().internalName);
+            nbttagcompound.setString("DeathMessageVisibility", scoreplayerteam.getDeathMessageVisibility().internalName);
+            nbttagcompound.setString("CollisionRule", scoreplayerteam.getCollisionRule().name);
             NBTTagList nbttaglist1 = new NBTTagList();
 
             for (String s : scoreplayerteam.getMembershipCollection())
@@ -265,7 +265,7 @@ public class ScoreboardSaveData extends WorldSavedData
 
             if (scoreobjective != null)
             {
-                nbttagcompound.putString("slot_" + i, scoreobjective.getName());
+                nbttagcompound.setString("slot_" + i, scoreobjective.getName());
                 flag = true;
             }
         }
@@ -285,10 +285,10 @@ public class ScoreboardSaveData extends WorldSavedData
             if (scoreobjective.getCriteria() != null)
             {
                 NBTTagCompound nbttagcompound = new NBTTagCompound();
-                nbttagcompound.putString("Name", scoreobjective.getName());
-                nbttagcompound.putString("CriteriaName", scoreobjective.getCriteria().getName());
-                nbttagcompound.putString("DisplayName", scoreobjective.getDisplayName());
-                nbttagcompound.putString("RenderType", scoreobjective.getRenderType().getRenderType());
+                nbttagcompound.setString("Name", scoreobjective.getName());
+                nbttagcompound.setString("CriteriaName", scoreobjective.getCriteria().getName());
+                nbttagcompound.setString("DisplayName", scoreobjective.getDisplayName());
+                nbttagcompound.setString("RenderType", scoreobjective.getRenderType().getRenderType());
                 nbttaglist.appendTag(nbttagcompound);
             }
         }
@@ -305,10 +305,10 @@ public class ScoreboardSaveData extends WorldSavedData
             if (score.getObjective() != null)
             {
                 NBTTagCompound nbttagcompound = new NBTTagCompound();
-                nbttagcompound.putString("Name", score.getPlayerName());
-                nbttagcompound.putString("Objective", score.getObjective().getName());
-                nbttagcompound.putInt("Score", score.getScorePoints());
-                nbttagcompound.putBoolean("Locked", score.isLocked());
+                nbttagcompound.setString("Name", score.getPlayerName());
+                nbttagcompound.setString("Objective", score.getObjective().getName());
+                nbttagcompound.setInteger("Score", score.getScorePoints());
+                nbttagcompound.setBoolean("Locked", score.isLocked());
                 nbttaglist.appendTag(nbttagcompound);
             }
         }

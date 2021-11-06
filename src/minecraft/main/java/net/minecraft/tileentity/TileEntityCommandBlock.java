@@ -57,24 +57,24 @@ public class TileEntityCommandBlock extends TileEntity
         }
         public MinecraftServer getServer()
         {
-            return TileEntityCommandBlock.this.world.getServer();
+            return TileEntityCommandBlock.this.world.getMinecraftServer();
         }
     };
 
-    public NBTTagCompound write(NBTTagCompound compound)
+    public NBTTagCompound writeToNBT(NBTTagCompound compound)
     {
-        super.write(compound);
-        this.commandBlockLogic.write(compound);
-        compound.putBoolean("powered", this.isPowered());
-        compound.putBoolean("conditionMet", this.isConditionMet());
-        compound.putBoolean("auto", this.isAuto());
+        super.writeToNBT(compound);
+        this.commandBlockLogic.writeToNBT(compound);
+        compound.setBoolean("powered", this.isPowered());
+        compound.setBoolean("conditionMet", this.isConditionMet());
+        compound.setBoolean("auto", this.isAuto());
         return compound;
     }
 
-    public void read(NBTTagCompound compound)
+    public void readFromNBT(NBTTagCompound compound)
     {
-        super.read(compound);
-        this.commandBlockLogic.read(compound);
+        super.readFromNBT(compound);
+        this.commandBlockLogic.readDataFromNBT(compound);
         this.powered = compound.getBoolean("powered");
         this.conditionMet = compound.getBoolean("conditionMet");
         this.setAuto(compound.getBoolean("auto"));
@@ -91,7 +91,7 @@ public class TileEntityCommandBlock extends TileEntity
         if (this.isSendToClient())
         {
             this.setSendToClient(false);
-            NBTTagCompound nbttagcompound = this.write(new NBTTagCompound());
+            NBTTagCompound nbttagcompound = this.writeToNBT(new NBTTagCompound());
             return new SPacketUpdateTileEntity(this.pos, 2, nbttagcompound);
         }
         else
@@ -100,14 +100,6 @@ public class TileEntityCommandBlock extends TileEntity
         }
     }
 
-    /**
-     * Checks if players can use this tile entity to access operator (permission level 2) commands either directly or
-     * indirectly, such as give or setblock. A similar method exists for entities at {@link
-     * net.minecraft.entity.Entity#ignoreItemEntityData()}.<p>For example, {@link
-     * net.minecraft.tileentity.TileEntitySign#onlyOpsCanSetNbt() signs} (player right-clicking) and {@link
-     * net.minecraft.tileentity.TileEntityCommandBlock#onlyOpsCanSetNbt() command blocks} are considered
-     * accessible.</p>@return true if this block entity offers ways for unauthorized players to use restricted commands
-     */
     public boolean onlyOpsCanSetNbt()
     {
         return true;
@@ -166,7 +158,7 @@ public class TileEntityCommandBlock extends TileEntity
 
         if (this.isConditional())
         {
-            BlockPos blockpos = this.pos.offset(((EnumFacing)this.world.getBlockState(this.pos).get(BlockCommandBlock.FACING)).getOpposite());
+            BlockPos blockpos = this.pos.offset(((EnumFacing)this.world.getBlockState(this.pos).getValue(BlockCommandBlock.FACING)).getOpposite());
 
             if (this.world.getBlockState(blockpos).getBlock() instanceof BlockCommandBlock)
             {
@@ -213,7 +205,7 @@ public class TileEntityCommandBlock extends TileEntity
     public boolean isConditional()
     {
         IBlockState iblockstate = this.world.getBlockState(this.getPos());
-        return iblockstate.getBlock() instanceof BlockCommandBlock ? ((Boolean)iblockstate.get(BlockCommandBlock.CONDITIONAL)).booleanValue() : false;
+        return iblockstate.getBlock() instanceof BlockCommandBlock ? ((Boolean)iblockstate.getValue(BlockCommandBlock.CONDITIONAL)).booleanValue() : false;
     }
 
     /**

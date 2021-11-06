@@ -78,8 +78,8 @@ public class EntityTippedArrow extends EntityArrow
 
     public static int getCustomColor(ItemStack p_191508_0_)
     {
-        NBTTagCompound nbttagcompound = p_191508_0_.getTag();
-        return nbttagcompound != null && nbttagcompound.contains("CustomPotionColor", 99) ? nbttagcompound.getInt("CustomPotionColor") : -1;
+        NBTTagCompound nbttagcompound = p_191508_0_.getTagCompound();
+        return nbttagcompound != null && nbttagcompound.hasKey("CustomPotionColor", 99) ? nbttagcompound.getInteger("CustomPotionColor") : -1;
     }
 
     private void refreshColor()
@@ -94,18 +94,18 @@ public class EntityTippedArrow extends EntityArrow
         this.getDataManager().set(COLOR, Integer.valueOf(PotionUtils.getPotionColorFromEffectList(PotionUtils.mergeEffects(this.potion, this.customPotionEffects))));
     }
 
-    protected void registerData()
+    protected void entityInit()
     {
-        super.registerData();
+        super.entityInit();
         this.dataManager.register(COLOR, Integer.valueOf(-1));
     }
 
     /**
      * Called to update the entity's position/logic.
      */
-    public void tick()
+    public void onUpdate()
     {
-        super.tick();
+        super.onUpdate();
 
         if (this.world.isRemote)
         {
@@ -163,18 +163,21 @@ public class EntityTippedArrow extends EntityArrow
         EntityArrow.registerFixesArrow(fixer, "TippedArrow");
     }
 
+    /**
+     * (abstract) Protected helper method to write subclass entity data to NBT.
+     */
     public void writeEntityToNBT(NBTTagCompound compound)
     {
         super.writeEntityToNBT(compound);
 
         if (this.potion != PotionTypes.EMPTY && this.potion != null)
         {
-            compound.putString("Potion", ((ResourceLocation)PotionType.REGISTRY.getKey(this.potion)).toString());
+            compound.setString("Potion", ((ResourceLocation)PotionType.REGISTRY.getNameForObject(this.potion)).toString());
         }
 
         if (this.fixedColor)
         {
-            compound.putInt("Color", this.getColor());
+            compound.setInteger("Color", this.getColor());
         }
 
         if (!this.customPotionEffects.isEmpty())
@@ -183,7 +186,7 @@ public class EntityTippedArrow extends EntityArrow
 
             for (PotionEffect potioneffect : this.customPotionEffects)
             {
-                nbttaglist.appendTag(potioneffect.write(new NBTTagCompound()));
+                nbttaglist.appendTag(potioneffect.writeCustomPotionEffectToNBT(new NBTTagCompound()));
             }
 
             compound.setTag("CustomPotionEffects", nbttaglist);
@@ -193,11 +196,11 @@ public class EntityTippedArrow extends EntityArrow
     /**
      * (abstract) Protected helper method to read subclass entity data from NBT.
      */
-    public void readAdditional(NBTTagCompound compound)
+    public void readEntityFromNBT(NBTTagCompound compound)
     {
-        super.readAdditional(compound);
+        super.readEntityFromNBT(compound);
 
-        if (compound.contains("Potion", 8))
+        if (compound.hasKey("Potion", 8))
         {
             this.potion = PotionUtils.getPotionTypeFromNBT(compound);
         }
@@ -207,9 +210,9 @@ public class EntityTippedArrow extends EntityArrow
             this.addEffect(potioneffect);
         }
 
-        if (compound.contains("Color", 99))
+        if (compound.hasKey("Color", 99))
         {
-            this.setFixedColor(compound.getInt("Color"));
+            this.setFixedColor(compound.getInteger("Color"));
         }
         else
         {
@@ -223,7 +226,7 @@ public class EntityTippedArrow extends EntityArrow
 
         for (PotionEffect potioneffect : this.potion.getEffects())
         {
-            living.addPotionEffect(new PotionEffect(potioneffect.getPotion(), Math.max(potioneffect.getDuration() / 8, 1), potioneffect.getAmplifier(), potioneffect.isAmbient(), potioneffect.doesShowParticles()));
+            living.addPotionEffect(new PotionEffect(potioneffect.getPotion(), Math.max(potioneffect.getDuration() / 8, 1), potioneffect.getAmplifier(), potioneffect.getIsAmbient(), potioneffect.doesShowParticles()));
         }
 
         if (!this.customPotionEffects.isEmpty())
@@ -249,15 +252,15 @@ public class EntityTippedArrow extends EntityArrow
 
             if (this.fixedColor)
             {
-                NBTTagCompound nbttagcompound = itemstack.getTag();
+                NBTTagCompound nbttagcompound = itemstack.getTagCompound();
 
                 if (nbttagcompound == null)
                 {
                     nbttagcompound = new NBTTagCompound();
-                    itemstack.setTag(nbttagcompound);
+                    itemstack.setTagCompound(nbttagcompound);
                 }
 
-                nbttagcompound.putInt("CustomPotionColor", this.getColor());
+                nbttagcompound.setInteger("CustomPotionColor", this.getColor());
             }
 
             return itemstack;

@@ -14,26 +14,41 @@ import net.minecraft.util.math.BlockPos;
 
 public class CommandPardonIp extends CommandBase
 {
+    /**
+     * Gets the name of the command
+     */
     public String getName()
     {
         return "pardon-ip";
     }
 
+    /**
+     * Return the required permission level for this command.
+     */
     public int getRequiredPermissionLevel()
     {
         return 3;
     }
 
+    /**
+     * Check if the given ICommandSender has permission to execute this command
+     */
     public boolean checkPermission(MinecraftServer server, ICommandSender sender)
     {
         return server.getPlayerList().getBannedIPs().isLanServer() && super.checkPermission(server, sender);
     }
 
+    /**
+     * Gets the usage string for the command.
+     */
     public String getUsage(ICommandSender sender)
     {
         return "commands.unbanip.usage";
     }
 
+    /**
+     * Callback for when the command is executed
+     */
     public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
     {
         if (args.length == 1 && args[0].length() > 1)

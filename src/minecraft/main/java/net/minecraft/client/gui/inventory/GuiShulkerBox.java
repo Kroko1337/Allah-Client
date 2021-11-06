@@ -15,12 +15,15 @@ public class GuiShulkerBox extends GuiContainer
 
     public GuiShulkerBox(InventoryPlayer playerInventoryIn, IInventory inventoryIn)
     {
-        super(new ContainerShulkerBox(playerInventoryIn, inventoryIn, Minecraft.getInstance().player));
+        super(new ContainerShulkerBox(playerInventoryIn, inventoryIn, Minecraft.getMinecraft().player));
         this.playerInventory = playerInventoryIn;
         this.inventory = inventoryIn;
         ++this.ySize;
     }
 
+    /**
+     * Draws the screen and all the components in it.
+     */
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         this.drawDefaultBackground();

@@ -16,6 +16,8 @@ import net.minecraft.util.text.TextComponentTranslation;
 public class CombatTracker
 {
     private final List<CombatEntry> combatEntries = Lists.<CombatEntry>newArrayList();
+
+    /** The entity tracked. */
     private final EntityLivingBase fighter;
     private int lastDamageTime;
     private int combatStartTime;
@@ -35,7 +37,7 @@ public class CombatTracker
 
         if (this.fighter.isOnLadder())
         {
-            Block block = this.fighter.world.getBlockState(new BlockPos(this.fighter.posX, this.fighter.getBoundingBox().minY, this.fighter.posZ)).getBlock();
+            Block block = this.fighter.world.getBlockState(new BlockPos(this.fighter.posX, this.fighter.getEntityBoundingBox().minY, this.fighter.posZ)).getBlock();
 
             if (block == Blocks.LADDER)
             {
@@ -64,7 +66,7 @@ public class CombatTracker
         this.lastDamageTime = this.fighter.ticksExisted;
         this.takingDamage = true;
 
-        if (combatentry.isLivingDamageSrc() && !this.inCombat && this.fighter.isAlive())
+        if (combatentry.isLivingDamageSrc() && !this.inCombat && this.fighter.isEntityAlive())
         {
             this.inCombat = true;
             this.combatStartTime = this.fighter.ticksExisted;
@@ -242,7 +244,7 @@ public class CombatTracker
     {
         int i = this.inCombat ? 300 : 100;
 
-        if (this.takingDamage && (!this.fighter.isAlive() || this.fighter.ticksExisted - this.lastDamageTime > i))
+        if (this.takingDamage && (!this.fighter.isEntityAlive() || this.fighter.ticksExisted - this.lastDamageTime > i))
         {
             boolean flag = this.inCombat;
             this.takingDamage = false;

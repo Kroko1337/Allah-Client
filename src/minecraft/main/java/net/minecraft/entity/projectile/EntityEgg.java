@@ -74,12 +74,12 @@ public class EntityEgg extends EntityThrowable
                     EntityChicken entitychicken = new EntityChicken(this.world);
                     entitychicken.setGrowingAge(-24000);
                     entitychicken.setLocationAndAngles(this.posX, this.posY, this.posZ, this.rotationYaw, 0.0F);
-                    this.world.addEntity0(entitychicken);
+                    this.world.spawnEntity(entitychicken);
                 }
             }
 
             this.world.setEntityState(this, (byte)3);
-            this.remove();
+            this.setDead();
         }
     }
 }

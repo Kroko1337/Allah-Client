@@ -24,23 +24,31 @@ public abstract class BlockFlower extends BlockBush
 
     protected BlockFlower()
     {
-        this.setDefaultState(this.stateContainer.getBaseState().withProperty(this.getTypeProperty(), this.getBlockType() == BlockFlower.EnumFlowerColor.RED ? BlockFlower.EnumFlowerType.POPPY : BlockFlower.EnumFlowerType.DANDELION));
+        this.setDefaultState(this.blockState.getBaseState().withProperty(this.getTypeProperty(), this.getBlockType() == BlockFlower.EnumFlowerColor.RED ? BlockFlower.EnumFlowerType.POPPY : BlockFlower.EnumFlowerType.DANDELION));
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#getBoundingBox(IBlockAccess,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
     {
         return super.getBoundingBox(state, source, pos).offset(state.getOffset(source, pos));
     }
 
+    /**
+     * Gets the metadata of the item this Block can drop. This method is called when the block gets destroyed. It
+     * returns the metadata of the dropped item based on the old metadata of the block.
+     */
     public int damageDropped(IBlockState state)
     {
-        return ((BlockFlower.EnumFlowerType)state.get(this.getTypeProperty())).getMeta();
+        return ((BlockFlower.EnumFlowerType)state.getValue(this.getTypeProperty())).getMeta();
     }
 
     /**
      * returns a list of blocks with the same ID, but different meta (eg: wood returns 4 blocks)
      */
-    public void fillItemGroup(CreativeTabs group, NonNullList<ItemStack> items)
+    public void getSubBlocks(CreativeTabs itemIn, NonNullList<ItemStack> items)
     {
         for (BlockFlower.EnumFlowerType blockflower$enumflowertype : BlockFlower.EnumFlowerType.getTypes(this.getBlockType()))
         {
@@ -48,11 +56,17 @@ public abstract class BlockFlower extends BlockBush
         }
     }
 
+    /**
+     * Convert the given metadata into a BlockState for this Block
+     */
     public IBlockState getStateFromMeta(int meta)
     {
         return this.getDefaultState().withProperty(this.getTypeProperty(), BlockFlower.EnumFlowerType.getType(this.getBlockType(), meta));
     }
 
+    /**
+     * Get the Type of this flower (Yellow/Red)
+     */
     public abstract BlockFlower.EnumFlowerColor getBlockType();
 
     public IProperty<BlockFlower.EnumFlowerType> getTypeProperty()
@@ -71,9 +85,12 @@ public abstract class BlockFlower extends BlockBush
         return this.type;
     }
 
+    /**
+     * Convert the BlockState into the correct metadata value
+     */
     public int getMetaFromState(IBlockState state)
     {
-        return ((BlockFlower.EnumFlowerType)state.get(this.getTypeProperty())).getMeta();
+        return ((BlockFlower.EnumFlowerType)state.getValue(this.getTypeProperty())).getMeta();
     }
 
     protected BlockStateContainer createBlockState()

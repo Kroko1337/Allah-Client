@@ -17,21 +17,33 @@ public class CommandTitle extends CommandBase
 {
     private static final Logger LOGGER = LogManager.getLogger();
 
+    /**
+     * Gets the name of the command
+     */
     public String getName()
     {
         return "title";
     }
 
+    /**
+     * Return the required permission level for this command.
+     */
     public int getRequiredPermissionLevel()
     {
         return 2;
     }
 
+    /**
+     * Gets the usage string for the command.
+     */
     public String getUsage(ICommandSender sender)
     {
         return "commands.title.usage";
     }
 
+    /**
+     * Callback for when the command is executed
+     */
     public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
     {
         if (args.length < 2)
@@ -85,7 +97,7 @@ public class CommandTitle extends CommandBase
 
                     try
                     {
-                        itextcomponent = ITextComponent.Serializer.fromJson(s);
+                        itextcomponent = ITextComponent.Serializer.jsonToComponent(s);
                     }
                     catch (JsonParseException jsonparseexception)
                     {
@@ -122,6 +134,9 @@ public class CommandTitle extends CommandBase
         }
     }
 
+    /**
+     * Return whether the specified command parameter index is a username parameter.
+     */
     public boolean isUsernameIndex(String[] args, int index)
     {
         return index == 0;

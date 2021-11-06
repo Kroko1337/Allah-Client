@@ -8,11 +8,14 @@ public class RenderHusk extends RenderZombie
 {
     private static final ResourceLocation HUSK_ZOMBIE_TEXTURES = new ResourceLocation("textures/entity/zombie/husk.png");
 
-    public RenderHusk(RenderManager renderManagerIn)
+    public RenderHusk(RenderManager p_i47204_1_)
     {
-        super(renderManagerIn);
+        super(p_i47204_1_);
     }
 
+    /**
+     * Allows the render to do state modifications necessary before the model is rendered.
+     */
     protected void preRenderCallback(EntityZombie entitylivingbaseIn, float partialTickTime)
     {
         float f = 1.0625F;
@@ -21,7 +24,7 @@ public class RenderHusk extends RenderZombie
     }
 
     /**
-     * Returns the location of an entity's texture.
+     * Returns the location of an entity's texture. Doesn't seem to be called unless you call Render.bindEntityTexture.
      */
     protected ResourceLocation getEntityTexture(EntityZombie entity)
     {

@@ -8,6 +8,10 @@ import net.minecraft.util.math.MathHelper;
 
 public class EnchantmentProtection extends Enchantment
 {
+    /**
+     * Defines the type of protection of the enchantment, 0 = all, 1 = fire, 2 = fall (feather fall), 3 = explosion and
+     * 4 = projectile.
+     */
     public final EnchantmentProtection.Type protectionType;
 
     public EnchantmentProtection(Enchantment.Rarity rarityIn, EnchantmentProtection.Type protectionTypeIn, EntityEquipmentSlot... slots)
@@ -29,6 +33,9 @@ public class EnchantmentProtection extends Enchantment
         return this.protectionType.getMinimalEnchantability() + (enchantmentLevel - 1) * this.protectionType.getEnchantIncreasePerLevel();
     }
 
+    /**
+     * Returns the maximum value of enchantability nedded on the enchantment level passed.
+     */
     public int getMaxEnchantability(int enchantmentLevel)
     {
         return this.getMinEnchantability(enchantmentLevel) + this.protectionType.getEnchantIncreasePerLevel();

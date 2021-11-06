@@ -30,7 +30,7 @@ public class SPacketRemoveEntityEffect implements Packet<INetHandlerPlayClient>
     public void readPacketData(PacketBuffer buf) throws IOException
     {
         this.entityId = buf.readVarInt();
-        this.effectId = Potion.get(buf.readUnsignedByte());
+        this.effectId = Potion.getPotionById(buf.readUnsignedByte());
     }
 
     /**
@@ -39,7 +39,7 @@ public class SPacketRemoveEntityEffect implements Packet<INetHandlerPlayClient>
     public void writePacketData(PacketBuffer buf) throws IOException
     {
         buf.writeVarInt(this.entityId);
-        buf.writeByte(Potion.getId(this.effectId));
+        buf.writeByte(Potion.getIdFromPotion(this.effectId));
     }
 
     /**

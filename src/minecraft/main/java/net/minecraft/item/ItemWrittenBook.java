@@ -35,14 +35,14 @@ public class ItemWrittenBook extends Item
         {
             return false;
         }
-        else if (!nbt.contains("title", 8))
+        else if (!nbt.hasKey("title", 8))
         {
             return false;
         }
         else
         {
             String s = nbt.getString("title");
-            return s != null && s.length() <= 32 ? nbt.contains("author", 8) : false;
+            return s != null && s.length() <= 32 ? nbt.hasKey("author", 8) : false;
         }
     }
 
@@ -51,14 +51,14 @@ public class ItemWrittenBook extends Item
      */
     public static int getGeneration(ItemStack book)
     {
-        return book.getTag().getInt("generation");
+        return book.getTagCompound().getInteger("generation");
     }
 
     public String getItemStackDisplayName(ItemStack stack)
     {
-        if (stack.hasTag())
+        if (stack.hasTagCompound())
         {
-            NBTTagCompound nbttagcompound = stack.getTag();
+            NBTTagCompound nbttagcompound = stack.getTagCompound();
             String s = nbttagcompound.getString("title");
 
             if (!StringUtils.isNullOrEmpty(s))
@@ -75,9 +75,9 @@ public class ItemWrittenBook extends Item
      */
     public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn)
     {
-        if (stack.hasTag())
+        if (stack.hasTagCompound())
         {
-            NBTTagCompound nbttagcompound = stack.getTag();
+            NBTTagCompound nbttagcompound = stack.getTagCompound();
             String s = nbttagcompound.getString("author");
 
             if (!StringUtils.isNullOrEmpty(s))
@@ -85,7 +85,7 @@ public class ItemWrittenBook extends Item
                 tooltip.add(TextFormatting.GRAY + I18n.translateToLocalFormatted("book.byAuthor", s));
             }
 
-            tooltip.add(TextFormatting.GRAY + I18n.translateToLocal("book.generation." + nbttagcompound.getInt("generation")));
+            tooltip.add(TextFormatting.GRAY + I18n.translateToLocal("book.generation." + nbttagcompound.getInteger("generation")));
         }
     }
 
@@ -105,21 +105,21 @@ public class ItemWrittenBook extends Item
 
     private void resolveContents(ItemStack stack, EntityPlayer player)
     {
-        if (stack.getTag() != null)
+        if (stack.getTagCompound() != null)
         {
-            NBTTagCompound nbttagcompound = stack.getTag();
+            NBTTagCompound nbttagcompound = stack.getTagCompound();
 
             if (!nbttagcompound.getBoolean("resolved"))
             {
-                nbttagcompound.putBoolean("resolved", true);
+                nbttagcompound.setBoolean("resolved", true);
 
                 if (validBookTagContents(nbttagcompound))
                 {
-                    NBTTagList nbttaglist = nbttagcompound.getList("pages", 8);
+                    NBTTagList nbttaglist = nbttagcompound.getTagList("pages", 8);
 
                     for (int i = 0; i < nbttaglist.tagCount(); ++i)
                     {
-                        String s = nbttaglist.getString(i);
+                        String s = nbttaglist.getStringTagAt(i);
                         ITextComponent itextcomponent;
 
                         try
@@ -132,7 +132,7 @@ public class ItemWrittenBook extends Item
                             itextcomponent = new TextComponentString(s);
                         }
 
-                        nbttaglist.set(i, new NBTTagString(ITextComponent.Serializer.toJson(itextcomponent)));
+                        nbttaglist.set(i, new NBTTagString(ITextComponent.Serializer.componentToJson(itextcomponent)));
                     }
 
                     nbttagcompound.setTag("pages", nbttaglist);

@@ -30,6 +30,9 @@ public class BlockLilyPad extends BlockBush
         }
     }
 
+    /**
+     * Called When an Entity Collided with the Block
+     */
     public void onEntityCollision(World worldIn, BlockPos pos, IBlockState state, Entity entityIn)
     {
         super.onEntityCollision(worldIn, pos, state, entityIn);
@@ -40,11 +43,18 @@ public class BlockLilyPad extends BlockBush
         }
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#getBoundingBox(IBlockAccess,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
     {
         return LILY_PAD_AABB;
     }
 
+    /**
+     * Return true if the block can sustain a Bush
+     */
     protected boolean canSustainBush(IBlockState state)
     {
         return state.getBlock() == Blocks.WATER || state.getMaterial() == Material.ICE;
@@ -56,7 +66,7 @@ public class BlockLilyPad extends BlockBush
         {
             IBlockState iblockstate = worldIn.getBlockState(pos.down());
             Material material = iblockstate.getMaterial();
-            return material == Material.WATER && ((Integer)iblockstate.get(BlockLiquid.LEVEL)).intValue() == 0 || material == Material.ICE;
+            return material == Material.WATER && ((Integer)iblockstate.getValue(BlockLiquid.LEVEL)).intValue() == 0 || material == Material.ICE;
         }
         else
         {
@@ -64,6 +74,9 @@ public class BlockLilyPad extends BlockBush
         }
     }
 
+    /**
+     * Convert the BlockState into the correct metadata value
+     */
     public int getMetaFromState(IBlockState state)
     {
         return 0;

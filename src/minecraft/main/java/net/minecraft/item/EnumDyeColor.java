@@ -28,7 +28,14 @@ public enum EnumDyeColor implements IStringSerializable
     private final int dyeDamage;
     private final String name;
     private final String translationKey;
+
+    /** An int containing the corresponding RGB color for this dye color. */
     private final int colorValue;
+
+    /**
+     * An array containing 3 floats ranging from 0.0 to 1.0: the red, green, and blue components of the corresponding
+     * color.
+     */
     private final float[] colorComponentValues;
     private final TextFormatting chatColor;
 
@@ -66,6 +73,9 @@ public enum EnumDyeColor implements IStringSerializable
         return this.translationKey;
     }
 
+    /**
+     * Gets the RGB color corresponding to this dye color.
+     */
     public int getColorValue()
     {
         return this.colorValue;

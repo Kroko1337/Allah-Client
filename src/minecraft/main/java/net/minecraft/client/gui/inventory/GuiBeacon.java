@@ -39,6 +39,10 @@ public class GuiBeacon extends GuiContainer
         this.ySize = 219;
     }
 
+    /**
+     * Adds the buttons (and other controls) to the screen in question. Called when the GUI is displayed and when the
+     * window resizes, the buttonList is cleared beforehand.
+     */
     public void initGui()
     {
         super.initGui();
@@ -49,12 +53,15 @@ public class GuiBeacon extends GuiContainer
         this.beaconConfirmButton.enabled = false;
     }
 
+    /**
+     * Called from the main game loop to update the screen.
+     */
     public void updateScreen()
     {
         super.updateScreen();
         int i = this.tileBeacon.getField(0);
-        Potion potion = Potion.get(this.tileBeacon.getField(1));
-        Potion potion1 = Potion.get(this.tileBeacon.getField(2));
+        Potion potion = Potion.getPotionById(this.tileBeacon.getField(1));
+        Potion potion1 = Potion.getPotionById(this.tileBeacon.getField(2));
 
         if (this.buttonsNotDrawn && i >= 0)
         {
@@ -122,6 +129,9 @@ public class GuiBeacon extends GuiContainer
         this.beaconConfirmButton.enabled = !this.tileBeacon.getStackInSlot(0).isEmpty() && potion != null;
     }
 
+    /**
+     * Called by the controls from the buttonList when activated. (Mouse pressed for buttons)
+     */
     protected void actionPerformed(GuiButton button) throws IOException
     {
         if (button.id == -2)
@@ -148,7 +158,7 @@ public class GuiBeacon extends GuiContainer
                 return;
             }
 
-            int i = Potion.getId(guibeacon$powerbutton.effect);
+            int i = Potion.getIdFromPotion(guibeacon$powerbutton.effect);
 
             if (guibeacon$powerbutton.tier < 3)
             {
@@ -165,6 +175,9 @@ public class GuiBeacon extends GuiContainer
         }
     }
 
+    /**
+     * Draws the screen and all the components in it.
+     */
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         this.drawDefaultBackground();

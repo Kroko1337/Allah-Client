@@ -16,20 +16,29 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.scoreboard.ScorePlayerTeam;
+import net.minecraft.src.Config;
 import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
+import net.optifine.entity.model.IEntityRenderer;
+import shadersmod.client.Shaders;
 
-public abstract class Render<T extends Entity>
+public abstract class Render<T extends Entity> implements IEntityRenderer
 {
     private static final ResourceLocation SHADOW_TEXTURES = new ResourceLocation("textures/misc/shadow.png");
     protected final RenderManager renderManager;
-    protected float shadowSize;
+    public float shadowSize;
+
+    /**
+     * Determines the darkness of the object's shadow. Higher value makes a darker shadow.
+     */
     protected float shadowOpaque = 1.0F;
     protected boolean renderOutlines;
+    private Class entityClass = null;
+    private ResourceLocation locationTextureCustom = null;
 
     protected Render(RenderManager renderManager)
     {
@@ -53,6 +62,9 @@ public abstract class Render<T extends Entity>
         return livingEntity.isInRangeToRender3d(camX, camY, camZ) && (livingEntity.ignoreFrustumCheck || camera.isBoundingBoxInFrustum(axisalignedbb));
     }
 
+    /**
+     * Renders the desired {@code T} type Entity.
+     */
     public void doRender(T entity, double x, double y, double z, float entityYaw, float partialTicks)
     {
         if (!this.renderOutlines)
@@ -100,13 +112,18 @@ public abstract class Render<T extends Entity>
     @Nullable
 
     /**
-     * Returns the location of an entity's texture.
+     * Returns the location of an entity's texture. Doesn't seem to be called unless you call Render.bindEntityTexture.
      */
     protected abstract ResourceLocation getEntityTexture(T entity);
 
     protected boolean bindEntityTexture(T entity)
     {
         ResourceLocation resourcelocation = this.getEntityTexture(entity);
+
+        if (this.locationTextureCustom != null)
+        {
+            resourcelocation = this.locationTextureCustom;
+        }
 
         if (resourcelocation == null)
         {
@@ -121,13 +138,16 @@ public abstract class Render<T extends Entity>
 
     public void bindTexture(ResourceLocation location)
     {
-        this.renderManager.textureManager.bindTexture(location);
+        this.renderManager.renderEngine.bindTexture(location);
     }
 
+    /**
+     * Renders a layer of fire on top of an entity.
+     */
     private void renderEntityOnFire(Entity entity, double x, double y, double z, float partialTicks)
     {
         GlStateManager.disableLighting();
-        TextureMap texturemap = Minecraft.getInstance().getTextureMapBlocks();
+        TextureMap texturemap = Minecraft.getMinecraft().getTextureMapBlocks();
         TextureAtlasSprite textureatlassprite = texturemap.getAtlasSprite("minecraft:blocks/fire_layer_0");
         TextureAtlasSprite textureatlassprite1 = texturemap.getAtlasSprite("minecraft:blocks/fire_layer_1");
         GlStateManager.pushMatrix();
@@ -139,7 +159,7 @@ public abstract class Render<T extends Entity>
         float f1 = 0.5F;
         float f2 = 0.0F;
         float f3 = entity.height / f;
-        float f4 = (float)(entity.posY - entity.getBoundingBox().minY);
+        float f4 = (float)(entity.posY - entity.getEntityBoundingBox().minY);
         GlStateManager.rotate(-this.renderManager.playerViewY, 0.0F, 1.0F, 0.0F);
         GlStateManager.translate(0.0F, 0.0F, -0.3F + (float)((int)f3) * 0.02F);
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
@@ -179,58 +199,67 @@ public abstract class Render<T extends Entity>
         GlStateManager.enableLighting();
     }
 
+    /**
+     * Renders the entities shadow.
+     */
     private void renderShadow(Entity entityIn, double x, double y, double z, float shadowAlpha, float partialTicks)
     {
-        GlStateManager.enableBlend();
-        GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-        this.renderManager.textureManager.bindTexture(SHADOW_TEXTURES);
-        World world = this.getWorldFromRenderManager();
-        GlStateManager.depthMask(false);
-        float f = this.shadowSize;
-
-        if (entityIn instanceof EntityLiving)
+        if (!Config.isShaders() || !Shaders.shouldSkipDefaultShadow)
         {
-            EntityLiving entityliving = (EntityLiving)entityIn;
-            f *= entityliving.getRenderSizeModifier();
+            GlStateManager.enableBlend();
+            GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+            this.renderManager.renderEngine.bindTexture(SHADOW_TEXTURES);
+            World world = this.getWorldFromRenderManager();
+            GlStateManager.depthMask(false);
+            float f = this.shadowSize;
 
-            if (entityliving.isChild())
+            if (entityIn instanceof EntityLiving)
             {
-                f *= 0.5F;
+                EntityLiving entityliving = (EntityLiving)entityIn;
+                f *= entityliving.getRenderSizeModifier();
+
+                if (entityliving.isChild())
+                {
+                    f *= 0.5F;
+                }
             }
-        }
 
-        double d5 = entityIn.lastTickPosX + (entityIn.posX - entityIn.lastTickPosX) * (double)partialTicks;
-        double d0 = entityIn.lastTickPosY + (entityIn.posY - entityIn.lastTickPosY) * (double)partialTicks;
-        double d1 = entityIn.lastTickPosZ + (entityIn.posZ - entityIn.lastTickPosZ) * (double)partialTicks;
-        int i = MathHelper.floor(d5 - (double)f);
-        int j = MathHelper.floor(d5 + (double)f);
-        int k = MathHelper.floor(d0 - (double)f);
-        int l = MathHelper.floor(d0);
-        int i1 = MathHelper.floor(d1 - (double)f);
-        int j1 = MathHelper.floor(d1 + (double)f);
-        double d2 = x - d5;
-        double d3 = y - d0;
-        double d4 = z - d1;
-        Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder bufferbuilder = tessellator.getBuffer();
-        bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
+            double d5 = entityIn.lastTickPosX + (entityIn.posX - entityIn.lastTickPosX) * (double)partialTicks;
+            double d0 = entityIn.lastTickPosY + (entityIn.posY - entityIn.lastTickPosY) * (double)partialTicks;
+            double d1 = entityIn.lastTickPosZ + (entityIn.posZ - entityIn.lastTickPosZ) * (double)partialTicks;
+            int i = MathHelper.floor(d5 - (double)f);
+            int j = MathHelper.floor(d5 + (double)f);
+            int k = MathHelper.floor(d0 - (double)f);
+            int l = MathHelper.floor(d0);
+            int i1 = MathHelper.floor(d1 - (double)f);
+            int j1 = MathHelper.floor(d1 + (double)f);
+            double d2 = x - d5;
+            double d3 = y - d0;
+            double d4 = z - d1;
+            Tessellator tessellator = Tessellator.getInstance();
+            BufferBuilder bufferbuilder = tessellator.getBuffer();
+            bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
 
-        for (BlockPos blockpos : BlockPos.getAllInBoxMutable(new BlockPos(i, k, i1), new BlockPos(j, l, j1)))
-        {
-            IBlockState iblockstate = world.getBlockState(blockpos.down());
-
-            if (iblockstate.getRenderType() != EnumBlockRenderType.INVISIBLE && world.getLightFromNeighbors(blockpos) > 3)
+            for (BlockPos blockpos : BlockPos.getAllInBoxMutable(new BlockPos(i, k, i1), new BlockPos(j, l, j1)))
             {
-                this.renderShadowSingle(iblockstate, x, y, z, blockpos, shadowAlpha, f, d2, d3, d4);
-            }
-        }
+                IBlockState iblockstate = world.getBlockState(blockpos.down());
 
-        tessellator.draw();
-        GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-        GlStateManager.disableBlend();
-        GlStateManager.depthMask(true);
+                if (iblockstate.getRenderType() != EnumBlockRenderType.INVISIBLE && world.getLightFromNeighbors(blockpos) > 3)
+                {
+                    this.renderShadowSingle(iblockstate, x, y, z, blockpos, shadowAlpha, f, d2, d3, d4);
+                }
+            }
+
+            tessellator.draw();
+            GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+            GlStateManager.disableBlend();
+            GlStateManager.depthMask(true);
+        }
     }
 
+    /**
+     * Returns the render manager's world object
+     */
     private World getWorldFromRenderManager()
     {
         return this.renderManager.world;
@@ -269,6 +298,9 @@ public abstract class Render<T extends Entity>
         }
     }
 
+    /**
+     * Renders a white box with the bounds of the AABB trasnlated by an offset.
+     */
     public static void renderOffsetAABB(AxisAlignedBB boundingBox, double x, double y, double z)
     {
         GlStateManager.disableTexture2D();
@@ -306,6 +338,9 @@ public abstract class Render<T extends Entity>
         GlStateManager.enableTexture2D();
     }
 
+    /**
+     * Renders the entity's shadow and fire (if its on fire). Args: entity, x, y, z, yaw, partialTickTime
+     */
     public void doRenderShadowAndFire(Entity entityIn, double x, double y, double z, float yaw, float partialTicks)
     {
         if (this.renderManager.options != null)
@@ -336,6 +371,9 @@ public abstract class Render<T extends Entity>
         return this.renderManager.getFontRenderer();
     }
 
+    /**
+     * Renders an entity's name above its head
+     */
     protected void renderLivingLabel(T entityIn, String str, double x, double y, double z, int maxDistance)
     {
         double d0 = entityIn.getDistanceSq(this.renderManager.renderViewEntity);
@@ -364,5 +402,25 @@ public abstract class Render<T extends Entity>
 
     public void renderMultipass(T entityIn, double x, double y, double z, float entityYaw, float partialTicks)
     {
+    }
+
+    public Class getEntityClass()
+    {
+        return this.entityClass;
+    }
+
+    public void setEntityClass(Class p_setEntityClass_1_)
+    {
+        this.entityClass = p_setEntityClass_1_;
+    }
+
+    public ResourceLocation getLocationTextureCustom()
+    {
+        return this.locationTextureCustom;
+    }
+
+    public void setLocationTextureCustom(ResourceLocation p_setLocationTextureCustom_1_)
+    {
+        this.locationTextureCustom = p_setLocationTextureCustom_1_;
     }
 }

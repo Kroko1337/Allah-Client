@@ -4,6 +4,8 @@ public class ScoreObjective
 {
     private final Scoreboard scoreboard;
     private final String name;
+
+    /** The ScoreObjectiveCriteria for this objetive */
     private final IScoreCriteria objectiveCriteria;
     private IScoreCriteria.EnumRenderType renderType;
     private String displayName;

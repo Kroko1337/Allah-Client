@@ -19,7 +19,7 @@ import net.minecraft.world.World;
 
 public class BlockLadder extends Block
 {
-    public static final PropertyDirection FACING = BlockHorizontal.HORIZONTAL_FACING;
+    public static final PropertyDirection FACING = BlockHorizontal.FACING;
     protected static final AxisAlignedBB LADDER_EAST_AABB = new AxisAlignedBB(0.0D, 0.0D, 0.0D, 0.1875D, 1.0D, 1.0D);
     protected static final AxisAlignedBB LADDER_WEST_AABB = new AxisAlignedBB(0.8125D, 0.0D, 0.0D, 1.0D, 1.0D, 1.0D);
     protected static final AxisAlignedBB LADDER_SOUTH_AABB = new AxisAlignedBB(0.0D, 0.0D, 0.0D, 1.0D, 1.0D, 0.1875D);
@@ -27,14 +27,18 @@ public class BlockLadder extends Block
 
     protected BlockLadder()
     {
-        super(Material.MISCELLANEOUS);
-        this.setDefaultState(this.stateContainer.getBaseState().withProperty(FACING, EnumFacing.NORTH));
+        super(Material.CIRCUITS);
+        this.setDefaultState(this.blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH));
         this.setCreativeTab(CreativeTabs.DECORATIONS);
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#getBoundingBox(IBlockAccess,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
     {
-        switch ((EnumFacing)state.get(FACING))
+        switch ((EnumFacing)state.getValue(FACING))
         {
             case NORTH:
                 return LADDER_NORTH_AABB;
@@ -51,16 +55,26 @@ public class BlockLadder extends Block
         }
     }
 
+    /**
+     * Used to determine ambient occlusion and culling when rebuilding chunks for render
+     * @deprecated call via {@link IBlockState#isOpaqueCube()} whenever possible. Implementing/overriding is fine.
+     */
     public boolean isOpaqueCube(IBlockState state)
     {
         return false;
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#isFullCube()} whenever possible. Implementing/overriding is fine.
+     */
     public boolean isFullCube(IBlockState state)
     {
         return false;
     }
 
+    /**
+     * Check whether this Block can be placed at pos, while aiming at the specified side of an adjacent block
+     */
     public boolean canPlaceBlockOnSide(World worldIn, BlockPos pos, EnumFacing side)
     {
         if (this.canAttachTo(worldIn, pos.west(), side))
@@ -88,6 +102,10 @@ public class BlockLadder extends Block
         return !flag && iblockstate.getBlockFaceShape(p_193392_1_, p_193392_2_, p_193392_3_) == BlockFaceShape.SOLID && !iblockstate.canProvidePower();
     }
 
+    /**
+     * Called by ItemBlocks just before a block is actually set in the world, to allow for adjustments to the
+     * IBlockstate
+     */
     public IBlockState getStateForPlacement(World worldIn, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer)
     {
         if (facing.getAxis().isHorizontal() && this.canAttachTo(worldIn, pos.offset(facing.getOpposite()), facing))
@@ -108,9 +126,14 @@ public class BlockLadder extends Block
         }
     }
 
+    /**
+     * Called when a neighboring block was changed and marks that this state should perform any checks during a neighbor
+     * change. Cases may include when redstone power is updated, cactus blocks popping off due to a neighboring solid
+     * block, etc.
+     */
     public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos)
     {
-        EnumFacing enumfacing = (EnumFacing)state.get(FACING);
+        EnumFacing enumfacing = (EnumFacing)state.getValue(FACING);
 
         if (!this.canAttachTo(worldIn, pos.offset(enumfacing.getOpposite()), enumfacing))
         {
@@ -121,11 +144,18 @@ public class BlockLadder extends Block
         super.neighborChanged(state, worldIn, pos, blockIn, fromPos);
     }
 
+    /**
+     * Gets the render layer this block will render on. SOLID for solid blocks, CUTOUT or CUTOUT_MIPPED for on-off
+     * transparency (glass, reeds), TRANSLUCENT for fully blended transparency (stained glass)
+     */
     public BlockRenderLayer getRenderLayer()
     {
         return BlockRenderLayer.CUTOUT;
     }
 
+    /**
+     * Convert the given metadata into a BlockState for this Block
+     */
     public IBlockState getStateFromMeta(int meta)
     {
         EnumFacing enumfacing = EnumFacing.byIndex(meta);
@@ -138,9 +168,12 @@ public class BlockLadder extends Block
         return this.getDefaultState().withProperty(FACING, enumfacing);
     }
 
+    /**
+     * Convert the BlockState into the correct metadata value
+     */
     public int getMetaFromState(IBlockState state)
     {
-        return ((EnumFacing)state.get(FACING)).getIndex();
+        return ((EnumFacing)state.getValue(FACING)).getIndex();
     }
 
     /**
@@ -149,9 +182,9 @@ public class BlockLadder extends Block
      * @deprecated call via {@link IBlockState#withRotation(Rotation)} whenever possible. Implementing/overriding is
      * fine.
      */
-    public IBlockState rotate(IBlockState state, Rotation rot)
+    public IBlockState withRotation(IBlockState state, Rotation rot)
     {
-        return state.withProperty(FACING, rot.rotate((EnumFacing)state.get(FACING)));
+        return state.withProperty(FACING, rot.rotate((EnumFacing)state.getValue(FACING)));
     }
 
     /**
@@ -159,9 +192,9 @@ public class BlockLadder extends Block
      * blockstate.
      * @deprecated call via {@link IBlockState#withMirror(Mirror)} whenever possible. Implementing/overriding is fine.
      */
-    public IBlockState mirror(IBlockState state, Mirror mirrorIn)
+    public IBlockState withMirror(IBlockState state, Mirror mirrorIn)
     {
-        return state.rotate(mirrorIn.toRotation((EnumFacing)state.get(FACING)));
+        return state.withRotation(mirrorIn.toRotation((EnumFacing)state.getValue(FACING)));
     }
 
     protected BlockStateContainer createBlockState()
@@ -169,6 +202,17 @@ public class BlockLadder extends Block
         return new BlockStateContainer(this, new IProperty[] {FACING});
     }
 
+    /**
+     * Get the geometry of the queried face at the given position and state. This is used to decide whether things like
+     * buttons are allowed to be placed on the face, or how glass panes connect to the face, among other things.
+     * <p>
+     * Common values are {@code SOLID}, which is the default, and {@code UNDEFINED}, which represents something that
+     * does not fit the other descriptions and will generally cause other things not to connect to the face.
+
+     * @return an approximation of the form of the given face
+     * @deprecated call via {@link IBlockState#getBlockFaceShape(IBlockAccess,BlockPos,EnumFacing)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public BlockFaceShape getBlockFaceShape(IBlockAccess worldIn, IBlockState state, BlockPos pos, EnumFacing face)
     {
         return BlockFaceShape.UNDEFINED;

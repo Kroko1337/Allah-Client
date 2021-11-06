@@ -22,13 +22,12 @@ public class EntityAIHurtByTarget extends EntityAITarget
     }
 
     /**
-     * Returns whether execution should begin. You can also read and cache any state necessary for execution in this
-     * method as well.
+     * Returns whether the EntityAIBase should begin execution.
      */
     public boolean shouldExecute()
     {
-        int i = this.goalOwner.getRevengeTimer();
-        EntityLivingBase entitylivingbase = this.goalOwner.getRevengeTarget();
+        int i = this.taskOwner.getRevengeTimer();
+        EntityLivingBase entitylivingbase = this.taskOwner.getRevengeTarget();
         return i != this.revengeTimerOld && entitylivingbase != null && this.isSuitableTarget(entitylivingbase, false);
     }
 
@@ -37,9 +36,9 @@ public class EntityAIHurtByTarget extends EntityAITarget
      */
     public void startExecuting()
     {
-        this.goalOwner.setAttackTarget(this.goalOwner.getRevengeTarget());
-        this.target = this.goalOwner.getAttackTarget();
-        this.revengeTimerOld = this.goalOwner.getRevengeTimer();
+        this.taskOwner.setAttackTarget(this.taskOwner.getRevengeTarget());
+        this.target = this.taskOwner.getAttackTarget();
+        this.revengeTimerOld = this.taskOwner.getRevengeTimer();
         this.unseenMemoryTicks = 300;
 
         if (this.entityCallsForHelp)
@@ -54,9 +53,9 @@ public class EntityAIHurtByTarget extends EntityAITarget
     {
         double d0 = this.getTargetDistance();
 
-        for (EntityCreature entitycreature : this.goalOwner.world.getEntitiesWithinAABB(this.goalOwner.getClass(), (new AxisAlignedBB(this.goalOwner.posX, this.goalOwner.posY, this.goalOwner.posZ, this.goalOwner.posX + 1.0D, this.goalOwner.posY + 1.0D, this.goalOwner.posZ + 1.0D)).grow(d0, 10.0D, d0)))
+        for (EntityCreature entitycreature : this.taskOwner.world.getEntitiesWithinAABB(this.taskOwner.getClass(), (new AxisAlignedBB(this.taskOwner.posX, this.taskOwner.posY, this.taskOwner.posZ, this.taskOwner.posX + 1.0D, this.taskOwner.posY + 1.0D, this.taskOwner.posZ + 1.0D)).grow(d0, 10.0D, d0)))
         {
-            if (this.goalOwner != entitycreature && entitycreature.getAttackTarget() == null && (!(this.goalOwner instanceof EntityTameable) || ((EntityTameable)this.goalOwner).getOwner() == ((EntityTameable)entitycreature).getOwner()) && !entitycreature.isOnSameTeam(this.goalOwner.getRevengeTarget()))
+            if (this.taskOwner != entitycreature && entitycreature.getAttackTarget() == null && (!(this.taskOwner instanceof EntityTameable) || ((EntityTameable)this.taskOwner).getOwner() == ((EntityTameable)entitycreature).getOwner()) && !entitycreature.isOnSameTeam(this.taskOwner.getRevengeTarget()))
             {
                 boolean flag = false;
 
@@ -71,7 +70,7 @@ public class EntityAIHurtByTarget extends EntityAITarget
 
                 if (!flag)
                 {
-                    this.setEntityAttackTarget(entitycreature, this.goalOwner.getRevengeTarget());
+                    this.setEntityAttackTarget(entitycreature, this.taskOwner.getRevengeTarget());
                 }
             }
         }

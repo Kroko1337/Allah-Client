@@ -32,6 +32,10 @@ public class GuiScreenAdvancements extends GuiScreen implements ClientAdvancemen
         this.clientAdvancementManager = p_i47383_1_;
     }
 
+    /**
+     * Adds the buttons (and other controls) to the screen in question. Called when the GUI is displayed and when the
+     * window resizes, the buttonList is cleared beforehand.
+     */
     public void initGui()
     {
         this.tabs.clear();
@@ -48,6 +52,9 @@ public class GuiScreenAdvancements extends GuiScreen implements ClientAdvancemen
         }
     }
 
+    /**
+     * Called when the screen is unloaded. Used to disable keyboard repeat events
+     */
     public void onGuiClosed()
     {
         this.clientAdvancementManager.setListener((ClientAdvancementManager.IListener)null);
@@ -59,6 +66,9 @@ public class GuiScreenAdvancements extends GuiScreen implements ClientAdvancemen
         }
     }
 
+    /**
+     * Called when the mouse is clicked. Args : mouseX, mouseY, clickedButton
+     */
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
     {
         if (mouseButton == 0)
@@ -79,6 +89,10 @@ public class GuiScreenAdvancements extends GuiScreen implements ClientAdvancemen
         super.mouseClicked(mouseX, mouseY, mouseButton);
     }
 
+    /**
+     * Fired when a key is typed (except F11 which toggles full screen). This is the equivalent of
+     * KeyListener.keyTyped(KeyEvent e). Args : character (character on the key), keyCode (lwjgl Keyboard key code)
+     */
     protected void keyTyped(char typedChar, int keyCode) throws IOException
     {
         if (keyCode == this.mc.gameSettings.keyBindAdvancements.getKeyCode())
@@ -92,6 +106,9 @@ public class GuiScreenAdvancements extends GuiScreen implements ClientAdvancemen
         }
     }
 
+    /**
+     * Draws the screen and all the components in it.
+     */
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         int i = (this.width - 252) / 2;

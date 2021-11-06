@@ -38,6 +38,9 @@ public class FrameTimer
         }
     }
 
+    /**
+     * Return a value from time and multiplier to display the lagometer
+     */
     public int getLagometerValue(long time, int multiplier)
     {
         double d0 = (double)time / 1.6666666E7D;

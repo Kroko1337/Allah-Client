@@ -22,9 +22,9 @@ public class TileEntityMobSpawner extends TileEntity implements ITickable
     {
         public void broadcastEvent(int id)
         {
-            TileEntityMobSpawner.this.world.addBlockEvent(TileEntityMobSpawner.this.pos, Blocks.SPAWNER, id, 0);
+            TileEntityMobSpawner.this.world.addBlockEvent(TileEntityMobSpawner.this.pos, Blocks.MOB_SPAWNER, id, 0);
         }
-        public World getWorld()
+        public World getSpawnerWorld()
         {
             return TileEntityMobSpawner.this.world;
         }
@@ -32,14 +32,14 @@ public class TileEntityMobSpawner extends TileEntity implements ITickable
         {
             return TileEntityMobSpawner.this.pos;
         }
-        public void setNextSpawnData(WeightedSpawnerEntity nextSpawnData)
+        public void setNextSpawnData(WeightedSpawnerEntity p_184993_1_)
         {
-            super.setNextSpawnData(nextSpawnData);
+            super.setNextSpawnData(p_184993_1_);
 
-            if (this.getWorld() != null)
+            if (this.getSpawnerWorld() != null)
             {
-                IBlockState iblockstate = this.getWorld().getBlockState(this.getSpawnerPosition());
-                this.getWorld().notifyBlockUpdate(TileEntityMobSpawner.this.pos, iblockstate, iblockstate, 4);
+                IBlockState iblockstate = this.getSpawnerWorld().getBlockState(this.getSpawnerPosition());
+                this.getSpawnerWorld().notifyBlockUpdate(TileEntityMobSpawner.this.pos, iblockstate, iblockstate, 4);
             }
         }
     };
@@ -52,18 +52,18 @@ public class TileEntityMobSpawner extends TileEntity implements ITickable
             {
                 if (TileEntity.getKey(TileEntityMobSpawner.class).equals(new ResourceLocation(compound.getString("id"))))
                 {
-                    if (compound.contains("SpawnPotentials", 9))
+                    if (compound.hasKey("SpawnPotentials", 9))
                     {
-                        NBTTagList nbttaglist = compound.getList("SpawnPotentials", 10);
+                        NBTTagList nbttaglist = compound.getTagList("SpawnPotentials", 10);
 
                         for (int i = 0; i < nbttaglist.tagCount(); ++i)
                         {
-                            NBTTagCompound nbttagcompound = nbttaglist.getCompound(i);
-                            nbttagcompound.setTag("Entity", fixer.process(FixTypes.ENTITY, nbttagcompound.getCompound("Entity"), versionIn));
+                            NBTTagCompound nbttagcompound = nbttaglist.getCompoundTagAt(i);
+                            nbttagcompound.setTag("Entity", fixer.process(FixTypes.ENTITY, nbttagcompound.getCompoundTag("Entity"), versionIn));
                         }
                     }
 
-                    compound.setTag("SpawnData", fixer.process(FixTypes.ENTITY, compound.getCompound("SpawnData"), versionIn));
+                    compound.setTag("SpawnData", fixer.process(FixTypes.ENTITY, compound.getCompoundTag("SpawnData"), versionIn));
                 }
 
                 return compound;
@@ -71,22 +71,25 @@ public class TileEntityMobSpawner extends TileEntity implements ITickable
         });
     }
 
-    public void read(NBTTagCompound compound)
+    public void readFromNBT(NBTTagCompound compound)
     {
-        super.read(compound);
-        this.spawnerLogic.read(compound);
+        super.readFromNBT(compound);
+        this.spawnerLogic.readFromNBT(compound);
     }
 
-    public NBTTagCompound write(NBTTagCompound compound)
+    public NBTTagCompound writeToNBT(NBTTagCompound compound)
     {
-        super.write(compound);
-        this.spawnerLogic.write(compound);
+        super.writeToNBT(compound);
+        this.spawnerLogic.writeToNBT(compound);
         return compound;
     }
 
-    public void tick()
+    /**
+     * Like the old updateEntity(), except more generic.
+     */
+    public void update()
     {
-        this.spawnerLogic.tick();
+        this.spawnerLogic.updateSpawner();
     }
 
     @Nullable
@@ -106,8 +109,8 @@ public class TileEntityMobSpawner extends TileEntity implements ITickable
      */
     public NBTTagCompound getUpdateTag()
     {
-        NBTTagCompound nbttagcompound = this.write(new NBTTagCompound());
-        nbttagcompound.remove("SpawnPotentials");
+        NBTTagCompound nbttagcompound = this.writeToNBT(new NBTTagCompound());
+        nbttagcompound.removeTag("SpawnPotentials");
         return nbttagcompound;
     }
 
@@ -120,14 +123,6 @@ public class TileEntityMobSpawner extends TileEntity implements ITickable
         return this.spawnerLogic.setDelayToMin(id) ? true : super.receiveClientEvent(id, type);
     }
 
-    /**
-     * Checks if players can use this tile entity to access operator (permission level 2) commands either directly or
-     * indirectly, such as give or setblock. A similar method exists for entities at {@link
-     * net.minecraft.entity.Entity#ignoreItemEntityData()}.<p>For example, {@link
-     * net.minecraft.tileentity.TileEntitySign#onlyOpsCanSetNbt() signs} (player right-clicking) and {@link
-     * net.minecraft.tileentity.TileEntityCommandBlock#onlyOpsCanSetNbt() command blocks} are considered
-     * accessible.</p>@return true if this block entity offers ways for unauthorized players to use restricted commands
-     */
     public boolean onlyOpsCanSetNbt()
     {
         return true;

@@ -5,6 +5,7 @@ import net.minecraft.util.math.Vec3d;
 
 public class RenderHelper
 {
+    /** Float buffer used to set OpenGL material colors */
     private static final FloatBuffer COLOR_BUFFER = GLAllocation.createDirectFloatBuffer(4);
     private static final Vec3d LIGHT0_POS = (new Vec3d(0.20000000298023224D, 1.0D, -0.699999988079071D)).normalize();
     private static final Vec3d LIGHT1_POS = (new Vec3d(-0.20000000298023224D, 1.0D, 0.699999988079071D)).normalize();
@@ -20,6 +21,9 @@ public class RenderHelper
         GlStateManager.disableColorMaterial();
     }
 
+    /**
+     * Sets the OpenGL lighting properties to the values used when rendering blocks as items
+     */
     public static void enableStandardItemLighting()
     {
         GlStateManager.enableLighting();
@@ -41,11 +45,17 @@ public class RenderHelper
         GlStateManager.glLightModel(2899, setColorBuffer(0.4F, 0.4F, 0.4F, 1.0F));
     }
 
+    /**
+     * Update and return colorBuffer with the RGBA values passed as arguments
+     */
     private static FloatBuffer setColorBuffer(double p_74517_0_, double p_74517_2_, double p_74517_4_, double p_74517_6_)
     {
         return setColorBuffer((float)p_74517_0_, (float)p_74517_2_, (float)p_74517_4_, (float)p_74517_6_);
     }
 
+    /**
+     * Update and return colorBuffer with the RGBA values passed as arguments
+     */
     public static FloatBuffer setColorBuffer(float p_74521_0_, float p_74521_1_, float p_74521_2_, float p_74521_3_)
     {
         COLOR_BUFFER.clear();
@@ -54,6 +64,9 @@ public class RenderHelper
         return COLOR_BUFFER;
     }
 
+    /**
+     * Sets OpenGL lighting for rendering blocks as items inside GUI screens (such as containers).
+     */
     public static void enableGUIStandardItemLighting()
     {
         GlStateManager.pushMatrix();

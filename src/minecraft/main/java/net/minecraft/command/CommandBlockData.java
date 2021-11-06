@@ -14,21 +14,33 @@ import net.minecraft.world.World;
 
 public class CommandBlockData extends CommandBase
 {
+    /**
+     * Gets the name of the command
+     */
     public String getName()
     {
         return "blockdata";
     }
 
+    /**
+     * Return the required permission level for this command.
+     */
     public int getRequiredPermissionLevel()
     {
         return 2;
     }
 
+    /**
+     * Gets the usage string for the command.
+     */
     public String getUsage(ICommandSender sender)
     {
         return "commands.blockdata.usage";
     }
 
+    /**
+     * Callback for when the command is executed
+     */
     public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
     {
         if (args.length < 4)
@@ -56,7 +68,7 @@ public class CommandBlockData extends CommandBase
                 }
                 else
                 {
-                    NBTTagCompound nbttagcompound = tileentity.write(new NBTTagCompound());
+                    NBTTagCompound nbttagcompound = tileentity.writeToNBT(new NBTTagCompound());
                     NBTTagCompound nbttagcompound1 = nbttagcompound.copy();
                     NBTTagCompound nbttagcompound2;
 
@@ -70,9 +82,9 @@ public class CommandBlockData extends CommandBase
                     }
 
                     nbttagcompound.merge(nbttagcompound2);
-                    nbttagcompound.putInt("x", blockpos.getX());
-                    nbttagcompound.putInt("y", blockpos.getY());
-                    nbttagcompound.putInt("z", blockpos.getZ());
+                    nbttagcompound.setInteger("x", blockpos.getX());
+                    nbttagcompound.setInteger("y", blockpos.getY());
+                    nbttagcompound.setInteger("z", blockpos.getZ());
 
                     if (nbttagcompound.equals(nbttagcompound1))
                     {
@@ -80,7 +92,7 @@ public class CommandBlockData extends CommandBase
                     }
                     else
                     {
-                        tileentity.read(nbttagcompound);
+                        tileentity.readFromNBT(nbttagcompound);
                         tileentity.markDirty();
                         world.notifyBlockUpdate(blockpos, iblockstate, iblockstate, 3);
                         sender.setCommandStat(CommandResultStats.Type.AFFECTED_BLOCKS, 1);

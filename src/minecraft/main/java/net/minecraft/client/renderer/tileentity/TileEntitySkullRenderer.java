@@ -81,7 +81,7 @@ public class TileEntitySkullRenderer extends TileEntitySpecialRenderer<TileEntit
 
                     if (profile != null)
                     {
-                        Minecraft minecraft = Minecraft.getInstance();
+                        Minecraft minecraft = Minecraft.getMinecraft();
                         Map<Type, MinecraftProfileTexture> map = minecraft.getSkinManager().loadSkinFromCache(profile);
 
                         if (map.containsKey(Type.SKIN))

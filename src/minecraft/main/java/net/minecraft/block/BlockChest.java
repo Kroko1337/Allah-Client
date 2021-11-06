@@ -34,32 +34,45 @@ import net.minecraft.world.World;
 
 public class BlockChest extends BlockContainer
 {
-    public static final PropertyDirection FACING = BlockHorizontal.HORIZONTAL_FACING;
+    public static final PropertyDirection FACING = BlockHorizontal.FACING;
     protected static final AxisAlignedBB NORTH_CHEST_AABB = new AxisAlignedBB(0.0625D, 0.0D, 0.0D, 0.9375D, 0.875D, 0.9375D);
     protected static final AxisAlignedBB SOUTH_CHEST_AABB = new AxisAlignedBB(0.0625D, 0.0D, 0.0625D, 0.9375D, 0.875D, 1.0D);
     protected static final AxisAlignedBB WEST_CHEST_AABB = new AxisAlignedBB(0.0D, 0.0D, 0.0625D, 0.9375D, 0.875D, 0.9375D);
     protected static final AxisAlignedBB EAST_CHEST_AABB = new AxisAlignedBB(0.0625D, 0.0D, 0.0625D, 1.0D, 0.875D, 0.9375D);
     protected static final AxisAlignedBB NOT_CONNECTED_AABB = new AxisAlignedBB(0.0625D, 0.0D, 0.0625D, 0.9375D, 0.875D, 0.9375D);
+
+    /** 0 : Normal chest, 1 : Trapped chest */
     public final BlockChest.Type chestType;
 
     protected BlockChest(BlockChest.Type chestTypeIn)
     {
         super(Material.WOOD);
-        this.setDefaultState(this.stateContainer.getBaseState().withProperty(FACING, EnumFacing.NORTH));
+        this.setDefaultState(this.blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH));
         this.chestType = chestTypeIn;
         this.setCreativeTab(chestTypeIn == BlockChest.Type.TRAP ? CreativeTabs.REDSTONE : CreativeTabs.DECORATIONS);
     }
 
+    /**
+     * Used to determine ambient occlusion and culling when rebuilding chunks for render
+     * @deprecated call via {@link IBlockState#isOpaqueCube()} whenever possible. Implementing/overriding is fine.
+     */
     public boolean isOpaqueCube(IBlockState state)
     {
         return false;
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#isFullCube()} whenever possible. Implementing/overriding is fine.
+     */
     public boolean isFullCube(IBlockState state)
     {
         return false;
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#hasCustomBreakingProgress()} whenever possible. Implementing/overriding
+     * is fine.
+     */
     public boolean hasCustomBreakingProgress(IBlockState state)
     {
         return true;
@@ -75,6 +88,10 @@ public class BlockChest extends BlockContainer
         return EnumBlockRenderType.ENTITYBLOCK_ANIMATED;
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#getBoundingBox(IBlockAccess,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
     {
         if (source.getBlockState(pos.north()).getBlock() == this)
@@ -95,6 +112,9 @@ public class BlockChest extends BlockContainer
         }
     }
 
+    /**
+     * Called after the block is set in the Chunk data, but before the Tile Entity is set
+     */
     public void onBlockAdded(World worldIn, BlockPos pos, IBlockState state)
     {
         this.checkForSurroundingChests(worldIn, pos, state);
@@ -111,6 +131,10 @@ public class BlockChest extends BlockContainer
         }
     }
 
+    /**
+     * Called by ItemBlocks just before a block is actually set in the world, to allow for adjustments to the
+     * IBlockstate
+     */
     public IBlockState getStateForPlacement(World worldIn, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer)
     {
         return this.getDefaultState().withProperty(FACING, placer.getHorizontalFacing());
@@ -189,7 +213,7 @@ public class BlockChest extends BlockContainer
             IBlockState iblockstate1 = worldIn.getBlockState(pos.south());
             IBlockState iblockstate2 = worldIn.getBlockState(pos.west());
             IBlockState iblockstate3 = worldIn.getBlockState(pos.east());
-            EnumFacing enumfacing = (EnumFacing)state.get(FACING);
+            EnumFacing enumfacing = (EnumFacing)state.getValue(FACING);
 
             if (iblockstate.getBlock() != this && iblockstate1.getBlock() != this)
             {
@@ -206,11 +230,11 @@ public class BlockChest extends BlockContainer
 
                     if (iblockstate2.getBlock() == this)
                     {
-                        enumfacing2 = (EnumFacing)iblockstate2.get(FACING);
+                        enumfacing2 = (EnumFacing)iblockstate2.getValue(FACING);
                     }
                     else
                     {
-                        enumfacing2 = (EnumFacing)iblockstate3.get(FACING);
+                        enumfacing2 = (EnumFacing)iblockstate3.getValue(FACING);
                     }
 
                     if (enumfacing2 == EnumFacing.NORTH)
@@ -239,11 +263,11 @@ public class BlockChest extends BlockContainer
 
                 if (iblockstate.getBlock() == this)
                 {
-                    enumfacing1 = (EnumFacing)iblockstate.get(FACING);
+                    enumfacing1 = (EnumFacing)iblockstate.getValue(FACING);
                 }
                 else
                 {
-                    enumfacing1 = (EnumFacing)iblockstate1.get(FACING);
+                    enumfacing1 = (EnumFacing)iblockstate1.getValue(FACING);
                 }
 
                 if (enumfacing1 == EnumFacing.WEST)
@@ -299,7 +323,7 @@ public class BlockChest extends BlockContainer
         }
         else
         {
-            EnumFacing enumfacing2 = (EnumFacing)state.get(FACING);
+            EnumFacing enumfacing2 = (EnumFacing)state.getValue(FACING);
 
             if (worldIn.getBlockState(pos.offset(enumfacing2)).isFullBlock())
             {
@@ -320,6 +344,9 @@ public class BlockChest extends BlockContainer
         }
     }
 
+    /**
+     * Checks if this block can be placed exactly at the given position.
+     */
     public boolean canPlaceBlockAt(World worldIn, BlockPos pos)
     {
         int i = 0;
@@ -391,6 +418,11 @@ public class BlockChest extends BlockContainer
         }
     }
 
+    /**
+     * Called when a neighboring block was changed and marks that this state should perform any checks during a neighbor
+     * change. Cases may include when redstone power is updated, cactus blocks popping off due to a neighboring solid
+     * block, etc.
+     */
     public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos)
     {
         super.neighborChanged(state, worldIn, pos, blockIn, fromPos);
@@ -402,6 +434,9 @@ public class BlockChest extends BlockContainer
         }
     }
 
+    /**
+     * Called serverside after this block is replaced with another in Chunk, but before the Tile Entity is updated
+     */
     public void breakBlock(World worldIn, BlockPos pos, IBlockState state)
     {
         TileEntity tileentity = worldIn.getTileEntity(pos);
@@ -415,6 +450,9 @@ public class BlockChest extends BlockContainer
         super.breakBlock(worldIn, pos, state);
     }
 
+    /**
+     * Called when the block is right clicked by a player.
+     */
     public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
         if (worldIn.isRemote)
@@ -431,11 +469,11 @@ public class BlockChest extends BlockContainer
 
                 if (this.chestType == BlockChest.Type.BASIC)
                 {
-                    playerIn.addStat(StatList.OPEN_CHEST);
+                    playerIn.addStat(StatList.CHEST_OPENED);
                 }
                 else if (this.chestType == BlockChest.Type.TRAP)
                 {
-                    playerIn.addStat(StatList.TRIGGER_TRAPPED_CHEST);
+                    playerIn.addStat(StatList.TRAPPED_CHEST_TRIGGERED);
                 }
             }
 
@@ -444,12 +482,31 @@ public class BlockChest extends BlockContainer
     }
 
     @Nullable
+
+    /**
+     * Gets the chest inventory at the given location, returning null if the chest is blocked or there is no chest at
+     * that location. Handles large chests.
+     *  
+     * @param worldIn The world
+     * @param pos The position to check
+     */
     public ILockableContainer getLockableContainer(World worldIn, BlockPos pos)
     {
         return this.getContainer(worldIn, pos, false);
     }
 
     @Nullable
+
+    /**
+     * Gets the chest inventory at the given location, returning null if there is no chest at that location or
+     * optionally if the chest is blocked. Handles large chests.
+     *  
+     * @param worldIn The world
+     * @param pos The position to check
+     * @param allowBlocking If false, then if the chest is blocked then <code>null</code> will be returned. If true,
+     * ignores blocking for the chest at the given position (but, due to <a
+     * href="https://bugs.mojang.com/browse/MC-99321">a bug</a>, still checks if the neighbor is blocked).
+     */
     public ILockableContainer getContainer(World worldIn, BlockPos pos, boolean allowBlocking)
     {
         TileEntity tileentity = worldIn.getTileEntity(pos);
@@ -501,6 +558,9 @@ public class BlockChest extends BlockContainer
         }
     }
 
+    /**
+     * Returns a new instance of a block's tile entity class. Called on placing the block.
+     */
     public TileEntity createNewTileEntity(World worldIn, int meta)
     {
         return new TileEntityChest();
@@ -591,6 +651,9 @@ public class BlockChest extends BlockContainer
         return Container.calcRedstoneFromInventory(this.getLockableContainer(worldIn, pos));
     }
 
+    /**
+     * Convert the given metadata into a BlockState for this Block
+     */
     public IBlockState getStateFromMeta(int meta)
     {
         EnumFacing enumfacing = EnumFacing.byIndex(meta);
@@ -603,9 +666,12 @@ public class BlockChest extends BlockContainer
         return this.getDefaultState().withProperty(FACING, enumfacing);
     }
 
+    /**
+     * Convert the BlockState into the correct metadata value
+     */
     public int getMetaFromState(IBlockState state)
     {
-        return ((EnumFacing)state.get(FACING)).getIndex();
+        return ((EnumFacing)state.getValue(FACING)).getIndex();
     }
 
     /**
@@ -614,9 +680,9 @@ public class BlockChest extends BlockContainer
      * @deprecated call via {@link IBlockState#withRotation(Rotation)} whenever possible. Implementing/overriding is
      * fine.
      */
-    public IBlockState rotate(IBlockState state, Rotation rot)
+    public IBlockState withRotation(IBlockState state, Rotation rot)
     {
-        return state.withProperty(FACING, rot.rotate((EnumFacing)state.get(FACING)));
+        return state.withProperty(FACING, rot.rotate((EnumFacing)state.getValue(FACING)));
     }
 
     /**
@@ -624,9 +690,9 @@ public class BlockChest extends BlockContainer
      * blockstate.
      * @deprecated call via {@link IBlockState#withMirror(Mirror)} whenever possible. Implementing/overriding is fine.
      */
-    public IBlockState mirror(IBlockState state, Mirror mirrorIn)
+    public IBlockState withMirror(IBlockState state, Mirror mirrorIn)
     {
-        return state.rotate(mirrorIn.toRotation((EnumFacing)state.get(FACING)));
+        return state.withRotation(mirrorIn.toRotation((EnumFacing)state.getValue(FACING)));
     }
 
     protected BlockStateContainer createBlockState()
@@ -634,6 +700,17 @@ public class BlockChest extends BlockContainer
         return new BlockStateContainer(this, new IProperty[] {FACING});
     }
 
+    /**
+     * Get the geometry of the queried face at the given position and state. This is used to decide whether things like
+     * buttons are allowed to be placed on the face, or how glass panes connect to the face, among other things.
+     * <p>
+     * Common values are {@code SOLID}, which is the default, and {@code UNDEFINED}, which represents something that
+     * does not fit the other descriptions and will generally cause other things not to connect to the face.
+
+     * @return an approximation of the form of the given face
+     * @deprecated call via {@link IBlockState#getBlockFaceShape(IBlockAccess,BlockPos,EnumFacing)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public BlockFaceShape getBlockFaceShape(IBlockAccess worldIn, IBlockState state, BlockPos pos, EnumFacing face)
     {
         return BlockFaceShape.UNDEFINED;

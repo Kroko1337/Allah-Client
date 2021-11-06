@@ -24,6 +24,9 @@ public class ItemEndCrystal extends Item
         this.setCreativeTab(CreativeTabs.DECORATIONS);
     }
 
+    /**
+     * Called when a Block is right-clicked with this Item
+     */
     public EnumActionResult onItemUse(EntityPlayer player, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
         IBlockState iblockstate = worldIn.getBlockState(pos);
@@ -68,12 +71,12 @@ public class ItemEndCrystal extends Item
                         {
                             EntityEnderCrystal entityendercrystal = new EntityEnderCrystal(worldIn, (double)((float)pos.getX() + 0.5F), (double)(pos.getY() + 1), (double)((float)pos.getZ() + 0.5F));
                             entityendercrystal.setShowBottom(false);
-                            worldIn.addEntity0(entityendercrystal);
+                            worldIn.spawnEntity(entityendercrystal);
 
-                            if (worldIn.dimension instanceof WorldProviderEnd)
+                            if (worldIn.provider instanceof WorldProviderEnd)
                             {
-                                DragonFightManager dragonfightmanager = ((WorldProviderEnd)worldIn.dimension).getDragonFightManager();
-                                dragonfightmanager.tryRespawnDragon();
+                                DragonFightManager dragonfightmanager = ((WorldProviderEnd)worldIn.provider).getDragonFightManager();
+                                dragonfightmanager.respawnDragon();
                             }
                         }
 

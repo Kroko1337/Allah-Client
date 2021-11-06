@@ -12,6 +12,10 @@ public class GuiIngameMenu extends GuiScreen
     private int saveStep;
     private int visibleTime;
 
+    /**
+     * Adds the buttons (and other controls) to the screen in question. Called when the GUI is displayed and when the
+     * window resizes, the buttonList is cleared beforehand.
+     */
     public void initGui()
     {
         this.saveStep = 0;
@@ -33,6 +37,9 @@ public class GuiIngameMenu extends GuiScreen
         this.buttonList.add(new GuiButton(6, this.width / 2 + 2, this.height / 4 + 48 + -16, 98, 20, I18n.format("gui.stats")));
     }
 
+    /**
+     * Called by the controls from the buttonList when activated. (Mouse pressed for buttons)
+     */
     protected void actionPerformed(GuiButton button) throws IOException
     {
         switch (button.id)
@@ -77,7 +84,7 @@ public class GuiIngameMenu extends GuiScreen
                 break;
 
             case 6:
-                this.mc.displayGuiScreen(new GuiStats(this, this.mc.player.getStats()));
+                this.mc.displayGuiScreen(new GuiStats(this, this.mc.player.getStatFileWriter()));
                 break;
 
             case 7:
@@ -85,12 +92,18 @@ public class GuiIngameMenu extends GuiScreen
         }
     }
 
+    /**
+     * Called from the main game loop to update the screen.
+     */
     public void updateScreen()
     {
         super.updateScreen();
         ++this.visibleTime;
     }
 
+    /**
+     * Draws the screen and all the components in it.
+     */
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         this.drawDefaultBackground();

@@ -26,7 +26,7 @@ public class BlockNewLog extends BlockLog
 
     public BlockNewLog()
     {
-        this.setDefaultState(this.stateContainer.getBaseState().withProperty(VARIANT, BlockPlanks.EnumType.ACACIA).withProperty(LOG_AXIS, BlockLog.EnumAxis.Y));
+        this.setDefaultState(this.blockState.getBaseState().withProperty(VARIANT, BlockPlanks.EnumType.ACACIA).withProperty(LOG_AXIS, BlockLog.EnumAxis.Y));
     }
 
     /**
@@ -34,11 +34,11 @@ public class BlockNewLog extends BlockLog
      * @deprecated call via {@link IBlockState#getMapColor(IBlockAccess,BlockPos)} whenever possible.
      * Implementing/overriding is fine.
      */
-    public MapColor getMaterialColor(IBlockState state, IBlockAccess worldIn, BlockPos pos)
+    public MapColor getMapColor(IBlockState state, IBlockAccess worldIn, BlockPos pos)
     {
-        BlockPlanks.EnumType blockplanks$enumtype = (BlockPlanks.EnumType)state.get(VARIANT);
+        BlockPlanks.EnumType blockplanks$enumtype = (BlockPlanks.EnumType)state.getValue(VARIANT);
 
-        switch ((BlockLog.EnumAxis)state.get(LOG_AXIS))
+        switch ((BlockLog.EnumAxis)state.getValue(LOG_AXIS))
         {
             case X:
             case Z:
@@ -62,12 +62,15 @@ public class BlockNewLog extends BlockLog
     /**
      * returns a list of blocks with the same ID, but different meta (eg: wood returns 4 blocks)
      */
-    public void fillItemGroup(CreativeTabs group, NonNullList<ItemStack> items)
+    public void getSubBlocks(CreativeTabs itemIn, NonNullList<ItemStack> items)
     {
         items.add(new ItemStack(this, 1, BlockPlanks.EnumType.ACACIA.getMetadata() - 4));
         items.add(new ItemStack(this, 1, BlockPlanks.EnumType.DARK_OAK.getMetadata() - 4));
     }
 
+    /**
+     * Convert the given metadata into a BlockState for this Block
+     */
     public IBlockState getStateFromMeta(int meta)
     {
         IBlockState iblockstate = this.getDefaultState().withProperty(VARIANT, BlockPlanks.EnumType.byMetadata((meta & 3) + 4));
@@ -94,12 +97,16 @@ public class BlockNewLog extends BlockLog
     }
 
     @SuppressWarnings("incomplete-switch")
+
+    /**
+     * Convert the BlockState into the correct metadata value
+     */
     public int getMetaFromState(IBlockState state)
     {
         int i = 0;
-        i = i | ((BlockPlanks.EnumType)state.get(VARIANT)).getMetadata() - 4;
+        i = i | ((BlockPlanks.EnumType)state.getValue(VARIANT)).getMetadata() - 4;
 
-        switch ((BlockLog.EnumAxis)state.get(LOG_AXIS))
+        switch ((BlockLog.EnumAxis)state.getValue(LOG_AXIS))
         {
             case X:
                 i |= 4;
@@ -123,11 +130,15 @@ public class BlockNewLog extends BlockLog
 
     protected ItemStack getSilkTouchDrop(IBlockState state)
     {
-        return new ItemStack(Item.getItemFromBlock(this), 1, ((BlockPlanks.EnumType)state.get(VARIANT)).getMetadata() - 4);
+        return new ItemStack(Item.getItemFromBlock(this), 1, ((BlockPlanks.EnumType)state.getValue(VARIANT)).getMetadata() - 4);
     }
 
+    /**
+     * Gets the metadata of the item this Block can drop. This method is called when the block gets destroyed. It
+     * returns the metadata of the dropped item based on the old metadata of the block.
+     */
     public int damageDropped(IBlockState state)
     {
-        return ((BlockPlanks.EnumType)state.get(VARIANT)).getMetadata() - 4;
+        return ((BlockPlanks.EnumType)state.getValue(VARIANT)).getMetadata() - 4;
     }
 }

@@ -32,6 +32,9 @@ public class ItemBlock extends Item
         this.block = block;
     }
 
+    /**
+     * Called when a Block is right-clicked with this Item
+     */
     public EnumActionResult onItemUse(EntityPlayer player, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
         IBlockState iblockstate = worldIn.getBlockState(pos);
@@ -79,7 +82,7 @@ public class ItemBlock extends Item
 
     public static boolean setTileEntityNBT(World worldIn, @Nullable EntityPlayer player, BlockPos pos, ItemStack stackIn)
     {
-        MinecraftServer minecraftserver = worldIn.getServer();
+        MinecraftServer minecraftserver = worldIn.getMinecraftServer();
 
         if (minecraftserver == null)
         {
@@ -87,7 +90,7 @@ public class ItemBlock extends Item
         }
         else
         {
-            NBTTagCompound nbttagcompound = stackIn.getChildTag("BlockEntityTag");
+            NBTTagCompound nbttagcompound = stackIn.getSubCompound("BlockEntityTag");
 
             if (nbttagcompound != null)
             {
@@ -100,16 +103,16 @@ public class ItemBlock extends Item
                         return false;
                     }
 
-                    NBTTagCompound nbttagcompound1 = tileentity.write(new NBTTagCompound());
+                    NBTTagCompound nbttagcompound1 = tileentity.writeToNBT(new NBTTagCompound());
                     NBTTagCompound nbttagcompound2 = nbttagcompound1.copy();
                     nbttagcompound1.merge(nbttagcompound);
-                    nbttagcompound1.putInt("x", pos.getX());
-                    nbttagcompound1.putInt("y", pos.getY());
-                    nbttagcompound1.putInt("z", pos.getZ());
+                    nbttagcompound1.setInteger("x", pos.getX());
+                    nbttagcompound1.setInteger("y", pos.getY());
+                    nbttagcompound1.setInteger("z", pos.getZ());
 
                     if (!nbttagcompound1.equals(nbttagcompound2))
                     {
-                        tileentity.read(nbttagcompound1);
+                        tileentity.readFromNBT(nbttagcompound1);
                         tileentity.markDirty();
                         return true;
                     }
@@ -156,7 +159,7 @@ public class ItemBlock extends Item
     /**
      * gets the CreativeTab this item is displayed on
      */
-    public CreativeTabs getGroup()
+    public CreativeTabs getCreativeTab()
     {
         return this.block.getCreativeTab();
     }
@@ -164,11 +167,11 @@ public class ItemBlock extends Item
     /**
      * returns a list of items with the same ID, but different meta (eg: dye returns 16 items)
      */
-    public void fillItemGroup(CreativeTabs group, NonNullList<ItemStack> items)
+    public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> items)
     {
-        if (this.isInGroup(group))
+        if (this.isInCreativeTab(tab))
         {
-            this.block.fillItemGroup(group, items);
+            this.block.getSubBlocks(tab, items);
         }
     }
 

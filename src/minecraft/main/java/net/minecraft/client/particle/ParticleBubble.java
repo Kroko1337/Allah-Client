@@ -18,10 +18,10 @@ public class ParticleBubble extends Particle
         this.motionX = xSpeedIn * 0.20000000298023224D + (Math.random() * 2.0D - 1.0D) * 0.019999999552965164D;
         this.motionY = ySpeedIn * 0.20000000298023224D + (Math.random() * 2.0D - 1.0D) * 0.019999999552965164D;
         this.motionZ = zSpeedIn * 0.20000000298023224D + (Math.random() * 2.0D - 1.0D) * 0.019999999552965164D;
-        this.maxAge = (int)(8.0D / (Math.random() * 0.8D + 0.2D));
+        this.particleMaxAge = (int)(8.0D / (Math.random() * 0.8D + 0.2D));
     }
 
-    public void tick()
+    public void onUpdate()
     {
         this.prevPosX = this.posX;
         this.prevPosY = this.posY;
@@ -37,7 +37,7 @@ public class ParticleBubble extends Particle
             this.setExpired();
         }
 
-        if (this.maxAge-- <= 0)
+        if (this.particleMaxAge-- <= 0)
         {
             this.setExpired();
         }

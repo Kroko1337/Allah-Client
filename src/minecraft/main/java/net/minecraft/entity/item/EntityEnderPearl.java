@@ -76,7 +76,7 @@ public class EntityEnderPearl extends EntityThrowable
                     }
 
                     tileentityendgateway.teleportEntity(entitylivingbase);
-                    this.remove();
+                    this.setDead();
                     return;
                 }
 
@@ -96,19 +96,19 @@ public class EntityEnderPearl extends EntityThrowable
             {
                 EntityPlayerMP entityplayermp = (EntityPlayerMP)entitylivingbase;
 
-                if (entityplayermp.connection.getNetworkManager().isChannelOpen() && entityplayermp.world == this.world && !entityplayermp.isSleeping())
+                if (entityplayermp.connection.getNetworkManager().isChannelOpen() && entityplayermp.world == this.world && !entityplayermp.isPlayerSleeping())
                 {
                     if (this.rand.nextFloat() < 0.05F && this.world.getGameRules().getBoolean("doMobSpawning"))
                     {
                         EntityEndermite entityendermite = new EntityEndermite(this.world);
                         entityendermite.setSpawnedByPlayer(true);
                         entityendermite.setLocationAndAngles(entitylivingbase.posX, entitylivingbase.posY, entitylivingbase.posZ, entitylivingbase.rotationYaw, entitylivingbase.rotationPitch);
-                        this.world.addEntity0(entityendermite);
+                        this.world.spawnEntity(entityendermite);
                     }
 
-                    if (entitylivingbase.isPassenger())
+                    if (entitylivingbase.isRiding())
                     {
-                        entitylivingbase.stopRiding();
+                        entitylivingbase.dismountRidingEntity();
                     }
 
                     entitylivingbase.setPositionAndUpdate(this.posX, this.posY, this.posZ);
@@ -122,33 +122,33 @@ public class EntityEnderPearl extends EntityThrowable
                 entitylivingbase.fallDistance = 0.0F;
             }
 
-            this.remove();
+            this.setDead();
         }
     }
 
     /**
      * Called to update the entity's position/logic.
      */
-    public void tick()
+    public void onUpdate()
     {
         EntityLivingBase entitylivingbase = this.getThrower();
 
-        if (entitylivingbase != null && entitylivingbase instanceof EntityPlayer && !entitylivingbase.isAlive())
+        if (entitylivingbase != null && entitylivingbase instanceof EntityPlayer && !entitylivingbase.isEntityAlive())
         {
-            this.remove();
+            this.setDead();
         }
         else
         {
-            super.tick();
+            super.onUpdate();
         }
     }
 
     @Nullable
     public Entity changeDimension(int dimensionIn)
     {
-        if (this.owner.dimension != dimensionIn)
+        if (this.thrower.dimension != dimensionIn)
         {
-            this.owner = null;
+            this.thrower = null;
         }
 
         return super.changeDimension(dimensionIn);

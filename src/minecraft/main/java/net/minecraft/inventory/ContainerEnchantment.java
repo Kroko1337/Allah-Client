@@ -22,18 +22,25 @@ import net.minecraft.world.World;
 
 public class ContainerEnchantment extends Container
 {
+    /**
+     * A 2-slot InventoryBasic anonymous subclass (see constructor) that holds the item to be enchanted and the lapis.
+     */
     public IInventory tableInventory;
+
+    /** current world (for bookshelf counting) */
     private final World world;
     private final BlockPos position;
     private final Random rand;
     public int xpSeed;
+
+    /** 3-member array storing the enchantment levels of each slot */
     public int[] enchantLevels;
     public int[] enchantClue;
     public int[] worldClue;
 
     public ContainerEnchantment(InventoryPlayer playerInv, World worldIn)
     {
-        this(playerInv, worldIn, BlockPos.ZERO);
+        this(playerInv, worldIn, BlockPos.ORIGIN);
     }
 
     public ContainerEnchantment(InventoryPlayer playerInv, World worldIn, BlockPos pos)
@@ -57,7 +64,7 @@ public class ContainerEnchantment extends Container
         this.world = worldIn;
         this.position = pos;
         this.xpSeed = playerInv.player.getXPSeed();
-        this.addSlot(new Slot(this.tableInventory, 0, 15, 47)
+        this.addSlotToContainer(new Slot(this.tableInventory, 0, 15, 47)
         {
             public boolean isItemValid(ItemStack stack)
             {
@@ -68,7 +75,7 @@ public class ContainerEnchantment extends Container
                 return 1;
             }
         });
-        this.addSlot(new Slot(this.tableInventory, 1, 35, 47)
+        this.addSlotToContainer(new Slot(this.tableInventory, 1, 35, 47)
         {
             public boolean isItemValid(ItemStack stack)
             {
@@ -80,13 +87,13 @@ public class ContainerEnchantment extends Container
         {
             for (int j = 0; j < 9; ++j)
             {
-                this.addSlot(new Slot(playerInv, j + i * 9 + 9, 8 + j * 18, 84 + i * 18));
+                this.addSlotToContainer(new Slot(playerInv, j + i * 9 + 9, 8 + j * 18, 84 + i * 18));
             }
         }
 
         for (int k = 0; k < 9; ++k)
         {
-            this.addSlot(new Slot(playerInv, k, 8 + k * 18, 142));
+            this.addSlotToContainer(new Slot(playerInv, k, 8 + k * 18, 142));
         }
     }
 
@@ -157,7 +164,7 @@ public class ContainerEnchantment extends Container
         {
             ItemStack itemstack = inventoryIn.getStackInSlot(0);
 
-            if (!itemstack.isEmpty() && itemstack.isEnchantable())
+            if (!itemstack.isEmpty() && itemstack.isItemEnchantable())
             {
                 if (!this.world.isRemote)
                 {
@@ -258,11 +265,11 @@ public class ContainerEnchantment extends Container
         ItemStack itemstack1 = this.tableInventory.getStackInSlot(1);
         int i = id + 1;
 
-        if ((itemstack1.isEmpty() || itemstack1.getCount() < i) && !playerIn.abilities.isCreativeMode)
+        if ((itemstack1.isEmpty() || itemstack1.getCount() < i) && !playerIn.capabilities.isCreativeMode)
         {
             return false;
         }
-        else if (this.enchantLevels[id] > 0 && !itemstack.isEmpty() && (playerIn.experienceLevel >= i && playerIn.experienceLevel >= this.enchantLevels[id] || playerIn.abilities.isCreativeMode))
+        else if (this.enchantLevels[id] > 0 && !itemstack.isEmpty() && (playerIn.experienceLevel >= i && playerIn.experienceLevel >= this.enchantLevels[id] || playerIn.capabilities.isCreativeMode))
         {
             if (!this.world.isRemote)
             {
@@ -293,7 +300,7 @@ public class ContainerEnchantment extends Container
                         }
                     }
 
-                    if (!playerIn.abilities.isCreativeMode)
+                    if (!playerIn.capabilities.isCreativeMode)
                     {
                         itemstack1.shrink(i);
 
@@ -303,7 +310,7 @@ public class ContainerEnchantment extends Container
                         }
                     }
 
-                    playerIn.addStat(StatList.ENCHANT_ITEM);
+                    playerIn.addStat(StatList.ITEM_ENCHANTED);
 
                     if (playerIn instanceof EntityPlayerMP)
                     {
@@ -414,7 +421,7 @@ public class ContainerEnchantment extends Container
                     return ItemStack.EMPTY;
                 }
 
-                if (itemstack1.hasTag() && itemstack1.getCount() == 1)
+                if (itemstack1.hasTagCompound() && itemstack1.getCount() == 1)
                 {
                     ((Slot)this.inventorySlots.get(0)).putStack(itemstack1.copy());
                     itemstack1.setCount(0);

@@ -18,8 +18,7 @@ public class EntityAIFollowGolem extends EntityAIBase
     }
 
     /**
-     * Returns whether execution should begin. You can also read and cache any state necessary for execution in this
-     * method as well.
+     * Returns whether the EntityAIBase should begin execution.
      */
     public boolean shouldExecute()
     {
@@ -33,7 +32,7 @@ public class EntityAIFollowGolem extends EntityAIBase
         }
         else
         {
-            List<EntityIronGolem> list = this.villager.world.<EntityIronGolem>getEntitiesWithinAABB(EntityIronGolem.class, this.villager.getBoundingBox().grow(6.0D, 2.0D, 6.0D));
+            List<EntityIronGolem> list = this.villager.world.<EntityIronGolem>getEntitiesWithinAABB(EntityIronGolem.class, this.villager.getEntityBoundingBox().grow(6.0D, 2.0D, 6.0D));
 
             if (list.isEmpty())
             {
@@ -85,9 +84,9 @@ public class EntityAIFollowGolem extends EntityAIBase
     /**
      * Keep ticking a continuous task that has already been started
      */
-    public void tick()
+    public void updateTask()
     {
-        this.villager.getLookController().setLookPositionWithEntity(this.ironGolem, 30.0F, 30.0F);
+        this.villager.getLookHelper().setLookPositionWithEntity(this.ironGolem, 30.0F, 30.0F);
 
         if (this.ironGolem.getHoldRoseTick() == this.takeGolemRoseTick)
         {

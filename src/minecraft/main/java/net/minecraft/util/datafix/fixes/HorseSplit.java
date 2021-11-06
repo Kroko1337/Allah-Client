@@ -14,32 +14,32 @@ public class HorseSplit implements IFixableData
     {
         if ("EntityHorse".equals(compound.getString("id")))
         {
-            int i = compound.getInt("Type");
+            int i = compound.getInteger("Type");
 
             switch (i)
             {
                 case 0:
                 default:
-                    compound.putString("id", "Horse");
+                    compound.setString("id", "Horse");
                     break;
 
                 case 1:
-                    compound.putString("id", "Donkey");
+                    compound.setString("id", "Donkey");
                     break;
 
                 case 2:
-                    compound.putString("id", "Mule");
+                    compound.setString("id", "Mule");
                     break;
 
                 case 3:
-                    compound.putString("id", "ZombieHorse");
+                    compound.setString("id", "ZombieHorse");
                     break;
 
                 case 4:
-                    compound.putString("id", "SkeletonHorse");
+                    compound.setString("id", "SkeletonHorse");
             }
 
-            compound.remove("Type");
+            compound.removeTag("Type");
         }
 
         return compound;

@@ -4,5 +4,5 @@ public interface IRecipeShownListener
 {
     void recipesUpdated();
 
-    GuiRecipeBook getRecipeGui();
+    GuiRecipeBook func_194310_f();
 }

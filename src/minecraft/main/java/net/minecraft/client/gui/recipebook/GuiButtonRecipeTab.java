@@ -54,6 +54,9 @@ public class GuiButtonRecipeTab extends GuiButtonToggle
         }
     }
 
+    /**
+     * Draws this button to the screen.
+     */
     public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks)
     {
         if (this.visible)
@@ -95,7 +98,7 @@ public class GuiButtonRecipeTab extends GuiButtonToggle
             GlStateManager.enableDepth();
             RenderHelper.enableGUIStandardItemLighting();
             GlStateManager.disableLighting();
-            this.renderIcon(mc.getItemRenderer());
+            this.renderIcon(mc.getRenderItem());
             GlStateManager.enableLighting();
             RenderHelper.disableStandardItemLighting();
 

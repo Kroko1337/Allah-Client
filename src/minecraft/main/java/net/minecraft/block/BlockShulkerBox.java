@@ -49,29 +49,46 @@ public class BlockShulkerBox extends BlockContainer
         super(Material.ROCK, MapColor.AIR);
         this.color = colorIn;
         this.setCreativeTab(CreativeTabs.DECORATIONS);
-        this.setDefaultState(this.stateContainer.getBaseState().withProperty(FACING, EnumFacing.UP));
+        this.setDefaultState(this.blockState.getBaseState().withProperty(FACING, EnumFacing.UP));
     }
 
+    /**
+     * Returns a new instance of a block's tile entity class. Called on placing the block.
+     */
     public TileEntity createNewTileEntity(World worldIn, int meta)
     {
         return new TileEntityShulkerBox(this.color);
     }
 
+    /**
+     * Used to determine ambient occlusion and culling when rebuilding chunks for render
+     * @deprecated call via {@link IBlockState#isOpaqueCube()} whenever possible. Implementing/overriding is fine.
+     */
     public boolean isOpaqueCube(IBlockState state)
     {
         return false;
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#causesSuffocation()} whenever possible. Implementing/overriding is fine.
+     */
     public boolean causesSuffocation(IBlockState state)
     {
         return true;
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#isFullCube()} whenever possible. Implementing/overriding is fine.
+     */
     public boolean isFullCube(IBlockState state)
     {
         return false;
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#hasCustomBreakingProgress()} whenever possible. Implementing/overriding
+     * is fine.
+     */
     public boolean hasCustomBreakingProgress(IBlockState state)
     {
         return true;
@@ -87,6 +104,9 @@ public class BlockShulkerBox extends BlockContainer
         return EnumBlockRenderType.ENTITYBLOCK_ANIMATED;
     }
 
+    /**
+     * Called when the block is right clicked by a player.
+     */
     public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
         if (worldIn.isRemote)
@@ -103,7 +123,7 @@ public class BlockShulkerBox extends BlockContainer
 
             if (tileentity instanceof TileEntityShulkerBox)
             {
-                EnumFacing enumfacing = (EnumFacing)state.get(FACING);
+                EnumFacing enumfacing = (EnumFacing)state.getValue(FACING);
                 boolean flag;
 
                 if (((TileEntityShulkerBox)tileentity).getAnimationStatus() == TileEntityShulkerBox.AnimationStatus.CLOSED)
@@ -131,6 +151,10 @@ public class BlockShulkerBox extends BlockContainer
         }
     }
 
+    /**
+     * Called by ItemBlocks just before a block is actually set in the world, to allow for adjustments to the
+     * IBlockstate
+     */
     public IBlockState getStateForPlacement(World worldIn, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer)
     {
         return this.getDefaultState().withProperty(FACING, facing);
@@ -141,11 +165,17 @@ public class BlockShulkerBox extends BlockContainer
         return new BlockStateContainer(this, new IProperty[] {FACING});
     }
 
+    /**
+     * Convert the BlockState into the correct metadata value
+     */
     public int getMetaFromState(IBlockState state)
     {
-        return ((EnumFacing)state.get(FACING)).getIndex();
+        return ((EnumFacing)state.getValue(FACING)).getIndex();
     }
 
+    /**
+     * Convert the given metadata into a BlockState for this Block
+     */
     public IBlockState getStateFromMeta(int meta)
     {
         EnumFacing enumfacing = EnumFacing.byIndex(meta);
@@ -161,11 +191,14 @@ public class BlockShulkerBox extends BlockContainer
         if (worldIn.getTileEntity(pos) instanceof TileEntityShulkerBox)
         {
             TileEntityShulkerBox tileentityshulkerbox = (TileEntityShulkerBox)worldIn.getTileEntity(pos);
-            tileentityshulkerbox.setDestroyedByCreativePlayer(player.abilities.isCreativeMode);
+            tileentityshulkerbox.setDestroyedByCreativePlayer(player.capabilities.isCreativeMode);
             tileentityshulkerbox.fillWithLoot(player);
         }
     }
 
+    /**
+     * Spawns this Block's drops into the World as EntityItems.
+     */
     public void dropBlockAsItemWithChance(World worldIn, BlockPos pos, IBlockState state, float chance, int fortune)
     {
     }
@@ -186,6 +219,9 @@ public class BlockShulkerBox extends BlockContainer
         }
     }
 
+    /**
+     * Called serverside after this block is replaced with another in Chunk, but before the Tile Entity is updated
+     */
     public void breakBlock(World worldIn, BlockPos pos, IBlockState state)
     {
         TileEntity tileentity = worldIn.getTileEntity(pos);
@@ -200,7 +236,7 @@ public class BlockShulkerBox extends BlockContainer
                 NBTTagCompound nbttagcompound = new NBTTagCompound();
                 NBTTagCompound nbttagcompound1 = new NBTTagCompound();
                 nbttagcompound.setTag("BlockEntityTag", ((TileEntityShulkerBox)tileentity).saveToNbt(nbttagcompound1));
-                itemstack.setTag(nbttagcompound);
+                itemstack.setTagCompound(nbttagcompound);
 
                 if (tileentityshulkerbox.hasCustomName())
                 {
@@ -220,18 +256,18 @@ public class BlockShulkerBox extends BlockContainer
     public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn)
     {
         super.addInformation(stack, worldIn, tooltip, flagIn);
-        NBTTagCompound nbttagcompound = stack.getTag();
+        NBTTagCompound nbttagcompound = stack.getTagCompound();
 
-        if (nbttagcompound != null && nbttagcompound.contains("BlockEntityTag", 10))
+        if (nbttagcompound != null && nbttagcompound.hasKey("BlockEntityTag", 10))
         {
-            NBTTagCompound nbttagcompound1 = nbttagcompound.getCompound("BlockEntityTag");
+            NBTTagCompound nbttagcompound1 = nbttagcompound.getCompoundTag("BlockEntityTag");
 
-            if (nbttagcompound1.contains("LootTable", 8))
+            if (nbttagcompound1.hasKey("LootTable", 8))
             {
                 tooltip.add("???????");
             }
 
-            if (nbttagcompound1.contains("Items", 9))
+            if (nbttagcompound1.hasKey("Items", 9))
             {
                 NonNullList<ItemStack> nonnulllist = NonNullList.<ItemStack>withSize(27, ItemStack.EMPTY);
                 ItemStackHelper.loadAllItems(nbttagcompound1, nonnulllist);
@@ -268,6 +304,10 @@ public class BlockShulkerBox extends BlockContainer
         return EnumPushReaction.DESTROY;
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#getBoundingBox(IBlockAccess,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
     {
         TileEntity tileentity = source.getTileEntity(pos);
@@ -387,9 +427,9 @@ public class BlockShulkerBox extends BlockContainer
      * @deprecated call via {@link IBlockState#withRotation(Rotation)} whenever possible. Implementing/overriding is
      * fine.
      */
-    public IBlockState rotate(IBlockState state, Rotation rot)
+    public IBlockState withRotation(IBlockState state, Rotation rot)
     {
-        return state.withProperty(FACING, rot.rotate((EnumFacing)state.get(FACING)));
+        return state.withProperty(FACING, rot.rotate((EnumFacing)state.getValue(FACING)));
     }
 
     /**
@@ -397,15 +437,26 @@ public class BlockShulkerBox extends BlockContainer
      * blockstate.
      * @deprecated call via {@link IBlockState#withMirror(Mirror)} whenever possible. Implementing/overriding is fine.
      */
-    public IBlockState mirror(IBlockState state, Mirror mirrorIn)
+    public IBlockState withMirror(IBlockState state, Mirror mirrorIn)
     {
-        return state.rotate(mirrorIn.toRotation((EnumFacing)state.get(FACING)));
+        return state.withRotation(mirrorIn.toRotation((EnumFacing)state.getValue(FACING)));
     }
 
+    /**
+     * Get the geometry of the queried face at the given position and state. This is used to decide whether things like
+     * buttons are allowed to be placed on the face, or how glass panes connect to the face, among other things.
+     * <p>
+     * Common values are {@code SOLID}, which is the default, and {@code UNDEFINED}, which represents something that
+     * does not fit the other descriptions and will generally cause other things not to connect to the face.
+
+     * @return an approximation of the form of the given face
+     * @deprecated call via {@link IBlockState#getBlockFaceShape(IBlockAccess,BlockPos,EnumFacing)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public BlockFaceShape getBlockFaceShape(IBlockAccess worldIn, IBlockState state, BlockPos pos, EnumFacing face)
     {
         state = this.getActualState(state, worldIn, pos);
-        EnumFacing enumfacing = (EnumFacing)state.get(FACING);
+        EnumFacing enumfacing = (EnumFacing)state.getValue(FACING);
         TileEntityShulkerBox.AnimationStatus tileentityshulkerbox$animationstatus = ((TileEntityShulkerBox)worldIn.getTileEntity(pos)).getAnimationStatus();
         return tileentityshulkerbox$animationstatus != TileEntityShulkerBox.AnimationStatus.CLOSED && (tileentityshulkerbox$animationstatus != TileEntityShulkerBox.AnimationStatus.OPENED || enumfacing != face.getOpposite() && enumfacing != face) ? BlockFaceShape.UNDEFINED : BlockFaceShape.SOLID;
     }

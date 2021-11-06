@@ -64,14 +64,14 @@ public class Item
     {
         public float apply(ItemStack stack, @Nullable World worldIn, @Nullable EntityLivingBase entityIn)
         {
-            return stack.isDamaged() ? 1.0F : 0.0F;
+            return stack.isItemDamaged() ? 1.0F : 0.0F;
         }
     };
     private static final IItemPropertyGetter DAMAGE_GETTER = new IItemPropertyGetter()
     {
         public float apply(ItemStack stack, @Nullable World worldIn, @Nullable EntityLivingBase entityIn)
         {
-            return MathHelper.clamp((float)stack.getDamage() / (float)stack.getMaxDamage(), 0.0F, 1.0F);
+            return MathHelper.clamp((float)stack.getItemDamage() / (float)stack.getMaxDamage(), 0.0F, 1.0F);
         }
     };
     private static final IItemPropertyGetter LEFTHANDED_GETTER = new IItemPropertyGetter()
@@ -91,18 +91,32 @@ public class Item
     private final IRegistry<ResourceLocation, IItemPropertyGetter> properties = new RegistrySimple<ResourceLocation, IItemPropertyGetter>();
     protected static final UUID ATTACK_DAMAGE_MODIFIER = UUID.fromString("CB3F55D3-645C-4F38-A497-9C13A33DB5CF");
     protected static final UUID ATTACK_SPEED_MODIFIER = UUID.fromString("FA233E1C-4180-4865-B01B-BCCE9785ACA3");
-    private CreativeTabs group;
-    protected static Random random = new Random();
+    private CreativeTabs tabToDisplayOn;
+
+    /** The RNG used by the Item subclasses. */
+    protected static Random itemRand = new Random();
+
+    /** Maximum size of the stack. */
     protected int maxStackSize = 64;
+
+    /** Maximum damage an item can handle. */
     private int maxDamage;
+
+    /** If true, render the object in full 3D, like weapons and tools. */
     protected boolean bFull3D;
+
+    /**
+     * Some items (like dyes) have multiple subtypes on same item, this is field define this behavior
+     */
     protected boolean hasSubtypes;
     private Item containerItem;
+
+    /** The unlocalized name of this item. */
     private String translationKey;
 
     public static int getIdFromItem(Item itemIn)
     {
-        return itemIn == null ? 0 : REGISTRY.getId(itemIn);
+        return itemIn == null ? 0 : REGISTRY.getIDForObject(itemIn);
     }
 
     public static Item getItemById(int id)
@@ -117,9 +131,14 @@ public class Item
     }
 
     @Nullable
+
+    /**
+     * Tries to get an Item by it's name (e.g. minecraft:apple) or a String representation of a numerical ID. If both
+     * fail, null is returned.
+     */
     public static Item getByNameOrId(String id)
     {
-        Item item = REGISTRY.getOrDefault(new ResourceLocation(id));
+        Item item = REGISTRY.getObject(new ResourceLocation(id));
 
         if (item == null)
         {
@@ -147,12 +166,12 @@ public class Item
     @Nullable
     public IItemPropertyGetter getPropertyGetter(ResourceLocation key)
     {
-        return this.properties.getOrDefault(key);
+        return this.properties.getObject(key);
     }
 
     public boolean hasCustomProperties()
     {
-        return !this.properties.keySet().isEmpty();
+        return !this.properties.getKeys().isEmpty();
     }
 
     /**
@@ -175,6 +194,9 @@ public class Item
         return this;
     }
 
+    /**
+     * Called when a Block is right-clicked with this Item
+     */
     public EnumActionResult onItemUse(EntityPlayer player, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
         return EnumActionResult.PASS;
@@ -202,11 +224,15 @@ public class Item
     /**
      * Returns the maximum size of the stack for a specific item.
      */
-    public int getMaxStackSize()
+    public int getItemStackLimit()
     {
         return this.maxStackSize;
     }
 
+    /**
+     * Converts the given ItemStack damage value into a metadata value to be placed in the world when this Item is
+     * placed as a Block (mostly used with ItemBlocks).
+     */
     public int getMetadata(int damage)
     {
         return 0;
@@ -231,6 +257,9 @@ public class Item
         return this.maxDamage;
     }
 
+    /**
+     * set max damage of an Item
+     */
     protected Item setMaxDamage(int maxDamageIn)
     {
         this.maxDamage = maxDamageIn;
@@ -282,28 +311,45 @@ public class Item
         return false;
     }
 
+    /**
+     * Sets bFull3D to True and return the object.
+     */
     public Item setFull3D()
     {
         this.bFull3D = true;
         return this;
     }
 
+    /**
+     * Returns True is the item is renderer in full 3D when hold.
+     */
     public boolean isFull3D()
     {
         return this.bFull3D;
     }
 
+    /**
+     * Returns true if this item should be rotated by 180 degrees around the Y axis when being held in an entities
+     * hands.
+     */
     public boolean shouldRotateAroundWhenRendering()
     {
         return false;
     }
 
+    /**
+     * Sets the unlocalized name of this item to the string passed as the parameter, prefixed by "item."
+     */
     public Item setTranslationKey(String key)
     {
         this.translationKey = key;
         return this;
     }
 
+    /**
+     * Translates the unlocalized name of this item, but without the .name suffix, so the translation fails and the
+     * unlocalized name itself is returned.
+     */
     public String getUnlocalizedNameInefficiently(ItemStack stack)
     {
         return I18n.translateToLocal(this.getTranslationKey(stack));
@@ -335,7 +381,7 @@ public class Item
     /**
      * If this function returns true (or the item is damageable), the ItemStack's NBT tag will be sent to the client.
      */
-    public boolean shouldSyncTag()
+    public boolean getShareTag()
     {
         return true;
     }
@@ -358,7 +404,7 @@ public class Item
      * Called each tick as long the item is on a player inventory. Uses by maps to check if is on a player hand and
      * update it's contents.
      */
-    public void inventoryTick(ItemStack stack, World worldIn, Entity entityIn, int itemSlot, boolean isSelected)
+    public void onUpdate(ItemStack stack, World worldIn, Entity entityIn, int itemSlot, boolean isSelected)
     {
     }
 
@@ -370,9 +416,9 @@ public class Item
     }
 
     /**
-     * Returns {@code true} if this is a complex item.
+     * false for all Items except sub-classes of ItemMapBase
      */
-    public boolean isComplex()
+    public boolean isMap()
     {
         return false;
     }
@@ -380,7 +426,7 @@ public class Item
     /**
      * returns the action that specifies what animation to play when the items is being used
      */
-    public EnumAction getUseAction(ItemStack stack)
+    public EnumAction getItemUseAction(ItemStack stack)
     {
         return EnumAction.NONE;
     }
@@ -388,7 +434,7 @@ public class Item
     /**
      * How long it takes to use or consume an item
      */
-    public int getUseDuration(ItemStack stack)
+    public int getMaxItemUseDuration(ItemStack stack)
     {
         return 0;
     }
@@ -422,7 +468,7 @@ public class Item
      */
     public boolean hasEffect(ItemStack stack)
     {
-        return stack.isEnchanted();
+        return stack.isItemEnchanted();
     }
 
     /**
@@ -430,7 +476,7 @@ public class Item
      */
     public EnumRarity getRarity(ItemStack stack)
     {
-        return stack.isEnchanted() ? EnumRarity.RARE : EnumRarity.COMMON;
+        return stack.isItemEnchanted() ? EnumRarity.RARE : EnumRarity.COMMON;
     }
 
     /**
@@ -438,7 +484,7 @@ public class Item
      */
     public boolean isEnchantable(ItemStack stack)
     {
-        return this.getMaxStackSize() == 1 && this.isDamageable();
+        return this.getItemStackLimit() == 1 && this.isDamageable();
     }
 
     protected RayTraceResult rayTrace(World worldIn, EntityPlayer playerIn, boolean useLiquids)
@@ -471,18 +517,18 @@ public class Item
     /**
      * returns a list of items with the same ID, but different meta (eg: dye returns 16 items)
      */
-    public void fillItemGroup(CreativeTabs group, NonNullList<ItemStack> items)
+    public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> items)
     {
-        if (this.isInGroup(group))
+        if (this.isInCreativeTab(tab))
         {
             items.add(new ItemStack(this));
         }
     }
 
-    protected boolean isInGroup(CreativeTabs group)
+    protected boolean isInCreativeTab(CreativeTabs targetTab)
     {
-        CreativeTabs creativetabs = this.getGroup();
-        return creativetabs != null && (group == CreativeTabs.SEARCH || group == creativetabs);
+        CreativeTabs creativetabs = this.getCreativeTab();
+        return creativetabs != null && (targetTab == CreativeTabs.SEARCH || targetTab == creativetabs);
     }
 
     @Nullable
@@ -490,17 +536,27 @@ public class Item
     /**
      * gets the CreativeTab this item is displayed on
      */
-    public CreativeTabs getGroup()
+    public CreativeTabs getCreativeTab()
     {
-        return this.group;
+        return this.tabToDisplayOn;
     }
 
+    /**
+     * returns this;
+     */
     public Item setCreativeTab(CreativeTabs tab)
     {
-        this.group = tab;
+        this.tabToDisplayOn = tab;
         return this;
     }
 
+    /**
+     * Returns whether this item is always allowed to edit the world. Forces {@link
+     * net.minecraft.entity.player.EntityPlayer#canPlayerEdit EntityPlayer#canPlayerEdit} to return {@code true}.
+
+     * @return whether this item ignores other restrictions on how a player can modify the world.
+     * @see ItemStack#canEditBlocks
+     */
     public boolean canItemEditBlocks()
     {
         return false;
@@ -508,13 +564,16 @@ public class Item
 
     /**
      * Return whether this item is repairable in an anvil.
+     *  
+     * @param toRepair the {@code ItemStack} being repaired
+     * @param repair the {@code ItemStack} being used to perform the repair
      */
     public boolean getIsRepairable(ItemStack toRepair, ItemStack repair)
     {
         return false;
     }
 
-    public Multimap<String, AttributeModifier> getAttributeModifiers(EntityEquipmentSlot equipmentSlot)
+    public Multimap<String, AttributeModifier> getItemAttributeModifiers(EntityEquipmentSlot equipmentSlot)
     {
         return HashMultimap.<String, AttributeModifier>create();
     }
@@ -639,7 +698,7 @@ public class Item
         registerItemBlock(Blocks.PURPUR_PILLAR);
         registerItemBlock(Blocks.PURPUR_STAIRS);
         registerItemBlock(Blocks.PURPUR_SLAB, (new ItemSlab(Blocks.PURPUR_SLAB, Blocks.PURPUR_SLAB, Blocks.PURPUR_DOUBLE_SLAB)).setTranslationKey("purpurSlab"));
-        registerItemBlock(Blocks.SPAWNER);
+        registerItemBlock(Blocks.MOB_SPAWNER);
         registerItemBlock(Blocks.OAK_STAIRS);
         registerItemBlock(Blocks.CHEST);
         registerItemBlock(Blocks.DIAMOND_ORE);
@@ -692,7 +751,7 @@ public class Item
         registerItemBlock(Blocks.RED_MUSHROOM_BLOCK);
         registerItemBlock(Blocks.IRON_BARS);
         registerItemBlock(Blocks.GLASS_PANE);
-        registerItemBlock(Blocks.MELON);
+        registerItemBlock(Blocks.MELON_BLOCK);
         registerItemBlock(Blocks.VINE, new ItemColored(Blocks.VINE, false));
         registerItemBlock(Blocks.OAK_FENCE_GATE);
         registerItemBlock(Blocks.SPRUCE_FENCE_GATE);
@@ -749,7 +808,7 @@ public class Item
         registerItemBlock(Blocks.IRON_TRAPDOOR);
         registerItemBlock(Blocks.HAY_BLOCK);
         registerItemBlock(Blocks.CARPET, (new ItemCloth(Blocks.CARPET)).setTranslationKey("woolCarpet"));
-        registerItemBlock(Blocks.TERRACOTTA);
+        registerItemBlock(Blocks.HARDENED_CLAY);
         registerItemBlock(Blocks.COAL_BLOCK);
         registerItemBlock(Blocks.PACKED_ICE);
         registerItemBlock(Blocks.ACACIA_STAIRS);
@@ -1024,28 +1083,34 @@ public class Item
         registerItem(450, "shulker_shell", (new Item()).setTranslationKey("shulkerShell").setCreativeTab(CreativeTabs.MATERIALS));
         registerItem(452, "iron_nugget", (new Item()).setTranslationKey("ironNugget").setCreativeTab(CreativeTabs.MATERIALS));
         registerItem(453, "knowledge_book", (new ItemKnowledgeBook()).setTranslationKey("knowledgeBook"));
-        registerItem(2256, "record_13", (new ItemRecord("13", SoundEvents.MUSIC_DISC_13)).setTranslationKey("record"));
-        registerItem(2257, "record_cat", (new ItemRecord("cat", SoundEvents.MUSIC_DISC_CAT)).setTranslationKey("record"));
-        registerItem(2258, "record_blocks", (new ItemRecord("blocks", SoundEvents.MUSIC_DISC_BLOCKS)).setTranslationKey("record"));
-        registerItem(2259, "record_chirp", (new ItemRecord("chirp", SoundEvents.MUSIC_DISC_CHIRP)).setTranslationKey("record"));
-        registerItem(2260, "record_far", (new ItemRecord("far", SoundEvents.MUSIC_DISC_FAR)).setTranslationKey("record"));
-        registerItem(2261, "record_mall", (new ItemRecord("mall", SoundEvents.MUSIC_DISC_MALL)).setTranslationKey("record"));
-        registerItem(2262, "record_mellohi", (new ItemRecord("mellohi", SoundEvents.MUSIC_DISC_MELLOHI)).setTranslationKey("record"));
-        registerItem(2263, "record_stal", (new ItemRecord("stal", SoundEvents.MUSIC_DISC_STAL)).setTranslationKey("record"));
-        registerItem(2264, "record_strad", (new ItemRecord("strad", SoundEvents.MUSIC_DISC_STRAD)).setTranslationKey("record"));
-        registerItem(2265, "record_ward", (new ItemRecord("ward", SoundEvents.MUSIC_DISC_WARD)).setTranslationKey("record"));
-        registerItem(2266, "record_11", (new ItemRecord("11", SoundEvents.MUSIC_DISC_11)).setTranslationKey("record"));
-        registerItem(2267, "record_wait", (new ItemRecord("wait", SoundEvents.MUSIC_DISC_WAIT)).setTranslationKey("record"));
+        registerItem(2256, "record_13", (new ItemRecord("13", SoundEvents.RECORD_13)).setTranslationKey("record"));
+        registerItem(2257, "record_cat", (new ItemRecord("cat", SoundEvents.RECORD_CAT)).setTranslationKey("record"));
+        registerItem(2258, "record_blocks", (new ItemRecord("blocks", SoundEvents.RECORD_BLOCKS)).setTranslationKey("record"));
+        registerItem(2259, "record_chirp", (new ItemRecord("chirp", SoundEvents.RECORD_CHIRP)).setTranslationKey("record"));
+        registerItem(2260, "record_far", (new ItemRecord("far", SoundEvents.RECORD_FAR)).setTranslationKey("record"));
+        registerItem(2261, "record_mall", (new ItemRecord("mall", SoundEvents.RECORD_MALL)).setTranslationKey("record"));
+        registerItem(2262, "record_mellohi", (new ItemRecord("mellohi", SoundEvents.RECORD_MELLOHI)).setTranslationKey("record"));
+        registerItem(2263, "record_stal", (new ItemRecord("stal", SoundEvents.RECORD_STAL)).setTranslationKey("record"));
+        registerItem(2264, "record_strad", (new ItemRecord("strad", SoundEvents.RECORD_STRAD)).setTranslationKey("record"));
+        registerItem(2265, "record_ward", (new ItemRecord("ward", SoundEvents.RECORD_WARD)).setTranslationKey("record"));
+        registerItem(2266, "record_11", (new ItemRecord("11", SoundEvents.RECORD_11)).setTranslationKey("record"));
+        registerItem(2267, "record_wait", (new ItemRecord("wait", SoundEvents.RECORD_WAIT)).setTranslationKey("record"));
     }
 
+    /**
+     * Register a default ItemBlock for the given Block.
+     */
     private static void registerItemBlock(Block blockIn)
     {
         registerItemBlock(blockIn, new ItemBlock(blockIn));
     }
 
+    /**
+     * Register the given Item as the ItemBlock for the given Block.
+     */
     protected static void registerItemBlock(Block blockIn, Item itemIn)
     {
-        registerItem(Block.getIdFromBlock(blockIn), Block.REGISTRY.getKey(blockIn), itemIn);
+        registerItem(Block.getIdFromBlock(blockIn), Block.REGISTRY.getNameForObject(blockIn), itemIn);
         BLOCK_TO_ITEM.put(blockIn, itemIn);
     }
 

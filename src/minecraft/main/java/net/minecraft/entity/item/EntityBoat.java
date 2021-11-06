@@ -43,6 +43,8 @@ public class EntityBoat extends Entity
     private static final DataParameter<Integer> BOAT_TYPE = EntityDataManager.<Integer>createKey(EntityBoat.class, DataSerializers.VARINT);
     private static final DataParameter<Boolean>[] DATA_ID_PADDLE = new DataParameter[] {EntityDataManager.createKey(EntityBoat.class, DataSerializers.BOOLEAN), EntityDataManager.createKey(EntityBoat.class, DataSerializers.BOOLEAN)};
     private final float[] paddlePositions;
+
+    /** How much of current speed to retain. Value zero to one. */
     private float momentum;
     private float outOfControlTicks;
     private float deltaRotation;
@@ -57,6 +59,11 @@ public class EntityBoat extends Entity
     private boolean forwardInputDown;
     private boolean backInputDown;
     private double waterLevel;
+
+    /**
+     * How much the boat should glide given the slippery blocks it's currently gliding over.
+     * Halved every tick.
+     */
     private float boatGlide;
     private EntityBoat.Status status;
     private EntityBoat.Status previousStatus;
@@ -82,12 +89,16 @@ public class EntityBoat extends Entity
         this.prevPosZ = z;
     }
 
+    /**
+     * returns if this entity triggers Block.onEntityWalking on the blocks they walk on. used for spiders and wolves to
+     * prevent them from trampling crops
+     */
     protected boolean canTriggerWalking()
     {
         return false;
     }
 
-    protected void registerData()
+    protected void entityInit()
     {
         this.dataManager.register(TIME_SINCE_HIT, Integer.valueOf(0));
         this.dataManager.register(FORWARD_DIRECTION, Integer.valueOf(1));
@@ -108,7 +119,7 @@ public class EntityBoat extends Entity
      */
     public AxisAlignedBB getCollisionBox(Entity entityIn)
     {
-        return entityIn.canBePushed() ? entityIn.getBoundingBox() : null;
+        return entityIn.canBePushed() ? entityIn.getEntityBoundingBox() : null;
     }
 
     @Nullable
@@ -123,7 +134,7 @@ public class EntityBoat extends Entity
      */
     public AxisAlignedBB getCollisionBoundingBox()
     {
-        return this.getBoundingBox();
+        return this.getEntityBoundingBox();
     }
 
     /**
@@ -147,11 +158,11 @@ public class EntityBoat extends Entity
      */
     public boolean attackEntityFrom(DamageSource source, float amount)
     {
-        if (this.isInvulnerableTo(source))
+        if (this.isEntityInvulnerable(source))
         {
             return false;
         }
-        else if (!this.world.isRemote && !this.removed)
+        else if (!this.world.isRemote && !this.isDead)
         {
             if (source instanceof EntityDamageSourceIndirect && source.getTrueSource() != null && this.isPassenger(source.getTrueSource()))
             {
@@ -163,7 +174,7 @@ public class EntityBoat extends Entity
                 this.setTimeSinceHit(10);
                 this.setDamageTaken(this.getDamageTaken() + amount * 10.0F);
                 this.markVelocityChanged();
-                boolean flag = source.getTrueSource() instanceof EntityPlayer && ((EntityPlayer)source.getTrueSource()).abilities.isCreativeMode;
+                boolean flag = source.getTrueSource() instanceof EntityPlayer && ((EntityPlayer)source.getTrueSource()).capabilities.isCreativeMode;
 
                 if (flag || this.getDamageTaken() > 40.0F)
                 {
@@ -172,7 +183,7 @@ public class EntityBoat extends Entity
                         this.dropItemWithOffset(this.getItemBoat(), 1, 0.0F);
                     }
 
-                    this.remove();
+                    this.setDead();
                 }
 
                 return true;
@@ -191,12 +202,12 @@ public class EntityBoat extends Entity
     {
         if (entityIn instanceof EntityBoat)
         {
-            if (entityIn.getBoundingBox().minY < this.getBoundingBox().maxY)
+            if (entityIn.getEntityBoundingBox().minY < this.getEntityBoundingBox().maxY)
             {
                 super.applyEntityCollision(entityIn);
             }
         }
-        else if (entityIn.getBoundingBox().minY <= this.getBoundingBox().minY)
+        else if (entityIn.getEntityBoundingBox().minY <= this.getEntityBoundingBox().minY)
         {
             super.applyEntityCollision(entityIn);
         }
@@ -208,7 +219,7 @@ public class EntityBoat extends Entity
         {
             case OAK:
             default:
-                return Items.OAK_BOAT;
+                return Items.BOAT;
 
             case SPRUCE:
                 return Items.SPRUCE_BOAT;
@@ -242,7 +253,7 @@ public class EntityBoat extends Entity
      */
     public boolean canBeCollidedWith()
     {
-        return !this.removed;
+        return !this.isDead;
     }
 
     /**
@@ -270,7 +281,7 @@ public class EntityBoat extends Entity
     /**
      * Called to update the entity's position/logic.
      */
-    public void tick()
+    public void onUpdate()
     {
         this.previousStatus = this.status;
         this.status = this.getBoatStatus();
@@ -302,7 +313,7 @@ public class EntityBoat extends Entity
         this.prevPosX = this.posX;
         this.prevPosY = this.posY;
         this.prevPosZ = this.posZ;
-        super.tick();
+        super.onUpdate();
         this.tickLerp();
 
         if (this.canPassengerSteer())
@@ -355,7 +366,7 @@ public class EntityBoat extends Entity
         }
 
         this.doBlockCollisions();
-        List<Entity> list = this.world.getEntitiesInAABBexcluding(this, this.getBoundingBox().grow(0.20000000298023224D, -0.009999999776482582D, 0.20000000298023224D), EntitySelectors.getTeamCollisionPredicate(this));
+        List<Entity> list = this.world.getEntitiesInAABBexcluding(this, this.getEntityBoundingBox().grow(0.20000000298023224D, -0.009999999776482582D, 0.20000000298023224D), EntitySelectors.getTeamCollisionPredicate(this));
 
         if (!list.isEmpty())
         {
@@ -367,7 +378,7 @@ public class EntityBoat extends Entity
 
                 if (!entity.isPassenger(this))
                 {
-                    if (flag && this.getPassengers().size() < 2 && !entity.isPassenger() && entity.width < this.width && entity instanceof EntityLivingBase && !(entity instanceof EntityWaterMob) && !(entity instanceof EntityPlayer))
+                    if (flag && this.getPassengers().size() < 2 && !entity.isRiding() && entity.width < this.width && entity instanceof EntityLivingBase && !(entity instanceof EntityWaterMob) && !(entity instanceof EntityPlayer))
                     {
                         entity.startRiding(this);
                     }
@@ -435,7 +446,7 @@ public class EntityBoat extends Entity
 
         if (entityboat$status != null)
         {
-            this.waterLevel = this.getBoundingBox().maxY;
+            this.waterLevel = this.getEntityBoundingBox().maxY;
             return entityboat$status;
         }
         else if (this.checkInWater())
@@ -460,7 +471,7 @@ public class EntityBoat extends Entity
 
     public float getWaterLevelAbove()
     {
-        AxisAlignedBB axisalignedbb = this.getBoundingBox();
+        AxisAlignedBB axisalignedbb = this.getEntityBoundingBox();
         int i = MathHelper.floor(axisalignedbb.minX);
         int j = MathHelper.ceil(axisalignedbb.maxX);
         int k = MathHelper.floor(axisalignedbb.maxY);
@@ -525,7 +536,7 @@ public class EntityBoat extends Entity
      */
     public float getBoatGlide()
     {
-        AxisAlignedBB axisalignedbb = this.getBoundingBox();
+        AxisAlignedBB axisalignedbb = this.getEntityBoundingBox();
         AxisAlignedBB axisalignedbb1 = new AxisAlignedBB(axisalignedbb.minX, axisalignedbb.minY - 0.001D, axisalignedbb.minZ, axisalignedbb.maxX, axisalignedbb.minY, axisalignedbb.maxZ);
         int i = MathHelper.floor(axisalignedbb1.minX) - 1;
         int j = MathHelper.ceil(axisalignedbb1.maxX) + 1;
@@ -579,7 +590,7 @@ public class EntityBoat extends Entity
 
     private boolean checkInWater()
     {
-        AxisAlignedBB axisalignedbb = this.getBoundingBox();
+        AxisAlignedBB axisalignedbb = this.getEntityBoundingBox();
         int i = MathHelper.floor(axisalignedbb.minX);
         int j = MathHelper.ceil(axisalignedbb.maxX);
         int k = MathHelper.floor(axisalignedbb.minY);
@@ -626,7 +637,7 @@ public class EntityBoat extends Entity
      */
     private EntityBoat.Status getUnderwaterStatus()
     {
-        AxisAlignedBB axisalignedbb = this.getBoundingBox();
+        AxisAlignedBB axisalignedbb = this.getEntityBoundingBox();
         double d0 = axisalignedbb.maxY + 0.001D;
         int i = MathHelper.floor(axisalignedbb.minX);
         int j = MathHelper.ceil(axisalignedbb.maxX);
@@ -650,7 +661,7 @@ public class EntityBoat extends Entity
 
                         if (iblockstate.getMaterial() == Material.WATER && d0 < (double)BlockLiquid.getLiquidHeight(iblockstate, this.world, blockpos$pooledmutableblockpos))
                         {
-                            if (((Integer)iblockstate.get(BlockLiquid.LEVEL)).intValue() != 0)
+                            if (((Integer)iblockstate.getValue(BlockLiquid.LEVEL)).intValue() != 0)
                             {
                                 EntityBoat.Status entityboat$status = EntityBoat.Status.UNDER_FLOWING_WATER;
                                 return entityboat$status;
@@ -682,7 +693,7 @@ public class EntityBoat extends Entity
 
         if (this.previousStatus == EntityBoat.Status.IN_AIR && this.status != EntityBoat.Status.IN_AIR && this.status != EntityBoat.Status.ON_LAND)
         {
-            this.waterLevel = this.getBoundingBox().minY + (double)this.height;
+            this.waterLevel = this.getEntityBoundingBox().minY + (double)this.height;
             this.setPosition(this.posX, (double)(this.getWaterLevelAbove() - this.height) + 0.101D, this.posZ);
             this.motionY = 0.0D;
             this.lastYd = 0.0D;
@@ -692,7 +703,7 @@ public class EntityBoat extends Entity
         {
             if (this.status == EntityBoat.Status.IN_WATER)
             {
-                d2 = (this.waterLevel - this.getBoundingBox().minY) / (double)this.height;
+                d2 = (this.waterLevel - this.getEntityBoundingBox().minY) / (double)this.height;
                 this.momentum = 0.9F;
             }
             else if (this.status == EntityBoat.Status.UNDER_FLOWING_WATER)
@@ -778,7 +789,7 @@ public class EntityBoat extends Entity
         if (this.isPassenger(passenger))
         {
             float f = 0.0F;
-            float f1 = (float)((this.removed ? 0.009999999776482582D : this.getMountedYOffset()) + passenger.getYOffset());
+            float f1 = (float)((this.isDead ? 0.009999999776482582D : this.getMountedYOffset()) + passenger.getYOffset());
 
             if (this.getPassengers().size() > 1)
             {
@@ -835,17 +846,20 @@ public class EntityBoat extends Entity
         this.applyYawToEntity(entityToUpdate);
     }
 
+    /**
+     * (abstract) Protected helper method to write subclass entity data to NBT.
+     */
     protected void writeEntityToNBT(NBTTagCompound compound)
     {
-        compound.putString("Type", this.getBoatType().getName());
+        compound.setString("Type", this.getBoatType().getName());
     }
 
     /**
      * (abstract) Protected helper method to read subclass entity data from NBT.
      */
-    protected void readAdditional(NBTTagCompound compound)
+    protected void readEntityFromNBT(NBTTagCompound compound)
     {
-        if (compound.contains("Type", 8))
+        if (compound.hasKey("Type", 8))
         {
             this.setBoatType(EntityBoat.Type.getTypeFromString(compound.getString("Type")));
         }
@@ -872,7 +886,7 @@ public class EntityBoat extends Entity
     {
         this.lastYd = this.motionY;
 
-        if (!this.isPassenger())
+        if (!this.isRiding())
         {
             if (onGroundIn)
             {
@@ -886,9 +900,9 @@ public class EntityBoat extends Entity
 
                     this.fall(this.fallDistance, 1.0F);
 
-                    if (!this.world.isRemote && !this.removed)
+                    if (!this.world.isRemote && !this.isDead)
                     {
-                        this.remove();
+                        this.setDead();
 
                         if (this.world.getGameRules().getBoolean("doEntityDrops"))
                         {

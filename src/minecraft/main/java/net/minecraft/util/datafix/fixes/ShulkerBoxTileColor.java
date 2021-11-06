@@ -14,7 +14,7 @@ public class ShulkerBoxTileColor implements IFixableData
     {
         if ("minecraft:shulker".equals(compound.getString("id")))
         {
-            compound.remove("Color");
+            compound.removeTag("Color");
         }
 
         return compound;

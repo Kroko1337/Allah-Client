@@ -2,7 +2,6 @@ package net.minecraft.client.entity;
 
 import java.util.List;
 import javax.annotation.Nullable;
-
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.ElytraSound;
@@ -84,7 +83,7 @@ import net.minecraft.world.World;
 public class EntityPlayerSP extends AbstractClientPlayer
 {
     public final NetHandlerPlayClient connection;
-    private final StatisticsManager stats;
+    private final StatisticsManager statWriter;
     private final RecipeBook recipeBook;
     private int permissionLevel = 0;
 
@@ -118,6 +117,8 @@ public class EntityPlayerSP extends AbstractClientPlayer
      */
     private float lastReportedPitch;
     private boolean prevOnGround;
+
+    /** the last sneaking state sent to the server */
     private boolean serverSneakState;
 
     /** the last sprinting state sent to the server */
@@ -132,7 +133,15 @@ public class EntityPlayerSP extends AbstractClientPlayer
     private String serverBrand;
     public MovementInput movementInput;
     protected Minecraft mc;
+
+    /**
+     * Used to tell if the player pressed forward twice. If this is at 0 and it's pressed (And they are allowed to
+     * sprint, aka enough food on the ground etc) it sets this to 7. If it's pressed and it's greater than 0 enable
+     * sprinting.
+     */
     protected int sprintToggleTimer;
+
+    /** Ticks left before sprinting is disabled. */
     public int sprintingTicksLeft;
     public float renderArmYaw;
     public float renderArmPitch;
@@ -140,18 +149,24 @@ public class EntityPlayerSP extends AbstractClientPlayer
     public float prevRenderArmPitch;
     private int horseJumpPowerCounter;
     private float horseJumpPower;
+
+    /** The amount of time an entity has been in a Portal */
     public float timeInPortal;
+
+    /** The amount of time an entity has been in a Portal the previous tick */
     public float prevTimeInPortal;
     private boolean handActive;
     private EnumHand activeHand;
     private boolean rowingBoat;
+    private boolean autoJumpEnabled = true;
+    private int autoJumpTime;
     private boolean wasFallFlying;
 
     public EntityPlayerSP(Minecraft p_i47378_1_, World p_i47378_2_, NetHandlerPlayClient p_i47378_3_, StatisticsManager p_i47378_4_, RecipeBook p_i47378_5_)
     {
         super(p_i47378_2_, p_i47378_3_.getGameProfile());
         this.connection = p_i47378_3_;
-        this.stats = p_i47378_4_;
+        this.statWriter = p_i47378_4_;
         this.recipeBook = p_i47378_5_;
         this.mc = p_i47378_1_;
         this.dimension = 0;
@@ -182,7 +197,7 @@ public class EntityPlayerSP extends AbstractClientPlayer
         {
             if (entityIn instanceof EntityMinecart)
             {
-                this.mc.getSoundHandler().play(new MovingSoundMinecartRiding(this, (EntityMinecart)entityIn));
+                this.mc.getSoundHandler().playSound(new MovingSoundMinecartRiding(this, (EntityMinecart)entityIn));
             }
 
             if (entityIn instanceof EntityBoat)
@@ -199,9 +214,9 @@ public class EntityPlayerSP extends AbstractClientPlayer
     /**
      * Dismounts this entity from the entity it is riding.
      */
-    public void stopRiding()
+    public void dismountRidingEntity()
     {
-        super.stopRiding();
+        super.dismountRidingEntity();
         this.rowingBoat = false;
     }
 
@@ -216,13 +231,13 @@ public class EntityPlayerSP extends AbstractClientPlayer
     /**
      * Called to update the entity's position/logic.
      */
-    public void tick()
+    public void onUpdate()
     {
         if (this.world.isBlockLoaded(new BlockPos(this.posX, 0.0D, this.posZ)))
         {
-            super.tick();
+            super.onUpdate();
 
-            if (this.isPassenger())
+            if (this.isRiding())
             {
                 this.connection.sendPacket(new CPacketPlayer.Rotation(this.rotationYaw, this.rotationPitch, this.onGround));
                 this.connection.sendPacket(new CPacketInput(this.moveStrafing, this.moveForward, this.movementInput.jump, this.movementInput.sneak));
@@ -279,7 +294,7 @@ public class EntityPlayerSP extends AbstractClientPlayer
 
         if (this.isCurrentViewEntity())
         {
-            AxisAlignedBB axisalignedbb = this.getBoundingBox();
+            AxisAlignedBB axisalignedbb = this.getEntityBoundingBox();
             double d0 = this.posX - this.lastReportedPosX;
             double d1 = axisalignedbb.minY - this.lastReportedPosY;
             double d2 = this.posZ - this.lastReportedPosZ;
@@ -289,7 +304,7 @@ public class EntityPlayerSP extends AbstractClientPlayer
             boolean flag2 = d0 * d0 + d1 * d1 + d2 * d2 > 9.0E-4D || this.positionUpdateTicks >= 20;
             boolean flag3 = d3 != 0.0D || d4 != 0.0D;
 
-            if (this.isPassenger())
+            if (this.isRiding())
             {
                 this.connection.sendPacket(new CPacketPlayer.PositionRotation(this.motionX, -999.0D, this.motionZ, this.rotationYaw, this.rotationPitch, this.onGround));
                 flag2 = false;
@@ -326,14 +341,20 @@ public class EntityPlayerSP extends AbstractClientPlayer
             }
 
             this.prevOnGround = this.onGround;
+            this.autoJumpEnabled = this.mc.gameSettings.autoJump;
         }
     }
 
     @Nullable
+
+    /**
+     * Drop one item out of the currently selected stack if {@code dropAll} is false. If {@code dropItem} is true the
+     * entire stack is dropped.
+     */
     public EntityItem dropItem(boolean dropAll)
     {
         CPacketPlayerDigging.Action cpacketplayerdigging$action = dropAll ? CPacketPlayerDigging.Action.DROP_ALL_ITEMS : CPacketPlayerDigging.Action.DROP_ITEM;
-        this.connection.sendPacket(new CPacketPlayerDigging(cpacketplayerdigging$action, BlockPos.ZERO, EnumFacing.DOWN));
+        this.connection.sendPacket(new CPacketPlayerDigging(cpacketplayerdigging$action, BlockPos.ORIGIN, EnumFacing.DOWN));
         return null;
     }
 
@@ -367,7 +388,7 @@ public class EntityPlayerSP extends AbstractClientPlayer
      */
     protected void damageEntity(DamageSource damageSrc, float damageAmount)
     {
-        if (!this.isInvulnerableTo(damageSrc))
+        if (!this.isEntityInvulnerable(damageSrc))
         {
             this.setHealth(this.getHealth() - damageAmount);
         }
@@ -443,7 +464,7 @@ public class EntityPlayerSP extends AbstractClientPlayer
      */
     public void sendPlayerAbilities()
     {
-        this.connection.sendPacket(new CPacketPlayerAbilities(this.abilities));
+        this.connection.sendPacket(new CPacketPlayerAbilities(this.capabilities));
     }
 
     /**
@@ -483,9 +504,9 @@ public class EntityPlayerSP extends AbstractClientPlayer
         return this.serverBrand;
     }
 
-    public StatisticsManager getStats()
+    public StatisticsManager getStatFileWriter()
     {
-        return this.stats;
+        return this.statWriter;
     }
 
     public RecipeBook getRecipeBook()
@@ -592,6 +613,9 @@ public class EntityPlayerSP extends AbstractClientPlayer
         }
     }
 
+    /**
+     * Returns true if the block at the given BlockPos and the block above it are NOT full cubes.
+     */
     private boolean isOpenBlockSpace(BlockPos pos)
     {
         return !this.world.getBlockState(pos).isNormalCube() && !this.world.getBlockState(pos.up()).isNormalCube();
@@ -624,6 +648,9 @@ public class EntityPlayerSP extends AbstractClientPlayer
         this.mc.ingameGUI.getChatGUI().printChatMessage(component);
     }
 
+    /**
+     * Returns {@code true} if the CommandSender is allowed to execute the command, {@code false} if not
+     */
     public boolean canUseCommand(int permLevel, String commandName)
     {
         return permLevel <= this.getPermissionLevel();
@@ -698,10 +725,10 @@ public class EntityPlayerSP extends AbstractClientPlayer
     {
         super.notifyDataManagerChange(key);
 
-        if (LIVING_FLAGS.equals(key))
+        if (HAND_STATES.equals(key))
         {
-            boolean flag = (((Byte)this.dataManager.get(LIVING_FLAGS)).byteValue() & 1) > 0;
-            EnumHand enumhand = (((Byte)this.dataManager.get(LIVING_FLAGS)).byteValue() & 2) > 0 ? EnumHand.OFF_HAND : EnumHand.MAIN_HAND;
+            boolean flag = (((Byte)this.dataManager.get(HAND_STATES)).byteValue() & 1) > 0;
+            EnumHand enumhand = (((Byte)this.dataManager.get(HAND_STATES)).byteValue() & 2) > 0 ? EnumHand.OFF_HAND : EnumHand.MAIN_HAND;
 
             if (flag && !this.handActive)
             {
@@ -715,14 +742,14 @@ public class EntityPlayerSP extends AbstractClientPlayer
 
         if (FLAGS.equals(key) && this.isElytraFlying() && !this.wasFallFlying)
         {
-            this.mc.getSoundHandler().play(new ElytraSound(this));
+            this.mc.getSoundHandler().playSound(new ElytraSound(this));
         }
     }
 
     public boolean isRidingHorse()
     {
         Entity entity = this.getRidingEntity();
-        return this.isPassenger() && entity instanceof IJumpingMount && ((IJumpingMount)entity).canJump();
+        return this.isRiding() && entity instanceof IJumpingMount && ((IJumpingMount)entity).canJump();
     }
 
     public float getHorseJumpPower()
@@ -730,22 +757,22 @@ public class EntityPlayerSP extends AbstractClientPlayer
         return this.horseJumpPower;
     }
 
-    public void openSignEditor(TileEntitySign signTile)
+    public void openEditSign(TileEntitySign signTile)
     {
         this.mc.displayGuiScreen(new GuiEditSign(signTile));
     }
 
-    public void openMinecartCommandBlock(CommandBlockBaseLogic commandBlock)
+    public void displayGuiEditCommandCart(CommandBlockBaseLogic commandBlock)
     {
         this.mc.displayGuiScreen(new GuiEditCommandBlockMinecart(commandBlock));
     }
 
-    public void openCommandBlock(TileEntityCommandBlock commandBlock)
+    public void displayGuiCommandBlock(TileEntityCommandBlock commandBlock)
     {
         this.mc.displayGuiScreen(new GuiCommandBlock(commandBlock));
     }
 
-    public void openStructureBlock(TileEntityStructure structure)
+    public void openEditStructure(TileEntityStructure structure)
     {
         this.mc.displayGuiScreen(new GuiEditStructure(structure));
     }
@@ -760,6 +787,9 @@ public class EntityPlayerSP extends AbstractClientPlayer
         }
     }
 
+    /**
+     * Displays the GUI for interacting with a chest inventory.
+     */
     public void displayGUIChest(IInventory chestInventory)
     {
         String s = chestInventory instanceof IInteractionObject ? ((IInteractionObject)chestInventory).getGuiID() : "minecraft:container";
@@ -801,7 +831,7 @@ public class EntityPlayerSP extends AbstractClientPlayer
         }
     }
 
-    public void openHorseInventory(AbstractHorse horse, IInventory inventoryIn)
+    public void openGuiHorseInventory(AbstractHorse horse, IInventory inventoryIn)
     {
         this.mc.displayGuiScreen(new GuiScreenHorseInventory(this.inventory, inventoryIn, horse));
     }
@@ -834,14 +864,17 @@ public class EntityPlayerSP extends AbstractClientPlayer
      */
     public void onCriticalHit(Entity entityHit)
     {
-        this.mc.particles.emitParticleAtEntity(entityHit, EnumParticleTypes.CRIT);
+        this.mc.effectRenderer.emitParticleAtEntity(entityHit, EnumParticleTypes.CRIT);
     }
 
     public void onEnchantmentCritical(Entity entityHit)
     {
-        this.mc.particles.emitParticleAtEntity(entityHit, EnumParticleTypes.CRIT_MAGIC);
+        this.mc.effectRenderer.emitParticleAtEntity(entityHit, EnumParticleTypes.CRIT_MAGIC);
     }
 
+    /**
+     * Returns if this entity is sneaking.
+     */
     public boolean isSneaking()
     {
         boolean flag = this.movementInput != null && this.movementInput.sneak;
@@ -873,7 +906,7 @@ public class EntityPlayerSP extends AbstractClientPlayer
      * Called frequently so the entity can update its state every tick as required. For example, zombies and skeletons
      * use this to react to sunlight and start to burn.
      */
-    public void livingTick()
+    public void onLivingUpdate()
     {
         ++this.sprintingTicksLeft;
 
@@ -898,7 +931,7 @@ public class EntityPlayerSP extends AbstractClientPlayer
 
             if (this.timeInPortal == 0.0F)
             {
-                this.mc.getSoundHandler().play(PositionedSoundRecord.master(SoundEvents.BLOCK_PORTAL_TRIGGER, this.rand.nextFloat() * 0.4F + 0.8F));
+                this.mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.BLOCK_PORTAL_TRIGGER, this.rand.nextFloat() * 0.4F + 0.8F));
             }
 
             this.timeInPortal += 0.0125F;
@@ -944,25 +977,28 @@ public class EntityPlayerSP extends AbstractClientPlayer
         this.movementInput.updatePlayerMoveState();
         this.mc.getTutorial().handleMovement(this.movementInput);
 
-        if (this.isHandActive() && !this.isPassenger())
+        if (this.isHandActive() && !this.isRiding())
         {
-//            this.movementInput.moveStrafe *= 0.2F;
-            this.movementInput.moveStrafe *= 1F;
-            this.movementInput.moveForward *= 1F;
-//            this.movementInput.moveForward *= 0.2F;
-//            this.sprintToggleTimer = 0;
+            this.movementInput.moveStrafe *= 0.2F;
+            this.movementInput.moveForward *= 0.2F;
+            this.sprintToggleTimer = 0;
         }
 
         boolean flag3 = false;
 
-        
+        if (this.autoJumpTime > 0)
+        {
+            --this.autoJumpTime;
+            flag3 = true;
+            this.movementInput.jump = true;
+        }
 
-        AxisAlignedBB axisalignedbb = this.getBoundingBox();
+        AxisAlignedBB axisalignedbb = this.getEntityBoundingBox();
         this.pushOutOfBlocks(this.posX - (double)this.width * 0.35D, axisalignedbb.minY + 0.5D, this.posZ + (double)this.width * 0.35D);
         this.pushOutOfBlocks(this.posX - (double)this.width * 0.35D, axisalignedbb.minY + 0.5D, this.posZ - (double)this.width * 0.35D);
         this.pushOutOfBlocks(this.posX + (double)this.width * 0.35D, axisalignedbb.minY + 0.5D, this.posZ - (double)this.width * 0.35D);
         this.pushOutOfBlocks(this.posX + (double)this.width * 0.35D, axisalignedbb.minY + 0.5D, this.posZ + (double)this.width * 0.35D);
-        boolean flag4 = (float)this.getFoodStats().getFoodLevel() > 6.0F || this.abilities.allowFlying;
+        boolean flag4 = (float)this.getFoodStats().getFoodLevel() > 6.0F || this.capabilities.allowFlying;
 
         if (this.onGround && !flag1 && !flag2 && this.movementInput.moveForward >= 0.8F && !this.isSprinting() && flag4 && !this.isHandActive() && !this.isPotionActive(MobEffects.BLINDNESS))
         {
@@ -986,13 +1022,13 @@ public class EntityPlayerSP extends AbstractClientPlayer
             this.setSprinting(false);
         }
 
-        if (this.abilities.allowFlying)
+        if (this.capabilities.allowFlying)
         {
             if (this.mc.playerController.isSpectatorMode())
             {
-                if (!this.abilities.isFlying)
+                if (!this.capabilities.isFlying)
                 {
-                    this.abilities.isFlying = true;
+                    this.capabilities.isFlying = true;
                     this.sendPlayerAbilities();
                 }
             }
@@ -1004,14 +1040,14 @@ public class EntityPlayerSP extends AbstractClientPlayer
                 }
                 else
                 {
-                    this.abilities.isFlying = !this.abilities.isFlying;
+                    this.capabilities.isFlying = !this.capabilities.isFlying;
                     this.sendPlayerAbilities();
                     this.flyToggleTimer = 0;
                 }
             }
         }
 
-        if (this.movementInput.jump && !flag && !this.onGround && this.motionY < 0.0D && !this.isElytraFlying() && !this.abilities.isFlying)
+        if (this.movementInput.jump && !flag && !this.onGround && this.motionY < 0.0D && !this.isElytraFlying() && !this.capabilities.isFlying)
         {
             ItemStack itemstack = this.getItemStackFromSlot(EntityEquipmentSlot.CHEST);
 
@@ -1023,18 +1059,18 @@ public class EntityPlayerSP extends AbstractClientPlayer
 
         this.wasFallFlying = this.isElytraFlying();
 
-        if (this.abilities.isFlying && this.isCurrentViewEntity())
+        if (this.capabilities.isFlying && this.isCurrentViewEntity())
         {
             if (this.movementInput.sneak)
             {
                 this.movementInput.moveStrafe = (float)((double)this.movementInput.moveStrafe / 0.3D);
                 this.movementInput.moveForward = (float)((double)this.movementInput.moveForward / 0.3D);
-                this.motionY -= (double)(this.abilities.getFlySpeed() * 3.0F);
+                this.motionY -= (double)(this.capabilities.getFlySpeed() * 3.0F);
             }
 
             if (this.movementInput.jump)
             {
-                this.motionY += (double)(this.abilities.getFlySpeed() * 3.0F);
+                this.motionY += (double)(this.capabilities.getFlySpeed() * 3.0F);
             }
         }
 
@@ -1082,11 +1118,11 @@ public class EntityPlayerSP extends AbstractClientPlayer
             this.horseJumpPower = 0.0F;
         }
 
-        super.livingTick();
+        super.onLivingUpdate();
 
-        if (this.onGround && this.abilities.isFlying && !this.mc.playerController.isSpectatorMode())
+        if (this.onGround && this.capabilities.isFlying && !this.mc.playerController.isSpectatorMode())
         {
-            this.abilities.isFlying = false;
+            this.capabilities.isFlying = false;
             this.sendPlayerAbilities();
         }
     }
@@ -1129,11 +1165,163 @@ public class EntityPlayerSP extends AbstractClientPlayer
         return super.removeActivePotionEffect(potioneffectin);
     }
 
+    /**
+     * Tries to move the entity towards the specified location.
+     */
     public void move(MoverType type, double x, double y, double z)
     {
         double d0 = this.posX;
         double d1 = this.posZ;
         super.move(type, x, y, z);
+        this.updateAutoJump((float)(this.posX - d0), (float)(this.posZ - d1));
     }
 
+    public boolean isAutoJumpEnabled()
+    {
+        return this.autoJumpEnabled;
+    }
+
+    protected void updateAutoJump(float p_189810_1_, float p_189810_2_)
+    {
+        if (this.isAutoJumpEnabled())
+        {
+            if (this.autoJumpTime <= 0 && this.onGround && !this.isSneaking() && !this.isRiding())
+            {
+                Vec2f vec2f = this.movementInput.getMoveVector();
+
+                if (vec2f.x != 0.0F || vec2f.y != 0.0F)
+                {
+                    Vec3d vec3d = new Vec3d(this.posX, this.getEntityBoundingBox().minY, this.posZ);
+                    double d0 = this.posX + (double)p_189810_1_;
+                    double d1 = this.posZ + (double)p_189810_2_;
+                    Vec3d vec3d1 = new Vec3d(d0, this.getEntityBoundingBox().minY, d1);
+                    Vec3d vec3d2 = new Vec3d((double)p_189810_1_, 0.0D, (double)p_189810_2_);
+                    float f = this.getAIMoveSpeed();
+                    float f1 = (float)vec3d2.lengthSquared();
+
+                    if (f1 <= 0.001F)
+                    {
+                        float f2 = f * vec2f.x;
+                        float f3 = f * vec2f.y;
+                        float f4 = MathHelper.sin(this.rotationYaw * 0.017453292F);
+                        float f5 = MathHelper.cos(this.rotationYaw * 0.017453292F);
+                        vec3d2 = new Vec3d((double)(f2 * f5 - f3 * f4), vec3d2.y, (double)(f3 * f5 + f2 * f4));
+                        f1 = (float)vec3d2.lengthSquared();
+
+                        if (f1 <= 0.001F)
+                        {
+                            return;
+                        }
+                    }
+
+                    float f12 = (float)MathHelper.fastInvSqrt((double)f1);
+                    Vec3d vec3d12 = vec3d2.scale((double)f12);
+                    Vec3d vec3d13 = this.getForward();
+                    float f13 = (float)(vec3d13.x * vec3d12.x + vec3d13.z * vec3d12.z);
+
+                    if (f13 >= -0.15F)
+                    {
+                        BlockPos blockpos = new BlockPos(this.posX, this.getEntityBoundingBox().maxY, this.posZ);
+                        IBlockState iblockstate = this.world.getBlockState(blockpos);
+
+                        if (iblockstate.getCollisionBoundingBox(this.world, blockpos) == null)
+                        {
+                            blockpos = blockpos.up();
+                            IBlockState iblockstate1 = this.world.getBlockState(blockpos);
+
+                            if (iblockstate1.getCollisionBoundingBox(this.world, blockpos) == null)
+                            {
+                                float f6 = 7.0F;
+                                float f7 = 1.2F;
+
+                                if (this.isPotionActive(MobEffects.JUMP_BOOST))
+                                {
+                                    f7 += (float)(this.getActivePotionEffect(MobEffects.JUMP_BOOST).getAmplifier() + 1) * 0.75F;
+                                }
+
+                                float f8 = Math.max(f * 7.0F, 1.0F / f12);
+                                Vec3d vec3d4 = vec3d1.add(vec3d12.scale((double)f8));
+                                float f9 = this.width;
+                                float f10 = this.height;
+                                AxisAlignedBB axisalignedbb = (new AxisAlignedBB(vec3d, vec3d4.add(0.0D, (double)f10, 0.0D))).grow((double)f9, 0.0D, (double)f9);
+                                Vec3d lvt_19_1_ = vec3d.add(0.0D, 0.5099999904632568D, 0.0D);
+                                vec3d4 = vec3d4.add(0.0D, 0.5099999904632568D, 0.0D);
+                                Vec3d vec3d5 = vec3d12.crossProduct(new Vec3d(0.0D, 1.0D, 0.0D));
+                                Vec3d vec3d6 = vec3d5.scale((double)(f9 * 0.5F));
+                                Vec3d vec3d7 = lvt_19_1_.subtract(vec3d6);
+                                Vec3d vec3d8 = vec3d4.subtract(vec3d6);
+                                Vec3d vec3d9 = lvt_19_1_.add(vec3d6);
+                                Vec3d vec3d10 = vec3d4.add(vec3d6);
+                                List<AxisAlignedBB> list = this.world.getCollisionBoxes(this, axisalignedbb);
+
+                                if (!list.isEmpty())
+                                {
+                                    ;
+                                }
+
+                                float f11 = Float.MIN_VALUE;
+                                label86:
+
+                                for (AxisAlignedBB axisalignedbb2 : list)
+                                {
+                                    if (axisalignedbb2.intersects(vec3d7, vec3d8) || axisalignedbb2.intersects(vec3d9, vec3d10))
+                                    {
+                                        f11 = (float)axisalignedbb2.maxY;
+                                        Vec3d vec3d11 = axisalignedbb2.getCenter();
+                                        BlockPos blockpos1 = new BlockPos(vec3d11);
+                                        int i = 1;
+
+                                        while (true)
+                                        {
+                                            if ((float)i >= f7)
+                                            {
+                                                break label86;
+                                            }
+
+                                            BlockPos blockpos2 = blockpos1.up(i);
+                                            IBlockState iblockstate2 = this.world.getBlockState(blockpos2);
+                                            AxisAlignedBB axisalignedbb1;
+
+                                            if ((axisalignedbb1 = iblockstate2.getCollisionBoundingBox(this.world, blockpos2)) != null)
+                                            {
+                                                f11 = (float)axisalignedbb1.maxY + (float)blockpos2.getY();
+
+                                                if ((double)f11 - this.getEntityBoundingBox().minY > (double)f7)
+                                                {
+                                                    return;
+                                                }
+                                            }
+
+                                            if (i > 1)
+                                            {
+                                                blockpos = blockpos.up();
+                                                IBlockState iblockstate3 = this.world.getBlockState(blockpos);
+
+                                                if (iblockstate3.getCollisionBoundingBox(this.world, blockpos) != null)
+                                                {
+                                                    return;
+                                                }
+                                            }
+
+                                            ++i;
+                                        }
+                                    }
+                                }
+
+                                if (f11 != Float.MIN_VALUE)
+                                {
+                                    float f14 = (float)((double)f11 - this.getEntityBoundingBox().minY);
+
+                                    if (f14 > 0.5F && f14 <= f7)
+                                    {
+                                        this.autoJumpTime = 1;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

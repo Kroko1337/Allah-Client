@@ -26,6 +26,7 @@ import net.minecraft.world.World;
 
 public class ItemBucket extends Item
 {
+    /** field for checking if the bucket has been filled. */
     private final Block containedBlock;
 
     public ItemBucket(Block containedBlockIn)
@@ -68,14 +69,14 @@ public class ItemBucket extends Item
                     IBlockState iblockstate = worldIn.getBlockState(blockpos);
                     Material material = iblockstate.getMaterial();
 
-                    if (material == Material.WATER && ((Integer)iblockstate.get(BlockLiquid.LEVEL)).intValue() == 0)
+                    if (material == Material.WATER && ((Integer)iblockstate.getValue(BlockLiquid.LEVEL)).intValue() == 0)
                     {
                         worldIn.setBlockState(blockpos, Blocks.AIR.getDefaultState(), 11);
                         playerIn.addStat(StatList.getObjectUseStats(this));
                         playerIn.playSound(SoundEvents.ITEM_BUCKET_FILL, 1.0F, 1.0F);
                         return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, this.fillBucket(itemstack, playerIn, Items.WATER_BUCKET));
                     }
-                    else if (material == Material.LAVA && ((Integer)iblockstate.get(BlockLiquid.LEVEL)).intValue() == 0)
+                    else if (material == Material.LAVA && ((Integer)iblockstate.getValue(BlockLiquid.LEVEL)).intValue() == 0)
                     {
                         playerIn.playSound(SoundEvents.ITEM_BUCKET_FILL_LAVA, 1.0F, 1.0F);
                         worldIn.setBlockState(blockpos, Blocks.AIR.getDefaultState(), 11);
@@ -105,7 +106,7 @@ public class ItemBucket extends Item
                     }
 
                     playerIn.addStat(StatList.getObjectUseStats(this));
-                    return !playerIn.abilities.isCreativeMode ? new ActionResult(EnumActionResult.SUCCESS, new ItemStack(Items.BUCKET)) : new ActionResult(EnumActionResult.SUCCESS, itemstack);
+                    return !playerIn.capabilities.isCreativeMode ? new ActionResult(EnumActionResult.SUCCESS, new ItemStack(Items.BUCKET)) : new ActionResult(EnumActionResult.SUCCESS, itemstack);
                 }
                 else
                 {
@@ -117,7 +118,7 @@ public class ItemBucket extends Item
 
     private ItemStack fillBucket(ItemStack emptyBuckets, EntityPlayer player, Item fullBucket)
     {
-        if (player.abilities.isCreativeMode)
+        if (player.capabilities.isCreativeMode)
         {
             return emptyBuckets;
         }
@@ -160,7 +161,7 @@ public class ItemBucket extends Item
             }
             else
             {
-                if (worldIn.dimension.doesWaterVaporize() && this.containedBlock == Blocks.FLOWING_WATER)
+                if (worldIn.provider.doesWaterVaporize() && this.containedBlock == Blocks.FLOWING_WATER)
                 {
                     int l = posIn.getX();
                     int i = posIn.getY();

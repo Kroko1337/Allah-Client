@@ -8,6 +8,9 @@ import net.minecraft.server.management.PlayerList;
 
 public class IntegratedPlayerList extends PlayerList
 {
+    /**
+     * Holds the NBT data for the host player's save file, so this can be written to level.dat.
+     */
     private NBTTagCompound hostPlayerData;
 
     public IntegratedPlayerList(IntegratedServer server)
@@ -21,22 +24,25 @@ public class IntegratedPlayerList extends PlayerList
      */
     protected void writePlayerData(EntityPlayerMP playerIn)
     {
-        if (playerIn.getName().equals(this.getServer().getServerOwner()))
+        if (playerIn.getName().equals(this.getServerInstance().getServerOwner()))
         {
-            this.hostPlayerData = playerIn.writeWithoutTypeId(new NBTTagCompound());
+            this.hostPlayerData = playerIn.writeToNBT(new NBTTagCompound());
         }
 
         super.writePlayerData(playerIn);
     }
 
+    /**
+     * checks ban-lists, then white-lists, then space for the server. Returns null on success, or an error message
+     */
     public String allowUserToConnect(SocketAddress address, GameProfile profile)
     {
-        return profile.getName().equalsIgnoreCase(this.getServer().getServerOwner()) && this.getPlayerByUsername(profile.getName()) != null ? "That name is already taken." : super.allowUserToConnect(address, profile);
+        return profile.getName().equalsIgnoreCase(this.getServerInstance().getServerOwner()) && this.getPlayerByUsername(profile.getName()) != null ? "That name is already taken." : super.allowUserToConnect(address, profile);
     }
 
-    public IntegratedServer getServer()
+    public IntegratedServer getServerInstance()
     {
-        return (IntegratedServer)super.getServer();
+        return (IntegratedServer)super.getServerInstance();
     }
 
     /**

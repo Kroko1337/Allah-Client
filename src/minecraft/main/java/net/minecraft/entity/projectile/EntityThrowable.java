@@ -29,7 +29,9 @@ public abstract class EntityThrowable extends Entity implements IProjectile
     private Block inTile;
     protected boolean inGround;
     public int throwableShake;
-    protected EntityLivingBase owner;
+
+    /** The entity that threw this throwable item. */
+    protected EntityLivingBase thrower;
     private String throwerName;
     private int ticksInGround;
     private int ticksInAir;
@@ -54,10 +56,10 @@ public abstract class EntityThrowable extends Entity implements IProjectile
     public EntityThrowable(World worldIn, EntityLivingBase throwerIn)
     {
         this(worldIn, throwerIn.posX, throwerIn.posY + (double)throwerIn.getEyeHeight() - 0.10000000149011612D, throwerIn.posZ);
-        this.owner = throwerIn;
+        this.thrower = throwerIn;
     }
 
-    protected void registerData()
+    protected void entityInit()
     {
     }
 
@@ -66,7 +68,7 @@ public abstract class EntityThrowable extends Entity implements IProjectile
      */
     public boolean isInRangeToRenderDist(double distance)
     {
-        double d0 = this.getBoundingBox().getAverageEdgeLength() * 4.0D;
+        double d0 = this.getEntityBoundingBox().getAverageEdgeLength() * 4.0D;
 
         if (Double.isNaN(d0))
         {
@@ -143,12 +145,12 @@ public abstract class EntityThrowable extends Entity implements IProjectile
     /**
      * Called to update the entity's position/logic.
      */
-    public void tick()
+    public void onUpdate()
     {
         this.lastTickPosX = this.posX;
         this.lastTickPosY = this.posY;
         this.lastTickPosZ = this.posZ;
-        super.tick();
+        super.onUpdate();
 
         if (this.throwableShake > 0)
         {
@@ -163,7 +165,7 @@ public abstract class EntityThrowable extends Entity implements IProjectile
 
                 if (this.ticksInGround == 1200)
                 {
-                    this.remove();
+                    this.setDead();
                 }
 
                 return;
@@ -189,11 +191,11 @@ public abstract class EntityThrowable extends Entity implements IProjectile
 
         if (raytraceresult != null)
         {
-            vec3d1 = new Vec3d(raytraceresult.hitResult.x, raytraceresult.hitResult.y, raytraceresult.hitResult.z);
+            vec3d1 = new Vec3d(raytraceresult.hitVec.x, raytraceresult.hitVec.y, raytraceresult.hitVec.z);
         }
 
         Entity entity = null;
-        List<Entity> list = this.world.getEntitiesWithinAABBExcludingEntity(this, this.getBoundingBox().expand(this.motionX, this.motionY, this.motionZ).grow(1.0D));
+        List<Entity> list = this.world.getEntitiesWithinAABBExcludingEntity(this, this.getEntityBoundingBox().expand(this.motionX, this.motionY, this.motionZ).grow(1.0D));
         double d0 = 0.0D;
         boolean flag = false;
 
@@ -207,7 +209,7 @@ public abstract class EntityThrowable extends Entity implements IProjectile
                 {
                     flag = true;
                 }
-                else if (this.owner != null && this.ticksExisted < 2 && this.ignoreEntity == null)
+                else if (this.thrower != null && this.ticksExisted < 2 && this.ignoreEntity == null)
                 {
                     this.ignoreEntity = entity1;
                     flag = true;
@@ -215,12 +217,12 @@ public abstract class EntityThrowable extends Entity implements IProjectile
                 else
                 {
                     flag = false;
-                    AxisAlignedBB axisalignedbb = entity1.getBoundingBox().grow(0.30000001192092896D);
+                    AxisAlignedBB axisalignedbb = entity1.getEntityBoundingBox().grow(0.30000001192092896D);
                     RayTraceResult raytraceresult1 = axisalignedbb.calculateIntercept(vec3d, vec3d1);
 
                     if (raytraceresult1 != null)
                     {
-                        double d1 = vec3d.squareDistanceTo(raytraceresult1.hitResult);
+                        double d1 = vec3d.squareDistanceTo(raytraceresult1.hitVec);
 
                         if (d1 < d0 || d0 == 0.0D)
                         {
@@ -251,7 +253,7 @@ public abstract class EntityThrowable extends Entity implements IProjectile
 
         if (raytraceresult != null)
         {
-            if (raytraceresult.typeOfHit == RayTraceResult.Type.BLOCK && this.world.getBlockState(raytraceresult.getBlockPos()).getBlock() == Blocks.NETHER_PORTAL)
+            if (raytraceresult.typeOfHit == RayTraceResult.Type.BLOCK && this.world.getBlockState(raytraceresult.getBlockPos()).getBlock() == Blocks.PORTAL)
             {
                 this.setPortal(raytraceresult.getBlockPos());
             }
@@ -332,34 +334,37 @@ public abstract class EntityThrowable extends Entity implements IProjectile
     {
     }
 
+    /**
+     * (abstract) Protected helper method to write subclass entity data to NBT.
+     */
     public void writeEntityToNBT(NBTTagCompound compound)
     {
-        compound.putInt("xTile", this.xTile);
-        compound.putInt("yTile", this.yTile);
-        compound.putInt("zTile", this.zTile);
-        ResourceLocation resourcelocation = Block.REGISTRY.getKey(this.inTile);
-        compound.putString("inTile", resourcelocation == null ? "" : resourcelocation.toString());
-        compound.putByte("shake", (byte)this.throwableShake);
-        compound.putByte("inGround", (byte)(this.inGround ? 1 : 0));
+        compound.setInteger("xTile", this.xTile);
+        compound.setInteger("yTile", this.yTile);
+        compound.setInteger("zTile", this.zTile);
+        ResourceLocation resourcelocation = Block.REGISTRY.getNameForObject(this.inTile);
+        compound.setString("inTile", resourcelocation == null ? "" : resourcelocation.toString());
+        compound.setByte("shake", (byte)this.throwableShake);
+        compound.setByte("inGround", (byte)(this.inGround ? 1 : 0));
 
-        if ((this.throwerName == null || this.throwerName.isEmpty()) && this.owner instanceof EntityPlayer)
+        if ((this.throwerName == null || this.throwerName.isEmpty()) && this.thrower instanceof EntityPlayer)
         {
-            this.throwerName = this.owner.getName();
+            this.throwerName = this.thrower.getName();
         }
 
-        compound.putString("ownerName", this.throwerName == null ? "" : this.throwerName);
+        compound.setString("ownerName", this.throwerName == null ? "" : this.throwerName);
     }
 
     /**
      * (abstract) Protected helper method to read subclass entity data from NBT.
      */
-    public void readAdditional(NBTTagCompound compound)
+    public void readEntityFromNBT(NBTTagCompound compound)
     {
-        this.xTile = compound.getInt("xTile");
-        this.yTile = compound.getInt("yTile");
-        this.zTile = compound.getInt("zTile");
+        this.xTile = compound.getInteger("xTile");
+        this.yTile = compound.getInteger("yTile");
+        this.zTile = compound.getInteger("zTile");
 
-        if (compound.contains("inTile", 8))
+        if (compound.hasKey("inTile", 8))
         {
             this.inTile = Block.getBlockFromName(compound.getString("inTile"));
         }
@@ -370,7 +375,7 @@ public abstract class EntityThrowable extends Entity implements IProjectile
 
         this.throwableShake = compound.getByte("shake") & 255;
         this.inGround = compound.getByte("inGround") == 1;
-        this.owner = null;
+        this.thrower = null;
         this.throwerName = compound.getString("ownerName");
 
         if (this.throwerName != null && this.throwerName.isEmpty())
@@ -378,17 +383,17 @@ public abstract class EntityThrowable extends Entity implements IProjectile
             this.throwerName = null;
         }
 
-        this.owner = this.getThrower();
+        this.thrower = this.getThrower();
     }
 
     @Nullable
     public EntityLivingBase getThrower()
     {
-        if (this.owner == null && this.throwerName != null && !this.throwerName.isEmpty())
+        if (this.thrower == null && this.throwerName != null && !this.throwerName.isEmpty())
         {
-            this.owner = this.world.getPlayerEntityByName(this.throwerName);
+            this.thrower = this.world.getPlayerEntityByName(this.throwerName);
 
-            if (this.owner == null && this.world instanceof WorldServer)
+            if (this.thrower == null && this.world instanceof WorldServer)
             {
                 try
                 {
@@ -396,16 +401,16 @@ public abstract class EntityThrowable extends Entity implements IProjectile
 
                     if (entity instanceof EntityLivingBase)
                     {
-                        this.owner = (EntityLivingBase)entity;
+                        this.thrower = (EntityLivingBase)entity;
                     }
                 }
                 catch (Throwable var2)
                 {
-                    this.owner = null;
+                    this.thrower = null;
                 }
             }
         }
 
-        return this.owner;
+        return this.thrower;
     }
 }

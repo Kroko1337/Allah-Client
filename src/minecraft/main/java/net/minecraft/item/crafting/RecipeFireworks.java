@@ -99,19 +99,19 @@ public class RecipeFireworks implements IRecipe
                     {
                         ItemStack itemstack3 = inv.getStackInSlot(k2);
 
-                        if (itemstack3.getItem() == Items.FIREWORK_CHARGE && itemstack3.hasTag() && itemstack3.getTag().contains("Explosion", 10))
+                        if (itemstack3.getItem() == Items.FIREWORK_CHARGE && itemstack3.hasTagCompound() && itemstack3.getTagCompound().hasKey("Explosion", 10))
                         {
-                            nbttaglist.appendTag(itemstack3.getTag().getCompound("Explosion"));
+                            nbttaglist.appendTag(itemstack3.getTagCompound().getCompoundTag("Explosion"));
                         }
                     }
 
                     nbttagcompound1.setTag("Explosions", nbttaglist);
                 }
 
-                nbttagcompound1.putByte("Flight", (byte)j);
+                nbttagcompound1.setByte("Flight", (byte)j);
                 NBTTagCompound nbttagcompound3 = new NBTTagCompound();
                 nbttagcompound3.setTag("Fireworks", nbttagcompound1);
-                this.resultItem.setTag(nbttagcompound3);
+                this.resultItem.setTagCompound(nbttagcompound3);
                 return true;
             }
             else if (j == 1 && i == 0 && l == 0 && k > 0 && j1 <= 1)
@@ -134,11 +134,11 @@ public class RecipeFireworks implements IRecipe
                         }
                         else if (itemstack2.getItem() == Items.GLOWSTONE_DUST)
                         {
-                            nbttagcompound2.putBoolean("Flicker", true);
+                            nbttagcompound2.setBoolean("Flicker", true);
                         }
                         else if (itemstack2.getItem() == Items.DIAMOND)
                         {
-                            nbttagcompound2.putBoolean("Trail", true);
+                            nbttagcompound2.setBoolean("Trail", true);
                         }
                         else if (itemstack2.getItem() == Items.FIRE_CHARGE)
                         {
@@ -166,10 +166,10 @@ public class RecipeFireworks implements IRecipe
                     aint1[l2] = ((Integer)list.get(l2)).intValue();
                 }
 
-                nbttagcompound2.putIntArray("Colors", aint1);
-                nbttagcompound2.putByte("Type", b0);
+                nbttagcompound2.setIntArray("Colors", aint1);
+                nbttagcompound2.setByte("Type", b0);
                 nbttagcompound.setTag("Explosion", nbttagcompound2);
-                this.resultItem.setTag(nbttagcompound);
+                this.resultItem.setTagCompound(nbttagcompound);
                 return true;
             }
             else if (j == 0 && i == 0 && l == 1 && k > 0 && k == i1)
@@ -201,9 +201,9 @@ public class RecipeFireworks implements IRecipe
                     aint[j2] = ((Integer)list1.get(j2)).intValue();
                 }
 
-                if (!this.resultItem.isEmpty() && this.resultItem.hasTag())
+                if (!this.resultItem.isEmpty() && this.resultItem.hasTagCompound())
                 {
-                    NBTTagCompound nbttagcompound4 = this.resultItem.getTag().getCompound("Explosion");
+                    NBTTagCompound nbttagcompound4 = this.resultItem.getTagCompound().getCompoundTag("Explosion");
 
                     if (nbttagcompound4 == null)
                     {
@@ -211,7 +211,7 @@ public class RecipeFireworks implements IRecipe
                     }
                     else
                     {
-                        nbttagcompound4.putIntArray("FadeColors", aint);
+                        nbttagcompound4.setIntArray("FadeColors", aint);
                         return true;
                     }
                 }

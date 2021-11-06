@@ -15,6 +15,8 @@ public class EntityAIMoveThroughVillage extends EntityAIBase
 {
     private final EntityCreature entity;
     private final double movementSpeed;
+
+    /** The PathNavigate of our entity. */
     private Path path;
     private VillageDoorInfo doorInfo;
     private final boolean isNocturnal;
@@ -34,8 +36,7 @@ public class EntityAIMoveThroughVillage extends EntityAIBase
     }
 
     /**
-     * Returns whether execution should begin. You can also read and cache any state necessary for execution in this
-     * method as well.
+     * Returns whether the EntityAIBase should begin execution.
      */
     public boolean shouldExecute()
     {

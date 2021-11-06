@@ -23,6 +23,9 @@ public class RenderFish extends Render<EntityFishHook>
         super(renderManagerIn);
     }
 
+    /**
+     * Renders the desired {@code T} type Entity.
+     */
     public void doRender(EntityFishHook entity, double x, double y, double z, float entityYaw, float partialTicks)
     {
         EntityPlayer entityplayer = entity.getAngler();
@@ -89,9 +92,9 @@ public class RenderFish extends Render<EntityFishHook>
             double d6;
             double d7;
 
-            if ((this.renderManager.options == null || this.renderManager.options.thirdPersonView <= 0) && entityplayer == Minecraft.getInstance().player)
+            if ((this.renderManager.options == null || this.renderManager.options.thirdPersonView <= 0) && entityplayer == Minecraft.getMinecraft().player)
             {
-                float f10 = this.renderManager.options.fov;
+                float f10 = this.renderManager.options.fovSetting;
                 f10 = f10 / 100.0F;
                 Vec3d vec3d = new Vec3d((double)k * -0.36D * (double)f10, -0.045D * (double)f10, 0.4D);
                 vec3d = vec3d.rotatePitch(-(entityplayer.prevRotationPitch + (entityplayer.rotationPitch - entityplayer.prevRotationPitch) * partialTicks) * 0.017453292F);
@@ -136,7 +139,7 @@ public class RenderFish extends Render<EntityFishHook>
     }
 
     /**
-     * Returns the location of an entity's texture.
+     * Returns the location of an entity's texture. Doesn't seem to be called unless you call Render.bindEntityTexture.
      */
     protected ResourceLocation getEntityTexture(EntityFishHook entity)
     {

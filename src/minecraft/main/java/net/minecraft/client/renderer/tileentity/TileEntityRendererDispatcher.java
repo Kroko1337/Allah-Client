@@ -3,15 +3,20 @@ package net.minecraft.client.renderer.tileentity;
 import com.google.common.collect.Maps;
 import java.util.Map;
 import javax.annotation.Nullable;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.model.ModelShulker;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.texture.TextureManager;
+import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.crash.CrashReport;
 import net.minecraft.crash.CrashReportCategory;
 import net.minecraft.entity.Entity;
+import net.minecraft.src.Reflector;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityBanner;
 import net.minecraft.tileentity.TileEntityBeacon;
@@ -34,13 +39,19 @@ import net.minecraft.world.World;
 
 public class TileEntityRendererDispatcher
 {
-    private final Map < Class <? extends TileEntity > , TileEntitySpecialRenderer <? extends TileEntity >> renderers = Maps. < Class <? extends TileEntity > , TileEntitySpecialRenderer <? extends TileEntity >> newHashMap();
+	public final Map<Class, TileEntitySpecialRenderer> renderers = Maps.<Class, TileEntitySpecialRenderer>newHashMap();
     public static TileEntityRendererDispatcher instance = new TileEntityRendererDispatcher();
-    private FontRenderer fontRenderer;
+    public FontRenderer fontRenderer;
+
+    /** The player's current X position (same as playerX) */
     public static double staticPlayerX;
+
+    /** The player's current Y position (same as playerY) */
     public static double staticPlayerY;
+
+    /** The player's current Z position (same as playerZ) */
     public static double staticPlayerZ;
-    public TextureManager textureManager;
+    public TextureManager renderEngine;
     public World world;
     public Entity entity;
     public float entityYaw;
@@ -49,6 +60,9 @@ public class TileEntityRendererDispatcher
     public double entityX;
     public double entityY;
     public double entityZ;
+    public TileEntity tileEntityRendered;
+    private Tessellator batchBuffer = new Tessellator(2097152);
+    private boolean drawingBatch = false;
 
     private TileEntityRendererDispatcher()
     {
@@ -79,7 +93,7 @@ public class TileEntityRendererDispatcher
 
         if (tileentityspecialrenderer == null && teClass != TileEntity.class)
         {
-            tileentityspecialrenderer = this.getRenderer((Class <? extends TileEntity >)teClass.getSuperclass());
+            tileentityspecialrenderer = this.getRenderer((Class<? extends TileEntity>) teClass.getSuperclass());
             this.renderers.put(teClass, tileentityspecialrenderer);
         }
 
@@ -99,7 +113,7 @@ public class TileEntityRendererDispatcher
             this.setWorld(worldIn);
         }
 
-        this.textureManager = renderEngineIn;
+        this.renderEngine = renderEngineIn;
         this.entity = entityIn;
         this.fontRenderer = fontRendererIn;
         this.cameraHitResult = cameraHitResultIn;
@@ -115,16 +129,30 @@ public class TileEntityRendererDispatcher
         if (tileentityIn.getDistanceSq(this.entityX, this.entityY, this.entityZ) < tileentityIn.getMaxRenderDistanceSquared())
         {
             RenderHelper.enableStandardItemLighting();
-            int i = this.world.getCombinedLight(tileentityIn.getPos(), 0);
-            int j = i % 65536;
-            int k = i / 65536;
-            OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, (float)j, (float)k);
-            GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+            boolean flag = true;
+
+            if (Reflector.ForgeTileEntity_hasFastRenderer.exists())
+            {
+                flag = !this.drawingBatch || !Reflector.callBoolean(tileentityIn, Reflector.ForgeTileEntity_hasFastRenderer);
+            }
+
+            if (flag)
+            {
+                int i = this.world.getCombinedLight(tileentityIn.getPos(), 0);
+                int j = i % 65536;
+                int k = i / 65536;
+                OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, (float)j, (float)k);
+                GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+            }
+
             BlockPos blockpos = tileentityIn.getPos();
             this.render(tileentityIn, (double)blockpos.getX() - staticPlayerX, (double)blockpos.getY() - staticPlayerY, (double)blockpos.getZ() - staticPlayerZ, partialTicks, destroyStage, 1.0F);
         }
     }
 
+    /**
+     * Render this TileEntity at a given set of coordinates
+     */
     public void render(TileEntity tileEntityIn, double x, double y, double z, float partialTicks)
     {
         this.render(tileEntityIn, x, y, z, partialTicks, 1.0F);
@@ -143,7 +171,18 @@ public class TileEntityRendererDispatcher
         {
             try
             {
-                tileentityspecialrenderer.render(tileEntityIn, x, y, z, partialTicks, destroyStage, p_192854_10_);
+                this.tileEntityRendered = tileEntityIn;
+
+                if (this.drawingBatch && Reflector.callBoolean(tileEntityIn, Reflector.ForgeTileEntity_hasFastRenderer))
+                {
+                    tileentityspecialrenderer.renderTileEntityFast(tileEntityIn, x, y, z, partialTicks, destroyStage, p_192854_10_, this.batchBuffer.getBuffer());
+                }
+                else
+                {
+                    tileentityspecialrenderer.render(tileEntityIn, x, y, z, partialTicks, destroyStage, p_192854_10_);
+                }
+
+                this.tileEntityRendered = null;
             }
             catch (Throwable throwable)
             {
@@ -168,5 +207,38 @@ public class TileEntityRendererDispatcher
     public FontRenderer getFontRenderer()
     {
         return this.fontRenderer;
+    }
+
+    public void preDrawBatch()
+    {
+        this.batchBuffer.getBuffer().begin(7, DefaultVertexFormats.BLOCK);
+        this.drawingBatch = true;
+    }
+
+    public void drawBatch(int p_drawBatch_1_)
+    {
+        this.renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+        RenderHelper.disableStandardItemLighting();
+        GlStateManager.blendFunc(770, 771);
+        GlStateManager.enableBlend();
+        GlStateManager.disableCull();
+
+        if (Minecraft.isAmbientOcclusionEnabled())
+        {
+            GlStateManager.shadeModel(7425);
+        }
+        else
+        {
+            GlStateManager.shadeModel(7424);
+        }
+
+        if (p_drawBatch_1_ > 0)
+        {
+            this.batchBuffer.getBuffer().sortVertexData((float)staticPlayerX, (float)staticPlayerY, (float)staticPlayerZ);
+        }
+
+        this.batchBuffer.draw();
+        RenderHelper.enableStandardItemLighting();
+        this.drawingBatch = false;
     }
 }

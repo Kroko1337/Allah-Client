@@ -35,18 +35,18 @@ public class ItemExpBottle extends Item
     {
         ItemStack itemstack = playerIn.getHeldItem(handIn);
 
-        if (!playerIn.abilities.isCreativeMode)
+        if (!playerIn.capabilities.isCreativeMode)
         {
             itemstack.shrink(1);
         }
 
-        worldIn.playSound((EntityPlayer)null, playerIn.posX, playerIn.posY, playerIn.posZ, SoundEvents.ENTITY_EXPERIENCE_BOTTLE_THROW, SoundCategory.NEUTRAL, 0.5F, 0.4F / (random.nextFloat() * 0.4F + 0.8F));
+        worldIn.playSound((EntityPlayer)null, playerIn.posX, playerIn.posY, playerIn.posZ, SoundEvents.ENTITY_EXPERIENCE_BOTTLE_THROW, SoundCategory.NEUTRAL, 0.5F, 0.4F / (itemRand.nextFloat() * 0.4F + 0.8F));
 
         if (!worldIn.isRemote)
         {
             EntityExpBottle entityexpbottle = new EntityExpBottle(worldIn, playerIn);
             entityexpbottle.shoot(playerIn, playerIn.rotationPitch, playerIn.rotationYaw, -20.0F, 0.7F, 1.0F);
-            worldIn.addEntity0(entityexpbottle);
+            worldIn.spawnEntity(entityexpbottle);
         }
 
         playerIn.addStat(StatList.getObjectUseStats(this));

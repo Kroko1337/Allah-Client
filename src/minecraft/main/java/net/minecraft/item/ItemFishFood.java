@@ -11,6 +11,7 @@ import net.minecraft.world.World;
 
 public class ItemFishFood extends ItemFood
 {
+    /** Indicates whether this fish is "cooked" or not. */
     private final boolean cooked;
 
     public ItemFishFood(boolean cooked)
@@ -48,9 +49,9 @@ public class ItemFishFood extends ItemFood
     /**
      * returns a list of items with the same ID, but different meta (eg: dye returns 16 items)
      */
-    public void fillItemGroup(CreativeTabs group, NonNullList<ItemStack> items)
+    public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> items)
     {
-        if (this.isInGroup(group))
+        if (this.isInCreativeTab(tab))
         {
             for (ItemFishFood.FishType itemfishfood$fishtype : ItemFishFood.FishType.values())
             {

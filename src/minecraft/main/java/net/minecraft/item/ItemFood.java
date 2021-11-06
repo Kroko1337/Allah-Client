@@ -16,12 +16,27 @@ import net.minecraft.world.World;
 
 public class ItemFood extends Item
 {
+    /** Number of ticks to run while 'EnumAction'ing until result. */
     public final int itemUseDuration;
+
+    /** The amount this food item heals the player. */
     private final int healAmount;
     private final float saturationModifier;
+
+    /** Whether wolves like this food (true for raw and cooked porkchop). */
     private final boolean isWolfsFavoriteMeat;
+
+    /**
+     * If this field is true, the food can be consumed even if the player don't need to eat.
+     */
     private boolean alwaysEdible;
+
+    /**
+     * represents the potion effect that will occurr upon eating this food. Set by setPotionEffect
+     */
     private PotionEffect potionId;
+
+    /** probably of the set potion effect occurring */
     private float potionEffectProbability;
 
     public ItemFood(int amount, float saturation, boolean isWolfFood)
@@ -73,7 +88,7 @@ public class ItemFood extends Item
     /**
      * How long it takes to use or consume an item
      */
-    public int getUseDuration(ItemStack stack)
+    public int getMaxItemUseDuration(ItemStack stack)
     {
         return 32;
     }
@@ -81,7 +96,7 @@ public class ItemFood extends Item
     /**
      * returns the action that specifies what animation to play when the items is being used
      */
-    public EnumAction getUseAction(ItemStack stack)
+    public EnumAction getItemUseAction(ItemStack stack)
     {
         return EnumAction.EAT;
     }
@@ -111,6 +126,9 @@ public class ItemFood extends Item
         return this.saturationModifier;
     }
 
+    /**
+     * Whether wolves like this food (true for raw and cooked porkchop).
+     */
     public boolean isWolfsFavoriteMeat()
     {
         return this.isWolfsFavoriteMeat;
@@ -123,6 +141,9 @@ public class ItemFood extends Item
         return this;
     }
 
+    /**
+     * Set the field 'alwaysEdible' to true, and make the food edible even if the player don't need to eat.
+     */
     public ItemFood setAlwaysEdible()
     {
         this.alwaysEdible = true;

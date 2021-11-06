@@ -97,13 +97,13 @@ public class RecipeBookPage
         this.backButton.visible = this.totalPages > 1 && this.currentPage > 0;
     }
 
-    public void render(int x, int y, int mouseX, int mouseY, float partialTicks)
+    public void render(int p_194191_1_, int p_194191_2_, int p_194191_3_, int p_194191_4_, float p_194191_5_)
     {
         if (this.totalPages > 1)
         {
             String s = this.currentPage + 1 + "/" + this.totalPages;
             int i = this.minecraft.fontRenderer.getStringWidth(s);
-            this.minecraft.fontRenderer.drawString(s, x - i / 2 + 73, y + 141, -1);
+            this.minecraft.fontRenderer.drawString(s, p_194191_1_ - i / 2 + 73, p_194191_2_ + 141, -1);
         }
 
         RenderHelper.disableStandardItemLighting();
@@ -111,7 +111,7 @@ public class RecipeBookPage
 
         for (GuiButtonRecipe guibuttonrecipe : this.buttons)
         {
-            guibuttonrecipe.drawButton(this.minecraft, mouseX, mouseY, partialTicks);
+            guibuttonrecipe.drawButton(this.minecraft, p_194191_3_, p_194191_4_, p_194191_5_);
 
             if (guibuttonrecipe.visible && guibuttonrecipe.isMouseOver())
             {
@@ -119,9 +119,9 @@ public class RecipeBookPage
             }
         }
 
-        this.backButton.drawButton(this.minecraft, mouseX, mouseY, partialTicks);
-        this.forwardButton.drawButton(this.minecraft, mouseX, mouseY, partialTicks);
-        this.overlay.render(mouseX, mouseY, partialTicks);
+        this.backButton.drawButton(this.minecraft, p_194191_3_, p_194191_4_, p_194191_5_);
+        this.forwardButton.drawButton(this.minecraft, p_194191_3_, p_194191_4_, p_194191_5_);
+        this.overlay.render(p_194191_3_, p_194191_4_, p_194191_5_);
     }
 
     public void renderTooltip(int p_193721_1_, int p_193721_2_)

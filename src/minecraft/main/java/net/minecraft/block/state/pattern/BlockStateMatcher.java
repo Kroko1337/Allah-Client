@@ -29,12 +29,12 @@ public class BlockStateMatcher implements Predicate<IBlockState>
 
     public static BlockStateMatcher forBlock(Block blockIn)
     {
-        return new BlockStateMatcher(blockIn.getStateContainer());
+        return new BlockStateMatcher(blockIn.getBlockState());
     }
 
     public boolean apply(@Nullable IBlockState p_apply_1_)
     {
-        if (p_apply_1_ != null && p_apply_1_.getBlock().equals(this.blockstate.getOwner()))
+        if (p_apply_1_ != null && p_apply_1_.getBlock().equals(this.blockstate.getBlock()))
         {
             if (this.propertyPredicates.isEmpty())
             {
@@ -61,7 +61,7 @@ public class BlockStateMatcher implements Predicate<IBlockState>
 
     protected <T extends Comparable<T>> boolean matches(IBlockState blockState, IProperty<T> property, Predicate<T> predicate)
     {
-        return predicate.apply(blockState.get(property));
+        return predicate.apply(blockState.getValue(property));
     }
 
     public <V extends Comparable<V>> BlockStateMatcher where(IProperty<V> property, Predicate <? extends V > is)

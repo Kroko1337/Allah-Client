@@ -30,18 +30,18 @@ public abstract class AbstractChestHorse extends AbstractHorse
         this.canGallop = false;
     }
 
-    protected void registerData()
+    protected void entityInit()
     {
-        super.registerData();
+        super.entityInit();
         this.dataManager.register(DATA_ID_CHEST, Boolean.valueOf(false));
     }
 
-    protected void registerAttributes()
+    protected void applyEntityAttributes()
     {
-        super.registerAttributes();
-        this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue((double)this.getModifiedMaxHealth());
-        this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.17499999701976776D);
-        this.getAttribute(JUMP_STRENGTH).setBaseValue(0.5D);
+        super.applyEntityAttributes();
+        this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue((double)this.getModifiedMaxHealth());
+        this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.17499999701976776D);
+        this.getEntityAttribute(JUMP_STRENGTH).setBaseValue(0.5D);
     }
 
     public boolean hasChest()
@@ -97,10 +97,13 @@ public abstract class AbstractChestHorse extends AbstractHorse
         fixer.registerWalker(FixTypes.ENTITY, new ItemStackDataLists(entityClass, new String[] {"Items"}));
     }
 
+    /**
+     * (abstract) Protected helper method to write subclass entity data to NBT.
+     */
     public void writeEntityToNBT(NBTTagCompound compound)
     {
         super.writeEntityToNBT(compound);
-        compound.putBoolean("ChestedHorse", this.hasChest());
+        compound.setBoolean("ChestedHorse", this.hasChest());
 
         if (this.hasChest())
         {
@@ -113,8 +116,8 @@ public abstract class AbstractChestHorse extends AbstractHorse
                 if (!itemstack.isEmpty())
                 {
                     NBTTagCompound nbttagcompound = new NBTTagCompound();
-                    nbttagcompound.putByte("Slot", (byte)i);
-                    itemstack.write(nbttagcompound);
+                    nbttagcompound.setByte("Slot", (byte)i);
+                    itemstack.writeToNBT(nbttagcompound);
                     nbttaglist.appendTag(nbttagcompound);
                 }
             }
@@ -126,19 +129,19 @@ public abstract class AbstractChestHorse extends AbstractHorse
     /**
      * (abstract) Protected helper method to read subclass entity data from NBT.
      */
-    public void readAdditional(NBTTagCompound compound)
+    public void readEntityFromNBT(NBTTagCompound compound)
     {
-        super.readAdditional(compound);
+        super.readEntityFromNBT(compound);
         this.setChested(compound.getBoolean("ChestedHorse"));
 
         if (this.hasChest())
         {
-            NBTTagList nbttaglist = compound.getList("Items", 10);
+            NBTTagList nbttaglist = compound.getTagList("Items", 10);
             this.initHorseChest();
 
             for (int i = 0; i < nbttaglist.tagCount(); ++i)
             {
-                NBTTagCompound nbttagcompound = nbttaglist.getCompound(i);
+                NBTTagCompound nbttagcompound = nbttaglist.getCompoundTagAt(i);
                 int j = nbttagcompound.getByte("Slot") & 255;
 
                 if (j >= 2 && j < this.horseChest.getSizeInventory())
@@ -228,7 +231,7 @@ public abstract class AbstractChestHorse extends AbstractHorse
 
                 if (flag)
                 {
-                    if (!player.abilities.isCreativeMode)
+                    if (!player.capabilities.isCreativeMode)
                     {
                         itemstack.shrink(1);
                     }

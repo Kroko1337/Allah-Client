@@ -9,8 +9,15 @@ import net.minecraft.util.NonNullList;
 
 public class SlotCrafting extends Slot
 {
+    /** The craft matrix inventory linked to this result slot. */
     private final InventoryCrafting craftMatrix;
+
+    /** The player that is using the GUI where this slot resides. */
     private final EntityPlayer player;
+
+    /**
+     * The number of items that have been crafted so far. Gets passed to ItemStack.onCrafting before being reset.
+     */
     private int amountCrafted;
 
     public SlotCrafting(EntityPlayer player, InventoryCrafting craftingInventory, IInventory inventoryIn, int slotIndex, int xPosition, int yPosition)
@@ -52,9 +59,9 @@ public class SlotCrafting extends Slot
         this.onCrafting(stack);
     }
 
-    protected void onSwapCraft(int numItemsCrafted)
+    protected void onSwapCraft(int p_190900_1_)
     {
-        this.amountCrafted += numItemsCrafted;
+        this.amountCrafted += p_190900_1_;
     }
 
     /**

@@ -50,7 +50,7 @@ public class BlockStateMapper
 
             if (istatemapper == null)
             {
-                return Collections.<ResourceLocation>singleton(Block.REGISTRY.getKey(blockIn));
+                return Collections.<ResourceLocation>singleton(Block.REGISTRY.getNameForObject(blockIn));
             }
             else
             {

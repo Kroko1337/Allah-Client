@@ -44,21 +44,42 @@ public abstract class GuiScreen extends Gui implements GuiYesNoCallback
     private static final Logger LOGGER = LogManager.getLogger();
     private static final Set<String> PROTOCOLS = Sets.newHashSet("http", "https");
     private static final Splitter NEWLINE_SPLITTER = Splitter.on('\n');
+
+    /** Reference to the Minecraft object. */
     protected Minecraft mc;
+
+    /**
+     * Holds a instance of RenderItem, used to draw the achievement icons on screen (is based on ItemStack)
+     */
     protected RenderItem itemRender;
+
+    /** The width of the screen object. */
     public int width;
+
+    /** The height of the screen object. */
     public int height;
     protected List<GuiButton> buttonList = Lists.<GuiButton>newArrayList();
     protected List<GuiLabel> labelList = Lists.<GuiLabel>newArrayList();
     public boolean allowUserInput;
+
+    /** The FontRenderer used by GuiScreen */
     protected FontRenderer fontRenderer;
+
+    /** The button that was just pressed. */
     protected GuiButton selectedButton;
     private int eventButton;
     private long lastMouseEvent;
+
+    /**
+     * Tracks the number of fingers currently on the screen. Prevents subsequent fingers registering as clicks.
+     */
     private int touchValue;
     private URI clickedLinkURI;
     private boolean focused;
 
+    /**
+     * Draws the screen and all the components in it.
+     */
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         for (int i = 0; i < this.buttonList.size(); ++i)
@@ -72,6 +93,10 @@ public abstract class GuiScreen extends Gui implements GuiYesNoCallback
         }
     }
 
+    /**
+     * Fired when a key is typed (except F11 which toggles full screen). This is the equivalent of
+     * KeyListener.keyTyped(KeyEvent e). Args : character (character on the key), keyCode (lwjgl Keyboard key code)
+     */
     protected void keyTyped(char typedChar, int keyCode) throws IOException
     {
         if (keyCode == 1)
@@ -91,6 +116,9 @@ public abstract class GuiScreen extends Gui implements GuiYesNoCallback
         return buttonIn;
     }
 
+    /**
+     * Returns a string stored in the system clipboard.
+     */
     public static String getClipboardString()
     {
         try
@@ -110,6 +138,9 @@ public abstract class GuiScreen extends Gui implements GuiYesNoCallback
         return "";
     }
 
+    /**
+     * Stores the given string in the system clipboard
+     */
     public static void setClipboardString(String copyText)
     {
         if (!StringUtils.isEmpty(copyText))
@@ -150,6 +181,9 @@ public abstract class GuiScreen extends Gui implements GuiYesNoCallback
         return list;
     }
 
+    /**
+     * Draws the given text as a tooltip.
+     */
     public void drawHoveringText(String text, int x, int y)
     {
         this.drawHoveringText(Arrays.asList(text), x, y);
@@ -165,6 +199,9 @@ public abstract class GuiScreen extends Gui implements GuiYesNoCallback
         return this.focused;
     }
 
+    /**
+     * Draws a List of strings as a tooltip. Every entry is drawn on a seperate line.
+     */
     public void drawHoveringText(List<String> textLines, int x, int y)
     {
         if (!textLines.isEmpty())
@@ -241,6 +278,9 @@ public abstract class GuiScreen extends Gui implements GuiYesNoCallback
         }
     }
 
+    /**
+     * Draws the hover event specified by the given chat component
+     */
     protected void handleComponentHover(ITextComponent component, int x, int y)
     {
         if (component != null && component.getStyle().getHoverEvent() != null)
@@ -284,7 +324,7 @@ public abstract class GuiScreen extends Gui implements GuiYesNoCallback
                         List<String> list = Lists.<String>newArrayList();
                         list.add(nbttagcompound.getString("name"));
 
-                        if (nbttagcompound.contains("type", 8))
+                        if (nbttagcompound.hasKey("type", 8))
                         {
                             String s = nbttagcompound.getString("type");
                             list.add("Type: " + s);
@@ -308,10 +348,16 @@ public abstract class GuiScreen extends Gui implements GuiYesNoCallback
         }
     }
 
+    /**
+     * Sets the text of the chat
+     */
     protected void setText(String newChatText, boolean shouldOverwrite)
     {
     }
 
+    /**
+     * Executes the click event specified by the given chat component
+     */
     public boolean handleComponentClick(ITextComponent component)
     {
         if (component == null)
@@ -393,6 +439,9 @@ public abstract class GuiScreen extends Gui implements GuiYesNoCallback
         }
     }
 
+    /**
+     * Used to add chat messages to the client's GuiChat.
+     */
     public void sendChatMessage(String msg)
     {
         this.sendChatMessage(msg, true);
@@ -408,6 +457,9 @@ public abstract class GuiScreen extends Gui implements GuiYesNoCallback
         this.mc.player.sendChatMessage(msg);
     }
 
+    /**
+     * Called when the mouse is clicked. Args : mouseX, mouseY, clickedButton
+     */
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
     {
         if (mouseButton == 0)
@@ -426,6 +478,9 @@ public abstract class GuiScreen extends Gui implements GuiYesNoCallback
         }
     }
 
+    /**
+     * Called when a mouse button is released.
+     */
     protected void mouseReleased(int mouseX, int mouseY, int state)
     {
         if (this.selectedButton != null && state == 0)
@@ -435,18 +490,29 @@ public abstract class GuiScreen extends Gui implements GuiYesNoCallback
         }
     }
 
+    /**
+     * Called when a mouse button is pressed and the mouse is moved around. Parameters are : mouseX, mouseY,
+     * lastButtonClicked & timeSinceMouseClick.
+     */
     protected void mouseClickMove(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick)
     {
     }
 
+    /**
+     * Called by the controls from the buttonList when activated. (Mouse pressed for buttons)
+     */
     protected void actionPerformed(GuiButton button) throws IOException
     {
     }
 
+    /**
+     * Causes the screen to lay out its subcomponents again. This is the equivalent of the Java call
+     * Container.validate()
+     */
     public void setWorldAndResolution(Minecraft mc, int width, int height)
     {
         this.mc = mc;
-        this.itemRender = mc.getItemRenderer();
+        this.itemRender = mc.getRenderItem();
         this.fontRenderer = mc.fontRenderer;
         this.width = width;
         this.height = height;
@@ -454,16 +520,26 @@ public abstract class GuiScreen extends Gui implements GuiYesNoCallback
         this.initGui();
     }
 
+    /**
+     * Set the gui to the specified width and height
+     */
     public void setGuiSize(int w, int h)
     {
         this.width = w;
         this.height = h;
     }
 
+    /**
+     * Adds the buttons (and other controls) to the screen in question. Called when the GUI is displayed and when the
+     * window resizes, the buttonList is cleared beforehand.
+     */
     public void initGui()
     {
     }
 
+    /**
+     * Delegates mouse and keyboard input.
+     */
     public void handleInput() throws IOException
     {
         if (Mouse.isCreated())
@@ -483,6 +559,9 @@ public abstract class GuiScreen extends Gui implements GuiYesNoCallback
         }
     }
 
+    /**
+     * Handles mouse input.
+     */
     public void handleMouseInput() throws IOException
     {
         int i = Mouse.getEventX() * this.width / this.mc.displayWidth;
@@ -517,6 +596,9 @@ public abstract class GuiScreen extends Gui implements GuiYesNoCallback
         }
     }
 
+    /**
+     * Handles keyboard input.
+     */
     public void handleKeyboardInput() throws IOException
     {
         char c0 = Keyboard.getEventCharacter();
@@ -529,19 +611,44 @@ public abstract class GuiScreen extends Gui implements GuiYesNoCallback
         this.mc.dispatchKeypresses();
     }
 
+    /**
+     * Called from the main game loop to update the screen.
+     */
     public void updateScreen()
     {
     }
 
+    /**
+     * Called when the screen is unloaded. Used to disable keyboard repeat events
+     */
     public void onGuiClosed()
     {
     }
 
+    /**
+     * Draws either a gradient over the background world (if there is a world), or a dirt screen if there is no world.
+     *  
+     * This method should usually be called before doing any other rendering; otherwise weird results will occur if
+     * there is no world, and the world will not be tinted if there is.
+     *  
+     * Do not call after having already done other rendering, as it will draw over it.
+     */
     public void drawDefaultBackground()
     {
         this.drawWorldBackground(0);
     }
 
+    /**
+     * Draws either a gradient over the background world (if there is a world), or a dirt screen if there is no world.
+     *  
+     * This method should usually be called before doing any other rendering; otherwise weird results will occur if
+     * there is no world, and the world will not be tinted if there is.
+     *  
+     * Do not call after having already done other rendering, as it will draw over it.
+     *  
+     * @param tint Used to offset vertical position for the texture in options_background.png, if there is no world
+     * (i.e. if {@link #drawBackground} is called). In vanilla, this is always 0.
+     */
     public void drawWorldBackground(int tint)
     {
         if (this.mc.world != null)
@@ -554,6 +661,12 @@ public abstract class GuiScreen extends Gui implements GuiYesNoCallback
         }
     }
 
+    /**
+     * Draws a dirt background (using {@link #OPTIONS_BACKGROUND}).
+     *  
+     * @param tint Used to offset vertical position for the texture in options_background.png. In vanilla, this is
+     * always 0.
+     */
     public void drawBackground(int tint)
     {
         GlStateManager.disableLighting();
@@ -571,6 +684,9 @@ public abstract class GuiScreen extends Gui implements GuiYesNoCallback
         tessellator.draw();
     }
 
+    /**
+     * Returns true if this GUI should pause the game when it is displayed in single-player
+     */
     public boolean doesGuiPauseGame()
     {
         return true;
@@ -605,6 +721,9 @@ public abstract class GuiScreen extends Gui implements GuiYesNoCallback
         }
     }
 
+    /**
+     * Returns true if either windows ctrl key is down or if either mac meta key is down
+     */
     public static boolean isCtrlKeyDown()
     {
         if (Minecraft.IS_RUNNING_ON_MAC)
@@ -617,11 +736,17 @@ public abstract class GuiScreen extends Gui implements GuiYesNoCallback
         }
     }
 
+    /**
+     * Returns true if either shift key is down
+     */
     public static boolean isShiftKeyDown()
     {
         return Keyboard.isKeyDown(42) || Keyboard.isKeyDown(54);
     }
 
+    /**
+     * Returns true if either alt key is down
+     */
     public static boolean isAltKeyDown()
     {
         return Keyboard.isKeyDown(56) || Keyboard.isKeyDown(184);
@@ -647,6 +772,9 @@ public abstract class GuiScreen extends Gui implements GuiYesNoCallback
         return keyID == 30 && isCtrlKeyDown() && !isShiftKeyDown() && !isAltKeyDown();
     }
 
+    /**
+     * Called when the GUI is resized in order to update the world and the resolution
+     */
     public void onResize(Minecraft mcIn, int w, int h)
     {
         this.setWorldAndResolution(mcIn, w, h);

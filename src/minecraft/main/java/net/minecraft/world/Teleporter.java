@@ -18,6 +18,8 @@ import net.minecraft.util.math.MathHelper;
 public class Teleporter
 {
     private final WorldServer world;
+
+    /** A private Random() function in Teleporter */
     private final Random random;
     private final Long2ObjectMap<Teleporter.PortalPosition> destinationCoordinateCache = new Long2ObjectOpenHashMap<Teleporter.PortalPosition>(4096);
 
@@ -27,9 +29,12 @@ public class Teleporter
         this.random = new Random(worldIn.getSeed());
     }
 
+    /**
+     * Finds a portal near the entity's current coordinates and places the entity there, creating it if necessary.
+     */
     public void placeInPortal(Entity entityIn, float rotationYaw)
     {
-        if (this.world.dimension.getType().getId() != 1)
+        if (this.world.provider.getDimensionType().getId() != 1)
         {
             if (!this.placeInExistingPortal(entityIn, rotationYaw))
             {
@@ -74,7 +79,7 @@ public class Teleporter
         int j = MathHelper.floor(entityIn.posX);
         int k = MathHelper.floor(entityIn.posZ);
         boolean flag = true;
-        BlockPos blockpos = BlockPos.ZERO;
+        BlockPos blockpos = BlockPos.ORIGIN;
         long l = ChunkPos.asLong(j, k);
 
         if (this.destinationCoordinateCache.containsKey(l))
@@ -82,7 +87,7 @@ public class Teleporter
             Teleporter.PortalPosition teleporter$portalposition = (Teleporter.PortalPosition)this.destinationCoordinateCache.get(l);
             d0 = 0.0D;
             blockpos = teleporter$portalposition;
-            teleporter$portalposition.lastUpdateTime = this.world.getGameTime();
+            teleporter$portalposition.lastUpdateTime = this.world.getTotalWorldTime();
             flag = false;
         }
         else
@@ -99,9 +104,9 @@ public class Teleporter
                     {
                         blockpos2 = blockpos1.down();
 
-                        if (this.world.getBlockState(blockpos1).getBlock() == Blocks.NETHER_PORTAL)
+                        if (this.world.getBlockState(blockpos1).getBlock() == Blocks.PORTAL)
                         {
-                            for (blockpos2 = blockpos1.down(); this.world.getBlockState(blockpos2).getBlock() == Blocks.NETHER_PORTAL; blockpos2 = blockpos2.down())
+                            for (blockpos2 = blockpos1.down(); this.world.getBlockState(blockpos2).getBlock() == Blocks.PORTAL; blockpos2 = blockpos2.down())
                             {
                                 blockpos1 = blockpos2;
                             }
@@ -123,12 +128,12 @@ public class Teleporter
         {
             if (flag)
             {
-                this.destinationCoordinateCache.put(l, new Teleporter.PortalPosition(blockpos, this.world.getGameTime()));
+                this.destinationCoordinateCache.put(l, new Teleporter.PortalPosition(blockpos, this.world.getTotalWorldTime()));
             }
 
             double d5 = (double)blockpos.getX() + 0.5D;
             double d7 = (double)blockpos.getZ() + 0.5D;
-            BlockPattern.PatternHelper blockpattern$patternhelper = Blocks.NETHER_PORTAL.createPatternHelper(this.world, blockpos);
+            BlockPattern.PatternHelper blockpattern$patternhelper = Blocks.PORTAL.createPatternHelper(this.world, blockpos);
             boolean flag1 = blockpattern$patternhelper.getForwards().rotateY().getAxisDirection() == EnumFacing.AxisDirection.NEGATIVE;
             double d2 = blockpattern$patternhelper.getForwards().getAxis() == EnumFacing.Axis.X ? (double)blockpattern$patternhelper.getFrontTopLeft().getZ() : (double)blockpattern$patternhelper.getFrontTopLeft().getX();
             double d6 = (double)(blockpattern$patternhelper.getFrontTopLeft().getY() + 1) - entityIn.getLastPortalVec().y * (double)blockpattern$patternhelper.getHeight();
@@ -367,7 +372,7 @@ public class Teleporter
             }
         }
 
-        IBlockState iblockstate = Blocks.NETHER_PORTAL.getDefaultState().withProperty(BlockPortal.AXIS, l6 == 0 ? EnumFacing.Axis.Z : EnumFacing.Axis.X);
+        IBlockState iblockstate = Blocks.PORTAL.getDefaultState().withProperty(BlockPortal.AXIS, l6 == 0 ? EnumFacing.Axis.Z : EnumFacing.Axis.X);
 
         for (int i8 = 0; i8 < 4; ++i8)
         {
@@ -399,6 +404,10 @@ public class Teleporter
         return true;
     }
 
+    /**
+     * called periodically to remove out-of-date portal locations from the cache list. Argument par1 is a
+     * WorldServer.getTotalWorldTime() value.
+     */
     public void removeStalePortalLocations(long worldTime)
     {
         if (worldTime % 100L == 0L)

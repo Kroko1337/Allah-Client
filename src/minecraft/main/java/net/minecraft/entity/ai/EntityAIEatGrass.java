@@ -13,7 +13,7 @@ import net.minecraft.world.World;
 
 public class EntityAIEatGrass extends EntityAIBase
 {
-    private static final Predicate<IBlockState> IS_GRASS = BlockStateMatcher.forBlock(Blocks.TALLGRASS).where(BlockTallGrass.TYPE, Predicates.equalTo(BlockTallGrass.EnumType.GRASS));
+    private static final Predicate<IBlockState> IS_TALL_GRASS = BlockStateMatcher.forBlock(Blocks.TALLGRASS).where(BlockTallGrass.TYPE, Predicates.equalTo(BlockTallGrass.EnumType.GRASS));
 
     /** The entity owner of this AITask */
     private final EntityLiving grassEaterEntity;
@@ -32,8 +32,7 @@ public class EntityAIEatGrass extends EntityAIBase
     }
 
     /**
-     * Returns whether execution should begin. You can also read and cache any state necessary for execution in this
-     * method as well.
+     * Returns whether the EntityAIBase should begin execution.
      */
     public boolean shouldExecute()
     {
@@ -45,7 +44,7 @@ public class EntityAIEatGrass extends EntityAIBase
         {
             BlockPos blockpos = new BlockPos(this.grassEaterEntity.posX, this.grassEaterEntity.posY, this.grassEaterEntity.posZ);
 
-            if (IS_GRASS.apply(this.entityWorld.getBlockState(blockpos)))
+            if (IS_TALL_GRASS.apply(this.entityWorld.getBlockState(blockpos)))
             {
                 return true;
             }
@@ -93,7 +92,7 @@ public class EntityAIEatGrass extends EntityAIBase
     /**
      * Keep ticking a continuous task that has already been started
      */
-    public void tick()
+    public void updateTask()
     {
         this.eatingGrassTimer = Math.max(0, this.eatingGrassTimer - 1);
 
@@ -101,7 +100,7 @@ public class EntityAIEatGrass extends EntityAIBase
         {
             BlockPos blockpos = new BlockPos(this.grassEaterEntity.posX, this.grassEaterEntity.posY, this.grassEaterEntity.posZ);
 
-            if (IS_GRASS.apply(this.entityWorld.getBlockState(blockpos)))
+            if (IS_TALL_GRASS.apply(this.entityWorld.getBlockState(blockpos)))
             {
                 if (this.entityWorld.getGameRules().getBoolean("mobGriefing"))
                 {

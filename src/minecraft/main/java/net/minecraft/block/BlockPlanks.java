@@ -20,19 +20,23 @@ public class BlockPlanks extends Block
     public BlockPlanks()
     {
         super(Material.WOOD);
-        this.setDefaultState(this.stateContainer.getBaseState().withProperty(VARIANT, BlockPlanks.EnumType.OAK));
+        this.setDefaultState(this.blockState.getBaseState().withProperty(VARIANT, BlockPlanks.EnumType.OAK));
         this.setCreativeTab(CreativeTabs.BUILDING_BLOCKS);
     }
 
+    /**
+     * Gets the metadata of the item this Block can drop. This method is called when the block gets destroyed. It
+     * returns the metadata of the dropped item based on the old metadata of the block.
+     */
     public int damageDropped(IBlockState state)
     {
-        return ((BlockPlanks.EnumType)state.get(VARIANT)).getMetadata();
+        return ((BlockPlanks.EnumType)state.getValue(VARIANT)).getMetadata();
     }
 
     /**
      * returns a list of blocks with the same ID, but different meta (eg: wood returns 4 blocks)
      */
-    public void fillItemGroup(CreativeTabs group, NonNullList<ItemStack> items)
+    public void getSubBlocks(CreativeTabs itemIn, NonNullList<ItemStack> items)
     {
         for (BlockPlanks.EnumType blockplanks$enumtype : BlockPlanks.EnumType.values())
         {
@@ -40,6 +44,9 @@ public class BlockPlanks extends Block
         }
     }
 
+    /**
+     * Convert the given metadata into a BlockState for this Block
+     */
     public IBlockState getStateFromMeta(int meta)
     {
         return this.getDefaultState().withProperty(VARIANT, BlockPlanks.EnumType.byMetadata(meta));
@@ -50,14 +57,17 @@ public class BlockPlanks extends Block
      * @deprecated call via {@link IBlockState#getMapColor(IBlockAccess,BlockPos)} whenever possible.
      * Implementing/overriding is fine.
      */
-    public MapColor getMaterialColor(IBlockState state, IBlockAccess worldIn, BlockPos pos)
+    public MapColor getMapColor(IBlockState state, IBlockAccess worldIn, BlockPos pos)
     {
-        return ((BlockPlanks.EnumType)state.get(VARIANT)).getMapColor();
+        return ((BlockPlanks.EnumType)state.getValue(VARIANT)).getMapColor();
     }
 
+    /**
+     * Convert the BlockState into the correct metadata value
+     */
     public int getMetaFromState(IBlockState state)
     {
-        return ((BlockPlanks.EnumType)state.get(VARIANT)).getMetadata();
+        return ((BlockPlanks.EnumType)state.getValue(VARIANT)).getMetadata();
     }
 
     protected BlockStateContainer createBlockState()

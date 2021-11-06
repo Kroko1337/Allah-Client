@@ -31,7 +31,7 @@ public class ChunkProviderServer implements IChunkProvider
 {
     private static final Logger LOGGER = LogManager.getLogger();
     private final Set<Long> droppedChunks = Sets.<Long>newHashSet();
-    private final IChunkGenerator generator;
+    private final IChunkGenerator chunkGenerator;
     private final IChunkLoader chunkLoader;
     private final Long2ObjectMap<Chunk> loadedChunks = new Long2ObjectOpenHashMap<Chunk>(8192);
     private final WorldServer world;
@@ -40,7 +40,7 @@ public class ChunkProviderServer implements IChunkProvider
     {
         this.world = worldObjIn;
         this.chunkLoader = chunkLoaderIn;
-        this.generator = chunkGeneratorIn;
+        this.chunkGenerator = chunkGeneratorIn;
     }
 
     public Collection<Chunk> getLoadedChunks()
@@ -48,15 +48,26 @@ public class ChunkProviderServer implements IChunkProvider
         return this.loadedChunks.values();
     }
 
+    /**
+     * Marks the chunk for unload if the {@link WorldProvider} allows it.
+     *  
+     * Queueing a chunk for unload does <b>not</b> guarantee that it will be unloaded, as any request for the chunk will
+     * unqueue the chunk.
+     */
     public void queueUnload(Chunk chunkIn)
     {
-        if (this.world.dimension.canDropChunk(chunkIn.x, chunkIn.z))
+        if (this.world.provider.canDropChunk(chunkIn.x, chunkIn.z))
         {
             this.droppedChunks.add(Long.valueOf(ChunkPos.asLong(chunkIn.x, chunkIn.z)));
             chunkIn.unloadQueued = true;
         }
     }
 
+    /**
+     * Marks all chunks for unload
+     *  
+     * @see #queueUnload(Chunk)
+     */
     public void queueUnloadAll()
     {
         ObjectIterator objectiterator = this.loadedChunks.values().iterator();
@@ -95,7 +106,7 @@ public class ChunkProviderServer implements IChunkProvider
             {
                 this.loadedChunks.put(ChunkPos.asLong(x, z), chunk);
                 chunk.onLoad();
-                chunk.populate(this, this.generator);
+                chunk.populate(this, this.chunkGenerator);
             }
         }
 
@@ -112,21 +123,21 @@ public class ChunkProviderServer implements IChunkProvider
 
             try
             {
-                chunk = this.generator.generateChunk(x, z);
+                chunk = this.chunkGenerator.generateChunk(x, z);
             }
             catch (Throwable throwable)
             {
                 CrashReport crashreport = CrashReport.makeCrashReport(throwable, "Exception generating new chunk");
                 CrashReportCategory crashreportcategory = crashreport.makeCategory("Chunk to be generated");
-                crashreportcategory.addDetail("Location", String.format("%d,%d", x, z));
-                crashreportcategory.addDetail("Position hash", Long.valueOf(i));
-                crashreportcategory.addDetail("Generator", this.generator);
+                crashreportcategory.addCrashSection("Location", String.format("%d,%d", x, z));
+                crashreportcategory.addCrashSection("Position hash", Long.valueOf(i));
+                crashreportcategory.addCrashSection("Generator", this.chunkGenerator);
                 throw new ReportedException(crashreport);
             }
 
             this.loadedChunks.put(i, chunk);
             chunk.onLoad();
-            chunk.populate(this, this.generator);
+            chunk.populate(this, this.chunkGenerator);
         }
 
         return chunk;
@@ -141,8 +152,8 @@ public class ChunkProviderServer implements IChunkProvider
 
             if (chunk != null)
             {
-                chunk.setLastSaveTime(this.world.getGameTime());
-                this.generator.recreateStructures(chunk, x, z);
+                chunk.setLastSaveTime(this.world.getTotalWorldTime());
+                this.chunkGenerator.recreateStructures(chunk, x, z);
             }
 
             return chunk;
@@ -170,7 +181,7 @@ public class ChunkProviderServer implements IChunkProvider
     {
         try
         {
-            chunkIn.setLastSaveTime(this.world.getGameTime());
+            chunkIn.setLastSaveTime(this.world.getTotalWorldTime());
             this.chunkLoader.saveChunk(this.world, chunkIn);
         }
         catch (IOException ioexception)
@@ -213,11 +224,17 @@ public class ChunkProviderServer implements IChunkProvider
         return true;
     }
 
+    /**
+     * Flushes all pending chunks fully back to disk
+     */
     public void flushToDisk()
     {
         this.chunkLoader.flush();
     }
 
+    /**
+     * Unloads chunks that are marked to be unloaded. This is not guaranteed to unload every such chunk.
+     */
     public boolean tick()
     {
         if (!this.world.disableLevelSaving)
@@ -248,6 +265,9 @@ public class ChunkProviderServer implements IChunkProvider
         return false;
     }
 
+    /**
+     * Returns if the IChunkProvider supports saving.
+     */
     public boolean canSave()
     {
         return !this.world.disableLevelSaving;
@@ -263,18 +283,18 @@ public class ChunkProviderServer implements IChunkProvider
 
     public List<Biome.SpawnListEntry> getPossibleCreatures(EnumCreatureType creatureType, BlockPos pos)
     {
-        return this.generator.getPossibleCreatures(creatureType, pos);
+        return this.chunkGenerator.getPossibleCreatures(creatureType, pos);
     }
 
     @Nullable
     public BlockPos getNearestStructurePos(World worldIn, String structureName, BlockPos position, boolean findUnexplored)
     {
-        return this.generator.getNearestStructurePos(worldIn, structureName, position, findUnexplored);
+        return this.chunkGenerator.getNearestStructurePos(worldIn, structureName, position, findUnexplored);
     }
 
     public boolean isInsideStructure(World worldIn, String structureName, BlockPos pos)
     {
-        return this.generator.isInsideStructure(worldIn, structureName, pos);
+        return this.chunkGenerator.isInsideStructure(worldIn, structureName, pos);
     }
 
     public int getLoadedChunkCount()

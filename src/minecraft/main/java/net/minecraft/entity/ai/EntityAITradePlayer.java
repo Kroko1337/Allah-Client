@@ -14,12 +14,11 @@ public class EntityAITradePlayer extends EntityAIBase
     }
 
     /**
-     * Returns whether execution should begin. You can also read and cache any state necessary for execution in this
-     * method as well.
+     * Returns whether the EntityAIBase should begin execution.
      */
     public boolean shouldExecute()
     {
-        if (!this.villager.isAlive())
+        if (!this.villager.isEntityAlive())
         {
             return false;
         }

@@ -20,7 +20,7 @@ public class EntityId implements IFixableData
 
         if (s != null)
         {
-            compound.putString("id", s);
+            compound.setString("id", s);
         }
 
         return compound;

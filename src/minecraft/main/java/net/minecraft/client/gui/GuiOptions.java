@@ -19,12 +19,16 @@ public class GuiOptions extends GuiScreen
     private GuiLockIconButton lockButton;
     protected String title = "Options";
 
-    public GuiOptions(GuiScreen parentScreen, GameSettings gameSettingsObj)
+    public GuiOptions(GuiScreen p_i1046_1_, GameSettings p_i1046_2_)
     {
-        this.lastScreen = parentScreen;
-        this.settings = gameSettingsObj;
+        this.lastScreen = p_i1046_1_;
+        this.settings = p_i1046_2_;
     }
 
+    /**
+     * Adds the buttons (and other controls) to the screen in question. Called when the GUI is displayed and when the
+     * window resizes, the buttonList is cleared beforehand.
+     */
     public void initGui()
     {
         this.title = I18n.format("options.title");
@@ -51,7 +55,7 @@ public class GuiOptions extends GuiScreen
             this.difficultyButton = new GuiButton(108, this.width / 2 - 155 + i % 2 * 160, this.height / 6 - 12 + 24 * (i >> 1), 150, 20, this.getDifficultyText(enumdifficulty));
             this.buttonList.add(this.difficultyButton);
 
-            if (this.mc.isSingleplayer() && !this.mc.world.getWorldInfo().isHardcore())
+            if (this.mc.isSingleplayer() && !this.mc.world.getWorldInfo().isHardcoreModeEnabled())
             {
                 this.difficultyButton.setWidth(this.difficultyButton.getButtonWidth() - 20);
                 this.lockButton = new GuiLockIconButton(109, this.difficultyButton.x + this.difficultyButton.getButtonWidth(), this.difficultyButton.y);
@@ -103,6 +107,10 @@ public class GuiOptions extends GuiScreen
         }
     }
 
+    /**
+     * Fired when a key is typed (except F11 which toggles full screen). This is the equivalent of
+     * KeyListener.keyTyped(KeyEvent e). Args : character (character on the key), keyCode (lwjgl Keyboard key code)
+     */
     protected void keyTyped(char typedChar, int keyCode) throws IOException
     {
         if (keyCode == 1)
@@ -113,6 +121,9 @@ public class GuiOptions extends GuiScreen
         super.keyTyped(typedChar, keyCode);
     }
 
+    /**
+     * Called by the controls from the buttonList when activated. (Mouse pressed for buttons)
+     */
     protected void actionPerformed(GuiButton button) throws IOException
     {
         if (button.enabled)
@@ -191,6 +202,9 @@ public class GuiOptions extends GuiScreen
         }
     }
 
+    /**
+     * Draws the screen and all the components in it.
+     */
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         this.drawDefaultBackground();

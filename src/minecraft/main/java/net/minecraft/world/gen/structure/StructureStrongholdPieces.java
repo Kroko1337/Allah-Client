@@ -262,12 +262,12 @@ public class StructureStrongholdPieces
         protected void writeStructureToNBT(NBTTagCompound tagCompound)
         {
             super.writeStructureToNBT(tagCompound);
-            tagCompound.putBoolean("Chest", this.hasMadeChest);
+            tagCompound.setBoolean("Chest", this.hasMadeChest);
         }
 
-        protected void readAdditional(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
+        protected void readStructureFromNBT(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
         {
-            super.readAdditional(tagCompound, p_143011_2_);
+            super.readStructureFromNBT(tagCompound, p_143011_2_);
             this.hasMadeChest = tagCompound.getBoolean("Chest");
         }
 
@@ -334,13 +334,13 @@ public class StructureStrongholdPieces
         protected void writeStructureToNBT(NBTTagCompound tagCompound)
         {
             super.writeStructureToNBT(tagCompound);
-            tagCompound.putInt("Steps", this.steps);
+            tagCompound.setInteger("Steps", this.steps);
         }
 
-        protected void readAdditional(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
+        protected void readStructureFromNBT(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
         {
-            super.readAdditional(tagCompound, p_143011_2_);
-            this.steps = tagCompound.getInt("Steps");
+            super.readStructureFromNBT(tagCompound, p_143011_2_);
+            this.steps = tagCompound.getInteger("Steps");
         }
 
         public static StructureBoundingBox findPieceBox(List<StructureComponent> p_175869_0_, Random p_175869_1_, int p_175869_2_, int p_175869_3_, int p_175869_4_, EnumFacing p_175869_5_)
@@ -435,15 +435,15 @@ public class StructureStrongholdPieces
         protected void writeStructureToNBT(NBTTagCompound tagCompound)
         {
             super.writeStructureToNBT(tagCompound);
-            tagCompound.putBoolean("leftLow", this.leftLow);
-            tagCompound.putBoolean("leftHigh", this.leftHigh);
-            tagCompound.putBoolean("rightLow", this.rightLow);
-            tagCompound.putBoolean("rightHigh", this.rightHigh);
+            tagCompound.setBoolean("leftLow", this.leftLow);
+            tagCompound.setBoolean("leftHigh", this.leftHigh);
+            tagCompound.setBoolean("rightLow", this.rightLow);
+            tagCompound.setBoolean("rightHigh", this.rightHigh);
         }
 
-        protected void readAdditional(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
+        protected void readStructureFromNBT(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
         {
-            super.readAdditional(tagCompound, p_143011_2_);
+            super.readStructureFromNBT(tagCompound, p_143011_2_);
             this.leftLow = tagCompound.getBoolean("leftLow");
             this.leftHigh = tagCompound.getBoolean("leftHigh");
             this.rightLow = tagCompound.getBoolean("rightLow");
@@ -622,12 +622,12 @@ public class StructureStrongholdPieces
         protected void writeStructureToNBT(NBTTagCompound tagCompound)
         {
             super.writeStructureToNBT(tagCompound);
-            tagCompound.putBoolean("Tall", this.isLargeRoom);
+            tagCompound.setBoolean("Tall", this.isLargeRoom);
         }
 
-        protected void readAdditional(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
+        protected void readStructureFromNBT(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
         {
-            super.readAdditional(tagCompound, p_143011_2_);
+            super.readStructureFromNBT(tagCompound, p_143011_2_);
             this.isLargeRoom = tagCompound.getBoolean("Tall");
         }
 
@@ -807,12 +807,12 @@ public class StructureStrongholdPieces
         protected void writeStructureToNBT(NBTTagCompound tagCompound)
         {
             super.writeStructureToNBT(tagCompound);
-            tagCompound.putBoolean("Mob", this.hasSpawner);
+            tagCompound.setBoolean("Mob", this.hasSpawner);
         }
 
-        protected void readAdditional(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
+        protected void readStructureFromNBT(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
         {
-            super.readAdditional(tagCompound, p_143011_2_);
+            super.readStructureFromNBT(tagCompound, p_143011_2_);
             this.hasSpawner = tagCompound.getBoolean("Mob");
         }
 
@@ -917,7 +917,7 @@ public class StructureStrongholdPieces
                 if (structureBoundingBoxIn.isVecInside(blockpos))
                 {
                     this.hasSpawner = true;
-                    worldIn.setBlockState(blockpos, Blocks.SPAWNER.getDefaultState(), 2);
+                    worldIn.setBlockState(blockpos, Blocks.MOB_SPAWNER.getDefaultState(), 2);
                     TileEntity tileentity = worldIn.getTileEntity(blockpos);
 
                     if (tileentity instanceof TileEntityMobSpawner)
@@ -1048,13 +1048,13 @@ public class StructureStrongholdPieces
         protected void writeStructureToNBT(NBTTagCompound tagCompound)
         {
             super.writeStructureToNBT(tagCompound);
-            tagCompound.putInt("Type", this.roomType);
+            tagCompound.setInteger("Type", this.roomType);
         }
 
-        protected void readAdditional(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
+        protected void readStructureFromNBT(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
         {
-            super.readAdditional(tagCompound, p_143011_2_);
-            this.roomType = tagCompound.getInt("Type");
+            super.readStructureFromNBT(tagCompound, p_143011_2_);
+            this.roomType = tagCompound.getInteger("Type");
         }
 
         public void buildComponent(StructureComponent componentIn, List<StructureComponent> listIn, Random rand)
@@ -1216,12 +1216,12 @@ public class StructureStrongholdPieces
         protected void writeStructureToNBT(NBTTagCompound tagCompound)
         {
             super.writeStructureToNBT(tagCompound);
-            tagCompound.putBoolean("Source", this.source);
+            tagCompound.setBoolean("Source", this.source);
         }
 
-        protected void readAdditional(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
+        protected void readStructureFromNBT(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
         {
-            super.readAdditional(tagCompound, p_143011_2_);
+            super.readStructureFromNBT(tagCompound, p_143011_2_);
             this.source = tagCompound.getBoolean("Source");
         }
 
@@ -1405,13 +1405,13 @@ public class StructureStrongholdPieces
         protected void writeStructureToNBT(NBTTagCompound tagCompound)
         {
             super.writeStructureToNBT(tagCompound);
-            tagCompound.putBoolean("Left", this.expandsX);
-            tagCompound.putBoolean("Right", this.expandsZ);
+            tagCompound.setBoolean("Left", this.expandsX);
+            tagCompound.setBoolean("Right", this.expandsZ);
         }
 
-        protected void readAdditional(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
+        protected void readStructureFromNBT(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
         {
-            super.readAdditional(tagCompound, p_143011_2_);
+            super.readStructureFromNBT(tagCompound, p_143011_2_);
             this.expandsX = tagCompound.getBoolean("Left");
             this.expandsZ = tagCompound.getBoolean("Right");
         }
@@ -1485,10 +1485,10 @@ public class StructureStrongholdPieces
 
         protected void writeStructureToNBT(NBTTagCompound tagCompound)
         {
-            tagCompound.putString("EntryDoor", this.entryDoor.name());
+            tagCompound.setString("EntryDoor", this.entryDoor.name());
         }
 
-        protected void readAdditional(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
+        protected void readStructureFromNBT(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
         {
             this.entryDoor = StructureStrongholdPieces.Stronghold.Door.valueOf(tagCompound.getString("EntryDoor"));
         }

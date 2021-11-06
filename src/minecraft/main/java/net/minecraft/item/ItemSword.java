@@ -27,6 +27,9 @@ public class ItemSword extends Item
         this.attackDamage = 3.0F + material.getAttackDamage();
     }
 
+    /**
+     * Returns the amount of damage this item will deal. One heart of damage is equal to 2 damage points.
+     */
     public float getAttackDamage()
     {
         return this.material.getAttackDamage();
@@ -43,7 +46,7 @@ public class ItemSword extends Item
         else
         {
             Material material = state.getMaterial();
-            return material != Material.PLANTS && material != Material.TALL_PLANTS && material != Material.CORAL && material != Material.LEAVES && material != Material.GOURD ? 1.0F : 1.5F;
+            return material != Material.PLANTS && material != Material.VINE && material != Material.CORAL && material != Material.LEAVES && material != Material.GOURD ? 1.0F : 1.5F;
         }
     }
 
@@ -70,6 +73,9 @@ public class ItemSword extends Item
         return true;
     }
 
+    /**
+     * Returns True is the item is renderer in full 3D when hold.
+     */
     public boolean isFull3D()
     {
         return true;
@@ -91,6 +97,9 @@ public class ItemSword extends Item
         return this.material.getEnchantability();
     }
 
+    /**
+     * Return the name for this tool's material.
+     */
     public String getToolMaterialName()
     {
         return this.material.toString();
@@ -98,15 +107,18 @@ public class ItemSword extends Item
 
     /**
      * Return whether this item is repairable in an anvil.
+     *  
+     * @param toRepair the {@code ItemStack} being repaired
+     * @param repair the {@code ItemStack} being used to perform the repair
      */
     public boolean getIsRepairable(ItemStack toRepair, ItemStack repair)
     {
         return this.material.getRepairItem() == repair.getItem() ? true : super.getIsRepairable(toRepair, repair);
     }
 
-    public Multimap<String, AttributeModifier> getAttributeModifiers(EntityEquipmentSlot equipmentSlot)
+    public Multimap<String, AttributeModifier> getItemAttributeModifiers(EntityEquipmentSlot equipmentSlot)
     {
-        Multimap<String, AttributeModifier> multimap = super.getAttributeModifiers(equipmentSlot);
+        Multimap<String, AttributeModifier> multimap = super.getItemAttributeModifiers(equipmentSlot);
 
         if (equipmentSlot == EntityEquipmentSlot.MAINHAND)
         {

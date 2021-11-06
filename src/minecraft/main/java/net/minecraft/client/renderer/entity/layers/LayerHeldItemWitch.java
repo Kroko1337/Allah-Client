@@ -40,7 +40,7 @@ public class LayerHeldItemWitch implements LayerRenderer<EntityWitch>
             this.witchRenderer.getMainModel().villagerNose.postRender(0.0625F);
             GlStateManager.translate(-0.0625F, 0.53125F, 0.21875F);
             Item item = itemstack.getItem();
-            Minecraft minecraft = Minecraft.getInstance();
+            Minecraft minecraft = Minecraft.getMinecraft();
 
             if (Block.getBlockFromItem(item).getDefaultState().getRenderType() == EnumBlockRenderType.ENTITYBLOCK_ANIMATED)
             {
@@ -86,7 +86,7 @@ public class LayerHeldItemWitch implements LayerRenderer<EntityWitch>
 
             GlStateManager.rotate(-15.0F, 1.0F, 0.0F, 0.0F);
             GlStateManager.rotate(40.0F, 0.0F, 0.0F, 1.0F);
-            minecraft.getFirstPersonRenderer().renderItem(entitylivingbaseIn, itemstack, ItemCameraTransforms.TransformType.THIRD_PERSON_RIGHT_HAND);
+            minecraft.getItemRenderer().renderItem(entitylivingbaseIn, itemstack, ItemCameraTransforms.TransformType.THIRD_PERSON_RIGHT_HAND);
             GlStateManager.popMatrix();
         }
     }

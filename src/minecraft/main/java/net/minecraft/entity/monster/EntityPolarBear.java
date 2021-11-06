@@ -61,33 +61,33 @@ public class EntityPolarBear extends EntityAnimal
         return false;
     }
 
-    protected void registerGoals()
+    protected void initEntityAI()
     {
-        super.registerGoals();
-        this.goalSelector.addGoal(0, new EntityAISwimming(this));
-        this.goalSelector.addGoal(1, new EntityPolarBear.AIMeleeAttack());
-        this.goalSelector.addGoal(1, new EntityPolarBear.AIPanic());
-        this.goalSelector.addGoal(4, new EntityAIFollowParent(this, 1.25D));
-        this.goalSelector.addGoal(5, new EntityAIWander(this, 1.0D));
-        this.goalSelector.addGoal(6, new EntityAIWatchClosest(this, EntityPlayer.class, 6.0F));
-        this.goalSelector.addGoal(7, new EntityAILookIdle(this));
-        this.targetSelector.addGoal(1, new EntityPolarBear.AIHurtByTarget());
-        this.targetSelector.addGoal(2, new EntityPolarBear.AIAttackPlayer());
+        super.initEntityAI();
+        this.tasks.addTask(0, new EntityAISwimming(this));
+        this.tasks.addTask(1, new EntityPolarBear.AIMeleeAttack());
+        this.tasks.addTask(1, new EntityPolarBear.AIPanic());
+        this.tasks.addTask(4, new EntityAIFollowParent(this, 1.25D));
+        this.tasks.addTask(5, new EntityAIWander(this, 1.0D));
+        this.tasks.addTask(6, new EntityAIWatchClosest(this, EntityPlayer.class, 6.0F));
+        this.tasks.addTask(7, new EntityAILookIdle(this));
+        this.targetTasks.addTask(1, new EntityPolarBear.AIHurtByTarget());
+        this.targetTasks.addTask(2, new EntityPolarBear.AIAttackPlayer());
     }
 
-    protected void registerAttributes()
+    protected void applyEntityAttributes()
     {
-        super.registerAttributes();
-        this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(30.0D);
-        this.getAttribute(SharedMonsterAttributes.FOLLOW_RANGE).setBaseValue(20.0D);
-        this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.25D);
-        this.getAttributes().registerAttribute(SharedMonsterAttributes.ATTACK_DAMAGE);
-        this.getAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(6.0D);
+        super.applyEntityAttributes();
+        this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(30.0D);
+        this.getEntityAttribute(SharedMonsterAttributes.FOLLOW_RANGE).setBaseValue(20.0D);
+        this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.25D);
+        this.getAttributeMap().registerAttribute(SharedMonsterAttributes.ATTACK_DAMAGE);
+        this.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(6.0D);
     }
 
     protected SoundEvent getAmbientSound()
     {
-        return this.isChild() ? SoundEvents.ENTITY_POLAR_BEAR_AMBIENT_BABY : SoundEvents.ENTITY_POLAR_BEAR_AMBIENT;
+        return this.isChild() ? SoundEvents.ENTITY_POLAR_BEAR_BABY_AMBIENT : SoundEvents.ENTITY_POLAR_BEAR_AMBIENT;
     }
 
     protected SoundEvent getHurtSound(DamageSource damageSourceIn)
@@ -120,18 +120,18 @@ public class EntityPolarBear extends EntityAnimal
         return LootTableList.ENTITIES_POLAR_BEAR;
     }
 
-    protected void registerData()
+    protected void entityInit()
     {
-        super.registerData();
+        super.entityInit();
         this.dataManager.register(IS_STANDING, Boolean.valueOf(false));
     }
 
     /**
      * Called to update the entity's position/logic.
      */
-    public void tick()
+    public void onUpdate()
     {
-        super.tick();
+        super.onUpdate();
 
         if (this.world.isRemote)
         {
@@ -155,7 +155,7 @@ public class EntityPolarBear extends EntityAnimal
 
     public boolean attackEntityAsMob(Entity entityIn)
     {
-        boolean flag = entityIn.attackEntityFrom(DamageSource.causeMobDamage(this), (float)((int)this.getAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).getValue()));
+        boolean flag = entityIn.attackEntityFrom(DamageSource.causeMobDamage(this), (float)((int)this.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).getAttributeValue()));
 
         if (flag)
         {
@@ -185,6 +185,20 @@ public class EntityPolarBear extends EntityAnimal
         return 0.98F;
     }
 
+    /**
+     * Called only once on an entity when first time spawned, via egg, mob spawner, natural spawning etc, but not called
+     * when entity is reloaded from nbt. Mainly used for initializing attributes and inventory.
+     *  
+     * The livingdata parameter is used to pass data between all instances during a pack spawn. It will be null on the
+     * first call. Subclasses may check if it's null, and then create a new one and return it if so, initializing all
+     * entities in the pack with the contained data.
+     *  
+     * @return The IEntityLivingData to pass to this method for other instances of this entity class within the same
+     * pack
+     *  
+     * @param difficulty The current local difficulty
+     * @param livingdata Shared spawn data. Will usually be null. (See return value for more information)
+     */
     public IEntityLivingData onInitialSpawn(DifficultyInstance difficulty, IEntityLivingData livingdata)
     {
         if (livingdata instanceof EntityPolarBear.GroupData)
@@ -221,7 +235,7 @@ public class EntityPolarBear extends EntityAnimal
             {
                 if (super.shouldExecute())
                 {
-                    for (EntityPolarBear entitypolarbear : EntityPolarBear.this.world.getEntitiesWithinAABB(EntityPolarBear.class, EntityPolarBear.this.getBoundingBox().grow(8.0D, 4.0D, 8.0D)))
+                    for (EntityPolarBear entitypolarbear : EntityPolarBear.this.world.getEntitiesWithinAABB(EntityPolarBear.class, EntityPolarBear.this.getEntityBoundingBox().grow(8.0D, 4.0D, 8.0D)))
                     {
                         if (entitypolarbear.isChild())
                         {

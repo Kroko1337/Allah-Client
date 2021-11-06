@@ -18,18 +18,22 @@ public class BlockSand extends BlockFalling
 
     public BlockSand()
     {
-        this.setDefaultState(this.stateContainer.getBaseState().withProperty(VARIANT, BlockSand.EnumType.SAND));
+        this.setDefaultState(this.blockState.getBaseState().withProperty(VARIANT, BlockSand.EnumType.SAND));
     }
 
+    /**
+     * Gets the metadata of the item this Block can drop. This method is called when the block gets destroyed. It
+     * returns the metadata of the dropped item based on the old metadata of the block.
+     */
     public int damageDropped(IBlockState state)
     {
-        return ((BlockSand.EnumType)state.get(VARIANT)).getMetadata();
+        return ((BlockSand.EnumType)state.getValue(VARIANT)).getMetadata();
     }
 
     /**
      * returns a list of blocks with the same ID, but different meta (eg: wood returns 4 blocks)
      */
-    public void fillItemGroup(CreativeTabs group, NonNullList<ItemStack> items)
+    public void getSubBlocks(CreativeTabs itemIn, NonNullList<ItemStack> items)
     {
         for (BlockSand.EnumType blocksand$enumtype : BlockSand.EnumType.values())
         {
@@ -42,19 +46,25 @@ public class BlockSand extends BlockFalling
      * @deprecated call via {@link IBlockState#getMapColor(IBlockAccess,BlockPos)} whenever possible.
      * Implementing/overriding is fine.
      */
-    public MapColor getMaterialColor(IBlockState state, IBlockAccess worldIn, BlockPos pos)
+    public MapColor getMapColor(IBlockState state, IBlockAccess worldIn, BlockPos pos)
     {
-        return ((BlockSand.EnumType)state.get(VARIANT)).getMapColor();
+        return ((BlockSand.EnumType)state.getValue(VARIANT)).getMapColor();
     }
 
+    /**
+     * Convert the given metadata into a BlockState for this Block
+     */
     public IBlockState getStateFromMeta(int meta)
     {
         return this.getDefaultState().withProperty(VARIANT, BlockSand.EnumType.byMetadata(meta));
     }
 
+    /**
+     * Convert the BlockState into the correct metadata value
+     */
     public int getMetaFromState(IBlockState state)
     {
-        return ((BlockSand.EnumType)state.get(VARIANT)).getMetadata();
+        return ((BlockSand.EnumType)state.getValue(VARIANT)).getMetadata();
     }
 
     protected BlockStateContainer createBlockState()
@@ -64,7 +74,7 @@ public class BlockSand extends BlockFalling
 
     public int getDustColor(IBlockState state)
     {
-        BlockSand.EnumType blocksand$enumtype = (BlockSand.EnumType)state.get(VARIANT);
+        BlockSand.EnumType blocksand$enumtype = (BlockSand.EnumType)state.getValue(VARIANT);
         return blocksand$enumtype.getDustColor();
     }
 

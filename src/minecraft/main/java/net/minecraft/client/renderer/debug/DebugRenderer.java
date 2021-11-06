@@ -55,7 +55,7 @@ public class DebugRenderer
             this.pathfinding.render(partialTicks, finishTimeNano);
         }
 
-        if (this.chunkBorderEnabled && !Minecraft.getInstance().isReducedDebug())
+        if (this.chunkBorderEnabled && !Minecraft.getMinecraft().isReducedDebug())
         {
             this.chunkBorder.render(partialTicks, finishTimeNano);
         }
@@ -93,7 +93,7 @@ public class DebugRenderer
 
     public static void renderDebugText(String str, double x, double y, double z, float partialTicks, int color)
     {
-        Minecraft minecraft = Minecraft.getInstance();
+        Minecraft minecraft = Minecraft.getMinecraft();
 
         if (minecraft.player != null && minecraft.getRenderManager() != null && minecraft.getRenderManager().options != null)
         {

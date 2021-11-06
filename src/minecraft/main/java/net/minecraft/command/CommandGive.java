@@ -16,21 +16,33 @@ import net.minecraft.util.math.BlockPos;
 
 public class CommandGive extends CommandBase
 {
+    /**
+     * Gets the name of the command
+     */
     public String getName()
     {
         return "give";
     }
 
+    /**
+     * Return the required permission level for this command.
+     */
     public int getRequiredPermissionLevel()
     {
         return 2;
     }
 
+    /**
+     * Gets the usage string for the command.
+     */
     public String getUsage(ICommandSender sender)
     {
         return "commands.give.usage";
     }
 
+    /**
+     * Callback for when the command is executed
+     */
     public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
     {
         if (args.length < 2)
@@ -41,7 +53,7 @@ public class CommandGive extends CommandBase
         {
             EntityPlayer entityplayer = getPlayer(server, sender, args[0]);
             Item item = getItemByText(sender, args[1]);
-            int i = args.length >= 3 ? parseInt(args[2], 1, item.getMaxStackSize()) : 1;
+            int i = args.length >= 3 ? parseInt(args[2], 1, item.getItemStackLimit()) : 1;
             int j = args.length >= 4 ? parseInt(args[3]) : 0;
             ItemStack itemstack = new ItemStack(item, i, j);
 
@@ -51,7 +63,7 @@ public class CommandGive extends CommandBase
 
                 try
                 {
-                    itemstack.setTag(JsonToNBT.getTagFromJson(s));
+                    itemstack.setTagCompound(JsonToNBT.getTagFromJson(s));
                 }
                 catch (NBTException nbtexception)
                 {
@@ -64,7 +76,7 @@ public class CommandGive extends CommandBase
             if (flag)
             {
                 entityplayer.world.playSound((EntityPlayer)null, entityplayer.posX, entityplayer.posY, entityplayer.posZ, SoundEvents.ENTITY_ITEM_PICKUP, SoundCategory.PLAYERS, 0.2F, ((entityplayer.getRNG().nextFloat() - entityplayer.getRNG().nextFloat()) * 0.7F + 1.0F) * 2.0F);
-                entityplayer.container.detectAndSendChanges();
+                entityplayer.inventoryContainer.detectAndSendChanges();
             }
 
             if (flag && itemstack.isEmpty())
@@ -102,10 +114,13 @@ public class CommandGive extends CommandBase
         }
         else
         {
-            return args.length == 2 ? getListOfStringsMatchingLastWord(args, Item.REGISTRY.keySet()) : Collections.emptyList();
+            return args.length == 2 ? getListOfStringsMatchingLastWord(args, Item.REGISTRY.getKeys()) : Collections.emptyList();
         }
     }
 
+    /**
+     * Return whether the specified command parameter index is a username parameter.
+     */
     public boolean isUsernameIndex(String[] args, int index)
     {
         return index == 0;

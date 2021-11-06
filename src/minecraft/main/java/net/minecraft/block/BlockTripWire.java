@@ -38,42 +38,69 @@ public class BlockTripWire extends Block
 
     public BlockTripWire()
     {
-        super(Material.MISCELLANEOUS);
-        this.setDefaultState(this.stateContainer.getBaseState().withProperty(POWERED, Boolean.valueOf(false)).withProperty(ATTACHED, Boolean.valueOf(false)).withProperty(DISARMED, Boolean.valueOf(false)).withProperty(NORTH, Boolean.valueOf(false)).withProperty(EAST, Boolean.valueOf(false)).withProperty(SOUTH, Boolean.valueOf(false)).withProperty(WEST, Boolean.valueOf(false)));
+        super(Material.CIRCUITS);
+        this.setDefaultState(this.blockState.getBaseState().withProperty(POWERED, Boolean.valueOf(false)).withProperty(ATTACHED, Boolean.valueOf(false)).withProperty(DISARMED, Boolean.valueOf(false)).withProperty(NORTH, Boolean.valueOf(false)).withProperty(EAST, Boolean.valueOf(false)).withProperty(SOUTH, Boolean.valueOf(false)).withProperty(WEST, Boolean.valueOf(false)));
         this.setTickRandomly(true);
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#getBoundingBox(IBlockAccess,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
     {
-        return !((Boolean)state.get(ATTACHED)).booleanValue() ? TRIP_WRITE_ATTACHED_AABB : AABB;
+        return !((Boolean)state.getValue(ATTACHED)).booleanValue() ? TRIP_WRITE_ATTACHED_AABB : AABB;
     }
 
+    /**
+     * Get the actual Block state of this Block at the given position. This applies properties not visible in the
+     * metadata, such as fence connections.
+     */
     public IBlockState getActualState(IBlockState state, IBlockAccess worldIn, BlockPos pos)
     {
         return state.withProperty(NORTH, Boolean.valueOf(isConnectedTo(worldIn, pos, state, EnumFacing.NORTH))).withProperty(EAST, Boolean.valueOf(isConnectedTo(worldIn, pos, state, EnumFacing.EAST))).withProperty(SOUTH, Boolean.valueOf(isConnectedTo(worldIn, pos, state, EnumFacing.SOUTH))).withProperty(WEST, Boolean.valueOf(isConnectedTo(worldIn, pos, state, EnumFacing.WEST)));
     }
 
     @Nullable
+
+    /**
+     * @deprecated call via {@link IBlockState#getCollisionBoundingBox(IBlockAccess,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public AxisAlignedBB getCollisionBoundingBox(IBlockState blockState, IBlockAccess worldIn, BlockPos pos)
     {
         return NULL_AABB;
     }
 
+    /**
+     * Used to determine ambient occlusion and culling when rebuilding chunks for render
+     * @deprecated call via {@link IBlockState#isOpaqueCube()} whenever possible. Implementing/overriding is fine.
+     */
     public boolean isOpaqueCube(IBlockState state)
     {
         return false;
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#isFullCube()} whenever possible. Implementing/overriding is fine.
+     */
     public boolean isFullCube(IBlockState state)
     {
         return false;
     }
 
+    /**
+     * Gets the render layer this block will render on. SOLID for solid blocks, CUTOUT or CUTOUT_MIPPED for on-off
+     * transparency (glass, reeds), TRANSLUCENT for fully blended transparency (stained glass)
+     */
     public BlockRenderLayer getRenderLayer()
     {
         return BlockRenderLayer.TRANSLUCENT;
     }
 
+    /**
+     * Get the Item that this Block should drop when harvested.
+     */
     public Item getItemDropped(IBlockState state, Random rand, int fortune)
     {
         return Items.STRING;
@@ -84,12 +111,18 @@ public class BlockTripWire extends Block
         return new ItemStack(Items.STRING);
     }
 
+    /**
+     * Called after the block is set in the Chunk data, but before the Tile Entity is set
+     */
     public void onBlockAdded(World worldIn, BlockPos pos, IBlockState state)
     {
         worldIn.setBlockState(pos, state, 3);
         this.notifyHook(worldIn, pos, state);
     }
 
+    /**
+     * Called serverside after this block is replaced with another in Chunk, but before the Tile Entity is updated
+     */
     public void breakBlock(World worldIn, BlockPos pos, IBlockState state)
     {
         this.notifyHook(worldIn, pos, state.withProperty(POWERED, Boolean.valueOf(true)));
@@ -121,7 +154,7 @@ public class BlockTripWire extends Block
 
                 if (iblockstate.getBlock() == Blocks.TRIPWIRE_HOOK)
                 {
-                    if (iblockstate.get(BlockTripWireHook.FACING) == enumfacing.getOpposite())
+                    if (iblockstate.getValue(BlockTripWireHook.FACING) == enumfacing.getOpposite())
                     {
                         Blocks.TRIPWIRE_HOOK.calculateState(worldIn, blockpos, iblockstate, false, true, i, state);
                     }
@@ -137,17 +170,23 @@ public class BlockTripWire extends Block
         }
     }
 
+    /**
+     * Called When an Entity Collided with the Block
+     */
     public void onEntityCollision(World worldIn, BlockPos pos, IBlockState state, Entity entityIn)
     {
         if (!worldIn.isRemote)
         {
-            if (!((Boolean)state.get(POWERED)).booleanValue())
+            if (!((Boolean)state.getValue(POWERED)).booleanValue())
             {
                 this.updateState(worldIn, pos);
             }
         }
     }
 
+    /**
+     * Called randomly when setTickRandomly is set to true (used by e.g. crops to grow, etc.)
+     */
     public void randomTick(World worldIn, BlockPos pos, IBlockState state, Random random)
     {
     }
@@ -156,7 +195,7 @@ public class BlockTripWire extends Block
     {
         if (!worldIn.isRemote)
         {
-            if (((Boolean)worldIn.getBlockState(pos).get(POWERED)).booleanValue())
+            if (((Boolean)worldIn.getBlockState(pos).getValue(POWERED)).booleanValue())
             {
                 this.updateState(worldIn, pos);
             }
@@ -166,7 +205,7 @@ public class BlockTripWire extends Block
     private void updateState(World worldIn, BlockPos pos)
     {
         IBlockState iblockstate = worldIn.getBlockState(pos);
-        boolean flag = ((Boolean)iblockstate.get(POWERED)).booleanValue();
+        boolean flag = ((Boolean)iblockstate.getValue(POWERED)).booleanValue();
         boolean flag1 = false;
         List <? extends Entity > list = worldIn.getEntitiesWithinAABBExcludingEntity((Entity)null, iblockstate.getBoundingBox(worldIn, pos).offset(pos));
 
@@ -204,7 +243,7 @@ public class BlockTripWire extends Block
         if (block == Blocks.TRIPWIRE_HOOK)
         {
             EnumFacing enumfacing = direction.getOpposite();
-            return iblockstate.get(BlockTripWireHook.FACING) == enumfacing;
+            return iblockstate.getValue(BlockTripWireHook.FACING) == enumfacing;
         }
         else
         {
@@ -212,26 +251,32 @@ public class BlockTripWire extends Block
         }
     }
 
+    /**
+     * Convert the given metadata into a BlockState for this Block
+     */
     public IBlockState getStateFromMeta(int meta)
     {
         return this.getDefaultState().withProperty(POWERED, Boolean.valueOf((meta & 1) > 0)).withProperty(ATTACHED, Boolean.valueOf((meta & 4) > 0)).withProperty(DISARMED, Boolean.valueOf((meta & 8) > 0));
     }
 
+    /**
+     * Convert the BlockState into the correct metadata value
+     */
     public int getMetaFromState(IBlockState state)
     {
         int i = 0;
 
-        if (((Boolean)state.get(POWERED)).booleanValue())
+        if (((Boolean)state.getValue(POWERED)).booleanValue())
         {
             i |= 1;
         }
 
-        if (((Boolean)state.get(ATTACHED)).booleanValue())
+        if (((Boolean)state.getValue(ATTACHED)).booleanValue())
         {
             i |= 4;
         }
 
-        if (((Boolean)state.get(DISARMED)).booleanValue())
+        if (((Boolean)state.getValue(DISARMED)).booleanValue())
         {
             i |= 8;
         }
@@ -245,18 +290,18 @@ public class BlockTripWire extends Block
      * @deprecated call via {@link IBlockState#withRotation(Rotation)} whenever possible. Implementing/overriding is
      * fine.
      */
-    public IBlockState rotate(IBlockState state, Rotation rot)
+    public IBlockState withRotation(IBlockState state, Rotation rot)
     {
         switch (rot)
         {
             case CLOCKWISE_180:
-                return state.withProperty(NORTH, state.get(SOUTH)).withProperty(EAST, state.get(WEST)).withProperty(SOUTH, state.get(NORTH)).withProperty(WEST, state.get(EAST));
+                return state.withProperty(NORTH, state.getValue(SOUTH)).withProperty(EAST, state.getValue(WEST)).withProperty(SOUTH, state.getValue(NORTH)).withProperty(WEST, state.getValue(EAST));
 
             case COUNTERCLOCKWISE_90:
-                return state.withProperty(NORTH, state.get(EAST)).withProperty(EAST, state.get(SOUTH)).withProperty(SOUTH, state.get(WEST)).withProperty(WEST, state.get(NORTH));
+                return state.withProperty(NORTH, state.getValue(EAST)).withProperty(EAST, state.getValue(SOUTH)).withProperty(SOUTH, state.getValue(WEST)).withProperty(WEST, state.getValue(NORTH));
 
             case CLOCKWISE_90:
-                return state.withProperty(NORTH, state.get(WEST)).withProperty(EAST, state.get(NORTH)).withProperty(SOUTH, state.get(EAST)).withProperty(WEST, state.get(SOUTH));
+                return state.withProperty(NORTH, state.getValue(WEST)).withProperty(EAST, state.getValue(NORTH)).withProperty(SOUTH, state.getValue(EAST)).withProperty(WEST, state.getValue(SOUTH));
 
             default:
                 return state;
@@ -268,18 +313,18 @@ public class BlockTripWire extends Block
      * blockstate.
      * @deprecated call via {@link IBlockState#withMirror(Mirror)} whenever possible. Implementing/overriding is fine.
      */
-    public IBlockState mirror(IBlockState state, Mirror mirrorIn)
+    public IBlockState withMirror(IBlockState state, Mirror mirrorIn)
     {
         switch (mirrorIn)
         {
             case LEFT_RIGHT:
-                return state.withProperty(NORTH, state.get(SOUTH)).withProperty(SOUTH, state.get(NORTH));
+                return state.withProperty(NORTH, state.getValue(SOUTH)).withProperty(SOUTH, state.getValue(NORTH));
 
             case FRONT_BACK:
-                return state.withProperty(EAST, state.get(WEST)).withProperty(WEST, state.get(EAST));
+                return state.withProperty(EAST, state.getValue(WEST)).withProperty(WEST, state.getValue(EAST));
 
             default:
-                return super.mirror(state, mirrorIn);
+                return super.withMirror(state, mirrorIn);
         }
     }
 
@@ -288,6 +333,17 @@ public class BlockTripWire extends Block
         return new BlockStateContainer(this, new IProperty[] {POWERED, ATTACHED, DISARMED, NORTH, EAST, WEST, SOUTH});
     }
 
+    /**
+     * Get the geometry of the queried face at the given position and state. This is used to decide whether things like
+     * buttons are allowed to be placed on the face, or how glass panes connect to the face, among other things.
+     * <p>
+     * Common values are {@code SOLID}, which is the default, and {@code UNDEFINED}, which represents something that
+     * does not fit the other descriptions and will generally cause other things not to connect to the face.
+
+     * @return an approximation of the form of the given face
+     * @deprecated call via {@link IBlockState#getBlockFaceShape(IBlockAccess,BlockPos,EnumFacing)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public BlockFaceShape getBlockFaceShape(IBlockAccess worldIn, IBlockState state, BlockPos pos, EnumFacing face)
     {
         return BlockFaceShape.UNDEFINED;

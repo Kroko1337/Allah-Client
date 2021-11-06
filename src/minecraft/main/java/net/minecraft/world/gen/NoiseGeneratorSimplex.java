@@ -50,18 +50,18 @@ public class NoiseGeneratorSimplex
         return (double)p_151604_0_[0] * p_151604_1_ + (double)p_151604_0_[1] * p_151604_3_;
     }
 
-    public double getValue(double x, double y)
+    public double getValue(double p_151605_1_, double p_151605_3_)
     {
         double d3 = 0.5D * (SQRT_3 - 1.0D);
-        double d4 = (x + y) * d3;
-        int i = fastFloor(x + d4);
-        int j = fastFloor(y + d4);
+        double d4 = (p_151605_1_ + p_151605_3_) * d3;
+        int i = fastFloor(p_151605_1_ + d4);
+        int j = fastFloor(p_151605_3_ + d4);
         double d5 = (3.0D - SQRT_3) / 6.0D;
         double d6 = (double)(i + j) * d5;
         double d7 = (double)i - d6;
         double d8 = (double)j - d6;
-        double d9 = x - d7;
-        double d10 = y - d8;
+        double d9 = p_151605_1_ - d7;
+        double d10 = p_151605_3_ - d8;
         int k;
         int l;
 

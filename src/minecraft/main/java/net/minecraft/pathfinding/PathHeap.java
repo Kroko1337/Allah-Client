@@ -2,7 +2,10 @@ package net.minecraft.pathfinding;
 
 public class PathHeap
 {
+    /** Contains the points in this path */
     private PathPoint[] pathPoints = new PathPoint[128];
+
+    /** The number of points in this path */
     private int count;
 
     /**

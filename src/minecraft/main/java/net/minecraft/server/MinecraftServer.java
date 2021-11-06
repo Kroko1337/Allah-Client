@@ -88,7 +88,9 @@ public abstract class MinecraftServer implements ICommandSender, Runnable, IThre
     private static final Logger LOGGER = LogManager.getLogger();
     public static final File USER_CACHE_FILE = new File("usercache.json");
     private final ISaveFormat anvilConverterForAnvilFile;
-    private final Snooper snooper = new Snooper("server", this, getCurrentTimeMillis());
+
+    /** The PlayerUsageSnooper instance. */
+    private final Snooper usageSnooper = new Snooper("server", this, getCurrentTimeMillis());
     private final File anvilFile;
     private final List<ITickable> tickables = Lists.<ITickable>newArrayList();
     public final ICommandManager commandManager;
@@ -97,27 +99,63 @@ public abstract class MinecraftServer implements ICommandSender, Runnable, IThre
     private final ServerStatusResponse statusResponse = new ServerStatusResponse();
     private final Random random = new Random();
     private final DataFixer dataFixer;
+
+    /** The server's port. */
     private int serverPort = -1;
+
+    /** The server world instances. */
     public WorldServer[] worlds;
+
+    /** The player list for this server */
     private PlayerList playerList;
+
+    /**
+     * Indicates whether the server is running or not. Set to false to initiate a shutdown.
+     */
     private boolean serverRunning = true;
+
+    /** Indicates to other classes that the server is safely stopped. */
     private boolean serverStopped;
+
+    /** Incremented every tick. */
     private int tickCounter;
     protected final Proxy serverProxy;
+
+    /**
+     * The task the server is currently working on(and will output on outputPercentRemaining).
+     */
     public String currentTask;
+
+    /** The percentage of the current task finished so far. */
     public int percentDone;
+
+    /** True if the server is in online mode. */
     private boolean onlineMode;
     private boolean preventProxyConnections;
+
+    /** True if the server has animals turned on. */
     private boolean canSpawnAnimals;
     private boolean canSpawnNPCs;
+
+    /** Indicates whether PvP is active on the server or not. */
     private boolean pvpEnabled;
+
+    /** Determines if flight is allowed or not. */
     private boolean allowFlight;
+
+    /** The server MOTD string. */
     private String motd;
+
+    /** Maximum build height. */
     private int buildLimit;
     private int maxPlayerIdleMinutes;
     public final long[] tickTimeArray = new long[100];
+
+    /** Stats are [dimension][tick%100] system.nanoTime is stored. */
     public long[][] timeOfLastDimensionTick;
     private KeyPair serverKeyPair;
+
+    /** Username of the server owner (for integrated servers) */
     private String serverOwner;
     private String folderName;
     private String worldName;
@@ -128,6 +166,10 @@ public abstract class MinecraftServer implements ICommandSender, Runnable, IThre
     private String resourcePackUrl = "";
     private String resourcePackHash = "";
     private boolean serverIsRunning;
+
+    /**
+     * Set when warned for "Can't keep up", which triggers again after 15 seconds.
+     */
     private long timeOfLastWarning;
     private String userMessage;
     private boolean startProfiling;
@@ -199,6 +241,9 @@ public abstract class MinecraftServer implements ICommandSender, Runnable, IThre
         }
     }
 
+    /**
+     * Typically "menu.convertingLevel", "menu.loadingLevel" or others.
+     */
     protected synchronized void setUserMessage(String message)
     {
         this.userMessage = message;
@@ -359,10 +404,19 @@ public abstract class MinecraftServer implements ICommandSender, Runnable, IThre
 
     public abstract int getOpPermissionLevel();
 
+    /**
+     * Get if RCON command events should be broadcast to ops
+     */
     public abstract boolean shouldBroadcastRconToOps();
 
+    /**
+     * Get if console command events should be broadcast to ops
+     */
     public abstract boolean shouldBroadcastConsoleToOps();
 
+    /**
+     * Used to display a percent remaining given text and the percentage.
+     */
     protected void outputPercentRemaining(String message, int percent)
     {
         this.currentTask = message;
@@ -370,12 +424,18 @@ public abstract class MinecraftServer implements ICommandSender, Runnable, IThre
         LOGGER.info("{}: {}%", message, Integer.valueOf(percent));
     }
 
+    /**
+     * Set current task to null and set its percentage to 0.
+     */
     protected void clearCurrentTask()
     {
         this.currentTask = null;
         this.percentDone = 0;
     }
 
+    /**
+     * par1 indicates if a log message should be output.
+     */
     public void saveAllWorlds(boolean isSilent)
     {
         for (WorldServer worldserver : this.worlds)
@@ -384,7 +444,7 @@ public abstract class MinecraftServer implements ICommandSender, Runnable, IThre
             {
                 if (!isSilent)
                 {
-                    LOGGER.info("Saving chunks for level '{}'/{}", worldserver.getWorldInfo().getWorldName(), worldserver.dimension.getType().getName());
+                    LOGGER.info("Saving chunks for level '{}'/{}", worldserver.getWorldInfo().getWorldName(), worldserver.provider.getDimensionType().getName());
                 }
 
                 try
@@ -441,9 +501,9 @@ public abstract class MinecraftServer implements ICommandSender, Runnable, IThre
             }
         }
 
-        if (this.snooper.isSnooperRunning())
+        if (this.usageSnooper.isSnooperRunning())
         {
-            this.snooper.stop();
+            this.usageSnooper.stopSnooper();
         }
     }
 
@@ -647,7 +707,7 @@ public abstract class MinecraftServer implements ICommandSender, Runnable, IThre
             this.nanoTimeSinceStatusRefresh = i;
             this.statusResponse.setPlayers(new ServerStatusResponse.Players(this.getMaxPlayers(), this.getCurrentPlayerCount()));
             GameProfile[] agameprofile = new GameProfile[Math.min(this.getCurrentPlayerCount(), 12)];
-            int j = MathHelper.nextInt(this.random, 0, this.getCurrentPlayerCount() - agameprofile.length);
+            int j = MathHelper.getInt(this.random, 0, this.getCurrentPlayerCount() - agameprofile.length);
 
             for (int k = 0; k < agameprofile.length; ++k)
             {
@@ -671,14 +731,14 @@ public abstract class MinecraftServer implements ICommandSender, Runnable, IThre
         this.profiler.endSection();
         this.profiler.startSection("snooper");
 
-        if (!this.snooper.isSnooperRunning() && this.tickCounter > 100)
+        if (!this.usageSnooper.isSnooperRunning() && this.tickCounter > 100)
         {
-            this.snooper.start();
+            this.usageSnooper.startSnooper();
         }
 
         if (this.tickCounter % 6000 == 0)
         {
-            this.snooper.addMemoryStatsToSnooper();
+            this.usageSnooper.addMemoryStatsToSnooper();
         }
 
         this.profiler.endSection();
@@ -706,7 +766,7 @@ public abstract class MinecraftServer implements ICommandSender, Runnable, IThre
             if (j == 0 || this.getAllowNether())
             {
                 WorldServer worldserver = this.worlds[j];
-                this.profiler.startSection(() ->
+                this.profiler.func_194340_a(() ->
                 {
                     return worldserver.getWorldInfo().getWorldName();
                 });
@@ -714,7 +774,7 @@ public abstract class MinecraftServer implements ICommandSender, Runnable, IThre
                 if (this.tickCounter % 20 == 0)
                 {
                     this.profiler.startSection("timeSync");
-                    this.playerList.sendPacketToAllPlayersInDimension(new SPacketTimeUpdate(worldserver.getGameTime(), worldserver.getDayTime(), worldserver.getGameRules().getBoolean("doDaylightCycle")), worldserver.dimension.getType().getId());
+                    this.playerList.sendPacketToAllPlayersInDimension(new SPacketTimeUpdate(worldserver.getTotalWorldTime(), worldserver.getWorldTime(), worldserver.getGameRules().getBoolean("doDaylightCycle")), worldserver.provider.getDimensionType().getId());
                     this.profiler.endSection();
                 }
 
@@ -727,7 +787,7 @@ public abstract class MinecraftServer implements ICommandSender, Runnable, IThre
                 catch (Throwable throwable1)
                 {
                     CrashReport crashreport = CrashReport.makeCrashReport(throwable1, "Exception ticking world");
-                    worldserver.fillCrashReport(crashreport);
+                    worldserver.addWorldInfoToCrashReport(crashreport);
                     throw new ReportedException(crashreport);
                 }
 
@@ -738,7 +798,7 @@ public abstract class MinecraftServer implements ICommandSender, Runnable, IThre
                 catch (Throwable throwable)
                 {
                     CrashReport crashreport1 = CrashReport.makeCrashReport(throwable, "Exception ticking world entities");
-                    worldserver.fillCrashReport(crashreport1);
+                    worldserver.addWorldInfoToCrashReport(crashreport1);
                     throw new ReportedException(crashreport1);
                 }
 
@@ -753,16 +813,16 @@ public abstract class MinecraftServer implements ICommandSender, Runnable, IThre
         }
 
         this.profiler.endStartSection("connection");
-        this.getNetworkSystem().tick();
+        this.getNetworkSystem().networkTick();
         this.profiler.endStartSection("players");
-        this.playerList.tick();
+        this.playerList.onTick();
         this.profiler.endStartSection("commandFunctions");
-        this.getFunctionManager().tick();
+        this.getFunctionManager().update();
         this.profiler.endStartSection("tickables");
 
         for (int k = 0; k < this.tickables.size(); ++k)
         {
-            ((ITickable)this.tickables.get(k)).tick();
+            ((ITickable)this.tickables.get(k)).update();
         }
 
         this.profiler.endSection();
@@ -842,6 +902,9 @@ public abstract class MinecraftServer implements ICommandSender, Runnable, IThre
         return this.playerList.getOnlinePlayerNames();
     }
 
+    /**
+     * Returns an array of the GameProfiles of all the connected players
+     */
     public GameProfile[] getOnlinePlayerProfiles()
     {
         return this.playerList.getOnlinePlayerProfiles();
@@ -933,6 +996,41 @@ public abstract class MinecraftServer implements ICommandSender, Runnable, IThre
         return this.anvilFile != null;
     }
 
+    /**
+     * Gets the name of this thing. This method has slightly different behavior depending on the interface (for <a
+     * href="https://github.com/ModCoderPack/MCPBot-Issues/issues/14">technical reasons</a> the same method is used for
+     * both IWorldNameable and ICommandSender):
+     *  
+     * <dl>
+     * <dt>{@link net.minecraft.util.INameable#getName() INameable.getName()}</dt>
+     * <dd>Returns the name of this inventory. If this {@linkplain net.minecraft.inventory#hasCustomName() has a custom
+     * name} then this <em>should</em> be a direct string; otherwise it <em>should</em> be a valid translation
+     * string.</dd>
+     * <dd>However, note that <strong>the translation string may be invalid</strong>, as is the case for {@link
+     * net.minecraft.tileentity.TileEntityBanner TileEntityBanner} (always returns nonexistent translation code
+     * <code>banner</code> without a custom name), {@link net.minecraft.block.BlockAnvil.Anvil BlockAnvil$Anvil} (always
+     * returns <code>anvil</code>), {@link net.minecraft.block.BlockWorkbench.InterfaceCraftingTable
+     * BlockWorkbench$InterfaceCraftingTable} (always returns <code>crafting_table</code>), {@link
+     * net.minecraft.inventory.InventoryCraftResult InventoryCraftResult} (always returns <code>Result</code>) and the
+     * {@link net.minecraft.entity.item.EntityMinecart EntityMinecart} family (uses the entity definition). This is not
+     * an exaustive list.</dd>
+     * <dd>In general, this method should be safe to use on tile entities that implement IInventory.</dd>
+     * <dt>{@link net.minecraft.command.ICommandSender#getName() ICommandSender.getName()} and {@link
+     * net.minecraft.entity.Entity#getName() Entity.getName()}</dt>
+     * <dd>Returns a valid, displayable name (which may be localized). For most entities, this is the translated version
+     * of its translation string (obtained via {@link net.minecraft.entity.EntityList#getEntityString
+     * EntityList.getEntityString}).</dd>
+     * <dd>If this entity has a custom name set, this will return that name.</dd>
+     * <dd>For some entities, this will attempt to translate a nonexistent translation string; see <a
+     * href="https://bugs.mojang.com/browse/MC-68446">MC-68446</a>. For {@linkplain
+     * net.minecraft.entity.player.EntityPlayer#getName() players} this returns the player's name. For {@linkplain
+     * net.minecraft.entity.passive.EntityOcelot ocelots} this may return the translation of
+     * <code>entity.Cat.name</code> if it is tamed. For {@linkplain net.minecraft.entity.item.EntityItem#getName() item
+     * entities}, this will attempt to return the name of the item in that item entity. In all cases other than players,
+     * the custom name will overrule this.</dd>
+     * <dd>For non-entity command senders, this will return some arbitrary name, such as "Rcon" or "Server".</dd>
+     * </dl>
+     */
     public String getName()
     {
         return "Server";
@@ -946,6 +1044,9 @@ public abstract class MinecraftServer implements ICommandSender, Runnable, IThre
         LOGGER.info(component.getUnformattedText());
     }
 
+    /**
+     * Returns {@code true} if the CommandSender is allowed to execute the command, {@code false} if not
+     */
     public boolean canUseCommand(int permLevel, String commandName)
     {
         return true;
@@ -1016,7 +1117,7 @@ public abstract class MinecraftServer implements ICommandSender, Runnable, IThre
         {
             if (worldserver1 != null)
             {
-                if (worldserver1.getWorldInfo().isHardcore())
+                if (worldserver1.getWorldInfo().isHardcoreModeEnabled())
                 {
                     worldserver1.getWorldInfo().setDifficulty(EnumDifficulty.HARD);
                     worldserver1.setAllowedSpawnTypes(true, true);
@@ -1082,22 +1183,22 @@ public abstract class MinecraftServer implements ICommandSender, Runnable, IThre
         this.resourcePackHash = hash;
     }
 
-    public void fillSnooper(Snooper snooper)
+    public void addServerStatsToSnooper(Snooper playerSnooper)
     {
-        snooper.addClientStat("whitelist_enabled", Boolean.valueOf(false));
-        snooper.addClientStat("whitelist_count", Integer.valueOf(0));
+        playerSnooper.addClientStat("whitelist_enabled", Boolean.valueOf(false));
+        playerSnooper.addClientStat("whitelist_count", Integer.valueOf(0));
 
         if (this.playerList != null)
         {
-            snooper.addClientStat("players_current", Integer.valueOf(this.getCurrentPlayerCount()));
-            snooper.addClientStat("players_max", Integer.valueOf(this.getMaxPlayers()));
-            snooper.addClientStat("players_seen", Integer.valueOf(this.playerList.getAvailablePlayerDat().length));
+            playerSnooper.addClientStat("players_current", Integer.valueOf(this.getCurrentPlayerCount()));
+            playerSnooper.addClientStat("players_max", Integer.valueOf(this.getMaxPlayers()));
+            playerSnooper.addClientStat("players_seen", Integer.valueOf(this.playerList.getAvailablePlayerDat().length));
         }
 
-        snooper.addClientStat("uses_auth", Boolean.valueOf(this.onlineMode));
-        snooper.addClientStat("gui_state", this.getGuiEnabled() ? "enabled" : "disabled");
-        snooper.addClientStat("run_time", Long.valueOf((getCurrentTimeMillis() - snooper.getMinecraftStartTimeMillis()) / 60L * 1000L));
-        snooper.addClientStat("avg_tick_ms", Integer.valueOf((int)(MathHelper.average(this.tickTimeArray) * 1.0E-6D)));
+        playerSnooper.addClientStat("uses_auth", Boolean.valueOf(this.onlineMode));
+        playerSnooper.addClientStat("gui_state", this.getGuiEnabled() ? "enabled" : "disabled");
+        playerSnooper.addClientStat("run_time", Long.valueOf((getCurrentTimeMillis() - playerSnooper.getMinecraftStartTimeMillis()) / 60L * 1000L));
+        playerSnooper.addClientStat("avg_tick_ms", Integer.valueOf((int)(MathHelper.average(this.tickTimeArray) * 1.0E-6D)));
         int l = 0;
 
         if (this.worlds != null)
@@ -1107,20 +1208,20 @@ public abstract class MinecraftServer implements ICommandSender, Runnable, IThre
                 if (worldserver1 != null)
                 {
                     WorldInfo worldinfo = worldserver1.getWorldInfo();
-                    snooper.addClientStat("world[" + l + "][dimension]", Integer.valueOf(worldserver1.dimension.getType().getId()));
-                    snooper.addClientStat("world[" + l + "][mode]", worldinfo.getGameType());
-                    snooper.addClientStat("world[" + l + "][difficulty]", worldserver1.getDifficulty());
-                    snooper.addClientStat("world[" + l + "][hardcore]", Boolean.valueOf(worldinfo.isHardcore()));
-                    snooper.addClientStat("world[" + l + "][generator_name]", worldinfo.getGenerator().getName());
-                    snooper.addClientStat("world[" + l + "][generator_version]", Integer.valueOf(worldinfo.getGenerator().getVersion()));
-                    snooper.addClientStat("world[" + l + "][height]", Integer.valueOf(this.buildLimit));
-                    snooper.addClientStat("world[" + l + "][chunks_loaded]", Integer.valueOf(worldserver1.getChunkProvider().getLoadedChunkCount()));
+                    playerSnooper.addClientStat("world[" + l + "][dimension]", Integer.valueOf(worldserver1.provider.getDimensionType().getId()));
+                    playerSnooper.addClientStat("world[" + l + "][mode]", worldinfo.getGameType());
+                    playerSnooper.addClientStat("world[" + l + "][difficulty]", worldserver1.getDifficulty());
+                    playerSnooper.addClientStat("world[" + l + "][hardcore]", Boolean.valueOf(worldinfo.isHardcoreModeEnabled()));
+                    playerSnooper.addClientStat("world[" + l + "][generator_name]", worldinfo.getTerrainType().getName());
+                    playerSnooper.addClientStat("world[" + l + "][generator_version]", Integer.valueOf(worldinfo.getTerrainType().getVersion()));
+                    playerSnooper.addClientStat("world[" + l + "][height]", Integer.valueOf(this.buildLimit));
+                    playerSnooper.addClientStat("world[" + l + "][chunks_loaded]", Integer.valueOf(worldserver1.getChunkProvider().getLoadedChunkCount()));
                     ++l;
                 }
             }
         }
 
-        snooper.addClientStat("worlds", Integer.valueOf(l));
+        playerSnooper.addClientStat("worlds", Integer.valueOf(l));
     }
 
     public void addServerTypeToSnooper(Snooper playerSnooper)
@@ -1131,6 +1232,9 @@ public abstract class MinecraftServer implements ICommandSender, Runnable, IThre
         playerSnooper.addStatToSnooper("dedicated", Boolean.valueOf(this.isDedicatedServer()));
     }
 
+    /**
+     * Returns whether snooping is enabled or not.
+     */
     public boolean isSnooperEnabled()
     {
         return true;
@@ -1265,6 +1369,9 @@ public abstract class MinecraftServer implements ICommandSender, Runnable, IThre
         return false;
     }
 
+    /**
+     * On dedicated does nothing. On integrated, sets commandsAllowedForAll, gameType and allows external connections.
+     */
     public abstract String shareToLAN(GameType type, boolean allowCheats);
 
     public int getTickCounter()
@@ -1277,9 +1384,9 @@ public abstract class MinecraftServer implements ICommandSender, Runnable, IThre
         this.startProfiling = true;
     }
 
-    public Snooper getSnooper()
+    public Snooper getPlayerUsageSnooper()
     {
-        return this.snooper;
+        return this.usageSnooper;
     }
 
     /**
@@ -1368,6 +1475,9 @@ public abstract class MinecraftServer implements ICommandSender, Runnable, IThre
         return null;
     }
 
+    /**
+     * Returns true if the command sender should be sent feedback about executed commands
+     */
     public boolean sendCommandFeedback()
     {
         return this.worlds[0].getGameRules().getBoolean("sendCommandFeedback");

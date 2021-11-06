@@ -47,7 +47,7 @@ public class DebugRendererNeighborsUpdate implements DebugRenderer.IDebugRendere
 
     public void render(float partialTicks, long finishTimeNano)
     {
-        long i = this.minecraft.world.getGameTime();
+        long i = this.minecraft.world.getTotalWorldTime();
         EntityPlayer entityplayer = this.minecraft.player;
         double d0 = entityplayer.lastTickPosX + (entityplayer.posX - entityplayer.lastTickPosX) * (double)partialTicks;
         double d1 = entityplayer.lastTickPosY + (entityplayer.posY - entityplayer.lastTickPosY) * (double)partialTicks;
@@ -84,7 +84,7 @@ public class DebugRendererNeighborsUpdate implements DebugRenderer.IDebugRendere
 
                     if (set.add(blockpos))
                     {
-                        RenderGlobal.drawSelectionBoundingBox((new AxisAlignedBB(BlockPos.ZERO)).grow(0.002D).shrink(0.0025D * (double)k).offset((double)blockpos.getX(), (double)blockpos.getY(), (double)blockpos.getZ()).offset(-d0, -d1, -d2), 1.0F, 1.0F, 1.0F, 1.0F);
+                        RenderGlobal.drawSelectionBoundingBox((new AxisAlignedBB(BlockPos.ORIGIN)).grow(0.002D).shrink(0.0025D * (double)k).offset((double)blockpos.getX(), (double)blockpos.getY(), (double)blockpos.getZ()).offset(-d0, -d1, -d2), 1.0F, 1.0F, 1.0F, 1.0F);
                         map.put(blockpos, integer);
                     }
                 }

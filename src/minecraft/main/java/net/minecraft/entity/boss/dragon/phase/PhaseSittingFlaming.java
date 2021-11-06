@@ -24,7 +24,7 @@ public class PhaseSittingFlaming extends PhaseSittingBase
      * Generates particle effects appropriate to the phase (or sometimes sounds).
      * Called by dragon's onLivingUpdate. Only used when worldObj.isRemote.
      */
-    public void clientTick()
+    public void doClientRenderEffects()
     {
         ++this.flameTicks;
 
@@ -56,7 +56,7 @@ public class PhaseSittingFlaming extends PhaseSittingBase
      * Gives the phase a chance to update its status.
      * Called by dragon's onLivingUpdate. Only used when !worldObj.isRemote.
      */
-    public void serverTick()
+    public void doLocalUpdate()
     {
         ++this.flameTicks;
 
@@ -93,7 +93,7 @@ public class PhaseSittingFlaming extends PhaseSittingBase
             this.areaEffectCloud.setDuration(200);
             this.areaEffectCloud.setParticle(EnumParticleTypes.DRAGON_BREATH);
             this.areaEffectCloud.addEffect(new PotionEffect(MobEffects.INSTANT_DAMAGE));
-            this.dragon.world.addEntity0(this.areaEffectCloud);
+            this.dragon.world.spawnEntity(this.areaEffectCloud);
         }
     }
 
@@ -110,7 +110,7 @@ public class PhaseSittingFlaming extends PhaseSittingBase
     {
         if (this.areaEffectCloud != null)
         {
-            this.areaEffectCloud.remove();
+            this.areaEffectCloud.setDead();
             this.areaEffectCloud = null;
         }
     }

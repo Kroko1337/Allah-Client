@@ -31,7 +31,7 @@ public class FindTreeStep implements ITutorialStep
         this.tutorial = tutorial;
     }
 
-    public void tick()
+    public void update()
     {
         ++this.timeWaiting;
 
@@ -83,6 +83,9 @@ public class FindTreeStep implements ITutorialStep
 
     /**
      * Handles blocks and entities hovering
+     *  
+     * @param worldIn The world on the client side, can be null
+     * @param result The result of the ray trace
      */
     public void onMouseHover(WorldClient worldIn, RayTraceResult result)
     {
@@ -99,6 +102,8 @@ public class FindTreeStep implements ITutorialStep
 
     /**
      * Called when the player pick up an ItemStack
+     *  
+     * @param stack The ItemStack
      */
     public void handleSetSlot(ItemStack stack)
     {
@@ -118,7 +123,7 @@ public class FindTreeStep implements ITutorialStep
         {
             StatBase statbase = StatList.getBlockStats(block);
 
-            if (statbase != null && p_194070_0_.getStats().getValue(statbase) > 0)
+            if (statbase != null && p_194070_0_.getStatFileWriter().readStat(statbase) > 0)
             {
                 return true;
             }

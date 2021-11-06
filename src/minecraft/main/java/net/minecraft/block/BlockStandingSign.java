@@ -15,9 +15,14 @@ public class BlockStandingSign extends BlockSign
 
     public BlockStandingSign()
     {
-        this.setDefaultState(this.stateContainer.getBaseState().withProperty(ROTATION, Integer.valueOf(0)));
+        this.setDefaultState(this.blockState.getBaseState().withProperty(ROTATION, Integer.valueOf(0)));
     }
 
+    /**
+     * Called when a neighboring block was changed and marks that this state should perform any checks during a neighbor
+     * change. Cases may include when redstone power is updated, cactus blocks popping off due to a neighboring solid
+     * block, etc.
+     */
     public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos)
     {
         if (!worldIn.getBlockState(pos.down()).getMaterial().isSolid())
@@ -29,14 +34,20 @@ public class BlockStandingSign extends BlockSign
         super.neighborChanged(state, worldIn, pos, blockIn, fromPos);
     }
 
+    /**
+     * Convert the given metadata into a BlockState for this Block
+     */
     public IBlockState getStateFromMeta(int meta)
     {
         return this.getDefaultState().withProperty(ROTATION, Integer.valueOf(meta));
     }
 
+    /**
+     * Convert the BlockState into the correct metadata value
+     */
     public int getMetaFromState(IBlockState state)
     {
-        return ((Integer)state.get(ROTATION)).intValue();
+        return ((Integer)state.getValue(ROTATION)).intValue();
     }
 
     /**
@@ -45,9 +56,9 @@ public class BlockStandingSign extends BlockSign
      * @deprecated call via {@link IBlockState#withRotation(Rotation)} whenever possible. Implementing/overriding is
      * fine.
      */
-    public IBlockState rotate(IBlockState state, Rotation rot)
+    public IBlockState withRotation(IBlockState state, Rotation rot)
     {
-        return state.withProperty(ROTATION, Integer.valueOf(rot.rotate(((Integer)state.get(ROTATION)).intValue(), 16)));
+        return state.withProperty(ROTATION, Integer.valueOf(rot.rotate(((Integer)state.getValue(ROTATION)).intValue(), 16)));
     }
 
     /**
@@ -55,9 +66,9 @@ public class BlockStandingSign extends BlockSign
      * blockstate.
      * @deprecated call via {@link IBlockState#withMirror(Mirror)} whenever possible. Implementing/overriding is fine.
      */
-    public IBlockState mirror(IBlockState state, Mirror mirrorIn)
+    public IBlockState withMirror(IBlockState state, Mirror mirrorIn)
     {
-        return state.withProperty(ROTATION, Integer.valueOf(mirrorIn.mirrorRotation(((Integer)state.get(ROTATION)).intValue(), 16)));
+        return state.withProperty(ROTATION, Integer.valueOf(mirrorIn.mirrorRotation(((Integer)state.getValue(ROTATION)).intValue(), 16)));
     }
 
     protected BlockStateContainer createBlockState()

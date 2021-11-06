@@ -11,6 +11,8 @@ import net.minecraft.world.World;
 public class ItemSeedFood extends ItemFood
 {
     private final Block crops;
+
+    /** Block ID of the soil this seed food should be planted on. */
     private final Block soilId;
 
     public ItemSeedFood(int healAmount, float saturation, Block crops, Block soil)
@@ -20,6 +22,9 @@ public class ItemSeedFood extends ItemFood
         this.soilId = soil;
     }
 
+    /**
+     * Called when a Block is right-clicked with this Item
+     */
     public EnumActionResult onItemUse(EntityPlayer player, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
         ItemStack itemstack = player.getHeldItem(hand);

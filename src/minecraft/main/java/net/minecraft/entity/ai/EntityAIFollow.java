@@ -44,12 +44,11 @@ public class EntityAIFollow extends EntityAIBase
     }
 
     /**
-     * Returns whether execution should begin. You can also read and cache any state necessary for execution in this
-     * method as well.
+     * Returns whether the EntityAIBase should begin execution.
      */
     public boolean shouldExecute()
     {
-        List<EntityLiving> list = this.entity.world.<EntityLiving>getEntitiesWithinAABB(EntityLiving.class, this.entity.getBoundingBox().grow((double)this.areaSize), this.followPredicate);
+        List<EntityLiving> list = this.entity.world.<EntityLiving>getEntitiesWithinAABB(EntityLiving.class, this.entity.getEntityBoundingBox().grow((double)this.areaSize), this.followPredicate);
 
         if (!list.isEmpty())
         {
@@ -97,11 +96,11 @@ public class EntityAIFollow extends EntityAIBase
     /**
      * Keep ticking a continuous task that has already been started
      */
-    public void tick()
+    public void updateTask()
     {
         if (this.followingEntity != null && !this.entity.getLeashed())
         {
-            this.entity.getLookController().setLookPositionWithEntity(this.followingEntity, 10.0F, (float)this.entity.getVerticalFaceSpeed());
+            this.entity.getLookHelper().setLookPositionWithEntity(this.followingEntity, 10.0F, (float)this.entity.getVerticalFaceSpeed());
 
             if (--this.timeToRecalcPath <= 0)
             {
@@ -118,7 +117,7 @@ public class EntityAIFollow extends EntityAIBase
                 else
                 {
                     this.navigation.clearPath();
-                    EntityLookHelper entitylookhelper = this.followingEntity.getLookController();
+                    EntityLookHelper entitylookhelper = this.followingEntity.getLookHelper();
 
                     if (d3 <= (double)this.stopDistance || entitylookhelper.getLookPosX() == this.entity.posX && entitylookhelper.getLookPosY() == this.entity.posY && entitylookhelper.getLookPosZ() == this.entity.posZ)
                     {

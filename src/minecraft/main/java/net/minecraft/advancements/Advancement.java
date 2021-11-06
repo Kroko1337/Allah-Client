@@ -53,9 +53,9 @@ public class Advancement
         {
             this.displayText = new TextComponentString("[");
             this.displayText.getStyle().setColor(displayIn.getFrame().getFormat());
-            ITextComponent itextcomponent = displayIn.getTitle().shallowCopy();
+            ITextComponent itextcomponent = displayIn.getTitle().createCopy();
             ITextComponent itextcomponent1 = new TextComponentString("");
-            ITextComponent itextcomponent2 = itextcomponent.shallowCopy();
+            ITextComponent itextcomponent2 = itextcomponent.createCopy();
             itextcomponent2.getStyle().setColor(displayIn.getFrame().getFormat());
             itextcomponent1.appendSibling(itextcomponent2);
             itextcomponent1.appendText("\n");

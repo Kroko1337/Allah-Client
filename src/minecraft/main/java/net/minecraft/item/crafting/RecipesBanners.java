@@ -84,12 +84,12 @@ public class RecipesBanners
                     }
                 }
 
-                NBTTagCompound nbttagcompound1 = itemstack.getOrCreateChildTag("BlockEntityTag");
+                NBTTagCompound nbttagcompound1 = itemstack.getOrCreateSubCompound("BlockEntityTag");
                 NBTTagList nbttaglist;
 
-                if (nbttagcompound1.contains("Patterns", 9))
+                if (nbttagcompound1.hasKey("Patterns", 9))
                 {
-                    nbttaglist = nbttagcompound1.getList("Patterns", 10);
+                    nbttaglist = nbttagcompound1.getTagList("Patterns", 10);
                 }
                 else
                 {
@@ -98,8 +98,8 @@ public class RecipesBanners
                 }
 
                 NBTTagCompound nbttagcompound = new NBTTagCompound();
-                nbttagcompound.putString("Pattern", bannerpattern.getHashname());
-                nbttagcompound.putInt("Color", k);
+                nbttagcompound.setString("Pattern", bannerpattern.getHashname());
+                nbttagcompound.setInteger("Color", k);
                 nbttaglist.appendTag(nbttagcompound);
             }
 
@@ -345,7 +345,7 @@ public class RecipesBanners
                     {
                         nonnulllist.set(i, new ItemStack(itemstack.getItem().getContainerItem()));
                     }
-                    else if (itemstack.hasTag() && TileEntityBanner.getPatterns(itemstack) > 0)
+                    else if (itemstack.hasTagCompound() && TileEntityBanner.getPatterns(itemstack) > 0)
                     {
                         ItemStack itemstack1 = itemstack.copy();
                         itemstack1.setCount(1);

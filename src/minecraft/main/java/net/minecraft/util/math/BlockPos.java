@@ -17,7 +17,7 @@ public class BlockPos extends Vec3i
     private static final Logger LOGGER = LogManager.getLogger();
 
     /** An immutable block pos with zero as all coordinates. */
-    public static final BlockPos ZERO = new BlockPos(0, 0, 0);
+    public static final BlockPos ORIGIN = new BlockPos(0, 0, 0);
     private static final int NUM_X_BITS = 1 + MathHelper.log2(MathHelper.smallestEncompassingPowerOfTwo(30000000));
     private static final int NUM_Z_BITS = NUM_X_BITS;
     private static final int NUM_Y_BITS = 64 - NUM_X_BITS - NUM_Z_BITS;
@@ -223,11 +223,17 @@ public class BlockPos extends Vec3i
         return new BlockPos(this.getY() * vec.getZ() - this.getZ() * vec.getY(), this.getZ() * vec.getX() - this.getX() * vec.getZ(), this.getX() * vec.getY() - this.getY() * vec.getX());
     }
 
+    /**
+     * Serialize this BlockPos into a long value
+     */
     public long toLong()
     {
         return ((long)this.getX() & X_MASK) << X_SHIFT | ((long)this.getY() & Y_MASK) << Y_SHIFT | ((long)this.getZ() & Z_MASK) << 0;
     }
 
+    /**
+     * Create a BlockPos from a serialized long value (created by toLong)
+     */
     public static BlockPos fromLong(long serialized)
     {
         int i = (int)(serialized << 64 - X_SHIFT - NUM_X_BITS >> 64 - NUM_X_BITS);

@@ -4,6 +4,7 @@ import net.minecraft.crash.CrashReport;
 
 public class ReportedException extends RuntimeException
 {
+    /** The crash report associated with this exception */
     private final CrashReport crashReport;
 
     public ReportedException(CrashReport report)

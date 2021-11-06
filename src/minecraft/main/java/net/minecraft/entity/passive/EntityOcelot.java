@@ -46,6 +46,10 @@ public class EntityOcelot extends EntityTameable
 {
     private static final DataParameter<Integer> OCELOT_VARIANT = EntityDataManager.<Integer>createKey(EntityOcelot.class, DataSerializers.VARINT);
     private EntityAIAvoidEntity<EntityPlayer> avoidEntity;
+
+    /**
+     * The tempt AI task for this mob, used to prevent taming while it is fleeing.
+     */
     private EntityAITempt aiTempt;
 
     public EntityOcelot(World worldIn)
@@ -54,26 +58,26 @@ public class EntityOcelot extends EntityTameable
         this.setSize(0.6F, 0.7F);
     }
 
-    protected void registerGoals()
+    protected void initEntityAI()
     {
-        this.sitGoal = new EntityAISit(this);
+        this.aiSit = new EntityAISit(this);
         this.aiTempt = new EntityAITempt(this, 0.6D, Items.FISH, true);
-        this.goalSelector.addGoal(1, new EntityAISwimming(this));
-        this.goalSelector.addGoal(2, this.sitGoal);
-        this.goalSelector.addGoal(3, this.aiTempt);
-        this.goalSelector.addGoal(5, new EntityAIFollowOwner(this, 1.0D, 10.0F, 5.0F));
-        this.goalSelector.addGoal(6, new EntityAIOcelotSit(this, 0.8D));
-        this.goalSelector.addGoal(7, new EntityAILeapAtTarget(this, 0.3F));
-        this.goalSelector.addGoal(8, new EntityAIOcelotAttack(this));
-        this.goalSelector.addGoal(9, new EntityAIMate(this, 0.8D));
-        this.goalSelector.addGoal(10, new EntityAIWanderAvoidWater(this, 0.8D, 1.0000001E-5F));
-        this.goalSelector.addGoal(11, new EntityAIWatchClosest(this, EntityPlayer.class, 10.0F));
-        this.targetSelector.addGoal(1, new EntityAITargetNonTamed(this, EntityChicken.class, false, (Predicate)null));
+        this.tasks.addTask(1, new EntityAISwimming(this));
+        this.tasks.addTask(2, this.aiSit);
+        this.tasks.addTask(3, this.aiTempt);
+        this.tasks.addTask(5, new EntityAIFollowOwner(this, 1.0D, 10.0F, 5.0F));
+        this.tasks.addTask(6, new EntityAIOcelotSit(this, 0.8D));
+        this.tasks.addTask(7, new EntityAILeapAtTarget(this, 0.3F));
+        this.tasks.addTask(8, new EntityAIOcelotAttack(this));
+        this.tasks.addTask(9, new EntityAIMate(this, 0.8D));
+        this.tasks.addTask(10, new EntityAIWanderAvoidWater(this, 0.8D, 1.0000001E-5F));
+        this.tasks.addTask(11, new EntityAIWatchClosest(this, EntityPlayer.class, 10.0F));
+        this.targetTasks.addTask(1, new EntityAITargetNonTamed(this, EntityChicken.class, false, (Predicate)null));
     }
 
-    protected void registerData()
+    protected void entityInit()
     {
-        super.registerData();
+        super.entityInit();
         this.dataManager.register(OCELOT_VARIANT, Integer.valueOf(0));
     }
 
@@ -106,16 +110,19 @@ public class EntityOcelot extends EntityTameable
         }
     }
 
+    /**
+     * Determines if an entity can be despawned, used on idle far away entities
+     */
     protected boolean canDespawn()
     {
         return !this.isTamed() && this.ticksExisted > 2400;
     }
 
-    protected void registerAttributes()
+    protected void applyEntityAttributes()
     {
-        super.registerAttributes();
-        this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(10.0D);
-        this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.30000001192092896D);
+        super.applyEntityAttributes();
+        this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(10.0D);
+        this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.30000001192092896D);
     }
 
     public void fall(float distance, float damageMultiplier)
@@ -127,19 +134,22 @@ public class EntityOcelot extends EntityTameable
         EntityLiving.registerFixesMob(fixer, EntityOcelot.class);
     }
 
+    /**
+     * (abstract) Protected helper method to write subclass entity data to NBT.
+     */
     public void writeEntityToNBT(NBTTagCompound compound)
     {
         super.writeEntityToNBT(compound);
-        compound.putInt("CatType", this.getTameSkin());
+        compound.setInteger("CatType", this.getTameSkin());
     }
 
     /**
      * (abstract) Protected helper method to read subclass entity data from NBT.
      */
-    public void readAdditional(NBTTagCompound compound)
+    public void readEntityFromNBT(NBTTagCompound compound)
     {
-        super.readAdditional(compound);
-        this.setTameSkin(compound.getInt("CatType"));
+        super.readEntityFromNBT(compound);
+        this.setTameSkin(compound.getInteger("CatType"));
     }
 
     @Nullable
@@ -190,15 +200,15 @@ public class EntityOcelot extends EntityTameable
      */
     public boolean attackEntityFrom(DamageSource source, float amount)
     {
-        if (this.isInvulnerableTo(source))
+        if (this.isEntityInvulnerable(source))
         {
             return false;
         }
         else
         {
-            if (this.sitGoal != null)
+            if (this.aiSit != null)
             {
-                this.sitGoal.setSitting(false);
+                this.aiSit.setSitting(false);
             }
 
             return super.attackEntityFrom(source, amount);
@@ -219,12 +229,12 @@ public class EntityOcelot extends EntityTameable
         {
             if (this.isOwner(player) && !this.world.isRemote && !this.isBreedingItem(itemstack))
             {
-                this.sitGoal.setSitting(!this.isSitting());
+                this.aiSit.setSitting(!this.isSitting());
             }
         }
         else if ((this.aiTempt == null || this.aiTempt.isRunning()) && itemstack.getItem() == Items.FISH && player.getDistanceSq(this) < 9.0D)
         {
-            if (!player.abilities.isCreativeMode)
+            if (!player.capabilities.isCreativeMode)
             {
                 itemstack.shrink(1);
             }
@@ -236,7 +246,7 @@ public class EntityOcelot extends EntityTameable
                     this.setTamedBy(player);
                     this.setTameSkin(1 + this.world.rand.nextInt(3));
                     this.playTameEffect(true);
-                    this.sitGoal.setSitting(true);
+                    this.aiSit.setSitting(true);
                     this.world.setEntityState(this, (byte)7);
                 }
                 else
@@ -317,16 +327,22 @@ public class EntityOcelot extends EntityTameable
         this.dataManager.set(OCELOT_VARIANT, Integer.valueOf(skinId));
     }
 
+    /**
+     * Checks if the entity's current position is a valid location to spawn this entity.
+     */
     public boolean getCanSpawnHere()
     {
         return this.world.rand.nextInt(3) != 0;
     }
 
+    /**
+     * Checks that the entity is not colliding with any blocks / liquids
+     */
     public boolean isNotColliding()
     {
-        if (this.world.checkNoEntityCollision(this.getBoundingBox(), this) && this.world.getCollisionBoxes(this, this.getBoundingBox()).isEmpty() && !this.world.containsAnyLiquid(this.getBoundingBox()))
+        if (this.world.checkNoEntityCollision(this.getEntityBoundingBox(), this) && this.world.getCollisionBoxes(this, this.getEntityBoundingBox()).isEmpty() && !this.world.containsAnyLiquid(this.getEntityBoundingBox()))
         {
-            BlockPos blockpos = new BlockPos(this.posX, this.getBoundingBox().minY, this.posZ);
+            BlockPos blockpos = new BlockPos(this.posX, this.getEntityBoundingBox().minY, this.posZ);
 
             if (blockpos.getY() < this.world.getSeaLevel())
             {
@@ -345,6 +361,41 @@ public class EntityOcelot extends EntityTameable
         return false;
     }
 
+    /**
+     * Gets the name of this thing. This method has slightly different behavior depending on the interface (for <a
+     * href="https://github.com/ModCoderPack/MCPBot-Issues/issues/14">technical reasons</a> the same method is used for
+     * both IWorldNameable and ICommandSender):
+     *  
+     * <dl>
+     * <dt>{@link net.minecraft.util.INameable#getName() INameable.getName()}</dt>
+     * <dd>Returns the name of this inventory. If this {@linkplain net.minecraft.inventory#hasCustomName() has a custom
+     * name} then this <em>should</em> be a direct string; otherwise it <em>should</em> be a valid translation
+     * string.</dd>
+     * <dd>However, note that <strong>the translation string may be invalid</strong>, as is the case for {@link
+     * net.minecraft.tileentity.TileEntityBanner TileEntityBanner} (always returns nonexistent translation code
+     * <code>banner</code> without a custom name), {@link net.minecraft.block.BlockAnvil.Anvil BlockAnvil$Anvil} (always
+     * returns <code>anvil</code>), {@link net.minecraft.block.BlockWorkbench.InterfaceCraftingTable
+     * BlockWorkbench$InterfaceCraftingTable} (always returns <code>crafting_table</code>), {@link
+     * net.minecraft.inventory.InventoryCraftResult InventoryCraftResult} (always returns <code>Result</code>) and the
+     * {@link net.minecraft.entity.item.EntityMinecart EntityMinecart} family (uses the entity definition). This is not
+     * an exaustive list.</dd>
+     * <dd>In general, this method should be safe to use on tile entities that implement IInventory.</dd>
+     * <dt>{@link net.minecraft.command.ICommandSender#getName() ICommandSender.getName()} and {@link
+     * net.minecraft.entity.Entity#getName() Entity.getName()}</dt>
+     * <dd>Returns a valid, displayable name (which may be localized). For most entities, this is the translated version
+     * of its translation string (obtained via {@link net.minecraft.entity.EntityList#getEntityString
+     * EntityList.getEntityString}).</dd>
+     * <dd>If this entity has a custom name set, this will return that name.</dd>
+     * <dd>For some entities, this will attempt to translate a nonexistent translation string; see <a
+     * href="https://bugs.mojang.com/browse/MC-68446">MC-68446</a>. For {@linkplain
+     * net.minecraft.entity.player.EntityPlayer#getName() players} this returns the player's name. For {@linkplain
+     * net.minecraft.entity.passive.EntityOcelot ocelots} this may return the translation of
+     * <code>entity.Cat.name</code> if it is tamed. For {@linkplain net.minecraft.entity.item.EntityItem#getName() item
+     * entities}, this will attempt to return the name of the item in that item entity. In all cases other than players,
+     * the custom name will overrule this.</dd>
+     * <dd>For non-entity command senders, this will return some arbitrary name, such as "Rcon" or "Server".</dd>
+     * </dl>
+     */
     public String getName()
     {
         if (this.hasCustomName())
@@ -364,15 +415,30 @@ public class EntityOcelot extends EntityTameable
             this.avoidEntity = new EntityAIAvoidEntity<EntityPlayer>(this, EntityPlayer.class, 16.0F, 0.8D, 1.33D);
         }
 
-        this.goalSelector.removeGoal(this.avoidEntity);
+        this.tasks.removeTask(this.avoidEntity);
 
         if (!this.isTamed())
         {
-            this.goalSelector.addGoal(4, this.avoidEntity);
+            this.tasks.addTask(4, this.avoidEntity);
         }
     }
 
     @Nullable
+
+    /**
+     * Called only once on an entity when first time spawned, via egg, mob spawner, natural spawning etc, but not called
+     * when entity is reloaded from nbt. Mainly used for initializing attributes and inventory.
+     *  
+     * The livingdata parameter is used to pass data between all instances during a pack spawn. It will be null on the
+     * first call. Subclasses may check if it's null, and then create a new one and return it if so, initializing all
+     * entities in the pack with the contained data.
+     *  
+     * @return The IEntityLivingData to pass to this method for other instances of this entity class within the same
+     * pack
+     *  
+     * @param difficulty The current local difficulty
+     * @param livingdata Shared spawn data. Will usually be null. (See return value for more information)
+     */
     public IEntityLivingData onInitialSpawn(DifficultyInstance difficulty, @Nullable IEntityLivingData livingdata)
     {
         livingdata = super.onInitialSpawn(difficulty, livingdata);
@@ -384,7 +450,7 @@ public class EntityOcelot extends EntityTameable
                 EntityOcelot entityocelot = new EntityOcelot(this.world);
                 entityocelot.setLocationAndAngles(this.posX, this.posY, this.posZ, this.rotationYaw, 0.0F);
                 entityocelot.setGrowingAge(-24000);
-                this.world.addEntity0(entityocelot);
+                this.world.spawnEntity(entityocelot);
             }
         }
 

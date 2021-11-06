@@ -21,6 +21,11 @@ public class BlockStaticLiquid extends BlockLiquid
         }
     }
 
+    /**
+     * Called when a neighboring block was changed and marks that this state should perform any checks during a neighbor
+     * change. Cases may include when redstone power is updated, cactus blocks popping off due to a neighboring solid
+     * block, etc.
+     */
     public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos)
     {
         if (!this.checkForMixing(worldIn, pos, state))
@@ -32,7 +37,7 @@ public class BlockStaticLiquid extends BlockLiquid
     private void updateLiquid(World worldIn, BlockPos pos, IBlockState state)
     {
         BlockDynamicLiquid blockdynamicliquid = getFlowingBlock(this.material);
-        worldIn.setBlockState(pos, blockdynamicliquid.getDefaultState().withProperty(LEVEL, state.get(LEVEL)), 2);
+        worldIn.setBlockState(pos, blockdynamicliquid.getDefaultState().withProperty(LEVEL, state.getValue(LEVEL)), 2);
         worldIn.scheduleUpdate(pos, blockdynamicliquid, this.tickRate(worldIn));
     }
 
@@ -109,6 +114,6 @@ public class BlockStaticLiquid extends BlockLiquid
 
     private boolean getCanBlockBurn(World worldIn, BlockPos pos)
     {
-        return pos.getY() >= 0 && pos.getY() < 256 && !worldIn.isBlockLoaded(pos) ? false : worldIn.getBlockState(pos).getMaterial().isFlammable();
+        return pos.getY() >= 0 && pos.getY() < 256 && !worldIn.isBlockLoaded(pos) ? false : worldIn.getBlockState(pos).getMaterial().getCanBurn();
     }
 }

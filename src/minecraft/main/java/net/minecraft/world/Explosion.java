@@ -28,7 +28,10 @@ import net.minecraft.util.math.Vec3d;
 
 public class Explosion
 {
+    /** whether or not the explosion sets fire to blocks around it */
     private final boolean causesFire;
+
+    /** whether or not this explosion spawns smoke particles */
     private final boolean damagesTerrain;
     private final Random random;
     private final World world;
@@ -150,7 +153,7 @@ public class Explosion
                         d5 = d5 / d13;
                         d7 = d7 / d13;
                         d9 = d9 / d13;
-                        double d14 = (double)this.world.getBlockDensity(vec3d, entity.getBoundingBox());
+                        double d14 = (double)this.world.getBlockDensity(vec3d, entity.getEntityBoundingBox());
                         double d10 = (1.0D - d12) * d14;
                         entity.attackEntityFrom(DamageSource.causeExplosionDamage(this), (float)((int)((d10 * d10 + d10) / 2.0D * 7.0D * (double)f3 + 1.0D)));
                         double d11 = d10;
@@ -168,7 +171,7 @@ public class Explosion
                         {
                             EntityPlayer entityplayer = (EntityPlayer)entity;
 
-                            if (!entityplayer.isSpectator() && (!entityplayer.isCreative() || !entityplayer.abilities.isFlying))
+                            if (!entityplayer.isSpectator() && (!entityplayer.isCreative() || !entityplayer.capabilities.isFlying))
                             {
                                 this.playerKnockbackMap.put(entityplayer, new Vec3d(d5 * d10, d7 * d10, d9 * d10));
                             }

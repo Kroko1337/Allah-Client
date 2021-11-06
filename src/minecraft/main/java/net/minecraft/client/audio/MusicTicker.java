@@ -9,32 +9,35 @@ import net.minecraft.util.math.MathHelper;
 
 public class MusicTicker implements ITickable
 {
-    private final Random random = new Random();
-    private final Minecraft client;
+    private final Random rand = new Random();
+    private final Minecraft mc;
     private ISound currentMusic;
     private int timeUntilNextMusic = 100;
 
-    public MusicTicker(Minecraft client)
+    public MusicTicker(Minecraft mcIn)
     {
-        this.client = client;
+        this.mc = mcIn;
     }
 
-    public void tick()
+    /**
+     * Like the old updateEntity(), except more generic.
+     */
+    public void update()
     {
-        MusicTicker.MusicType musicticker$musictype = this.client.getAmbientMusicType();
+        MusicTicker.MusicType musicticker$musictype = this.mc.getAmbientMusicType();
 
         if (this.currentMusic != null)
         {
-            if (!musicticker$musictype.getSound().getName().equals(this.currentMusic.getSoundLocation()))
+            if (!musicticker$musictype.getMusicLocation().getSoundName().equals(this.currentMusic.getSoundLocation()))
             {
-                this.client.getSoundHandler().stop(this.currentMusic);
-                this.timeUntilNextMusic = MathHelper.nextInt(this.random, 0, musicticker$musictype.getMinDelay() / 2);
+                this.mc.getSoundHandler().stopSound(this.currentMusic);
+                this.timeUntilNextMusic = MathHelper.getInt(this.rand, 0, musicticker$musictype.getMinDelay() / 2);
             }
 
-            if (!this.client.getSoundHandler().isSoundPlaying(this.currentMusic))
+            if (!this.mc.getSoundHandler().isSoundPlaying(this.currentMusic))
             {
                 this.currentMusic = null;
-                this.timeUntilNextMusic = Math.min(MathHelper.nextInt(this.random, musicticker$musictype.getMinDelay(), musicticker$musictype.getMaxDelay()), this.timeUntilNextMusic);
+                this.timeUntilNextMusic = Math.min(MathHelper.getInt(this.rand, musicticker$musictype.getMinDelay(), musicticker$musictype.getMaxDelay()), this.timeUntilNextMusic);
             }
         }
 
@@ -42,17 +45,17 @@ public class MusicTicker implements ITickable
 
         if (this.currentMusic == null && this.timeUntilNextMusic-- <= 0)
         {
-            this.play(musicticker$musictype);
+            this.playMusic(musicticker$musictype);
         }
     }
 
     /**
      * Plays a music track for the maximum allowable period of time
      */
-    public void play(MusicTicker.MusicType type)
+    public void playMusic(MusicTicker.MusicType requestedMusicType)
     {
-        this.currentMusic = PositionedSoundRecord.music(type.getSound());
-        this.client.getSoundHandler().play(this.currentMusic);
+        this.currentMusic = PositionedSoundRecord.getMusicRecord(requestedMusicType.getMusicLocation());
+        this.mc.getSoundHandler().playSound(this.currentMusic);
         this.timeUntilNextMusic = Integer.MAX_VALUE;
     }
 
@@ -66,20 +69,20 @@ public class MusicTicker implements ITickable
         END_BOSS(SoundEvents.MUSIC_DRAGON, 0, 0),
         END(SoundEvents.MUSIC_END, 6000, 24000);
 
-        private final SoundEvent sound;
+        private final SoundEvent musicLocation;
         private final int minDelay;
         private final int maxDelay;
 
-        private MusicType(SoundEvent sound, int minDelayIn, int maxDelayIn)
+        private MusicType(SoundEvent musicLocationIn, int minDelayIn, int maxDelayIn)
         {
-            this.sound = sound;
+            this.musicLocation = musicLocationIn;
             this.minDelay = minDelayIn;
             this.maxDelay = maxDelayIn;
         }
 
-        public SoundEvent getSound()
+        public SoundEvent getMusicLocation()
         {
-            return this.sound;
+            return this.musicLocation;
         }
 
         public int getMinDelay()

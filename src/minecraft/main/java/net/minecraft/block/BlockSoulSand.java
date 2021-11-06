@@ -22,11 +22,19 @@ public class BlockSoulSand extends Block
     }
 
     @Nullable
+
+    /**
+     * @deprecated call via {@link IBlockState#getCollisionBoundingBox(IBlockAccess,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public AxisAlignedBB getCollisionBoundingBox(IBlockState blockState, IBlockAccess worldIn, BlockPos pos)
     {
         return SOUL_SAND_AABB;
     }
 
+    /**
+     * Called When an Entity Collided with the Block
+     */
     public void onEntityCollision(World worldIn, BlockPos pos, IBlockState state, Entity entityIn)
     {
         entityIn.motionX *= 0.4D;

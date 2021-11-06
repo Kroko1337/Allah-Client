@@ -35,13 +35,17 @@ public class BlockDaylightDetector extends BlockContainer
     {
         super(Material.WOOD);
         this.inverted = inverted;
-        this.setDefaultState(this.stateContainer.getBaseState().withProperty(POWER, Integer.valueOf(0)));
+        this.setDefaultState(this.blockState.getBaseState().withProperty(POWER, Integer.valueOf(0)));
         this.setCreativeTab(CreativeTabs.REDSTONE);
         this.setHardness(0.2F);
         this.setSoundType(SoundType.WOOD);
         this.setTranslationKey("daylightDetector");
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#getBoundingBox(IBlockAccess,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
     {
         return DAYLIGHT_DETECTOR_AABB;
@@ -53,12 +57,12 @@ public class BlockDaylightDetector extends BlockContainer
      */
     public int getWeakPower(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side)
     {
-        return ((Integer)blockState.get(POWER)).intValue();
+        return ((Integer)blockState.getValue(POWER)).intValue();
     }
 
     public void updatePower(World worldIn, BlockPos pos)
     {
-        if (worldIn.dimension.hasSkyLight())
+        if (worldIn.provider.hasSkyLight())
         {
             IBlockState iblockstate = worldIn.getBlockState(pos);
             int i = worldIn.getLightFor(EnumSkyBlock.SKY, pos) - worldIn.getSkylightSubtracted();
@@ -78,13 +82,16 @@ public class BlockDaylightDetector extends BlockContainer
 
             i = MathHelper.clamp(i, 0, 15);
 
-            if (((Integer)iblockstate.get(POWER)).intValue() != i)
+            if (((Integer)iblockstate.getValue(POWER)).intValue() != i)
             {
                 worldIn.setBlockState(pos, iblockstate.withProperty(POWER, Integer.valueOf(i)), 3);
             }
         }
     }
 
+    /**
+     * Called when the block is right clicked by a player.
+     */
     public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
         if (playerIn.isAllowEdit())
@@ -97,12 +104,12 @@ public class BlockDaylightDetector extends BlockContainer
             {
                 if (this.inverted)
                 {
-                    worldIn.setBlockState(pos, Blocks.DAYLIGHT_DETECTOR.getDefaultState().withProperty(POWER, state.get(POWER)), 4);
+                    worldIn.setBlockState(pos, Blocks.DAYLIGHT_DETECTOR.getDefaultState().withProperty(POWER, state.getValue(POWER)), 4);
                     Blocks.DAYLIGHT_DETECTOR.updatePower(worldIn, pos);
                 }
                 else
                 {
-                    worldIn.setBlockState(pos, Blocks.DAYLIGHT_DETECTOR_INVERTED.getDefaultState().withProperty(POWER, state.get(POWER)), 4);
+                    worldIn.setBlockState(pos, Blocks.DAYLIGHT_DETECTOR_INVERTED.getDefaultState().withProperty(POWER, state.getValue(POWER)), 4);
                     Blocks.DAYLIGHT_DETECTOR_INVERTED.updatePower(worldIn, pos);
                 }
 
@@ -115,6 +122,9 @@ public class BlockDaylightDetector extends BlockContainer
         }
     }
 
+    /**
+     * Get the Item that this Block should drop when harvested.
+     */
     public Item getItemDropped(IBlockState state, Random rand, int fortune)
     {
         return Item.getItemFromBlock(Blocks.DAYLIGHT_DETECTOR);
@@ -125,11 +135,18 @@ public class BlockDaylightDetector extends BlockContainer
         return new ItemStack(Blocks.DAYLIGHT_DETECTOR);
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#isFullCube()} whenever possible. Implementing/overriding is fine.
+     */
     public boolean isFullCube(IBlockState state)
     {
         return false;
     }
 
+    /**
+     * Used to determine ambient occlusion and culling when rebuilding chunks for render
+     * @deprecated call via {@link IBlockState#isOpaqueCube()} whenever possible. Implementing/overriding is fine.
+     */
     public boolean isOpaqueCube(IBlockState state)
     {
         return false;
@@ -154,19 +171,28 @@ public class BlockDaylightDetector extends BlockContainer
         return true;
     }
 
+    /**
+     * Returns a new instance of a block's tile entity class. Called on placing the block.
+     */
     public TileEntity createNewTileEntity(World worldIn, int meta)
     {
         return new TileEntityDaylightDetector();
     }
 
+    /**
+     * Convert the given metadata into a BlockState for this Block
+     */
     public IBlockState getStateFromMeta(int meta)
     {
         return this.getDefaultState().withProperty(POWER, Integer.valueOf(meta));
     }
 
+    /**
+     * Convert the BlockState into the correct metadata value
+     */
     public int getMetaFromState(IBlockState state)
     {
-        return ((Integer)state.get(POWER)).intValue();
+        return ((Integer)state.getValue(POWER)).intValue();
     }
 
     protected BlockStateContainer createBlockState()
@@ -177,14 +203,25 @@ public class BlockDaylightDetector extends BlockContainer
     /**
      * returns a list of blocks with the same ID, but different meta (eg: wood returns 4 blocks)
      */
-    public void fillItemGroup(CreativeTabs group, NonNullList<ItemStack> items)
+    public void getSubBlocks(CreativeTabs itemIn, NonNullList<ItemStack> items)
     {
         if (!this.inverted)
         {
-            super.fillItemGroup(group, items);
+            super.getSubBlocks(itemIn, items);
         }
     }
 
+    /**
+     * Get the geometry of the queried face at the given position and state. This is used to decide whether things like
+     * buttons are allowed to be placed on the face, or how glass panes connect to the face, among other things.
+     * <p>
+     * Common values are {@code SOLID}, which is the default, and {@code UNDEFINED}, which represents something that
+     * does not fit the other descriptions and will generally cause other things not to connect to the face.
+
+     * @return an approximation of the form of the given face
+     * @deprecated call via {@link IBlockState#getBlockFaceShape(IBlockAccess,BlockPos,EnumFacing)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public BlockFaceShape getBlockFaceShape(IBlockAccess worldIn, IBlockState state, BlockPos pos, EnumFacing face)
     {
         return face == EnumFacing.DOWN ? BlockFaceShape.SOLID : BlockFaceShape.UNDEFINED;

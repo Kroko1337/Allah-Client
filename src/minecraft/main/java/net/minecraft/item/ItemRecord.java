@@ -34,11 +34,14 @@ public class ItemRecord extends Item
         RECORDS.put(this.sound, this);
     }
 
+    /**
+     * Called when a Block is right-clicked with this Item
+     */
     public EnumActionResult onItemUse(EntityPlayer player, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
         IBlockState iblockstate = worldIn.getBlockState(pos);
 
-        if (iblockstate.getBlock() == Blocks.JUKEBOX && !((Boolean)iblockstate.get(BlockJukebox.HAS_RECORD)).booleanValue())
+        if (iblockstate.getBlock() == Blocks.JUKEBOX && !((Boolean)iblockstate.getValue(BlockJukebox.HAS_RECORD)).booleanValue())
         {
             if (!worldIn.isRemote)
             {
@@ -46,7 +49,7 @@ public class ItemRecord extends Item
                 ((BlockJukebox)Blocks.JUKEBOX).insertRecord(worldIn, pos, iblockstate, itemstack);
                 worldIn.playEvent((EntityPlayer)null, 1010, pos, Item.getIdFromItem(this));
                 itemstack.shrink(1);
-                player.addStat(StatList.PLAY_RECORD);
+                player.addStat(StatList.RECORD_PLAYED);
             }
 
             return EnumActionResult.SUCCESS;

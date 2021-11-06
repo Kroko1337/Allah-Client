@@ -14,9 +14,9 @@ public abstract class PositionedSound implements ISound
     protected ResourceLocation positionedSoundLocation;
     protected float volume;
     protected float pitch;
-    protected float x;
-    protected float y;
-    protected float z;
+    protected float xPosF;
+    protected float yPosF;
+    protected float zPosF;
     protected boolean repeat;
 
     /** The number of ticks between repeating the sound */
@@ -25,7 +25,7 @@ public abstract class PositionedSound implements ISound
 
     protected PositionedSound(SoundEvent soundIn, SoundCategory categoryIn)
     {
-        this(soundIn.getName(), categoryIn);
+        this(soundIn.getSoundName(), categoryIn);
     }
 
     protected PositionedSound(ResourceLocation soundId, SoundCategory categoryIn)
@@ -88,19 +88,19 @@ public abstract class PositionedSound implements ISound
         return this.pitch * this.sound.getPitch();
     }
 
-    public float getX()
+    public float getXPosF()
     {
-        return this.x;
+        return this.xPosF;
     }
 
-    public float getY()
+    public float getYPosF()
     {
-        return this.y;
+        return this.yPosF;
     }
 
-    public float getZ()
+    public float getZPosF()
     {
-        return this.z;
+        return this.zPosF;
     }
 
     public ISound.AttenuationType getAttenuationType()

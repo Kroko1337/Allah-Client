@@ -17,30 +17,30 @@ public class PaintingDirection implements IFixableData
         boolean flag = "Painting".equals(s);
         boolean flag1 = "ItemFrame".equals(s);
 
-        if ((flag || flag1) && !compound.contains("Facing", 99))
+        if ((flag || flag1) && !compound.hasKey("Facing", 99))
         {
             EnumFacing enumfacing;
 
-            if (compound.contains("Direction", 99))
+            if (compound.hasKey("Direction", 99))
             {
                 enumfacing = EnumFacing.byHorizontalIndex(compound.getByte("Direction"));
-                compound.putInt("TileX", compound.getInt("TileX") + enumfacing.getXOffset());
-                compound.putInt("TileY", compound.getInt("TileY") + enumfacing.getYOffset());
-                compound.putInt("TileZ", compound.getInt("TileZ") + enumfacing.getZOffset());
-                compound.remove("Direction");
+                compound.setInteger("TileX", compound.getInteger("TileX") + enumfacing.getXOffset());
+                compound.setInteger("TileY", compound.getInteger("TileY") + enumfacing.getYOffset());
+                compound.setInteger("TileZ", compound.getInteger("TileZ") + enumfacing.getZOffset());
+                compound.removeTag("Direction");
 
-                if (flag1 && compound.contains("ItemRotation", 99))
+                if (flag1 && compound.hasKey("ItemRotation", 99))
                 {
-                    compound.putByte("ItemRotation", (byte)(compound.getByte("ItemRotation") * 2));
+                    compound.setByte("ItemRotation", (byte)(compound.getByte("ItemRotation") * 2));
                 }
             }
             else
             {
                 enumfacing = EnumFacing.byHorizontalIndex(compound.getByte("Dir"));
-                compound.remove("Dir");
+                compound.removeTag("Dir");
             }
 
-            compound.putByte("Facing", (byte)enumfacing.getHorizontalIndex());
+            compound.setByte("Facing", (byte)enumfacing.getHorizontalIndex());
         }
 
         return compound;

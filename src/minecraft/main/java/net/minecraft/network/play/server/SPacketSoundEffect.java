@@ -53,7 +53,7 @@ public class SPacketSoundEffect implements Packet<INetHandlerPlayClient>
      */
     public void writePacketData(PacketBuffer buf) throws IOException
     {
-        buf.writeVarInt(SoundEvent.REGISTRY.getId(this.sound));
+        buf.writeVarInt(SoundEvent.REGISTRY.getIDForObject(this.sound));
         buf.writeEnumValue(this.category);
         buf.writeInt(this.posX);
         buf.writeInt(this.posY);

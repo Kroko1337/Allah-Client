@@ -26,10 +26,13 @@ public class BlockHugeMushroom extends Block
     public BlockHugeMushroom(Material materialIn, MapColor color, Block smallBlockIn)
     {
         super(materialIn, color);
-        this.setDefaultState(this.stateContainer.getBaseState().withProperty(VARIANT, BlockHugeMushroom.EnumType.ALL_OUTSIDE));
+        this.setDefaultState(this.blockState.getBaseState().withProperty(VARIANT, BlockHugeMushroom.EnumType.ALL_OUTSIDE));
         this.smallBlock = smallBlockIn;
     }
 
+    /**
+     * Returns the quantity of items to drop on block destruction.
+     */
     public int quantityDropped(Random random)
     {
         return Math.max(0, random.nextInt(10) - 7);
@@ -40,12 +43,12 @@ public class BlockHugeMushroom extends Block
      * @deprecated call via {@link IBlockState#getMapColor(IBlockAccess,BlockPos)} whenever possible.
      * Implementing/overriding is fine.
      */
-    public MapColor getMaterialColor(IBlockState state, IBlockAccess worldIn, BlockPos pos)
+    public MapColor getMapColor(IBlockState state, IBlockAccess worldIn, BlockPos pos)
     {
-        switch ((BlockHugeMushroom.EnumType)state.get(VARIANT))
+        switch ((BlockHugeMushroom.EnumType)state.getValue(VARIANT))
         {
             case ALL_STEM:
-                return MapColor.WOOL;
+                return MapColor.CLOTH;
 
             case ALL_INSIDE:
                 return MapColor.SAND;
@@ -54,10 +57,13 @@ public class BlockHugeMushroom extends Block
                 return MapColor.SAND;
 
             default:
-                return super.getMaterialColor(state, worldIn, pos);
+                return super.getMapColor(state, worldIn, pos);
         }
     }
 
+    /**
+     * Get the Item that this Block should drop when harvested.
+     */
     public Item getItemDropped(IBlockState state, Random rand, int fortune)
     {
         return Item.getItemFromBlock(this.smallBlock);
@@ -68,19 +74,29 @@ public class BlockHugeMushroom extends Block
         return new ItemStack(this.smallBlock);
     }
 
+    /**
+     * Called by ItemBlocks just before a block is actually set in the world, to allow for adjustments to the
+     * IBlockstate
+     */
     public IBlockState getStateForPlacement(World worldIn, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer)
     {
         return this.getDefaultState();
     }
 
+    /**
+     * Convert the given metadata into a BlockState for this Block
+     */
     public IBlockState getStateFromMeta(int meta)
     {
         return this.getDefaultState().withProperty(VARIANT, BlockHugeMushroom.EnumType.byMetadata(meta));
     }
 
+    /**
+     * Convert the BlockState into the correct metadata value
+     */
     public int getMetaFromState(IBlockState state)
     {
-        return ((BlockHugeMushroom.EnumType)state.get(VARIANT)).getMetadata();
+        return ((BlockHugeMushroom.EnumType)state.getValue(VARIANT)).getMetadata();
     }
 
     /**
@@ -89,12 +105,12 @@ public class BlockHugeMushroom extends Block
      * @deprecated call via {@link IBlockState#withRotation(Rotation)} whenever possible. Implementing/overriding is
      * fine.
      */
-    public IBlockState rotate(IBlockState state, Rotation rot)
+    public IBlockState withRotation(IBlockState state, Rotation rot)
     {
         switch (rot)
         {
             case CLOCKWISE_180:
-                switch ((BlockHugeMushroom.EnumType)state.get(VARIANT))
+                switch ((BlockHugeMushroom.EnumType)state.getValue(VARIANT))
                 {
                     case STEM:
                         break;
@@ -128,7 +144,7 @@ public class BlockHugeMushroom extends Block
                 }
 
             case COUNTERCLOCKWISE_90:
-                switch ((BlockHugeMushroom.EnumType)state.get(VARIANT))
+                switch ((BlockHugeMushroom.EnumType)state.getValue(VARIANT))
                 {
                     case STEM:
                         break;
@@ -162,7 +178,7 @@ public class BlockHugeMushroom extends Block
                 }
 
             case CLOCKWISE_90:
-                switch ((BlockHugeMushroom.EnumType)state.get(VARIANT))
+                switch ((BlockHugeMushroom.EnumType)state.getValue(VARIANT))
                 {
                     case STEM:
                         break;
@@ -207,9 +223,9 @@ public class BlockHugeMushroom extends Block
      * blockstate.
      * @deprecated call via {@link IBlockState#withMirror(Mirror)} whenever possible. Implementing/overriding is fine.
      */
-    public IBlockState mirror(IBlockState state, Mirror mirrorIn)
+    public IBlockState withMirror(IBlockState state, Mirror mirrorIn)
     {
-        BlockHugeMushroom.EnumType blockhugemushroom$enumtype = (BlockHugeMushroom.EnumType)state.get(VARIANT);
+        BlockHugeMushroom.EnumType blockhugemushroom$enumtype = (BlockHugeMushroom.EnumType)state.getValue(VARIANT);
 
         switch (mirrorIn)
         {
@@ -228,7 +244,7 @@ public class BlockHugeMushroom extends Block
                     case WEST:
                     case EAST:
                     default:
-                        return super.mirror(state, mirrorIn);
+                        return super.withMirror(state, mirrorIn);
 
                     case SOUTH_WEST:
                         return state.withProperty(VARIANT, BlockHugeMushroom.EnumType.NORTH_WEST);
@@ -268,7 +284,7 @@ public class BlockHugeMushroom extends Block
                 }
         }
 
-        return super.mirror(state, mirrorIn);
+        return super.withMirror(state, mirrorIn);
     }
 
     protected BlockStateContainer createBlockState()

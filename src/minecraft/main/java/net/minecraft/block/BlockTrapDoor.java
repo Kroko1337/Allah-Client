@@ -25,7 +25,7 @@ import net.minecraft.world.World;
 
 public class BlockTrapDoor extends Block
 {
-    public static final PropertyDirection FACING = BlockHorizontal.HORIZONTAL_FACING;
+    public static final PropertyDirection FACING = BlockHorizontal.FACING;
     public static final PropertyBool OPEN = PropertyBool.create("open");
     public static final PropertyEnum<BlockTrapDoor.DoorHalf> HALF = PropertyEnum.<BlockTrapDoor.DoorHalf>create("half", BlockTrapDoor.DoorHalf.class);
     protected static final AxisAlignedBB EAST_OPEN_AABB = new AxisAlignedBB(0.0D, 0.0D, 0.0D, 0.1875D, 1.0D, 1.0D);
@@ -38,17 +38,21 @@ public class BlockTrapDoor extends Block
     protected BlockTrapDoor(Material materialIn)
     {
         super(materialIn);
-        this.setDefaultState(this.stateContainer.getBaseState().withProperty(FACING, EnumFacing.NORTH).withProperty(OPEN, Boolean.valueOf(false)).withProperty(HALF, BlockTrapDoor.DoorHalf.BOTTOM));
+        this.setDefaultState(this.blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH).withProperty(OPEN, Boolean.valueOf(false)).withProperty(HALF, BlockTrapDoor.DoorHalf.BOTTOM));
         this.setCreativeTab(CreativeTabs.REDSTONE);
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#getBoundingBox(IBlockAccess,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
     {
         AxisAlignedBB axisalignedbb;
 
-        if (((Boolean)state.get(OPEN)).booleanValue())
+        if (((Boolean)state.getValue(OPEN)).booleanValue())
         {
-            switch ((EnumFacing)state.get(FACING))
+            switch ((EnumFacing)state.getValue(FACING))
             {
                 case NORTH:
                 default:
@@ -67,7 +71,7 @@ public class BlockTrapDoor extends Block
                     axisalignedbb = EAST_OPEN_AABB;
             }
         }
-        else if (state.get(HALF) == BlockTrapDoor.DoorHalf.TOP)
+        else if (state.getValue(HALF) == BlockTrapDoor.DoorHalf.TOP)
         {
             axisalignedbb = TOP_AABB;
         }
@@ -79,21 +83,34 @@ public class BlockTrapDoor extends Block
         return axisalignedbb;
     }
 
+    /**
+     * Used to determine ambient occlusion and culling when rebuilding chunks for render
+     * @deprecated call via {@link IBlockState#isOpaqueCube()} whenever possible. Implementing/overriding is fine.
+     */
     public boolean isOpaqueCube(IBlockState state)
     {
         return false;
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#isFullCube()} whenever possible. Implementing/overriding is fine.
+     */
     public boolean isFullCube(IBlockState state)
     {
         return false;
     }
 
+    /**
+     * Determines if an entity can path through this block
+     */
     public boolean isPassable(IBlockAccess worldIn, BlockPos pos)
     {
-        return !((Boolean)worldIn.getBlockState(pos).get(OPEN)).booleanValue();
+        return !((Boolean)worldIn.getBlockState(pos).getValue(OPEN)).booleanValue();
     }
 
+    /**
+     * Called when the block is right clicked by a player.
+     */
     public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
         if (this.material == Material.IRON)
@@ -102,9 +119,9 @@ public class BlockTrapDoor extends Block
         }
         else
         {
-            state = state.cycle(OPEN);
+            state = state.cycleProperty(OPEN);
             worldIn.setBlockState(pos, state, 2);
-            this.playSound(playerIn, worldIn, pos, ((Boolean)state.get(OPEN)).booleanValue());
+            this.playSound(playerIn, worldIn, pos, ((Boolean)state.getValue(OPEN)).booleanValue());
             return true;
         }
     }
@@ -123,6 +140,11 @@ public class BlockTrapDoor extends Block
         }
     }
 
+    /**
+     * Called when a neighboring block was changed and marks that this state should perform any checks during a neighbor
+     * change. Cases may include when redstone power is updated, cactus blocks popping off due to a neighboring solid
+     * block, etc.
+     */
     public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos)
     {
         if (!worldIn.isRemote)
@@ -131,7 +153,7 @@ public class BlockTrapDoor extends Block
 
             if (flag || blockIn.getDefaultState().canProvidePower())
             {
-                boolean flag1 = ((Boolean)state.get(OPEN)).booleanValue();
+                boolean flag1 = ((Boolean)state.getValue(OPEN)).booleanValue();
 
                 if (flag1 != flag)
                 {
@@ -142,6 +164,10 @@ public class BlockTrapDoor extends Block
         }
     }
 
+    /**
+     * Called by ItemBlocks just before a block is actually set in the world, to allow for adjustments to the
+     * IBlockstate
+     */
     public IBlockState getStateForPlacement(World worldIn, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer)
     {
         IBlockState iblockstate = this.getDefaultState();
@@ -165,6 +191,9 @@ public class BlockTrapDoor extends Block
         return iblockstate;
     }
 
+    /**
+     * Check whether this Block can be placed at pos, while aiming at the specified side of an adjacent block
+     */
     public boolean canPlaceBlockOnSide(World worldIn, BlockPos pos, EnumFacing side)
     {
         return true;
@@ -208,27 +237,37 @@ public class BlockTrapDoor extends Block
         }
     }
 
+    /**
+     * Gets the render layer this block will render on. SOLID for solid blocks, CUTOUT or CUTOUT_MIPPED for on-off
+     * transparency (glass, reeds), TRANSLUCENT for fully blended transparency (stained glass)
+     */
     public BlockRenderLayer getRenderLayer()
     {
         return BlockRenderLayer.CUTOUT;
     }
 
+    /**
+     * Convert the given metadata into a BlockState for this Block
+     */
     public IBlockState getStateFromMeta(int meta)
     {
         return this.getDefaultState().withProperty(FACING, getFacing(meta)).withProperty(OPEN, Boolean.valueOf((meta & 4) != 0)).withProperty(HALF, (meta & 8) == 0 ? BlockTrapDoor.DoorHalf.BOTTOM : BlockTrapDoor.DoorHalf.TOP);
     }
 
+    /**
+     * Convert the BlockState into the correct metadata value
+     */
     public int getMetaFromState(IBlockState state)
     {
         int i = 0;
-        i = i | getMetaForFacing((EnumFacing)state.get(FACING));
+        i = i | getMetaForFacing((EnumFacing)state.getValue(FACING));
 
-        if (((Boolean)state.get(OPEN)).booleanValue())
+        if (((Boolean)state.getValue(OPEN)).booleanValue())
         {
             i |= 4;
         }
 
-        if (state.get(HALF) == BlockTrapDoor.DoorHalf.TOP)
+        if (state.getValue(HALF) == BlockTrapDoor.DoorHalf.TOP)
         {
             i |= 8;
         }
@@ -242,9 +281,9 @@ public class BlockTrapDoor extends Block
      * @deprecated call via {@link IBlockState#withRotation(Rotation)} whenever possible. Implementing/overriding is
      * fine.
      */
-    public IBlockState rotate(IBlockState state, Rotation rot)
+    public IBlockState withRotation(IBlockState state, Rotation rot)
     {
-        return state.withProperty(FACING, rot.rotate((EnumFacing)state.get(FACING)));
+        return state.withProperty(FACING, rot.rotate((EnumFacing)state.getValue(FACING)));
     }
 
     /**
@@ -252,9 +291,9 @@ public class BlockTrapDoor extends Block
      * blockstate.
      * @deprecated call via {@link IBlockState#withMirror(Mirror)} whenever possible. Implementing/overriding is fine.
      */
-    public IBlockState mirror(IBlockState state, Mirror mirrorIn)
+    public IBlockState withMirror(IBlockState state, Mirror mirrorIn)
     {
-        return state.rotate(mirrorIn.toRotation((EnumFacing)state.get(FACING)));
+        return state.withRotation(mirrorIn.toRotation((EnumFacing)state.getValue(FACING)));
     }
 
     protected BlockStateContainer createBlockState()
@@ -262,9 +301,20 @@ public class BlockTrapDoor extends Block
         return new BlockStateContainer(this, new IProperty[] {FACING, OPEN, HALF});
     }
 
+    /**
+     * Get the geometry of the queried face at the given position and state. This is used to decide whether things like
+     * buttons are allowed to be placed on the face, or how glass panes connect to the face, among other things.
+     * <p>
+     * Common values are {@code SOLID}, which is the default, and {@code UNDEFINED}, which represents something that
+     * does not fit the other descriptions and will generally cause other things not to connect to the face.
+
+     * @return an approximation of the form of the given face
+     * @deprecated call via {@link IBlockState#getBlockFaceShape(IBlockAccess,BlockPos,EnumFacing)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public BlockFaceShape getBlockFaceShape(IBlockAccess worldIn, IBlockState state, BlockPos pos, EnumFacing face)
     {
-        return (face == EnumFacing.UP && state.get(HALF) == BlockTrapDoor.DoorHalf.TOP || face == EnumFacing.DOWN && state.get(HALF) == BlockTrapDoor.DoorHalf.BOTTOM) && !((Boolean)state.get(OPEN)).booleanValue() ? BlockFaceShape.SOLID : BlockFaceShape.UNDEFINED;
+        return (face == EnumFacing.UP && state.getValue(HALF) == BlockTrapDoor.DoorHalf.TOP || face == EnumFacing.DOWN && state.getValue(HALF) == BlockTrapDoor.DoorHalf.BOTTOM) && !((Boolean)state.getValue(OPEN)).booleanValue() ? BlockFaceShape.SOLID : BlockFaceShape.UNDEFINED;
     }
 
     public static enum DoorHalf implements IStringSerializable

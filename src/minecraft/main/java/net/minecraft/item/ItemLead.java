@@ -20,6 +20,9 @@ public class ItemLead extends Item
         this.setCreativeTab(CreativeTabs.TOOLS);
     }
 
+    /**
+     * Called when a Block is right-clicked with this Item
+     */
     public EnumActionResult onItemUse(EntityPlayer player, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
         Block block = worldIn.getBlockState(pos).getBlock();

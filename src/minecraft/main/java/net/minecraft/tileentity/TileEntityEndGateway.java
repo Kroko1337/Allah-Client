@@ -31,32 +31,32 @@ public class TileEntityEndGateway extends TileEntityEndPortal implements ITickab
     private BlockPos exitPortal;
     private boolean exactTeleport;
 
-    public NBTTagCompound write(NBTTagCompound compound)
+    public NBTTagCompound writeToNBT(NBTTagCompound compound)
     {
-        super.write(compound);
-        compound.putLong("Age", this.age);
+        super.writeToNBT(compound);
+        compound.setLong("Age", this.age);
 
         if (this.exitPortal != null)
         {
-            compound.setTag("ExitPortal", NBTUtil.writeBlockPos(this.exitPortal));
+            compound.setTag("ExitPortal", NBTUtil.createPosTag(this.exitPortal));
         }
 
         if (this.exactTeleport)
         {
-            compound.putBoolean("ExactTeleport", this.exactTeleport);
+            compound.setBoolean("ExactTeleport", this.exactTeleport);
         }
 
         return compound;
     }
 
-    public void read(NBTTagCompound compound)
+    public void readFromNBT(NBTTagCompound compound)
     {
-        super.read(compound);
+        super.readFromNBT(compound);
         this.age = compound.getLong("Age");
 
-        if (compound.contains("ExitPortal", 10))
+        if (compound.hasKey("ExitPortal", 10))
         {
-            this.exitPortal = NBTUtil.readBlockPos(compound.getCompound("ExitPortal"));
+            this.exitPortal = NBTUtil.getPosFromTag(compound.getCompoundTag("ExitPortal"));
         }
 
         this.exactTeleport = compound.getBoolean("ExactTeleport");
@@ -67,7 +67,10 @@ public class TileEntityEndGateway extends TileEntityEndPortal implements ITickab
         return 65536.0D;
     }
 
-    public void tick()
+    /**
+     * Like the old updateEntity(), except more generic.
+     */
+    public void update()
     {
         boolean flag = this.isSpawning();
         boolean flag1 = this.isCoolingDown();
@@ -135,7 +138,7 @@ public class TileEntityEndGateway extends TileEntityEndPortal implements ITickab
      */
     public NBTTagCompound getUpdateTag()
     {
-        return this.write(new NBTTagCompound());
+        return this.writeToNBT(new NBTTagCompound());
     }
 
     public void triggerCooldown()
@@ -171,7 +174,7 @@ public class TileEntityEndGateway extends TileEntityEndPortal implements ITickab
         {
             this.teleportCooldown = 100;
 
-            if (this.exitPortal == null && this.world.dimension instanceof WorldProviderEnd)
+            if (this.exitPortal == null && this.world.provider instanceof WorldProviderEnd)
             {
                 this.findExitPortal();
             }
@@ -308,9 +311,9 @@ public class TileEntityEndGateway extends TileEntityEndPortal implements ITickab
         }
     }
 
-    public boolean shouldRenderFace(EnumFacing face)
+    public boolean shouldRenderFace(EnumFacing p_184313_1_)
     {
-        return this.getBlockType().getDefaultState().shouldSideBeRendered(this.world, this.getPos(), face);
+        return this.getBlockType().getDefaultState().shouldSideBeRendered(this.world, this.getPos(), p_184313_1_);
     }
 
     public int getParticleAmount()

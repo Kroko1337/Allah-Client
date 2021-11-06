@@ -13,7 +13,7 @@ import net.minecraft.util.NonNullList;
 
 public abstract class CreativeTabs
 {
-    public static final CreativeTabs[] GROUPS = new CreativeTabs[12];
+    public static final CreativeTabs[] CREATIVE_TAB_ARRAY = new CreativeTabs[12];
     public static final CreativeTabs BUILDING_BLOCKS = new CreativeTabs(0, "buildingBlocks")
     {
         public ItemStack createIcon()
@@ -81,7 +81,7 @@ public abstract class CreativeTabs
     {
         public ItemStack createIcon()
         {
-            return PotionUtils.addPotionToItemStack(new ItemStack(Items.POTION), PotionTypes.WATER);
+            return PotionUtils.addPotionToItemStack(new ItemStack(Items.POTIONITEM), PotionTypes.WATER);
         }
     };
     public static final CreativeTabs MATERIALS = MISC;
@@ -91,7 +91,7 @@ public abstract class CreativeTabs
         {
             return new ItemStack(Blocks.BOOKSHELF);
         }
-        public void fill(NonNullList<ItemStack> items)
+        public void displayAllRelevantItems(NonNullList<ItemStack> p_78018_1_)
         {
             throw new RuntimeException("Implement exception client-side.");
         }
@@ -109,8 +109,12 @@ public abstract class CreativeTabs
     }).setBackgroundImageName("inventory.png").setNoScrollbar().setNoTitle();
     private final int index;
     private final String tabLabel;
+
+    /** Texture to use. */
     private String backgroundTexture = "items.png";
     private boolean hasScrollbar = true;
+
+    /** Whether to draw the title in the foreground of the creative GUI */
     private boolean drawTitle = true;
     private EnumEnchantmentType[] enchantmentTypes = new EnumEnchantmentType[0];
     private ItemStack icon;
@@ -120,7 +124,7 @@ public abstract class CreativeTabs
         this.index = index;
         this.tabLabel = label;
         this.icon = ItemStack.EMPTY;
-        GROUPS[index] = this;
+        CREATIVE_TAB_ARRAY[index] = this;
     }
 
     public int getIndex()
@@ -241,13 +245,13 @@ public abstract class CreativeTabs
     }
 
     /**
-     * Fills {@code items} with all items that are in this group.
+     * only shows items which have tabToDisplayOn == this
      */
-    public void fill(NonNullList<ItemStack> items)
+    public void displayAllRelevantItems(NonNullList<ItemStack> p_78018_1_)
     {
         for (Item item : Item.REGISTRY)
         {
-            item.fillItemGroup(this, items);
+            item.getSubItems(this, p_78018_1_);
         }
     }
 }

@@ -15,21 +15,21 @@ public class ParticleExplosion extends Particle
         this.particleGreen = f;
         this.particleBlue = f;
         this.particleScale = this.rand.nextFloat() * this.rand.nextFloat() * 6.0F + 1.0F;
-        this.maxAge = (int)(16.0D / ((double)this.rand.nextFloat() * 0.8D + 0.2D)) + 2;
+        this.particleMaxAge = (int)(16.0D / ((double)this.rand.nextFloat() * 0.8D + 0.2D)) + 2;
     }
 
-    public void tick()
+    public void onUpdate()
     {
         this.prevPosX = this.posX;
         this.prevPosY = this.posY;
         this.prevPosZ = this.posZ;
 
-        if (this.age++ >= this.maxAge)
+        if (this.particleAge++ >= this.particleMaxAge)
         {
             this.setExpired();
         }
 
-        this.setParticleTextureIndex(7 - this.age * 8 / this.maxAge);
+        this.setParticleTextureIndex(7 - this.particleAge * 8 / this.particleMaxAge);
         this.motionY += 0.004D;
         this.move(this.motionX, this.motionY, this.motionZ);
         this.motionX *= 0.8999999761581421D;

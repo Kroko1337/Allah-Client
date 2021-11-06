@@ -9,12 +9,17 @@ import net.minecraft.entity.player.EnumPlayerModelParts;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
+import net.minecraft.src.Config;
+import net.minecraft.src.CustomItems;
 import net.minecraft.util.ResourceLocation;
 
 public class LayerElytra implements LayerRenderer<EntityLivingBase>
 {
+    /** The basic Elytra texture. */
     private static final ResourceLocation TEXTURE_ELYTRA = new ResourceLocation("textures/entity/elytra.png");
     protected final RenderLivingBase<?> renderPlayer;
+
+    /** The model used by the Elytra. */
     private final ModelElytra modelElytra = new ModelElytra();
 
     public LayerElytra(RenderLivingBase<?> p_i47185_1_)
@@ -40,18 +45,32 @@ public class LayerElytra implements LayerRenderer<EntityLivingBase>
                 {
                     this.renderPlayer.bindTexture(abstractclientplayer.getLocationElytra());
                 }
-                else if (abstractclientplayer.hasPlayerInfo() && abstractclientplayer.getLocationCape() != null && abstractclientplayer.isWearing(EnumPlayerModelParts.CAPE))
+                else if (abstractclientplayer.hasElytraCape() && abstractclientplayer.hasPlayerInfo() && abstractclientplayer.getLocationCape() != null && abstractclientplayer.isWearing(EnumPlayerModelParts.CAPE))
                 {
                     this.renderPlayer.bindTexture(abstractclientplayer.getLocationCape());
                 }
                 else
                 {
-                    this.renderPlayer.bindTexture(TEXTURE_ELYTRA);
+                    ResourceLocation resourcelocation1 = TEXTURE_ELYTRA;
+
+                    if (Config.isCustomItems())
+                    {
+                        resourcelocation1 = CustomItems.getCustomElytraTexture(itemstack, resourcelocation1);
+                    }
+
+                    this.renderPlayer.bindTexture(resourcelocation1);
                 }
             }
             else
             {
-                this.renderPlayer.bindTexture(TEXTURE_ELYTRA);
+                ResourceLocation resourcelocation = TEXTURE_ELYTRA;
+
+                if (Config.isCustomItems())
+                {
+                    resourcelocation = CustomItems.getCustomElytraTexture(itemstack, resourcelocation);
+                }
+
+                this.renderPlayer.bindTexture(resourcelocation);
             }
 
             GlStateManager.pushMatrix();
@@ -59,7 +78,7 @@ public class LayerElytra implements LayerRenderer<EntityLivingBase>
             this.modelElytra.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale, entitylivingbaseIn);
             this.modelElytra.render(entitylivingbaseIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
 
-            if (itemstack.isEnchanted())
+            if (itemstack.isItemEnchanted())
             {
                 LayerArmorBase.renderEnchantedGlint(this.renderPlayer, entitylivingbaseIn, this.modelElytra, limbSwing, limbSwingAmount, partialTicks, ageInTicks, netHeadYaw, headPitch, scale);
             }

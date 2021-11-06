@@ -35,6 +35,10 @@ public class ModelMagmaCube extends ModelBase
         this.core.addBox(-2.0F, 18.0F, -2.0F, 4, 4, 4);
     }
 
+    /**
+     * Used for easily adding entity-dependent animations. The second and third float params here are the same second
+     * and third as in the setRotationAngles method.
+     */
     public void setLivingAnimations(EntityLivingBase entitylivingbaseIn, float limbSwing, float limbSwingAmount, float partialTickTime)
     {
         EntityMagmaCube entitymagmacube = (EntityMagmaCube)entitylivingbaseIn;
@@ -51,6 +55,9 @@ public class ModelMagmaCube extends ModelBase
         }
     }
 
+    /**
+     * Sets the models various rotation angles then renders the model.
+     */
     public void render(Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale)
     {
         this.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale, entityIn);

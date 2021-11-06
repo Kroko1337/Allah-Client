@@ -16,8 +16,7 @@ public class EntityAIBreakDoor extends EntityAIDoorInteract
     }
 
     /**
-     * Returns whether execution should begin. You can also read and cache any state necessary for execution in this
-     * method as well.
+     * Returns whether the EntityAIBase should begin execution.
      */
     public boolean shouldExecute()
     {
@@ -80,9 +79,9 @@ public class EntityAIBreakDoor extends EntityAIDoorInteract
     /**
      * Keep ticking a continuous task that has already been started
      */
-    public void tick()
+    public void updateTask()
     {
-        super.tick();
+        super.updateTask();
 
         if (this.entity.getRNG().nextInt(20) == 0)
         {

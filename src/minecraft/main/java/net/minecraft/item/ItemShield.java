@@ -35,7 +35,7 @@ public class ItemShield extends Item
 
     public String getItemStackDisplayName(ItemStack stack)
     {
-        if (stack.getChildTag("BlockEntityTag") != null)
+        if (stack.getSubCompound("BlockEntityTag") != null)
         {
             EnumDyeColor enumdyecolor = TileEntityBanner.getColor(stack);
             return I18n.translateToLocal("item.shield." + enumdyecolor.getTranslationKey() + ".name");
@@ -57,7 +57,7 @@ public class ItemShield extends Item
     /**
      * returns the action that specifies what animation to play when the items is being used
      */
-    public EnumAction getUseAction(ItemStack stack)
+    public EnumAction getItemUseAction(ItemStack stack)
     {
         return EnumAction.BLOCK;
     }
@@ -65,7 +65,7 @@ public class ItemShield extends Item
     /**
      * How long it takes to use or consume an item
      */
-    public int getUseDuration(ItemStack stack)
+    public int getMaxItemUseDuration(ItemStack stack)
     {
         return 72000;
     }
@@ -79,6 +79,9 @@ public class ItemShield extends Item
 
     /**
      * Return whether this item is repairable in an anvil.
+     *  
+     * @param toRepair the {@code ItemStack} being repaired
+     * @param repair the {@code ItemStack} being used to perform the repair
      */
     public boolean getIsRepairable(ItemStack toRepair, ItemStack repair)
     {

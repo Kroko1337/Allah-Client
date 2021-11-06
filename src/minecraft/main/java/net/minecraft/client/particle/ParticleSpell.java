@@ -6,6 +6,8 @@ import net.minecraft.world.World;
 public class ParticleSpell extends Particle
 {
     private static final Random RANDOM = new Random();
+
+    /** Base spell texture index */
     private int baseSpellTextureIndex = 128;
 
     protected ParticleSpell(World worldIn, double xCoordIn, double yCoordIn, double zCoordIn, double p_i1229_8_, double ySpeed, double p_i1229_12_)
@@ -20,7 +22,7 @@ public class ParticleSpell extends Particle
         }
 
         this.particleScale *= 0.75F;
-        this.maxAge = (int)(8.0D / (Math.random() * 0.8D + 0.2D));
+        this.particleMaxAge = (int)(8.0D / (Math.random() * 0.8D + 0.2D));
     }
 
     public boolean shouldDisableDepth()
@@ -28,18 +30,18 @@ public class ParticleSpell extends Particle
         return true;
     }
 
-    public void tick()
+    public void onUpdate()
     {
         this.prevPosX = this.posX;
         this.prevPosY = this.posY;
         this.prevPosZ = this.posZ;
 
-        if (this.age++ >= this.maxAge)
+        if (this.particleAge++ >= this.particleMaxAge)
         {
             this.setExpired();
         }
 
-        this.setParticleTextureIndex(this.baseSpellTextureIndex + (7 - this.age * 8 / this.maxAge));
+        this.setParticleTextureIndex(this.baseSpellTextureIndex + (7 - this.particleAge * 8 / this.particleMaxAge));
         this.motionY += 0.004D;
         this.move(this.motionX, this.motionY, this.motionZ);
 
@@ -60,6 +62,9 @@ public class ParticleSpell extends Particle
         }
     }
 
+    /**
+     * Sets the base spell texture index
+     */
     public void setBaseSpellTextureIndex(int baseSpellTextureIndexIn)
     {
         this.baseSpellTextureIndex = baseSpellTextureIndexIn;
@@ -71,7 +76,7 @@ public class ParticleSpell extends Particle
         {
             Particle particle = new ParticleSpell(worldIn, xCoordIn, yCoordIn, zCoordIn, xSpeedIn, ySpeedIn, zSpeedIn);
             particle.setAlphaF(0.15F);
-            particle.setColor((float)xSpeedIn, (float)ySpeedIn, (float)zSpeedIn);
+            particle.setRBGColorF((float)xSpeedIn, (float)ySpeedIn, (float)zSpeedIn);
             return particle;
         }
     }
@@ -99,7 +104,7 @@ public class ParticleSpell extends Particle
         public Particle createParticle(int particleID, World worldIn, double xCoordIn, double yCoordIn, double zCoordIn, double xSpeedIn, double ySpeedIn, double zSpeedIn, int... p_178902_15_)
         {
             Particle particle = new ParticleSpell(worldIn, xCoordIn, yCoordIn, zCoordIn, xSpeedIn, ySpeedIn, zSpeedIn);
-            particle.setColor((float)xSpeedIn, (float)ySpeedIn, (float)zSpeedIn);
+            particle.setRBGColorF((float)xSpeedIn, (float)ySpeedIn, (float)zSpeedIn);
             return particle;
         }
     }
@@ -111,7 +116,7 @@ public class ParticleSpell extends Particle
             Particle particle = new ParticleSpell(worldIn, xCoordIn, yCoordIn, zCoordIn, xSpeedIn, ySpeedIn, zSpeedIn);
             ((ParticleSpell)particle).setBaseSpellTextureIndex(144);
             float f = worldIn.rand.nextFloat() * 0.5F + 0.35F;
-            particle.setColor(1.0F * f, 0.0F * f, 1.0F * f);
+            particle.setRBGColorF(1.0F * f, 0.0F * f, 1.0F * f);
             return particle;
         }
     }

@@ -15,7 +15,10 @@ import net.minecraft.util.math.BlockPos;
 
 public class ServerWorldEventHandler implements IWorldEventListener
 {
+    /** Reference to the MinecraftServer object. */
     private final MinecraftServer server;
+
+    /** The WorldServer object. */
     private final WorldServer world;
 
     public ServerWorldEventHandler(MinecraftServer mcServerIn, WorldServer worldServerIn)
@@ -32,16 +35,24 @@ public class ServerWorldEventHandler implements IWorldEventListener
     {
     }
 
+    /**
+     * Called on all IWorldAccesses when an entity is created or loaded. On client worlds, starts downloading any
+     * necessary textures. On server worlds, adds the entity to the entity tracker.
+     */
     public void onEntityAdded(Entity entityIn)
     {
         this.world.getEntityTracker().track(entityIn);
 
         if (entityIn instanceof EntityPlayerMP)
         {
-            this.world.dimension.onPlayerAdded((EntityPlayerMP)entityIn);
+            this.world.provider.onPlayerAdded((EntityPlayerMP)entityIn);
         }
     }
 
+    /**
+     * Called on all IWorldAccesses when an entity is unloaded or destroyed. On client worlds, releases any downloaded
+     * textures. On server worlds, removes the entity from the entity tracker.
+     */
     public void onEntityRemoved(Entity entityIn)
     {
         this.world.getEntityTracker().untrack(entityIn);
@@ -49,13 +60,13 @@ public class ServerWorldEventHandler implements IWorldEventListener
 
         if (entityIn instanceof EntityPlayerMP)
         {
-            this.world.dimension.onPlayerRemoved((EntityPlayerMP)entityIn);
+            this.world.provider.onPlayerRemoved((EntityPlayerMP)entityIn);
         }
     }
 
     public void playSoundToAllNearExcept(@Nullable EntityPlayer player, SoundEvent soundIn, SoundCategory category, double x, double y, double z, float volume, float pitch)
     {
-        this.server.getPlayerList().sendToAllNearExcept(player, x, y, z, volume > 1.0F ? (double)(16.0F * volume) : 16.0D, this.world.dimension.getType().getId(), new SPacketSoundEffect(soundIn, category, x, y, z, volume, pitch));
+        this.server.getPlayerList().sendToAllNearExcept(player, x, y, z, volume > 1.0F ? (double)(16.0F * volume) : 16.0D, this.world.provider.getDimensionType().getId(), new SPacketSoundEffect(soundIn, category, x, y, z, volume, pitch));
     }
 
     /**
@@ -80,7 +91,7 @@ public class ServerWorldEventHandler implements IWorldEventListener
 
     public void playEvent(EntityPlayer player, int type, BlockPos blockPosIn, int data)
     {
-        this.server.getPlayerList().sendToAllNearExcept(player, (double)blockPosIn.getX(), (double)blockPosIn.getY(), (double)blockPosIn.getZ(), 64.0D, this.world.dimension.getType().getId(), new SPacketEffect(type, blockPosIn, data, false));
+        this.server.getPlayerList().sendToAllNearExcept(player, (double)blockPosIn.getX(), (double)blockPosIn.getY(), (double)blockPosIn.getZ(), 64.0D, this.world.provider.getDimensionType().getId(), new SPacketEffect(type, blockPosIn, data, false));
     }
 
     public void broadcastSound(int soundID, BlockPos pos, int data)

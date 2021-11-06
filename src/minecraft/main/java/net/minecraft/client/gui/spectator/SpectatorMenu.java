@@ -147,7 +147,7 @@ public class SpectatorMenu
 
         public void renderIcon(float brightness, int alpha)
         {
-            Minecraft.getInstance().getTextureManager().bindTexture(GuiSpectator.SPECTATOR_WIDGETS);
+            Minecraft.getMinecraft().getTextureManager().bindTexture(GuiSpectator.SPECTATOR_WIDGETS);
             Gui.drawModalRectWithCustomSizedTexture(0, 0, 128.0F, 0.0F, 16, 16, 256.0F, 256.0F);
         }
 
@@ -180,7 +180,7 @@ public class SpectatorMenu
 
         public void renderIcon(float brightness, int alpha)
         {
-            Minecraft.getInstance().getTextureManager().bindTexture(GuiSpectator.SPECTATOR_WIDGETS);
+            Minecraft.getMinecraft().getTextureManager().bindTexture(GuiSpectator.SPECTATOR_WIDGETS);
 
             if (this.direction < 0)
             {

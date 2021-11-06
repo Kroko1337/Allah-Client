@@ -41,23 +41,23 @@ public class EntityMinecartFurnace extends EntityMinecart
         EntityMinecart.registerFixesMinecart(fixer, EntityMinecartFurnace.class);
     }
 
-    public EntityMinecart.Type getMinecartType()
+    public EntityMinecart.Type getType()
     {
         return EntityMinecart.Type.FURNACE;
     }
 
-    protected void registerData()
+    protected void entityInit()
     {
-        super.registerData();
+        super.entityInit();
         this.dataManager.register(POWERED, Boolean.valueOf(false));
     }
 
     /**
      * Called to update the entity's position/logic.
      */
-    public void tick()
+    public void onUpdate()
     {
-        super.tick();
+        super.onUpdate();
 
         if (this.fuel > 0)
         {
@@ -153,7 +153,7 @@ public class EntityMinecartFurnace extends EntityMinecart
 
         if (itemstack.getItem() == Items.COAL && this.fuel + 3600 <= 32000)
         {
-            if (!player.abilities.isCreativeMode)
+            if (!player.capabilities.isCreativeMode)
             {
                 itemstack.shrink(1);
             }
@@ -166,20 +166,23 @@ public class EntityMinecartFurnace extends EntityMinecart
         return true;
     }
 
+    /**
+     * (abstract) Protected helper method to write subclass entity data to NBT.
+     */
     protected void writeEntityToNBT(NBTTagCompound compound)
     {
         super.writeEntityToNBT(compound);
-        compound.putDouble("PushX", this.pushX);
-        compound.putDouble("PushZ", this.pushZ);
-        compound.putShort("Fuel", (short)this.fuel);
+        compound.setDouble("PushX", this.pushX);
+        compound.setDouble("PushZ", this.pushZ);
+        compound.setShort("Fuel", (short)this.fuel);
     }
 
     /**
      * (abstract) Protected helper method to read subclass entity data from NBT.
      */
-    protected void readAdditional(NBTTagCompound compound)
+    protected void readEntityFromNBT(NBTTagCompound compound)
     {
-        super.readAdditional(compound);
+        super.readEntityFromNBT(compound);
         this.pushX = compound.getDouble("PushX");
         this.pushZ = compound.getDouble("PushZ");
         this.fuel = compound.getShort("Fuel");

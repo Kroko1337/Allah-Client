@@ -23,7 +23,7 @@ public class PhaseTakeoff extends PhaseBase
      * Gives the phase a chance to update its status.
      * Called by dragon's onLivingUpdate. Only used when !worldObj.isRemote.
      */
-    public void serverTick()
+    public void doLocalUpdate()
     {
         if (!this.firstTick && this.currentPath != null)
         {

@@ -16,17 +16,17 @@ public class SpawnEggNames implements IFixableData
     {
         if ("minecraft:spawn_egg".equals(compound.getString("id")))
         {
-            NBTTagCompound nbttagcompound = compound.getCompound("tag");
-            NBTTagCompound nbttagcompound1 = nbttagcompound.getCompound("EntityTag");
+            NBTTagCompound nbttagcompound = compound.getCompoundTag("tag");
+            NBTTagCompound nbttagcompound1 = nbttagcompound.getCompoundTag("EntityTag");
             short short1 = compound.getShort("Damage");
 
-            if (!nbttagcompound1.contains("id", 8))
+            if (!nbttagcompound1.hasKey("id", 8))
             {
                 String s = ENTITY_IDS[short1 & 255];
 
                 if (s != null)
                 {
-                    nbttagcompound1.putString("id", s);
+                    nbttagcompound1.setString("id", s);
                     nbttagcompound.setTag("EntityTag", nbttagcompound1);
                     compound.setTag("tag", nbttagcompound);
                 }
@@ -34,7 +34,7 @@ public class SpawnEggNames implements IFixableData
 
             if (short1 != 0)
             {
-                compound.putShort("Damage", (short)0);
+                compound.setShort("Damage", (short)0);
             }
         }
 

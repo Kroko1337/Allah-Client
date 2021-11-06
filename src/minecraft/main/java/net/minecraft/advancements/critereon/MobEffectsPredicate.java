@@ -17,6 +17,7 @@ import net.minecraft.util.ResourceLocation;
 
 public class MobEffectsPredicate
 {
+    /** The predicate that matches any set of effects. */
     public static final MobEffectsPredicate ANY = new MobEffectsPredicate(Collections.emptyMap());
     private final Map<Potion, MobEffectsPredicate.InstancePredicate> effects;
 
@@ -74,7 +75,7 @@ public class MobEffectsPredicate
             for (Entry<String, JsonElement> entry : jsonobject.entrySet())
             {
                 ResourceLocation resourcelocation = new ResourceLocation(entry.getKey());
-                Potion potion = Potion.REGISTRY.getOrDefault(resourcelocation);
+                Potion potion = Potion.REGISTRY.getObject(resourcelocation);
 
                 if (potion == null)
                 {
@@ -124,7 +125,7 @@ public class MobEffectsPredicate
             {
                 return false;
             }
-            else if (this.ambient != null && this.ambient.booleanValue() != effect.isAmbient())
+            else if (this.ambient != null && this.ambient.booleanValue() != effect.getIsAmbient())
             {
                 return false;
             }

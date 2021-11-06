@@ -5,18 +5,23 @@ import net.minecraft.util.math.BlockPos;
 
 public class NextTickListEntry implements Comparable<NextTickListEntry>
 {
+    /** The id number for the next tick entry */
     private static long nextTickEntryID;
-    private final Block target;
+    private final Block block;
     public final BlockPos position;
+
+    /** Time this tick is scheduled to occur at */
     public long scheduledTime;
     public int priority;
+
+    /** The id of the tick entry */
     private final long tickEntryID;
 
     public NextTickListEntry(BlockPos positionIn, Block blockIn)
     {
         this.tickEntryID = (long)(nextTickEntryID++);
         this.position = positionIn.toImmutable();
-        this.target = blockIn;
+        this.block = blockIn;
     }
 
     public boolean equals(Object p_equals_1_)
@@ -28,7 +33,7 @@ public class NextTickListEntry implements Comparable<NextTickListEntry>
         else
         {
             NextTickListEntry nextticklistentry = (NextTickListEntry)p_equals_1_;
-            return this.position.equals(nextticklistentry.position) && Block.isEqualTo(this.target, nextticklistentry.target);
+            return this.position.equals(nextticklistentry.position) && Block.isEqualTo(this.block, nextticklistentry.block);
         }
     }
 
@@ -37,6 +42,9 @@ public class NextTickListEntry implements Comparable<NextTickListEntry>
         return this.position.hashCode();
     }
 
+    /**
+     * Sets the scheduled time for this tick entry
+     */
     public NextTickListEntry setScheduledTime(long scheduledTimeIn)
     {
         this.scheduledTime = scheduledTimeIn;
@@ -74,11 +82,11 @@ public class NextTickListEntry implements Comparable<NextTickListEntry>
 
     public String toString()
     {
-        return Block.getIdFromBlock(this.target) + ": " + this.position + ", " + this.scheduledTime + ", " + this.priority + ", " + this.tickEntryID;
+        return Block.getIdFromBlock(this.block) + ": " + this.position + ", " + this.scheduledTime + ", " + this.priority + ", " + this.tickEntryID;
     }
 
-    public Block getTarget()
+    public Block getBlock()
     {
-        return this.target;
+        return this.block;
     }
 }

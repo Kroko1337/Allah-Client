@@ -21,7 +21,7 @@ public class ParticleLava extends Particle
         this.particleBlue = 1.0F;
         this.particleScale *= this.rand.nextFloat() * 2.0F + 0.2F;
         this.lavaParticleScale = this.particleScale;
-        this.maxAge = (int)(16.0D / (Math.random() * 0.8D + 0.2D));
+        this.particleMaxAge = (int)(16.0D / (Math.random() * 0.8D + 0.2D));
         this.setParticleTextureIndex(49);
     }
 
@@ -33,25 +33,28 @@ public class ParticleLava extends Particle
         return 240 | k << 16;
     }
 
+    /**
+     * Renders the particle
+     */
     public void renderParticle(BufferBuilder buffer, Entity entityIn, float partialTicks, float rotationX, float rotationZ, float rotationYZ, float rotationXY, float rotationXZ)
     {
-        float f = ((float)this.age + partialTicks) / (float)this.maxAge;
+        float f = ((float)this.particleAge + partialTicks) / (float)this.particleMaxAge;
         this.particleScale = this.lavaParticleScale * (1.0F - f * f);
         super.renderParticle(buffer, entityIn, partialTicks, rotationX, rotationZ, rotationYZ, rotationXY, rotationXZ);
     }
 
-    public void tick()
+    public void onUpdate()
     {
         this.prevPosX = this.posX;
         this.prevPosY = this.posY;
         this.prevPosZ = this.posZ;
 
-        if (this.age++ >= this.maxAge)
+        if (this.particleAge++ >= this.particleMaxAge)
         {
             this.setExpired();
         }
 
-        float f = (float)this.age / (float)this.maxAge;
+        float f = (float)this.particleAge / (float)this.particleMaxAge;
 
         if (this.rand.nextFloat() > f)
         {

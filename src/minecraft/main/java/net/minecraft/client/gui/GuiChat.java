@@ -44,6 +44,10 @@ public class GuiChat extends GuiScreen implements ITabCompleter
         this.defaultInputFieldText = defaultText;
     }
 
+    /**
+     * Adds the buttons (and other controls) to the screen in question. Called when the GUI is displayed and when the
+     * window resizes, the buttonList is cleared beforehand.
+     */
     public void initGui()
     {
         Keyboard.enableRepeatEvents(true);
@@ -51,23 +55,33 @@ public class GuiChat extends GuiScreen implements ITabCompleter
         this.inputField = new GuiTextField(0, this.fontRenderer, 4, this.height - 12, this.width - 4, 12);
         this.inputField.setMaxStringLength(256);
         this.inputField.setEnableBackgroundDrawing(false);
-        this.inputField.setFocused2(true);
+        this.inputField.setFocused(true);
         this.inputField.setText(this.defaultInputFieldText);
         this.inputField.setCanLoseFocus(false);
         this.tabCompleter = new GuiChat.ChatTabCompleter(this.inputField);
     }
 
+    /**
+     * Called when the screen is unloaded. Used to disable keyboard repeat events
+     */
     public void onGuiClosed()
     {
         Keyboard.enableRepeatEvents(false);
         this.mc.ingameGUI.getChatGUI().resetScroll();
     }
 
+    /**
+     * Called from the main game loop to update the screen.
+     */
     public void updateScreen()
     {
-        this.inputField.tick();
+        this.inputField.updateCursorCounter();
     }
 
+    /**
+     * Fired when a key is typed (except F11 which toggles full screen). This is the equivalent of
+     * KeyListener.keyTyped(KeyEvent e). Args : character (character on the key), keyCode (lwjgl Keyboard key code)
+     */
     protected void keyTyped(char typedChar, int keyCode) throws IOException
     {
         this.tabCompleter.resetRequested();
@@ -121,6 +135,9 @@ public class GuiChat extends GuiScreen implements ITabCompleter
         }
     }
 
+    /**
+     * Handles mouse input.
+     */
     public void handleMouseInput() throws IOException
     {
         super.handleMouseInput();
@@ -147,6 +164,9 @@ public class GuiChat extends GuiScreen implements ITabCompleter
         }
     }
 
+    /**
+     * Called when the mouse is clicked. Args : mouseX, mouseY, clickedButton
+     */
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
     {
         if (mouseButton == 0)
@@ -163,6 +183,9 @@ public class GuiChat extends GuiScreen implements ITabCompleter
         super.mouseClicked(mouseX, mouseY, mouseButton);
     }
 
+    /**
+     * Sets the text of the chat
+     */
     protected void setText(String newChatText, boolean shouldOverwrite)
     {
         if (shouldOverwrite)
@@ -205,6 +228,9 @@ public class GuiChat extends GuiScreen implements ITabCompleter
         }
     }
 
+    /**
+     * Draws the screen and all the components in it.
+     */
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         drawRect(2, this.height - 14, this.width - 2, this.height - 2, Integer.MIN_VALUE);
@@ -219,11 +245,17 @@ public class GuiChat extends GuiScreen implements ITabCompleter
         super.drawScreen(mouseX, mouseY, partialTicks);
     }
 
+    /**
+     * Returns true if this GUI should pause the game when it is displayed in single-player
+     */
     public boolean doesGuiPauseGame()
     {
         return false;
     }
 
+    /**
+     * Sets the list of tab completions, as long as they were previously requested.
+     */
     public void setCompletions(String... newCompletions)
     {
         this.tabCompleter.setCompletions(newCompletions);
@@ -231,7 +263,7 @@ public class GuiChat extends GuiScreen implements ITabCompleter
 
     public static class ChatTabCompleter extends TabCompleter
     {
-        private final Minecraft client = Minecraft.getInstance();
+        private final Minecraft client = Minecraft.getMinecraft();
 
         public ChatTabCompleter(GuiTextField p_i46749_1_)
         {

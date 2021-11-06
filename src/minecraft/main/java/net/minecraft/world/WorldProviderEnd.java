@@ -15,11 +15,17 @@ public class WorldProviderEnd extends WorldProvider
 {
     private DragonFightManager dragonFightManager;
 
+    /**
+     * Creates a new {@link BiomeProvider} for the WorldProvider, and also sets the values of {@link #hasSkylight} and
+     * {@link #hasNoSky} appropriately.
+     *  
+     * Note that subclasses generally override this method without calling the parent version.
+     */
     public void init()
     {
-        this.biomeProvider = new BiomeProviderSingle(Biomes.THE_END);
+        this.biomeProvider = new BiomeProviderSingle(Biomes.SKY);
         NBTTagCompound nbttagcompound = this.world.getWorldInfo().getDimensionData(DimensionType.THE_END);
-        this.dragonFightManager = this.world instanceof WorldServer ? new DragonFightManager((WorldServer)this.world, nbttagcompound.getCompound("DragonFight")) : null;
+        this.dragonFightManager = this.world instanceof WorldServer ? new DragonFightManager((WorldServer)this.world, nbttagcompound.getCompoundTag("DragonFight")) : null;
     }
 
     public IChunkGenerator createChunkGenerator()
@@ -48,10 +54,10 @@ public class WorldProviderEnd extends WorldProvider
     /**
      * Return Vec3D with biome specific fog color
      */
-    public Vec3d getFogColor(float celestialAngle, float partialTicks)
+    public Vec3d getFogColor(float p_76562_1_, float p_76562_2_)
     {
         int i = 10518688;
-        float f = MathHelper.cos(celestialAngle * ((float)Math.PI * 2F)) * 2.0F + 0.5F;
+        float f = MathHelper.cos(p_76562_1_ * ((float)Math.PI * 2F)) * 2.0F + 0.5F;
         f = MathHelper.clamp(f, 0.0F, 1.0F);
         float f1 = 0.627451F;
         float f2 = 0.5019608F;
@@ -91,6 +97,9 @@ public class WorldProviderEnd extends WorldProvider
         return 8.0F;
     }
 
+    /**
+     * Will check if the x, z position specified is alright to be set as the map spawn point
+     */
     public boolean canCoordinateBeSpawn(int x, int z)
     {
         return this.world.getGroundAboveSeaLevel(new BlockPos(x, 0, z)).getMaterial().blocksMovement();
@@ -114,7 +123,7 @@ public class WorldProviderEnd extends WorldProvider
         return false;
     }
 
-    public DimensionType getType()
+    public DimensionType getDimensionType()
     {
         return DimensionType.THE_END;
     }
@@ -129,7 +138,7 @@ public class WorldProviderEnd extends WorldProvider
 
         if (this.dragonFightManager != null)
         {
-            nbttagcompound.setTag("DragonFight", this.dragonFightManager.write());
+            nbttagcompound.setTag("DragonFight", this.dragonFightManager.getCompound());
         }
 
         this.world.getWorldInfo().setDimensionData(DimensionType.THE_END, nbttagcompound);
@@ -139,7 +148,7 @@ public class WorldProviderEnd extends WorldProvider
      * Called when the world is updating entities. Only used in WorldProviderEnd to update the DragonFightManager in
      * Vanilla.
      */
-    public void tick()
+    public void onWorldUpdateEntities()
     {
         if (this.dragonFightManager != null)
         {

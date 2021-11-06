@@ -29,12 +29,15 @@ public class ItemEnderEye extends Item
         this.setCreativeTab(CreativeTabs.MISC);
     }
 
+    /**
+     * Called when a Block is right-clicked with this Item
+     */
     public EnumActionResult onItemUse(EntityPlayer player, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
         IBlockState iblockstate = worldIn.getBlockState(pos);
         ItemStack itemstack = player.getHeldItem(hand);
 
-        if (player.canPlayerEdit(pos.offset(facing), facing, itemstack) && iblockstate.getBlock() == Blocks.END_PORTAL_FRAME && !((Boolean)iblockstate.get(BlockEndPortalFrame.EYE)).booleanValue())
+        if (player.canPlayerEdit(pos.offset(facing), facing, itemstack) && iblockstate.getBlock() == Blocks.END_PORTAL_FRAME && !((Boolean)iblockstate.getValue(BlockEndPortalFrame.EYE)).booleanValue())
         {
             if (worldIn.isRemote)
             {
@@ -48,9 +51,9 @@ public class ItemEnderEye extends Item
 
                 for (int i = 0; i < 16; ++i)
                 {
-                    double d0 = (double)((float)pos.getX() + (5.0F + random.nextFloat() * 6.0F) / 16.0F);
+                    double d0 = (double)((float)pos.getX() + (5.0F + itemRand.nextFloat() * 6.0F) / 16.0F);
                     double d1 = (double)((float)pos.getY() + 0.8125F);
-                    double d2 = (double)((float)pos.getZ() + (5.0F + random.nextFloat() * 6.0F) / 16.0F);
+                    double d2 = (double)((float)pos.getZ() + (5.0F + itemRand.nextFloat() * 6.0F) / 16.0F);
                     double d3 = 0.0D;
                     double d4 = 0.0D;
                     double d5 = 0.0D;
@@ -105,17 +108,17 @@ public class ItemEnderEye extends Item
                 {
                     EntityEnderEye entityendereye = new EntityEnderEye(worldIn, playerIn.posX, playerIn.posY + (double)(playerIn.height / 2.0F), playerIn.posZ);
                     entityendereye.moveTowards(blockpos);
-                    worldIn.addEntity0(entityendereye);
+                    worldIn.spawnEntity(entityendereye);
 
                     if (playerIn instanceof EntityPlayerMP)
                     {
                         CriteriaTriggers.USED_ENDER_EYE.trigger((EntityPlayerMP)playerIn, blockpos);
                     }
 
-                    worldIn.playSound((EntityPlayer)null, playerIn.posX, playerIn.posY, playerIn.posZ, SoundEvents.ENTITY_ENDER_EYE_LAUNCH, SoundCategory.NEUTRAL, 0.5F, 0.4F / (random.nextFloat() * 0.4F + 0.8F));
+                    worldIn.playSound((EntityPlayer)null, playerIn.posX, playerIn.posY, playerIn.posZ, SoundEvents.ENTITY_ENDEREYE_LAUNCH, SoundCategory.NEUTRAL, 0.5F, 0.4F / (itemRand.nextFloat() * 0.4F + 0.8F));
                     worldIn.playEvent((EntityPlayer)null, 1003, new BlockPos(playerIn), 0);
 
-                    if (!playerIn.abilities.isCreativeMode)
+                    if (!playerIn.capabilities.isCreativeMode)
                     {
                         itemstack.shrink(1);
                     }

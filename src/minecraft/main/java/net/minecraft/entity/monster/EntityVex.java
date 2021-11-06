@@ -47,11 +47,14 @@ public class EntityVex extends EntityMob
     {
         super(worldIn);
         this.isImmuneToFire = true;
-        this.moveController = new EntityVex.AIMoveControl(this);
+        this.moveHelper = new EntityVex.AIMoveControl(this);
         this.setSize(0.4F, 0.8F);
         this.experienceValue = 3;
     }
 
+    /**
+     * Tries to move the entity towards the specified location.
+     */
     public void move(MoverType type, double x, double y, double z)
     {
         super.move(type, x, y, z);
@@ -61,10 +64,10 @@ public class EntityVex extends EntityMob
     /**
      * Called to update the entity's position/logic.
      */
-    public void tick()
+    public void onUpdate()
     {
         this.noClip = true;
-        super.tick();
+        super.onUpdate();
         this.noClip = false;
         this.setNoGravity(true);
 
@@ -75,29 +78,29 @@ public class EntityVex extends EntityMob
         }
     }
 
-    protected void registerGoals()
+    protected void initEntityAI()
     {
-        super.registerGoals();
-        this.goalSelector.addGoal(0, new EntityAISwimming(this));
-        this.goalSelector.addGoal(4, new EntityVex.AIChargeAttack());
-        this.goalSelector.addGoal(8, new EntityVex.AIMoveRandom());
-        this.goalSelector.addGoal(9, new EntityAIWatchClosest(this, EntityPlayer.class, 3.0F, 1.0F));
-        this.goalSelector.addGoal(10, new EntityAIWatchClosest(this, EntityLiving.class, 8.0F));
-        this.targetSelector.addGoal(1, new EntityAIHurtByTarget(this, true, new Class[] {EntityVex.class}));
-        this.targetSelector.addGoal(2, new EntityVex.AICopyOwnerTarget(this));
-        this.targetSelector.addGoal(3, new EntityAINearestAttackableTarget(this, EntityPlayer.class, true));
+        super.initEntityAI();
+        this.tasks.addTask(0, new EntityAISwimming(this));
+        this.tasks.addTask(4, new EntityVex.AIChargeAttack());
+        this.tasks.addTask(8, new EntityVex.AIMoveRandom());
+        this.tasks.addTask(9, new EntityAIWatchClosest(this, EntityPlayer.class, 3.0F, 1.0F));
+        this.tasks.addTask(10, new EntityAIWatchClosest(this, EntityLiving.class, 8.0F));
+        this.targetTasks.addTask(1, new EntityAIHurtByTarget(this, true, new Class[] {EntityVex.class}));
+        this.targetTasks.addTask(2, new EntityVex.AICopyOwnerTarget(this));
+        this.targetTasks.addTask(3, new EntityAINearestAttackableTarget(this, EntityPlayer.class, true));
     }
 
-    protected void registerAttributes()
+    protected void applyEntityAttributes()
     {
-        super.registerAttributes();
-        this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(14.0D);
-        this.getAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(4.0D);
+        super.applyEntityAttributes();
+        this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(14.0D);
+        this.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(4.0D);
     }
 
-    protected void registerData()
+    protected void entityInit()
     {
-        super.registerData();
+        super.entityInit();
         this.dataManager.register(VEX_FLAGS, Byte.valueOf((byte)0));
     }
 
@@ -109,35 +112,38 @@ public class EntityVex extends EntityMob
     /**
      * (abstract) Protected helper method to read subclass entity data from NBT.
      */
-    public void readAdditional(NBTTagCompound compound)
+    public void readEntityFromNBT(NBTTagCompound compound)
     {
-        super.readAdditional(compound);
+        super.readEntityFromNBT(compound);
 
-        if (compound.contains("BoundX"))
+        if (compound.hasKey("BoundX"))
         {
-            this.boundOrigin = new BlockPos(compound.getInt("BoundX"), compound.getInt("BoundY"), compound.getInt("BoundZ"));
+            this.boundOrigin = new BlockPos(compound.getInteger("BoundX"), compound.getInteger("BoundY"), compound.getInteger("BoundZ"));
         }
 
-        if (compound.contains("LifeTicks"))
+        if (compound.hasKey("LifeTicks"))
         {
-            this.setLimitedLife(compound.getInt("LifeTicks"));
+            this.setLimitedLife(compound.getInteger("LifeTicks"));
         }
     }
 
+    /**
+     * (abstract) Protected helper method to write subclass entity data to NBT.
+     */
     public void writeEntityToNBT(NBTTagCompound compound)
     {
         super.writeEntityToNBT(compound);
 
         if (this.boundOrigin != null)
         {
-            compound.putInt("BoundX", this.boundOrigin.getX());
-            compound.putInt("BoundY", this.boundOrigin.getY());
-            compound.putInt("BoundZ", this.boundOrigin.getZ());
+            compound.setInteger("BoundX", this.boundOrigin.getX());
+            compound.setInteger("BoundY", this.boundOrigin.getY());
+            compound.setInteger("BoundZ", this.boundOrigin.getZ());
         }
 
         if (this.limitedLifespan)
         {
-            compound.putInt("LifeTicks", this.limitedLifeTicks);
+            compound.setInteger("LifeTicks", this.limitedLifeTicks);
         }
     }
 
@@ -235,6 +241,21 @@ public class EntityVex extends EntityMob
     }
 
     @Nullable
+
+    /**
+     * Called only once on an entity when first time spawned, via egg, mob spawner, natural spawning etc, but not called
+     * when entity is reloaded from nbt. Mainly used for initializing attributes and inventory.
+     *  
+     * The livingdata parameter is used to pass data between all instances during a pack spawn. It will be null on the
+     * first call. Subclasses may check if it's null, and then create a new one and return it if so, initializing all
+     * entities in the pack with the contained data.
+     *  
+     * @return The IEntityLivingData to pass to this method for other instances of this entity class within the same
+     * pack
+     *  
+     * @param difficulty The current local difficulty
+     * @param livingdata Shared spawn data. Will usually be null. (See return value for more information)
+     */
     public IEntityLivingData onInitialSpawn(DifficultyInstance difficulty, @Nullable IEntityLivingData livingdata)
     {
         this.setEquipmentBasedOnDifficulty(difficulty);
@@ -272,14 +293,14 @@ public class EntityVex extends EntityMob
 
         public boolean shouldContinueExecuting()
         {
-            return EntityVex.this.getMoveHelper().isUpdating() && EntityVex.this.isCharging() && EntityVex.this.getAttackTarget() != null && EntityVex.this.getAttackTarget().isAlive();
+            return EntityVex.this.getMoveHelper().isUpdating() && EntityVex.this.isCharging() && EntityVex.this.getAttackTarget() != null && EntityVex.this.getAttackTarget().isEntityAlive();
         }
 
         public void startExecuting()
         {
             EntityLivingBase entitylivingbase = EntityVex.this.getAttackTarget();
-            Vec3d vec3d = entitylivingbase.getEyePosition(1.0F);
-            EntityVex.this.moveController.setMoveTo(vec3d.x, vec3d.y, vec3d.z, 1.0D);
+            Vec3d vec3d = entitylivingbase.getPositionEyes(1.0F);
+            EntityVex.this.moveHelper.setMoveTo(vec3d.x, vec3d.y, vec3d.z, 1.0D);
             EntityVex.this.setCharging(true);
             EntityVex.this.playSound(SoundEvents.ENTITY_VEX_CHARGE, 1.0F, 1.0F);
         }
@@ -289,11 +310,11 @@ public class EntityVex extends EntityMob
             EntityVex.this.setCharging(false);
         }
 
-        public void tick()
+        public void updateTask()
         {
             EntityLivingBase entitylivingbase = EntityVex.this.getAttackTarget();
 
-            if (EntityVex.this.getBoundingBox().intersects(entitylivingbase.getBoundingBox()))
+            if (EntityVex.this.getEntityBoundingBox().intersects(entitylivingbase.getEntityBoundingBox()))
             {
                 EntityVex.this.attackEntityAsMob(entitylivingbase);
                 EntityVex.this.setCharging(false);
@@ -304,8 +325,8 @@ public class EntityVex extends EntityMob
 
                 if (d0 < 9.0D)
                 {
-                    Vec3d vec3d = entitylivingbase.getEyePosition(1.0F);
-                    EntityVex.this.moveController.setMoveTo(vec3d.x, vec3d.y, vec3d.z, 1.0D);
+                    Vec3d vec3d = entitylivingbase.getPositionEyes(1.0F);
+                    EntityVex.this.moveHelper.setMoveTo(vec3d.x, vec3d.y, vec3d.z, 1.0D);
                 }
             }
         }
@@ -337,7 +358,7 @@ public class EntityVex extends EntityMob
             super(vex);
         }
 
-        public void tick()
+        public void onUpdateMoveHelper()
         {
             if (this.action == EntityMoveHelper.Action.MOVE_TO)
             {
@@ -347,7 +368,7 @@ public class EntityVex extends EntityMob
                 double d3 = d0 * d0 + d1 * d1 + d2 * d2;
                 d3 = (double)MathHelper.sqrt(d3);
 
-                if (d3 < EntityVex.this.getBoundingBox().getAverageEdgeLength())
+                if (d3 < EntityVex.this.getEntityBoundingBox().getAverageEdgeLength())
                 {
                     this.action = EntityMoveHelper.Action.WAIT;
                     EntityVex.this.motionX *= 0.5D;
@@ -394,7 +415,7 @@ public class EntityVex extends EntityMob
             return false;
         }
 
-        public void tick()
+        public void updateTask()
         {
             BlockPos blockpos = EntityVex.this.getBoundOrigin();
 
@@ -409,11 +430,11 @@ public class EntityVex extends EntityMob
 
                 if (EntityVex.this.world.isAirBlock(blockpos1))
                 {
-                    EntityVex.this.moveController.setMoveTo((double)blockpos1.getX() + 0.5D, (double)blockpos1.getY() + 0.5D, (double)blockpos1.getZ() + 0.5D, 0.25D);
+                    EntityVex.this.moveHelper.setMoveTo((double)blockpos1.getX() + 0.5D, (double)blockpos1.getY() + 0.5D, (double)blockpos1.getZ() + 0.5D, 0.25D);
 
                     if (EntityVex.this.getAttackTarget() == null)
                     {
-                        EntityVex.this.getLookController().setLookPosition((double)blockpos1.getX() + 0.5D, (double)blockpos1.getY() + 0.5D, (double)blockpos1.getZ() + 0.5D, 180.0F, 20.0F);
+                        EntityVex.this.getLookHelper().setLookPosition((double)blockpos1.getX() + 0.5D, (double)blockpos1.getY() + 0.5D, (double)blockpos1.getZ() + 0.5D, 180.0F, 20.0F);
                     }
 
                     break;

@@ -36,7 +36,7 @@ public class ItemCompass extends Item
 
                     double d0;
 
-                    if (worldIn.dimension.isSurfaceWorld())
+                    if (worldIn.provider.isSurfaceWorld())
                     {
                         double d1 = flag ? (double)entity.rotationYaw : this.getFrameRotation((EntityItemFrame)entity);
                         d1 = MathHelper.positiveModulo(d1 / 360.0D, 1.0D);
@@ -56,12 +56,12 @@ public class ItemCompass extends Item
                     return MathHelper.positiveModulo((float)d0, 1.0F);
                 }
             }
-            private double wobble(World worldIn, double amount)
+            private double wobble(World worldIn, double p_185093_2_)
             {
-                if (worldIn.getGameTime() != this.lastUpdateTick)
+                if (worldIn.getTotalWorldTime() != this.lastUpdateTick)
                 {
-                    this.lastUpdateTick = worldIn.getGameTime();
-                    double d0 = amount - this.rotation;
+                    this.lastUpdateTick = worldIn.getTotalWorldTime();
+                    double d0 = p_185093_2_ - this.rotation;
                     d0 = MathHelper.positiveModulo(d0 + 0.5D, 1.0D) - 0.5D;
                     this.rota += d0 * 0.1D;
                     this.rota *= 0.8D;
@@ -70,14 +70,14 @@ public class ItemCompass extends Item
 
                 return this.rotation;
             }
-            private double getFrameRotation(EntityItemFrame frameEntity)
+            private double getFrameRotation(EntityItemFrame p_185094_1_)
             {
-                return (double)MathHelper.wrapDegrees(180 + frameEntity.facingDirection.getHorizontalIndex() * 90);
+                return (double)MathHelper.wrapDegrees(180 + p_185094_1_.facingDirection.getHorizontalIndex() * 90);
             }
-            private double getSpawnToAngle(World worldIn, Entity entityIn)
+            private double getSpawnToAngle(World p_185092_1_, Entity p_185092_2_)
             {
-                BlockPos blockpos = worldIn.getSpawnPoint();
-                return Math.atan2((double)blockpos.getZ() - entityIn.posZ, (double)blockpos.getX() - entityIn.posX);
+                BlockPos blockpos = p_185092_1_.getSpawnPoint();
+                return Math.atan2((double)blockpos.getZ() - p_185092_2_.posZ, (double)blockpos.getX() - p_185092_2_.posX);
             }
         });
     }

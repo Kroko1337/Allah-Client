@@ -211,7 +211,7 @@ public class GuiPageButtonList extends GuiListExtended
 
             if (this.focusedControl != guipagebuttonlist$guientry.focusedControl && this.focusedControl != null && this.focusedControl instanceof GuiTextField)
             {
-                ((GuiTextField)this.focusedControl).setFocused2(false);
+                ((GuiTextField)this.focusedControl).setFocused(false);
             }
 
             this.focusedControl = guipagebuttonlist$guientry.focusedControl;
@@ -273,7 +273,7 @@ public class GuiPageButtonList extends GuiListExtended
             {
                 if (p_178062_2_ == 15)
                 {
-                    guitextfield.setFocused2(false);
+                    guitextfield.setFocused(false);
                     int k = this.editBoxes.indexOf(this.focusedControl);
 
                     if (GuiScreen.isShiftKeyDown())
@@ -298,7 +298,7 @@ public class GuiPageButtonList extends GuiListExtended
 
                     this.focusedControl = this.editBoxes.get(k);
                     guitextfield = (GuiTextField)this.focusedControl;
-                    guitextfield.setFocused2(true);
+                    guitextfield.setFocused(true);
                     int l = guitextfield.y + this.slotHeight;
                     int i1 = guitextfield.y;
 
@@ -347,6 +347,9 @@ public class GuiPageButtonList extends GuiListExtended
         }
     }
 
+    /**
+     * Gets the IGuiListEntry object for the given index
+     */
     public GuiPageButtonList.GuiEntry getListEntry(int index)
     {
         return this.entries.get(index);
@@ -357,6 +360,9 @@ public class GuiPageButtonList extends GuiListExtended
         return this.entries.size();
     }
 
+    /**
+     * Gets the width of the list
+     */
     public int getListWidth()
     {
         return 400;
@@ -401,7 +407,7 @@ public class GuiPageButtonList extends GuiListExtended
 
     public static class GuiEntry implements GuiListExtended.IGuiListEntry
     {
-        private final Minecraft client = Minecraft.getInstance();
+        private final Minecraft client = Minecraft.getMinecraft();
         private final Gui component1;
         private final Gui component2;
         private Gui focusedControl;

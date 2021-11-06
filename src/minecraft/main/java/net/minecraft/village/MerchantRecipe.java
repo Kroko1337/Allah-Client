@@ -6,10 +6,21 @@ import net.minecraft.nbt.NBTTagCompound;
 
 public class MerchantRecipe
 {
+    /** Item the Villager buys. */
     private ItemStack itemToBuy;
+
+    /** Second Item the Villager buys. */
     private ItemStack secondItemToBuy;
+
+    /** Item the Villager sells. */
     private ItemStack itemToSell;
+
+    /**
+     * Saves how much has been tool used when put into to slot to be enchanted.
+     */
     private int toolUses;
+
+    /** Maximum times this trade can be used. */
     private int maxTradeUses;
     private boolean rewardsExp;
 
@@ -49,21 +60,33 @@ public class MerchantRecipe
         this(buy1, new ItemStack(sellItem));
     }
 
+    /**
+     * Gets the itemToBuy.
+     */
     public ItemStack getItemToBuy()
     {
         return this.itemToBuy;
     }
 
+    /**
+     * Gets secondItemToBuy.
+     */
     public ItemStack getSecondItemToBuy()
     {
         return this.secondItemToBuy;
     }
 
+    /**
+     * Gets if Villager has secondItemToBuy.
+     */
     public boolean hasSecondItemToBuy()
     {
         return !this.secondItemToBuy.isEmpty();
     }
 
+    /**
+     * Gets itemToSell.
+     */
     public ItemStack getItemToSell()
     {
         return this.itemToSell;
@@ -94,6 +117,10 @@ public class MerchantRecipe
         return this.toolUses >= this.maxTradeUses;
     }
 
+    /**
+     * Compensates {@link net.minecraft.village.MerchantRecipe#toolUses toolUses} with {@link
+     * net.minecraft.village.MerchantRecipe#maxTradeUses maxTradeUses}
+     */
     public void compensateToolUses()
     {
         this.toolUses = this.maxTradeUses;
@@ -106,31 +133,31 @@ public class MerchantRecipe
 
     public void readFromTags(NBTTagCompound tagCompound)
     {
-        NBTTagCompound nbttagcompound = tagCompound.getCompound("buy");
+        NBTTagCompound nbttagcompound = tagCompound.getCompoundTag("buy");
         this.itemToBuy = new ItemStack(nbttagcompound);
-        NBTTagCompound nbttagcompound1 = tagCompound.getCompound("sell");
+        NBTTagCompound nbttagcompound1 = tagCompound.getCompoundTag("sell");
         this.itemToSell = new ItemStack(nbttagcompound1);
 
-        if (tagCompound.contains("buyB", 10))
+        if (tagCompound.hasKey("buyB", 10))
         {
-            this.secondItemToBuy = new ItemStack(tagCompound.getCompound("buyB"));
+            this.secondItemToBuy = new ItemStack(tagCompound.getCompoundTag("buyB"));
         }
 
-        if (tagCompound.contains("uses", 99))
+        if (tagCompound.hasKey("uses", 99))
         {
-            this.toolUses = tagCompound.getInt("uses");
+            this.toolUses = tagCompound.getInteger("uses");
         }
 
-        if (tagCompound.contains("maxUses", 99))
+        if (tagCompound.hasKey("maxUses", 99))
         {
-            this.maxTradeUses = tagCompound.getInt("maxUses");
+            this.maxTradeUses = tagCompound.getInteger("maxUses");
         }
         else
         {
             this.maxTradeUses = 7;
         }
 
-        if (tagCompound.contains("rewardExp", 1))
+        if (tagCompound.hasKey("rewardExp", 1))
         {
             this.rewardsExp = tagCompound.getBoolean("rewardExp");
         }
@@ -143,17 +170,17 @@ public class MerchantRecipe
     public NBTTagCompound writeToTags()
     {
         NBTTagCompound nbttagcompound = new NBTTagCompound();
-        nbttagcompound.setTag("buy", this.itemToBuy.write(new NBTTagCompound()));
-        nbttagcompound.setTag("sell", this.itemToSell.write(new NBTTagCompound()));
+        nbttagcompound.setTag("buy", this.itemToBuy.writeToNBT(new NBTTagCompound()));
+        nbttagcompound.setTag("sell", this.itemToSell.writeToNBT(new NBTTagCompound()));
 
         if (!this.secondItemToBuy.isEmpty())
         {
-            nbttagcompound.setTag("buyB", this.secondItemToBuy.write(new NBTTagCompound()));
+            nbttagcompound.setTag("buyB", this.secondItemToBuy.writeToNBT(new NBTTagCompound()));
         }
 
-        nbttagcompound.putInt("uses", this.toolUses);
-        nbttagcompound.putInt("maxUses", this.maxTradeUses);
-        nbttagcompound.putBoolean("rewardExp", this.rewardsExp);
+        nbttagcompound.setInteger("uses", this.toolUses);
+        nbttagcompound.setInteger("maxUses", this.maxTradeUses);
+        nbttagcompound.setBoolean("rewardExp", this.rewardsExp);
         return nbttagcompound;
     }
 }

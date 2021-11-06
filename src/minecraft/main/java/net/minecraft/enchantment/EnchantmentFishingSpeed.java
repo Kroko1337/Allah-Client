@@ -18,6 +18,9 @@ public class EnchantmentFishingSpeed extends Enchantment
         return 15 + (enchantmentLevel - 1) * 9;
     }
 
+    /**
+     * Returns the maximum value of enchantability nedded on the enchantment level passed.
+     */
     public int getMaxEnchantability(int enchantmentLevel)
     {
         return super.getMinEnchantability(enchantmentLevel) + 50;

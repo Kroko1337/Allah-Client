@@ -22,7 +22,7 @@ public abstract class BlockContainer extends Block implements ITileEntityProvide
 {
     protected BlockContainer(Material materialIn)
     {
-        this(materialIn, materialIn.getColor());
+        this(materialIn, materialIn.getMaterialMapColor());
     }
 
     protected BlockContainer(Material materialIn, MapColor color)
@@ -51,6 +51,9 @@ public abstract class BlockContainer extends Block implements ITileEntityProvide
         return EnumBlockRenderType.INVISIBLE;
     }
 
+    /**
+     * Called serverside after this block is replaced with another in Chunk, but before the Tile Entity is updated
+     */
     public void breakBlock(World worldIn, BlockPos pos, IBlockState state)
     {
         super.breakBlock(worldIn, pos, state);

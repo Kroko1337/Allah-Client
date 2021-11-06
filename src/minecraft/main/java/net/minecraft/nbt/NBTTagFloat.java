@@ -7,6 +7,7 @@ import net.minecraft.util.math.MathHelper;
 
 public class NBTTagFloat extends NBTPrimitive
 {
+    /** The float value for the tag. */
     private float data;
 
     NBTTagFloat()

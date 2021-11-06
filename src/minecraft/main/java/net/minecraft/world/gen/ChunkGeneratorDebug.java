@@ -28,6 +28,9 @@ public class ChunkGeneratorDebug implements IChunkGenerator
         this.world = worldIn;
     }
 
+    /**
+     * Generates the chunk at the specified position, from scratch
+     */
     public Chunk generateChunk(int x, int z)
     {
         ChunkPrimer chunkprimer = new ChunkPrimer();
@@ -85,10 +88,19 @@ public class ChunkGeneratorDebug implements IChunkGenerator
         return iblockstate;
     }
 
+    /**
+     * Generate initial structures in this chunk, e.g. mineshafts, temples, lakes, and dungeons
+     *  
+     * @param x Chunk x coordinate
+     * @param z Chunk z coordinate
+     */
     public void populate(int x, int z)
     {
     }
 
+    /**
+     * Called to generate additional structures after initial worldgen, used by ocean monuments
+     */
     public boolean generateStructures(Chunk chunkIn, int x, int z)
     {
         return false;
@@ -97,7 +109,7 @@ public class ChunkGeneratorDebug implements IChunkGenerator
     public List<Biome.SpawnListEntry> getPossibleCreatures(EnumCreatureType creatureType, BlockPos pos)
     {
         Biome biome = this.world.getBiome(pos);
-        return biome.getSpawns(creatureType);
+        return biome.getSpawnableList(creatureType);
     }
 
     @Nullable
@@ -111,6 +123,11 @@ public class ChunkGeneratorDebug implements IChunkGenerator
         return false;
     }
 
+    /**
+     * Recreates data about structures intersecting given chunk (used for example by getPossibleCreatures), without
+     * placing any blocks. When called for the first time before any chunk is generated - also initializes the internal
+     * state needed by getPossibleCreatures.
+     */
     public void recreateStructures(Chunk chunkIn, int x, int z)
     {
     }
@@ -119,7 +136,7 @@ public class ChunkGeneratorDebug implements IChunkGenerator
     {
         for (Block block : Block.REGISTRY)
         {
-            ALL_VALID_STATES.addAll(block.getStateContainer().getValidStates());
+            ALL_VALID_STATES.addAll(block.getBlockState().getValidStates());
         }
 
         GRID_WIDTH = MathHelper.ceil(MathHelper.sqrt((float)ALL_VALID_STATES.size()));

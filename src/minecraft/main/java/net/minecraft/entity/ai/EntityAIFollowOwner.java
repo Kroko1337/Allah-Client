@@ -20,7 +20,7 @@ public class EntityAIFollowOwner extends EntityAIBase
     private EntityLivingBase owner;
     World world;
     private final double followSpeed;
-    private final PathNavigate navigator;
+    private final PathNavigate petPathfinder;
     private int timeToRecalcPath;
     float maxDist;
     float minDist;
@@ -31,7 +31,7 @@ public class EntityAIFollowOwner extends EntityAIBase
         this.tameable = tameableIn;
         this.world = tameableIn.world;
         this.followSpeed = followSpeedIn;
-        this.navigator = tameableIn.getNavigator();
+        this.petPathfinder = tameableIn.getNavigator();
         this.minDist = minDistIn;
         this.maxDist = maxDistIn;
         this.setMutexBits(3);
@@ -43,8 +43,7 @@ public class EntityAIFollowOwner extends EntityAIBase
     }
 
     /**
-     * Returns whether execution should begin. You can also read and cache any state necessary for execution in this
-     * method as well.
+     * Returns whether the EntityAIBase should begin execution.
      */
     public boolean shouldExecute()
     {
@@ -78,7 +77,7 @@ public class EntityAIFollowOwner extends EntityAIBase
      */
     public boolean shouldContinueExecuting()
     {
-        return !this.navigator.noPath() && this.tameable.getDistanceSq(this.owner) > (double)(this.maxDist * this.maxDist) && !this.tameable.isSitting();
+        return !this.petPathfinder.noPath() && this.tameable.getDistanceSq(this.owner) > (double)(this.maxDist * this.maxDist) && !this.tameable.isSitting();
     }
 
     /**
@@ -97,16 +96,16 @@ public class EntityAIFollowOwner extends EntityAIBase
     public void resetTask()
     {
         this.owner = null;
-        this.navigator.clearPath();
+        this.petPathfinder.clearPath();
         this.tameable.setPathPriority(PathNodeType.WATER, this.oldWaterCost);
     }
 
     /**
      * Keep ticking a continuous task that has already been started
      */
-    public void tick()
+    public void updateTask()
     {
-        this.tameable.getLookController().setLookPositionWithEntity(this.owner, 10.0F, (float)this.tameable.getVerticalFaceSpeed());
+        this.tameable.getLookHelper().setLookPositionWithEntity(this.owner, 10.0F, (float)this.tameable.getVerticalFaceSpeed());
 
         if (!this.tameable.isSitting())
         {
@@ -114,15 +113,15 @@ public class EntityAIFollowOwner extends EntityAIBase
             {
                 this.timeToRecalcPath = 10;
 
-                if (!this.navigator.tryMoveToEntityLiving(this.owner, this.followSpeed))
+                if (!this.petPathfinder.tryMoveToEntityLiving(this.owner, this.followSpeed))
                 {
-                    if (!this.tameable.getLeashed() && !this.tameable.isPassenger())
+                    if (!this.tameable.getLeashed() && !this.tameable.isRiding())
                     {
                         if (this.tameable.getDistanceSq(this.owner) >= 144.0D)
                         {
                             int i = MathHelper.floor(this.owner.posX) - 2;
                             int j = MathHelper.floor(this.owner.posZ) - 2;
-                            int k = MathHelper.floor(this.owner.getBoundingBox().minY);
+                            int k = MathHelper.floor(this.owner.getEntityBoundingBox().minY);
 
                             for (int l = 0; l <= 4; ++l)
                             {
@@ -131,7 +130,7 @@ public class EntityAIFollowOwner extends EntityAIBase
                                     if ((l < 1 || i1 < 1 || l > 3 || i1 > 3) && this.isTeleportFriendlyBlock(i, j, k, l, i1))
                                     {
                                         this.tameable.setLocationAndAngles((double)((float)(i + l) + 0.5F), (double)k, (double)((float)(j + i1) + 0.5F), this.tameable.rotationYaw, this.tameable.rotationPitch);
-                                        this.navigator.clearPath();
+                                        this.petPathfinder.clearPath();
                                         return;
                                     }
                                 }

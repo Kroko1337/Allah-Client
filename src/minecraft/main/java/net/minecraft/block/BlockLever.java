@@ -36,32 +36,50 @@ public class BlockLever extends Block
 
     protected BlockLever()
     {
-        super(Material.MISCELLANEOUS);
-        this.setDefaultState(this.stateContainer.getBaseState().withProperty(FACING, BlockLever.EnumOrientation.NORTH).withProperty(POWERED, Boolean.valueOf(false)));
+        super(Material.CIRCUITS);
+        this.setDefaultState(this.blockState.getBaseState().withProperty(FACING, BlockLever.EnumOrientation.NORTH).withProperty(POWERED, Boolean.valueOf(false)));
         this.setCreativeTab(CreativeTabs.REDSTONE);
     }
 
     @Nullable
+
+    /**
+     * @deprecated call via {@link IBlockState#getCollisionBoundingBox(IBlockAccess,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public AxisAlignedBB getCollisionBoundingBox(IBlockState blockState, IBlockAccess worldIn, BlockPos pos)
     {
         return NULL_AABB;
     }
 
+    /**
+     * Used to determine ambient occlusion and culling when rebuilding chunks for render
+     * @deprecated call via {@link IBlockState#isOpaqueCube()} whenever possible. Implementing/overriding is fine.
+     */
     public boolean isOpaqueCube(IBlockState state)
     {
         return false;
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#isFullCube()} whenever possible. Implementing/overriding is fine.
+     */
     public boolean isFullCube(IBlockState state)
     {
         return false;
     }
 
+    /**
+     * Check whether this Block can be placed at pos, while aiming at the specified side of an adjacent block
+     */
     public boolean canPlaceBlockOnSide(World worldIn, BlockPos pos, EnumFacing side)
     {
         return canAttachTo(worldIn, pos, side);
     }
 
+    /**
+     * Checks if this block can be placed exactly at the given position.
+     */
     public boolean canPlaceBlockAt(World worldIn, BlockPos pos)
     {
         for (EnumFacing enumfacing : EnumFacing.values())
@@ -80,6 +98,10 @@ public class BlockLever extends Block
         return BlockButton.canPlaceBlock(worldIn, p_181090_1_, p_181090_2_);
     }
 
+    /**
+     * Called by ItemBlocks just before a block is actually set in the world, to allow for adjustments to the
+     * IBlockstate
+     */
     public IBlockState getStateForPlacement(World worldIn, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer)
     {
         IBlockState iblockstate = this.getDefaultState().withProperty(POWERED, Boolean.valueOf(false));
@@ -109,9 +131,14 @@ public class BlockLever extends Block
         }
     }
 
+    /**
+     * Called when a neighboring block was changed and marks that this state should perform any checks during a neighbor
+     * change. Cases may include when redstone power is updated, cactus blocks popping off due to a neighboring solid
+     * block, etc.
+     */
     public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos)
     {
-        if (this.checkCanSurvive(worldIn, pos, state) && !canAttachTo(worldIn, pos, ((BlockLever.EnumOrientation)state.get(FACING)).getFacing()))
+        if (this.checkCanSurvive(worldIn, pos, state) && !canAttachTo(worldIn, pos, ((BlockLever.EnumOrientation)state.getValue(FACING)).getFacing()))
         {
             this.dropBlockAsItem(worldIn, pos, state, 0);
             worldIn.setBlockToAir(pos);
@@ -132,9 +159,13 @@ public class BlockLever extends Block
         }
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#getBoundingBox(IBlockAccess,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
     {
-        switch ((BlockLever.EnumOrientation)state.get(FACING))
+        switch ((BlockLever.EnumOrientation)state.getValue(FACING))
         {
             case EAST:
             default:
@@ -159,6 +190,9 @@ public class BlockLever extends Block
         }
     }
 
+    /**
+     * Called when the block is right clicked by a player.
+     */
     public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
         if (worldIn.isRemote)
@@ -167,23 +201,26 @@ public class BlockLever extends Block
         }
         else
         {
-            state = state.cycle(POWERED);
+            state = state.cycleProperty(POWERED);
             worldIn.setBlockState(pos, state, 3);
-            float f = ((Boolean)state.get(POWERED)).booleanValue() ? 0.6F : 0.5F;
+            float f = ((Boolean)state.getValue(POWERED)).booleanValue() ? 0.6F : 0.5F;
             worldIn.playSound((EntityPlayer)null, pos, SoundEvents.BLOCK_LEVER_CLICK, SoundCategory.BLOCKS, 0.3F, f);
             worldIn.notifyNeighborsOfStateChange(pos, this, false);
-            EnumFacing enumfacing = ((BlockLever.EnumOrientation)state.get(FACING)).getFacing();
+            EnumFacing enumfacing = ((BlockLever.EnumOrientation)state.getValue(FACING)).getFacing();
             worldIn.notifyNeighborsOfStateChange(pos.offset(enumfacing.getOpposite()), this, false);
             return true;
         }
     }
 
+    /**
+     * Called serverside after this block is replaced with another in Chunk, but before the Tile Entity is updated
+     */
     public void breakBlock(World worldIn, BlockPos pos, IBlockState state)
     {
-        if (((Boolean)state.get(POWERED)).booleanValue())
+        if (((Boolean)state.getValue(POWERED)).booleanValue())
         {
             worldIn.notifyNeighborsOfStateChange(pos, this, false);
-            EnumFacing enumfacing = ((BlockLever.EnumOrientation)state.get(FACING)).getFacing();
+            EnumFacing enumfacing = ((BlockLever.EnumOrientation)state.getValue(FACING)).getFacing();
             worldIn.notifyNeighborsOfStateChange(pos.offset(enumfacing.getOpposite()), this, false);
         }
 
@@ -196,7 +233,7 @@ public class BlockLever extends Block
      */
     public int getWeakPower(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side)
     {
-        return ((Boolean)blockState.get(POWERED)).booleanValue() ? 15 : 0;
+        return ((Boolean)blockState.getValue(POWERED)).booleanValue() ? 15 : 0;
     }
 
     /**
@@ -205,13 +242,13 @@ public class BlockLever extends Block
      */
     public int getStrongPower(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side)
     {
-        if (!((Boolean)blockState.get(POWERED)).booleanValue())
+        if (!((Boolean)blockState.getValue(POWERED)).booleanValue())
         {
             return 0;
         }
         else
         {
-            return ((BlockLever.EnumOrientation)blockState.get(FACING)).getFacing() == side ? 15 : 0;
+            return ((BlockLever.EnumOrientation)blockState.getValue(FACING)).getFacing() == side ? 15 : 0;
         }
     }
 
@@ -224,17 +261,23 @@ public class BlockLever extends Block
         return true;
     }
 
+    /**
+     * Convert the given metadata into a BlockState for this Block
+     */
     public IBlockState getStateFromMeta(int meta)
     {
         return this.getDefaultState().withProperty(FACING, BlockLever.EnumOrientation.byMetadata(meta & 7)).withProperty(POWERED, Boolean.valueOf((meta & 8) > 0));
     }
 
+    /**
+     * Convert the BlockState into the correct metadata value
+     */
     public int getMetaFromState(IBlockState state)
     {
         int i = 0;
-        i = i | ((BlockLever.EnumOrientation)state.get(FACING)).getMetadata();
+        i = i | ((BlockLever.EnumOrientation)state.getValue(FACING)).getMetadata();
 
-        if (((Boolean)state.get(POWERED)).booleanValue())
+        if (((Boolean)state.getValue(POWERED)).booleanValue())
         {
             i |= 8;
         }
@@ -248,12 +291,12 @@ public class BlockLever extends Block
      * @deprecated call via {@link IBlockState#withRotation(Rotation)} whenever possible. Implementing/overriding is
      * fine.
      */
-    public IBlockState rotate(IBlockState state, Rotation rot)
+    public IBlockState withRotation(IBlockState state, Rotation rot)
     {
         switch (rot)
         {
             case CLOCKWISE_180:
-                switch ((BlockLever.EnumOrientation)state.get(FACING))
+                switch ((BlockLever.EnumOrientation)state.getValue(FACING))
                 {
                     case EAST:
                         return state.withProperty(FACING, BlockLever.EnumOrientation.WEST);
@@ -272,7 +315,7 @@ public class BlockLever extends Block
                 }
 
             case COUNTERCLOCKWISE_90:
-                switch ((BlockLever.EnumOrientation)state.get(FACING))
+                switch ((BlockLever.EnumOrientation)state.getValue(FACING))
                 {
                     case EAST:
                         return state.withProperty(FACING, BlockLever.EnumOrientation.NORTH);
@@ -300,7 +343,7 @@ public class BlockLever extends Block
                 }
 
             case CLOCKWISE_90:
-                switch ((BlockLever.EnumOrientation)state.get(FACING))
+                switch ((BlockLever.EnumOrientation)state.getValue(FACING))
                 {
                     case EAST:
                         return state.withProperty(FACING, BlockLever.EnumOrientation.SOUTH);
@@ -337,9 +380,9 @@ public class BlockLever extends Block
      * blockstate.
      * @deprecated call via {@link IBlockState#withMirror(Mirror)} whenever possible. Implementing/overriding is fine.
      */
-    public IBlockState mirror(IBlockState state, Mirror mirrorIn)
+    public IBlockState withMirror(IBlockState state, Mirror mirrorIn)
     {
-        return state.rotate(mirrorIn.toRotation(((BlockLever.EnumOrientation)state.get(FACING)).getFacing()));
+        return state.withRotation(mirrorIn.toRotation(((BlockLever.EnumOrientation)state.getValue(FACING)).getFacing()));
     }
 
     protected BlockStateContainer createBlockState()
@@ -347,6 +390,17 @@ public class BlockLever extends Block
         return new BlockStateContainer(this, new IProperty[] {FACING, POWERED});
     }
 
+    /**
+     * Get the geometry of the queried face at the given position and state. This is used to decide whether things like
+     * buttons are allowed to be placed on the face, or how glass panes connect to the face, among other things.
+     * <p>
+     * Common values are {@code SOLID}, which is the default, and {@code UNDEFINED}, which represents something that
+     * does not fit the other descriptions and will generally cause other things not to connect to the face.
+
+     * @return an approximation of the form of the given face
+     * @deprecated call via {@link IBlockState#getBlockFaceShape(IBlockAccess,BlockPos,EnumFacing)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public BlockFaceShape getBlockFaceShape(IBlockAccess worldIn, IBlockState state, BlockPos pos, EnumFacing face)
     {
         return BlockFaceShape.UNDEFINED;

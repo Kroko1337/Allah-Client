@@ -14,5 +14,13 @@ public interface IBlockBehaviors
      */
     boolean onBlockEventReceived(World worldIn, BlockPos pos, int id, int param);
 
+    /**
+     * Called when a neighboring block was changed and marks that this state should perform any checks during a neighbor
+     * change. Cases may include when redstone power is updated, cactus blocks popping off due to a neighboring solid
+     * block, etc.
+     *  
+     * @param blockIn The neighboring block causing this block update
+     * @param fromPos The neighboring position causing this block update
+     */
     void neighborChanged(World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos);
 }

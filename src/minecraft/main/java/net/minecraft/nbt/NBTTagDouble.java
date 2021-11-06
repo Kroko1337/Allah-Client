@@ -7,6 +7,7 @@ import net.minecraft.util.math.MathHelper;
 
 public class NBTTagDouble extends NBTPrimitive
 {
+    /** The double value for the tag. */
     private double data;
 
     NBTTagDouble()

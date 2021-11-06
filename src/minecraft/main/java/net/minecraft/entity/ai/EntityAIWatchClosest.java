@@ -9,7 +9,11 @@ import net.minecraft.util.EntitySelectors;
 public class EntityAIWatchClosest extends EntityAIBase
 {
     protected EntityLiving entity;
+
+    /** The closest entity which is being watched by this one. */
     protected Entity closestEntity;
+
+    /** This is the Maximum distance that the AI will look for the Entity */
     protected float maxDistance;
     private int lookTime;
     private final float chance;
@@ -34,8 +38,7 @@ public class EntityAIWatchClosest extends EntityAIBase
     }
 
     /**
-     * Returns whether execution should begin. You can also read and cache any state necessary for execution in this
-     * method as well.
+     * Returns whether the EntityAIBase should begin execution.
      */
     public boolean shouldExecute()
     {
@@ -56,7 +59,7 @@ public class EntityAIWatchClosest extends EntityAIBase
             }
             else
             {
-                this.closestEntity = this.entity.world.findNearestEntityWithinAABB(this.watchedClass, this.entity.getBoundingBox().grow((double)this.maxDistance, 3.0D, (double)this.maxDistance), this.entity);
+                this.closestEntity = this.entity.world.findNearestEntityWithinAABB(this.watchedClass, this.entity.getEntityBoundingBox().grow((double)this.maxDistance, 3.0D, (double)this.maxDistance), this.entity);
             }
 
             return this.closestEntity != null;
@@ -68,7 +71,7 @@ public class EntityAIWatchClosest extends EntityAIBase
      */
     public boolean shouldContinueExecuting()
     {
-        if (!this.closestEntity.isAlive())
+        if (!this.closestEntity.isEntityAlive())
         {
             return false;
         }
@@ -101,9 +104,9 @@ public class EntityAIWatchClosest extends EntityAIBase
     /**
      * Keep ticking a continuous task that has already been started
      */
-    public void tick()
+    public void updateTask()
     {
-        this.entity.getLookController().setLookPosition(this.closestEntity.posX, this.closestEntity.posY + (double)this.closestEntity.getEyeHeight(), this.closestEntity.posZ, (float)this.entity.getHorizontalFaceSpeed(), (float)this.entity.getVerticalFaceSpeed());
+        this.entity.getLookHelper().setLookPosition(this.closestEntity.posX, this.closestEntity.posY + (double)this.closestEntity.getEyeHeight(), this.closestEntity.posZ, (float)this.entity.getHorizontalFaceSpeed(), (float)this.entity.getVerticalFaceSpeed());
         --this.lookTime;
     }
 }

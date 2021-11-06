@@ -10,6 +10,9 @@ import net.minecraft.util.text.translation.I18n;
 
 public class EntityDamageSourceIndirect extends EntityDamageSource
 {
+    /**
+     * The entity who created the direct source, e.g. the shooter of an arrow
+     */
     private final Entity indirectEntity;
 
     public EntityDamageSourceIndirect(String damageTypeIn, Entity source, @Nullable Entity indirectEntityIn)

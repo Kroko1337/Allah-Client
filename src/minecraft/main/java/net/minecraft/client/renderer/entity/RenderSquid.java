@@ -9,13 +9,13 @@ public class RenderSquid extends RenderLiving<EntitySquid>
 {
     private static final ResourceLocation SQUID_TEXTURES = new ResourceLocation("textures/entity/squid.png");
 
-    public RenderSquid(RenderManager renderManagerIn)
+    public RenderSquid(RenderManager p_i47192_1_)
     {
-        super(renderManagerIn, new ModelSquid(), 0.7F);
+        super(p_i47192_1_, new ModelSquid(), 0.7F);
     }
 
     /**
-     * Returns the location of an entity's texture.
+     * Returns the location of an entity's texture. Doesn't seem to be called unless you call Render.bindEntityTexture.
      */
     protected ResourceLocation getEntityTexture(EntitySquid entity)
     {

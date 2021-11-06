@@ -11,7 +11,7 @@ public class GuiClickableScrolledSelectionListProxy extends GuiSlot
 
     public GuiClickableScrolledSelectionListProxy(RealmsClickableScrolledSelectionList selectionList, int widthIn, int heightIn, int topIn, int bottomIn, int slotHeightIn)
     {
-        super(Minecraft.getInstance(), widthIn, heightIn, topIn, bottomIn, slotHeightIn);
+        super(Minecraft.getMinecraft(), widthIn, heightIn, topIn, bottomIn, slotHeightIn);
         this.proxy = selectionList;
     }
 
@@ -20,11 +20,17 @@ public class GuiClickableScrolledSelectionListProxy extends GuiSlot
         return this.proxy.getItemCount();
     }
 
+    /**
+     * The element in the slot that was clicked, boolean for whether it was double clicked or not
+     */
     protected void elementClicked(int slotIndex, boolean isDoubleClick, int mouseX, int mouseY)
     {
         this.proxy.selectItem(slotIndex, isDoubleClick, mouseX, mouseY);
     }
 
+    /**
+     * Returns true if the element passed in is currently selected
+     */
     protected boolean isSelected(int slotIndex)
     {
         return this.proxy.isSelectedItem(slotIndex);
@@ -55,6 +61,9 @@ public class GuiClickableScrolledSelectionListProxy extends GuiSlot
         return this.mouseX;
     }
 
+    /**
+     * Return the height of the content being scrolled
+     */
     protected int getContentHeight()
     {
         return this.proxy.getMaxPosition();
@@ -80,6 +89,9 @@ public class GuiClickableScrolledSelectionListProxy extends GuiSlot
         this.proxy.renderSelected(p_178043_1_, p_178043_2_, p_178043_3_, p_178043_4_);
     }
 
+    /**
+     * Draws the selection box around the selected slot element.
+     */
     protected void drawSelectionBox(int insideLeft, int insideTop, int mouseXIn, int mouseYIn, float partialTicks)
     {
         int i = this.getSize();

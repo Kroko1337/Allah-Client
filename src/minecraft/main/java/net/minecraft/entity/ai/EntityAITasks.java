@@ -13,6 +13,8 @@ public class EntityAITasks
     private static final Logger LOGGER = LogManager.getLogger();
     private final Set<EntityAITasks.EntityAITaskEntry> taskEntries = Sets.<EntityAITasks.EntityAITaskEntry>newLinkedHashSet();
     private final Set<EntityAITasks.EntityAITaskEntry> executingTaskEntries = Sets.<EntityAITasks.EntityAITaskEntry>newLinkedHashSet();
+
+    /** Instance of Profiler. */
     private final Profiler profiler;
     private int tickCount;
     private int tickRate = 3;
@@ -26,7 +28,7 @@ public class EntityAITasks
     /**
      * Add a now AITask. Args : priority, task
      */
-    public void addGoal(int priority, EntityAIBase task)
+    public void addTask(int priority, EntityAIBase task)
     {
         this.taskEntries.add(new EntityAITasks.EntityAITaskEntry(priority, task));
     }
@@ -34,7 +36,7 @@ public class EntityAITasks
     /**
      * removes the indicated task from the entity's AI tasks.
      */
-    public void removeGoal(EntityAIBase task)
+    public void removeTask(EntityAIBase task)
     {
         Iterator<EntityAITasks.EntityAITaskEntry> iterator = this.taskEntries.iterator();
 
@@ -58,7 +60,7 @@ public class EntityAITasks
         }
     }
 
-    public void tick()
+    public void onUpdateTasks()
     {
         this.profiler.startSection("goalSetup");
 
@@ -108,18 +110,25 @@ public class EntityAITasks
 
             for (EntityAITasks.EntityAITaskEntry entityaitasks$entityaitaskentry2 : this.executingTaskEntries)
             {
-                entityaitasks$entityaitaskentry2.action.tick();
+                entityaitasks$entityaitaskentry2.action.updateTask();
             }
 
             this.profiler.endSection();
         }
     }
 
+    /**
+     * Determine if a specific AI Task should continue being executed.
+     */
     private boolean canContinue(EntityAITasks.EntityAITaskEntry taskEntry)
     {
         return taskEntry.action.shouldContinueExecuting();
     }
 
+    /**
+     * Determine if a specific AI Task can be executed, which means that all running higher (= lower int value) priority
+     * tasks are compatible with it or all lower priority tasks can be interrupted.
+     */
     private boolean canUse(EntityAITasks.EntityAITaskEntry taskEntry)
     {
         if (this.executingTaskEntries.isEmpty())
@@ -154,6 +163,9 @@ public class EntityAITasks
         }
     }
 
+    /**
+     * Returns whether two EntityAITaskEntries can be executed concurrently
+     */
     private boolean areTasksCompatible(EntityAITasks.EntityAITaskEntry taskEntry1, EntityAITasks.EntityAITaskEntry taskEntry2)
     {
         return (taskEntry1.action.getMutexBits() & taskEntry2.action.getMutexBits()) == 0;

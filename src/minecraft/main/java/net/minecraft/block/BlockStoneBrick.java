@@ -21,19 +21,23 @@ public class BlockStoneBrick extends Block
     public BlockStoneBrick()
     {
         super(Material.ROCK);
-        this.setDefaultState(this.stateContainer.getBaseState().withProperty(VARIANT, BlockStoneBrick.EnumType.DEFAULT));
+        this.setDefaultState(this.blockState.getBaseState().withProperty(VARIANT, BlockStoneBrick.EnumType.DEFAULT));
         this.setCreativeTab(CreativeTabs.BUILDING_BLOCKS);
     }
 
+    /**
+     * Gets the metadata of the item this Block can drop. This method is called when the block gets destroyed. It
+     * returns the metadata of the dropped item based on the old metadata of the block.
+     */
     public int damageDropped(IBlockState state)
     {
-        return ((BlockStoneBrick.EnumType)state.get(VARIANT)).getMetadata();
+        return ((BlockStoneBrick.EnumType)state.getValue(VARIANT)).getMetadata();
     }
 
     /**
      * returns a list of blocks with the same ID, but different meta (eg: wood returns 4 blocks)
      */
-    public void fillItemGroup(CreativeTabs group, NonNullList<ItemStack> items)
+    public void getSubBlocks(CreativeTabs itemIn, NonNullList<ItemStack> items)
     {
         for (BlockStoneBrick.EnumType blockstonebrick$enumtype : BlockStoneBrick.EnumType.values())
         {
@@ -41,14 +45,20 @@ public class BlockStoneBrick extends Block
         }
     }
 
+    /**
+     * Convert the given metadata into a BlockState for this Block
+     */
     public IBlockState getStateFromMeta(int meta)
     {
         return this.getDefaultState().withProperty(VARIANT, BlockStoneBrick.EnumType.byMetadata(meta));
     }
 
+    /**
+     * Convert the BlockState into the correct metadata value
+     */
     public int getMetaFromState(IBlockState state)
     {
-        return ((BlockStoneBrick.EnumType)state.get(VARIANT)).getMetadata();
+        return ((BlockStoneBrick.EnumType)state.getValue(VARIANT)).getMetadata();
     }
 
     protected BlockStateContainer createBlockState()

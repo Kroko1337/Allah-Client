@@ -20,6 +20,10 @@ public class GuiShareToLan extends GuiScreen
         this.lastScreen = lastScreenIn;
     }
 
+    /**
+     * Adds the buttons (and other controls) to the screen in question. Called when the GUI is displayed and when the
+     * window resizes, the buttonList is cleared beforehand.
+     */
     public void initGui()
     {
         this.buttonList.clear();
@@ -45,6 +49,9 @@ public class GuiShareToLan extends GuiScreen
         }
     }
 
+    /**
+     * Called by the controls from the buttonList when activated. (Mouse pressed for buttons)
+     */
     protected void actionPerformed(GuiButton button) throws IOException
     {
         if (button.id == 102)
@@ -96,6 +103,9 @@ public class GuiShareToLan extends GuiScreen
         }
     }
 
+    /**
+     * Draws the screen and all the components in it.
+     */
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         this.drawDefaultBackground();

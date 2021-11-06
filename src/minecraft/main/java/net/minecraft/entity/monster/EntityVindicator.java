@@ -51,33 +51,33 @@ public class EntityVindicator extends AbstractIllager
         EntityLiving.registerFixesMob(fixer, EntityVindicator.class);
     }
 
-    protected void registerGoals()
+    protected void initEntityAI()
     {
-        super.registerGoals();
-        this.goalSelector.addGoal(0, new EntityAISwimming(this));
-        this.goalSelector.addGoal(4, new EntityAIAttackMelee(this, 1.0D, false));
-        this.goalSelector.addGoal(8, new EntityAIWander(this, 0.6D));
-        this.goalSelector.addGoal(9, new EntityAIWatchClosest(this, EntityPlayer.class, 3.0F, 1.0F));
-        this.goalSelector.addGoal(10, new EntityAIWatchClosest(this, EntityLiving.class, 8.0F));
-        this.targetSelector.addGoal(1, new EntityAIHurtByTarget(this, true, new Class[] {EntityVindicator.class}));
-        this.targetSelector.addGoal(2, new EntityAINearestAttackableTarget(this, EntityPlayer.class, true));
-        this.targetSelector.addGoal(3, new EntityAINearestAttackableTarget(this, EntityVillager.class, true));
-        this.targetSelector.addGoal(3, new EntityAINearestAttackableTarget(this, EntityIronGolem.class, true));
-        this.targetSelector.addGoal(4, new EntityVindicator.AIJohnnyAttack(this));
+        super.initEntityAI();
+        this.tasks.addTask(0, new EntityAISwimming(this));
+        this.tasks.addTask(4, new EntityAIAttackMelee(this, 1.0D, false));
+        this.tasks.addTask(8, new EntityAIWander(this, 0.6D));
+        this.tasks.addTask(9, new EntityAIWatchClosest(this, EntityPlayer.class, 3.0F, 1.0F));
+        this.tasks.addTask(10, new EntityAIWatchClosest(this, EntityLiving.class, 8.0F));
+        this.targetTasks.addTask(1, new EntityAIHurtByTarget(this, true, new Class[] {EntityVindicator.class}));
+        this.targetTasks.addTask(2, new EntityAINearestAttackableTarget(this, EntityPlayer.class, true));
+        this.targetTasks.addTask(3, new EntityAINearestAttackableTarget(this, EntityVillager.class, true));
+        this.targetTasks.addTask(3, new EntityAINearestAttackableTarget(this, EntityIronGolem.class, true));
+        this.targetTasks.addTask(4, new EntityVindicator.AIJohnnyAttack(this));
     }
 
-    protected void registerAttributes()
+    protected void applyEntityAttributes()
     {
-        super.registerAttributes();
-        this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.3499999940395355D);
-        this.getAttribute(SharedMonsterAttributes.FOLLOW_RANGE).setBaseValue(12.0D);
-        this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(24.0D);
-        this.getAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(5.0D);
+        super.applyEntityAttributes();
+        this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.3499999940395355D);
+        this.getEntityAttribute(SharedMonsterAttributes.FOLLOW_RANGE).setBaseValue(12.0D);
+        this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(24.0D);
+        this.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(5.0D);
     }
 
-    protected void registerData()
+    protected void entityInit()
     {
-        super.registerData();
+        super.entityInit();
     }
 
     protected ResourceLocation getLootTable()
@@ -95,13 +95,16 @@ public class EntityVindicator extends AbstractIllager
         this.setAggressive(1, p_190636_1_);
     }
 
+    /**
+     * (abstract) Protected helper method to write subclass entity data to NBT.
+     */
     public void writeEntityToNBT(NBTTagCompound compound)
     {
         super.writeEntityToNBT(compound);
 
         if (this.johnny)
         {
-            compound.putBoolean("Johnny", true);
+            compound.setBoolean("Johnny", true);
         }
     }
 
@@ -113,17 +116,32 @@ public class EntityVindicator extends AbstractIllager
     /**
      * (abstract) Protected helper method to read subclass entity data from NBT.
      */
-    public void readAdditional(NBTTagCompound compound)
+    public void readEntityFromNBT(NBTTagCompound compound)
     {
-        super.readAdditional(compound);
+        super.readEntityFromNBT(compound);
 
-        if (compound.contains("Johnny", 99))
+        if (compound.hasKey("Johnny", 99))
         {
             this.johnny = compound.getBoolean("Johnny");
         }
     }
 
     @Nullable
+
+    /**
+     * Called only once on an entity when first time spawned, via egg, mob spawner, natural spawning etc, but not called
+     * when entity is reloaded from nbt. Mainly used for initializing attributes and inventory.
+     *  
+     * The livingdata parameter is used to pass data between all instances during a pack spawn. It will be null on the
+     * first call. Subclasses may check if it's null, and then create a new one and return it if so, initializing all
+     * entities in the pack with the contained data.
+     *  
+     * @return The IEntityLivingData to pass to this method for other instances of this entity class within the same
+     * pack
+     *  
+     * @param difficulty The current local difficulty
+     * @param livingdata Shared spawn data. Will usually be null. (See return value for more information)
+     */
     public IEntityLivingData onInitialSpawn(DifficultyInstance difficulty, @Nullable IEntityLivingData livingdata)
     {
         IEntityLivingData ientitylivingdata = super.onInitialSpawn(difficulty, livingdata);
@@ -165,6 +183,9 @@ public class EntityVindicator extends AbstractIllager
         }
     }
 
+    /**
+     * Sets the custom name tag for this entity
+     */
     public void setCustomNameTag(String name)
     {
         super.setCustomNameTag(name);
@@ -177,17 +198,17 @@ public class EntityVindicator extends AbstractIllager
 
     protected SoundEvent getAmbientSound()
     {
-        return SoundEvents.ENTITY_VINDICATOR_AMBIENT;
+        return SoundEvents.VINDICATION_ILLAGER_AMBIENT;
     }
 
     protected SoundEvent getDeathSound()
     {
-        return SoundEvents.ENTITY_VINDICATOR_DEATH;
+        return SoundEvents.VINDICATION_ILLAGER_DEATH;
     }
 
     protected SoundEvent getHurtSound(DamageSource damageSourceIn)
     {
-        return SoundEvents.ENTITY_VINDICATOR_HURT;
+        return SoundEvents.ENTITY_VINDICATION_ILLAGER_HURT;
     }
 
     static class AIJohnnyAttack extends EntityAINearestAttackableTarget<EntityLivingBase>
@@ -199,7 +220,7 @@ public class EntityVindicator extends AbstractIllager
 
         public boolean shouldExecute()
         {
-            return ((EntityVindicator)this.goalOwner).johnny && super.shouldExecute();
+            return ((EntityVindicator)this.taskOwner).johnny && super.shouldExecute();
         }
     }
 }

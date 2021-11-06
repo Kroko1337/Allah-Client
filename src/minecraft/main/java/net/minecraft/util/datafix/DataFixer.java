@@ -23,7 +23,7 @@ public class DataFixer implements IDataFixer
 
     public NBTTagCompound process(IFixType type, NBTTagCompound compound)
     {
-        int i = compound.contains("DataVersion", 99) ? compound.getInt("DataVersion") : -1;
+        int i = compound.hasKey("DataVersion", 99) ? compound.getInteger("DataVersion") : -1;
         return i >= 1343 ? compound : this.process(type, compound, i);
     }
 
@@ -78,6 +78,9 @@ public class DataFixer implements IDataFixer
         this.registerVanillaWalker(type, walker);
     }
 
+    /**
+     * Do not invoke this method, use registerWalker instead. It is expected to be removed in future versions.
+     */
     public void registerVanillaWalker(IFixType type, IDataWalker walker)
     {
         this.getTypeList(this.walkerMap, type).add(walker);

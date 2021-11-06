@@ -11,21 +11,33 @@ import net.minecraft.world.border.WorldBorder;
 
 public class CommandWorldBorder extends CommandBase
 {
+    /**
+     * Gets the name of the command
+     */
     public String getName()
     {
         return "worldborder";
     }
 
+    /**
+     * Return the required permission level for this command.
+     */
     public int getRequiredPermissionLevel()
     {
         return 2;
     }
 
+    /**
+     * Gets the usage string for the command.
+     */
     public String getUsage(ICommandSender sender)
     {
         return "commands.worldborder.usage";
     }
 
+    /**
+     * Callback for when the command is executed
+     */
     public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
     {
         if (args.length < 1)
@@ -136,8 +148,8 @@ public class CommandWorldBorder extends CommandBase
                     }
 
                     double d6 = parseDouble(args[2], 0.0D);
-                    double d10 = worldborder.getDamagePerBlock();
-                    worldborder.setDamagePerBlock(d6);
+                    double d10 = worldborder.getDamageAmount();
+                    worldborder.setDamageAmount(d6);
                     notifyCommandListener(sender, this, "commands.worldborder.damage.amount.success", new Object[] {String.format("%.2f", d6), String.format("%.2f", d10)});
                 }
             }

@@ -5,9 +5,11 @@ import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.src.Config;
 import net.minecraft.tileentity.TileEntityBeacon;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
+import shadersmod.client.Shaders;
 
 public class TileEntityBeaconRenderer extends TileEntitySpecialRenderer<TileEntityBeacon>
 {
@@ -15,27 +17,40 @@ public class TileEntityBeaconRenderer extends TileEntitySpecialRenderer<TileEnti
 
     public void render(TileEntityBeacon te, double x, double y, double z, float partialTicks, int destroyStage, float alpha)
     {
-        this.renderBeacon(x, y, z, (double)partialTicks, (double)te.shouldBeamRender(), te.getBeamSegments(), (double)te.getWorld().getGameTime());
+        this.renderBeacon(x, y, z, (double)partialTicks, (double)te.shouldBeamRender(), te.getBeamSegments(), (double)te.getWorld().getTotalWorldTime());
     }
 
     public void renderBeacon(double x, double y, double z, double partialTicks, double textureScale, List<TileEntityBeacon.BeamSegment> beamSegments, double totalWorldTime)
     {
-        GlStateManager.alphaFunc(516, 0.1F);
-        this.bindTexture(TEXTURE_BEACON_BEAM);
-
-        if (textureScale > 0.0D)
+        if (textureScale > 0.0D && beamSegments.size() > 0)
         {
-            GlStateManager.disableFog();
-            int i = 0;
-
-            for (int j = 0; j < beamSegments.size(); ++j)
+            if (Config.isShaders())
             {
-                TileEntityBeacon.BeamSegment tileentitybeacon$beamsegment = beamSegments.get(j);
-                renderBeamSegment(x, y, z, partialTicks, textureScale, totalWorldTime, i, tileentitybeacon$beamsegment.getHeight(), tileentitybeacon$beamsegment.getColors());
-                i += tileentitybeacon$beamsegment.getHeight();
+                Shaders.beginBeacon();
             }
 
-            GlStateManager.enableFog();
+            GlStateManager.alphaFunc(516, 0.1F);
+            this.bindTexture(TEXTURE_BEACON_BEAM);
+
+            if (textureScale > 0.0D)
+            {
+                GlStateManager.disableFog();
+                int i = 0;
+
+                for (int j = 0; j < beamSegments.size(); ++j)
+                {
+                    TileEntityBeacon.BeamSegment tileentitybeacon$beamsegment = beamSegments.get(j);
+                    renderBeamSegment(x, y, z, partialTicks, textureScale, totalWorldTime, i, tileentitybeacon$beamsegment.getHeight(), tileentitybeacon$beamsegment.getColors());
+                    i += tileentitybeacon$beamsegment.getHeight();
+                }
+
+                GlStateManager.enableFog();
+            }
+
+            if (Config.isShaders())
+            {
+                Shaders.endBeacon();
+            }
         }
     }
 

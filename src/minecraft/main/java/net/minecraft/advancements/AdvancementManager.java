@@ -51,6 +51,8 @@ public class AdvancementManager
         }
     }).registerTypeAdapter(AdvancementRewards.class, new AdvancementRewards.Deserializer()).registerTypeHierarchyAdapter(ITextComponent.class, new ITextComponent.Serializer()).registerTypeHierarchyAdapter(Style.class, new Style.Serializer()).registerTypeAdapterFactory(new EnumTypeAdapterFactory()).create();
     private static final AdvancementList ADVANCEMENT_LIST = new AdvancementList();
+
+    /** The directory where this manager looks for custom advancement files. */
     private final File advancementsDir;
     private boolean hasErrored;
 
@@ -104,7 +106,7 @@ public class AdvancementManager
 
                     try
                     {
-                        Advancement.Builder advancement$builder = (Advancement.Builder)JsonUtils.fromJson(GSON, FileUtils.readFileToString(file1, StandardCharsets.UTF_8), Advancement.Builder.class);
+                        Advancement.Builder advancement$builder = (Advancement.Builder)JsonUtils.gsonDeserialize(GSON, FileUtils.readFileToString(file1, StandardCharsets.UTF_8), Advancement.Builder.class);
 
                         if (advancement$builder == null)
                         {

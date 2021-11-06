@@ -5,7 +5,12 @@ import net.minecraft.entity.monster.EntityCreeper;
 
 public class EntityAICreeperSwell extends EntityAIBase
 {
+    /** The creeper that is swelling. */
     EntityCreeper swellingCreeper;
+
+    /**
+     * The creeper's attack target. This is used for the changing of the creeper's state.
+     */
     EntityLivingBase creeperAttackTarget;
 
     public EntityAICreeperSwell(EntityCreeper entitycreeperIn)
@@ -15,8 +20,7 @@ public class EntityAICreeperSwell extends EntityAIBase
     }
 
     /**
-     * Returns whether execution should begin. You can also read and cache any state necessary for execution in this
-     * method as well.
+     * Returns whether the EntityAIBase should begin execution.
      */
     public boolean shouldExecute()
     {
@@ -44,7 +48,7 @@ public class EntityAICreeperSwell extends EntityAIBase
     /**
      * Keep ticking a continuous task that has already been started
      */
-    public void tick()
+    public void updateTask()
     {
         if (this.creeperAttackTarget == null)
         {

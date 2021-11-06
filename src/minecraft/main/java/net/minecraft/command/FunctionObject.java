@@ -21,6 +21,9 @@ public class FunctionObject
         return this.entries;
     }
 
+    /**
+     * Create a Function from the given function definition.
+     */
     public static FunctionObject create(FunctionManager functionManagerIn, List<String> commands)
     {
         List<FunctionObject.Entry> list = Lists.<FunctionObject.Entry>newArrayListWithCapacity(commands.size());

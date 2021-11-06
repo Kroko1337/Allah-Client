@@ -47,24 +47,24 @@ public class ItemModelGenerator
         }
     }
 
-    private List<BlockPart> getBlockParts(int tintIndex, String textureIn, TextureAtlasSprite spriteIn)
+    private List<BlockPart> getBlockParts(int tintIndex, String p_178394_2_, TextureAtlasSprite p_178394_3_)
     {
         Map<EnumFacing, BlockPartFace> map = Maps.<EnumFacing, BlockPartFace>newHashMap();
-        map.put(EnumFacing.SOUTH, new BlockPartFace((EnumFacing)null, tintIndex, textureIn, new BlockFaceUV(new float[] {0.0F, 0.0F, 16.0F, 16.0F}, 0)));
-        map.put(EnumFacing.NORTH, new BlockPartFace((EnumFacing)null, tintIndex, textureIn, new BlockFaceUV(new float[] {16.0F, 0.0F, 0.0F, 16.0F}, 0)));
+        map.put(EnumFacing.SOUTH, new BlockPartFace((EnumFacing)null, tintIndex, p_178394_2_, new BlockFaceUV(new float[] {0.0F, 0.0F, 16.0F, 16.0F}, 0)));
+        map.put(EnumFacing.NORTH, new BlockPartFace((EnumFacing)null, tintIndex, p_178394_2_, new BlockFaceUV(new float[] {16.0F, 0.0F, 0.0F, 16.0F}, 0)));
         List<BlockPart> list = Lists.<BlockPart>newArrayList();
         list.add(new BlockPart(new Vector3f(0.0F, 0.0F, 7.5F), new Vector3f(16.0F, 16.0F, 8.5F), map, (BlockPartRotation)null, true));
-        list.addAll(this.getBlockParts(spriteIn, textureIn, tintIndex));
+        list.addAll(this.getBlockParts(p_178394_3_, p_178394_2_, tintIndex));
         return list;
     }
 
-    private List<BlockPart> getBlockParts(TextureAtlasSprite spriteIn, String textureIn, int tintIndexIn)
+    private List<BlockPart> getBlockParts(TextureAtlasSprite p_178397_1_, String p_178397_2_, int p_178397_3_)
     {
-        float f = (float)spriteIn.getWidth();
-        float f1 = (float)spriteIn.getHeight();
+        float f = (float)p_178397_1_.getIconWidth();
+        float f1 = (float)p_178397_1_.getIconHeight();
         List<BlockPart> list = Lists.<BlockPart>newArrayList();
 
-        for (ItemModelGenerator.Span itemmodelgenerator$span : this.getSpans(spriteIn))
+        for (ItemModelGenerator.Span itemmodelgenerator$span : this.getSpans(p_178397_1_))
         {
             float f2 = 0.0F;
             float f3 = 0.0F;
@@ -144,7 +144,7 @@ public class ItemModelGenerator
             f8 = f8 * f11;
             f9 = f9 * f11;
             Map<EnumFacing, BlockPartFace> map = Maps.<EnumFacing, BlockPartFace>newHashMap();
-            map.put(itemmodelgenerator$spanfacing.getFacing(), new BlockPartFace((EnumFacing)null, tintIndexIn, textureIn, new BlockFaceUV(new float[] {f6, f8, f7, f9}, 0)));
+            map.put(itemmodelgenerator$spanfacing.getFacing(), new BlockPartFace((EnumFacing)null, p_178397_3_, p_178397_2_, new BlockFaceUV(new float[] {f6, f8, f7, f9}, 0)));
 
             switch (itemmodelgenerator$spanfacing)
             {
@@ -168,15 +168,15 @@ public class ItemModelGenerator
         return list;
     }
 
-    private List<ItemModelGenerator.Span> getSpans(TextureAtlasSprite spriteIn)
+    private List<ItemModelGenerator.Span> getSpans(TextureAtlasSprite p_178393_1_)
     {
-        int i = spriteIn.getWidth();
-        int j = spriteIn.getHeight();
+        int i = p_178393_1_.getIconWidth();
+        int j = p_178393_1_.getIconHeight();
         List<ItemModelGenerator.Span> list = Lists.<ItemModelGenerator.Span>newArrayList();
 
-        for (int k = 0; k < spriteIn.getFrameCount(); ++k)
+        for (int k = 0; k < p_178393_1_.getFrameCount(); ++k)
         {
-            int[] aint = spriteIn.getFrameTextureData(k)[0];
+            int[] aint = p_178393_1_.getFrameTextureData(k)[0];
 
             for (int l = 0; l < j; ++l)
             {
@@ -204,15 +204,15 @@ public class ItemModelGenerator
         }
     }
 
-    private void createOrExpandSpan(List<ItemModelGenerator.Span> listSpansIn, ItemModelGenerator.SpanFacing spanFacingIn, int pixelX, int pixelY)
+    private void createOrExpandSpan(List<ItemModelGenerator.Span> p_178395_1_, ItemModelGenerator.SpanFacing p_178395_2_, int p_178395_3_, int p_178395_4_)
     {
         ItemModelGenerator.Span itemmodelgenerator$span = null;
 
-        for (ItemModelGenerator.Span itemmodelgenerator$span1 : listSpansIn)
+        for (ItemModelGenerator.Span itemmodelgenerator$span1 : p_178395_1_)
         {
-            if (itemmodelgenerator$span1.getFacing() == spanFacingIn)
+            if (itemmodelgenerator$span1.getFacing() == p_178395_2_)
             {
-                int i = spanFacingIn.isHorizontal() ? pixelY : pixelX;
+                int i = p_178395_2_.isHorizontal() ? p_178395_4_ : p_178395_3_;
 
                 if (itemmodelgenerator$span1.getAnchor() == i)
                 {
@@ -222,12 +222,12 @@ public class ItemModelGenerator
             }
         }
 
-        int j = spanFacingIn.isHorizontal() ? pixelY : pixelX;
-        int k = spanFacingIn.isHorizontal() ? pixelX : pixelY;
+        int j = p_178395_2_.isHorizontal() ? p_178395_4_ : p_178395_3_;
+        int k = p_178395_2_.isHorizontal() ? p_178395_3_ : p_178395_4_;
 
         if (itemmodelgenerator$span == null)
         {
-            listSpansIn.add(new ItemModelGenerator.Span(spanFacingIn, k, j));
+            p_178395_1_.add(new ItemModelGenerator.Span(p_178395_2_, k, j));
         }
         else
         {
@@ -254,23 +254,23 @@ public class ItemModelGenerator
         private int max;
         private final int anchor;
 
-        public Span(ItemModelGenerator.SpanFacing spanFacingIn, int minIn, int maxIn)
+        public Span(ItemModelGenerator.SpanFacing spanFacingIn, int p_i46216_2_, int p_i46216_3_)
         {
             this.spanFacing = spanFacingIn;
-            this.min = minIn;
-            this.max = minIn;
-            this.anchor = maxIn;
+            this.min = p_i46216_2_;
+            this.max = p_i46216_2_;
+            this.anchor = p_i46216_3_;
         }
 
-        public void expand(int posIn)
+        public void expand(int p_178382_1_)
         {
-            if (posIn < this.min)
+            if (p_178382_1_ < this.min)
             {
-                this.min = posIn;
+                this.min = p_178382_1_;
             }
-            else if (posIn > this.max)
+            else if (p_178382_1_ > this.max)
             {
-                this.max = posIn;
+                this.max = p_178382_1_;
             }
         }
 
@@ -306,11 +306,11 @@ public class ItemModelGenerator
         private final int xOffset;
         private final int yOffset;
 
-        private SpanFacing(EnumFacing facing, int xOffsetIn, int yOffsetIn)
+        private SpanFacing(EnumFacing facing, int p_i46215_4_, int p_i46215_5_)
         {
             this.facing = facing;
-            this.xOffset = xOffsetIn;
-            this.yOffset = yOffsetIn;
+            this.xOffset = p_i46215_4_;
+            this.yOffset = p_i46215_5_;
         }
 
         public EnumFacing getFacing()

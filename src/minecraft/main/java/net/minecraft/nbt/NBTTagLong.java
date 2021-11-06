@@ -6,6 +6,7 @@ import java.io.IOException;
 
 public class NBTTagLong extends NBTPrimitive
 {
+    /** The long value for the tag. */
     private long data;
 
     NBTTagLong()

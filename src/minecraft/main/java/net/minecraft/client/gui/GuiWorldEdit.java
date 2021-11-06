@@ -20,11 +20,18 @@ public class GuiWorldEdit extends GuiScreen
         this.worldId = p_i46593_2_;
     }
 
+    /**
+     * Called from the main game loop to update the screen.
+     */
     public void updateScreen()
     {
-        this.nameEdit.tick();
+        this.nameEdit.updateCursorCounter();
     }
 
+    /**
+     * Adds the buttons (and other controls) to the screen in question. Called when the GUI is displayed and when the
+     * window resizes, the buttonList is cleared beforehand.
+     */
     public void initGui()
     {
         Keyboard.enableRepeatEvents(true);
@@ -38,15 +45,21 @@ public class GuiWorldEdit extends GuiScreen
         WorldInfo worldinfo = isaveformat.getWorldInfo(this.worldId);
         String s = worldinfo == null ? "" : worldinfo.getWorldName();
         this.nameEdit = new GuiTextField(2, this.fontRenderer, this.width / 2 - 100, 60, 200, 20);
-        this.nameEdit.setFocused2(true);
+        this.nameEdit.setFocused(true);
         this.nameEdit.setText(s);
     }
 
+    /**
+     * Called when the screen is unloaded. Used to disable keyboard repeat events
+     */
     public void onGuiClosed()
     {
         Keyboard.enableRepeatEvents(false);
     }
 
+    /**
+     * Called by the controls from the buttonList when activated. (Mouse pressed for buttons)
+     */
     protected void actionPerformed(GuiButton button) throws IOException
     {
         if (button.enabled)
@@ -75,6 +88,10 @@ public class GuiWorldEdit extends GuiScreen
         }
     }
 
+    /**
+     * Fired when a key is typed (except F11 which toggles full screen). This is the equivalent of
+     * KeyListener.keyTyped(KeyEvent e). Args : character (character on the key), keyCode (lwjgl Keyboard key code)
+     */
     protected void keyTyped(char typedChar, int keyCode) throws IOException
     {
         this.nameEdit.textboxKeyTyped(typedChar, keyCode);
@@ -86,12 +103,18 @@ public class GuiWorldEdit extends GuiScreen
         }
     }
 
+    /**
+     * Called when the mouse is clicked. Args : mouseX, mouseY, clickedButton
+     */
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
     {
         super.mouseClicked(mouseX, mouseY, mouseButton);
         this.nameEdit.mouseClicked(mouseX, mouseY, mouseButton);
     }
 
+    /**
+     * Draws the screen and all the components in it.
+     */
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         this.drawDefaultBackground();

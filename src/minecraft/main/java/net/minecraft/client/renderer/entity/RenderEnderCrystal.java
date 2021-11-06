@@ -21,6 +21,9 @@ public class RenderEnderCrystal extends Render<EntityEnderCrystal>
         this.shadowSize = 0.5F;
     }
 
+    /**
+     * Renders the desired {@code T} type Entity.
+     */
     public void doRender(EntityEnderCrystal entity, double x, double y, double z, float entityYaw, float partialTicks)
     {
         float f = (float)entity.innerRotation + partialTicks;
@@ -70,7 +73,7 @@ public class RenderEnderCrystal extends Render<EntityEnderCrystal>
     }
 
     /**
-     * Returns the location of an entity's texture.
+     * Returns the location of an entity's texture. Doesn't seem to be called unless you call Render.bindEntityTexture.
      */
     protected ResourceLocation getEntityTexture(EntityEnderCrystal entity)
     {

@@ -28,12 +28,20 @@ import org.apache.logging.log4j.Logger;
 public class EntityItem extends Entity
 {
     private static final Logger LOGGER = LogManager.getLogger();
-    private static final DataParameter<ItemStack> ITEM = EntityDataManager.<ItemStack>createKey(EntityItem.class, DataSerializers.ITEMSTACK);
+    private static final DataParameter<ItemStack> ITEM = EntityDataManager.<ItemStack>createKey(EntityItem.class, DataSerializers.ITEM_STACK);
+
+    /**
+     * The age of this EntityItem (used to animate it up and down as well as expire it)
+     */
     private int age;
     private int pickupDelay;
+
+    /** The health of this EntityItem. (For example, damage for tools) */
     private int health;
     private String thrower;
     private String owner;
+
+    /** The EntityItem's random initial float height. */
     public float hoverStart;
 
     public EntityItem(World worldIn, double x, double y, double z)
@@ -55,6 +63,10 @@ public class EntityItem extends Entity
         this.setItem(stack);
     }
 
+    /**
+     * returns if this entity triggers Block.onEntityWalking on the blocks they walk on. used for spiders and wolves to
+     * prevent them from trampling crops
+     */
     protected boolean canTriggerWalking()
     {
         return false;
@@ -69,7 +81,7 @@ public class EntityItem extends Entity
         this.setItem(ItemStack.EMPTY);
     }
 
-    protected void registerData()
+    protected void entityInit()
     {
         this.getDataManager().register(ITEM, ItemStack.EMPTY);
     }
@@ -77,15 +89,15 @@ public class EntityItem extends Entity
     /**
      * Called to update the entity's position/logic.
      */
-    public void tick()
+    public void onUpdate()
     {
         if (this.getItem().isEmpty())
         {
-            this.remove();
+            this.setDead();
         }
         else
         {
-            super.tick();
+            super.onUpdate();
 
             if (this.pickupDelay > 0 && this.pickupDelay != 32767)
             {
@@ -110,7 +122,7 @@ public class EntityItem extends Entity
             }
             else
             {
-                this.noClip = this.pushOutOfBlocks(this.posX, (this.getBoundingBox().minY + this.getBoundingBox().maxY) / 2.0D, this.posZ);
+                this.noClip = this.pushOutOfBlocks(this.posX, (this.getEntityBoundingBox().minY + this.getEntityBoundingBox().maxY) / 2.0D, this.posZ);
             }
 
             this.move(MoverType.SELF, this.motionX, this.motionY, this.motionZ);
@@ -136,7 +148,7 @@ public class EntityItem extends Entity
 
             if (this.onGround)
             {
-                f = this.world.getBlockState(new BlockPos(MathHelper.floor(this.posX), MathHelper.floor(this.getBoundingBox().minY) - 1, MathHelper.floor(this.posZ))).getBlock().slipperiness * 0.98F;
+                f = this.world.getBlockState(new BlockPos(MathHelper.floor(this.posX), MathHelper.floor(this.getEntityBoundingBox().minY) - 1, MathHelper.floor(this.posZ))).getBlock().slipperiness * 0.98F;
             }
 
             this.motionX *= (double)f;
@@ -170,7 +182,7 @@ public class EntityItem extends Entity
 
             if (!this.world.isRemote && this.age >= 6000)
             {
-                this.remove();
+                this.setDead();
             }
         }
     }
@@ -180,19 +192,23 @@ public class EntityItem extends Entity
      */
     private void searchForOtherItemsNearby()
     {
-        for (EntityItem entityitem : this.world.getEntitiesWithinAABB(EntityItem.class, this.getBoundingBox().grow(0.5D, 0.0D, 0.5D)))
+        for (EntityItem entityitem : this.world.getEntitiesWithinAABB(EntityItem.class, this.getEntityBoundingBox().grow(0.5D, 0.0D, 0.5D)))
         {
             this.combineItems(entityitem);
         }
     }
 
+    /**
+     * Tries to merge this item with the item passed as the parameter. Returns true if successful. Either this item or
+     * the other item will  be removed from the world.
+     */
     private boolean combineItems(EntityItem other)
     {
         if (other == this)
         {
             return false;
         }
-        else if (other.isAlive() && this.isAlive())
+        else if (other.isEntityAlive() && this.isEntityAlive())
         {
             ItemStack itemstack = this.getItem();
             ItemStack itemstack1 = other.getItem();
@@ -205,11 +221,11 @@ public class EntityItem extends Entity
                     {
                         return false;
                     }
-                    else if (itemstack1.hasTag() ^ itemstack.hasTag())
+                    else if (itemstack1.hasTagCompound() ^ itemstack.hasTagCompound())
                     {
                         return false;
                     }
-                    else if (itemstack1.hasTag() && !itemstack1.getTag().equals(itemstack.getTag()))
+                    else if (itemstack1.hasTagCompound() && !itemstack1.getTagCompound().equals(itemstack.getTagCompound()))
                     {
                         return false;
                     }
@@ -235,7 +251,7 @@ public class EntityItem extends Entity
                         other.pickupDelay = Math.max(other.pickupDelay, this.pickupDelay);
                         other.age = Math.min(other.age, this.age);
                         other.setItem(itemstack1);
-                        this.remove();
+                        this.setDead();
                         return true;
                     }
                 }
@@ -255,6 +271,10 @@ public class EntityItem extends Entity
         }
     }
 
+    /**
+     * sets the age of the item so that it'll despawn one minute after it has been dropped (instead of five). Used when
+     * items are dropped from players in creative mode
+     */
     public void setAgeToCreativeDespawnTime()
     {
         this.age = 4800;
@@ -265,7 +285,7 @@ public class EntityItem extends Entity
      */
     public boolean handleWaterMovement()
     {
-        if (this.world.handleMaterialAcceleration(this.getBoundingBox(), Material.WATER, this))
+        if (this.world.handleMaterialAcceleration(this.getEntityBoundingBox(), Material.WATER, this))
         {
             if (!this.inWater && !this.firstUpdate)
             {
@@ -295,7 +315,7 @@ public class EntityItem extends Entity
      */
     public boolean attackEntityFrom(DamageSource source, float amount)
     {
-        if (this.isInvulnerableTo(source))
+        if (this.isEntityInvulnerable(source))
         {
             return false;
         }
@@ -310,7 +330,7 @@ public class EntityItem extends Entity
 
             if (this.health <= 0)
             {
-                this.remove();
+                this.setDead();
             }
 
             return false;
@@ -322,57 +342,60 @@ public class EntityItem extends Entity
         fixer.registerWalker(FixTypes.ENTITY, new ItemStackData(EntityItem.class, new String[] {"Item"}));
     }
 
+    /**
+     * (abstract) Protected helper method to write subclass entity data to NBT.
+     */
     public void writeEntityToNBT(NBTTagCompound compound)
     {
-        compound.putShort("Health", (short)this.health);
-        compound.putShort("Age", (short)this.age);
-        compound.putShort("PickupDelay", (short)this.pickupDelay);
+        compound.setShort("Health", (short)this.health);
+        compound.setShort("Age", (short)this.age);
+        compound.setShort("PickupDelay", (short)this.pickupDelay);
 
         if (this.getThrower() != null)
         {
-            compound.putString("Thrower", this.thrower);
+            compound.setString("Thrower", this.thrower);
         }
 
         if (this.getOwner() != null)
         {
-            compound.putString("Owner", this.owner);
+            compound.setString("Owner", this.owner);
         }
 
         if (!this.getItem().isEmpty())
         {
-            compound.setTag("Item", this.getItem().write(new NBTTagCompound()));
+            compound.setTag("Item", this.getItem().writeToNBT(new NBTTagCompound()));
         }
     }
 
     /**
      * (abstract) Protected helper method to read subclass entity data from NBT.
      */
-    public void readAdditional(NBTTagCompound compound)
+    public void readEntityFromNBT(NBTTagCompound compound)
     {
         this.health = compound.getShort("Health");
         this.age = compound.getShort("Age");
 
-        if (compound.contains("PickupDelay"))
+        if (compound.hasKey("PickupDelay"))
         {
             this.pickupDelay = compound.getShort("PickupDelay");
         }
 
-        if (compound.contains("Owner"))
+        if (compound.hasKey("Owner"))
         {
             this.owner = compound.getString("Owner");
         }
 
-        if (compound.contains("Thrower"))
+        if (compound.hasKey("Thrower"))
         {
             this.thrower = compound.getString("Thrower");
         }
 
-        NBTTagCompound nbttagcompound = compound.getCompound("Item");
+        NBTTagCompound nbttagcompound = compound.getCompoundTag("Item");
         this.setItem(new ItemStack(nbttagcompound));
 
         if (this.getItem().isEmpty())
         {
-            this.remove();
+            this.setDead();
         }
     }
 
@@ -393,7 +416,7 @@ public class EntityItem extends Entity
 
                 if (itemstack.isEmpty())
                 {
-                    this.remove();
+                    this.setDead();
                     itemstack.setCount(i);
                 }
 
@@ -402,6 +425,41 @@ public class EntityItem extends Entity
         }
     }
 
+    /**
+     * Gets the name of this thing. This method has slightly different behavior depending on the interface (for <a
+     * href="https://github.com/ModCoderPack/MCPBot-Issues/issues/14">technical reasons</a> the same method is used for
+     * both IWorldNameable and ICommandSender):
+     *  
+     * <dl>
+     * <dt>{@link net.minecraft.util.INameable#getName() INameable.getName()}</dt>
+     * <dd>Returns the name of this inventory. If this {@linkplain net.minecraft.inventory#hasCustomName() has a custom
+     * name} then this <em>should</em> be a direct string; otherwise it <em>should</em> be a valid translation
+     * string.</dd>
+     * <dd>However, note that <strong>the translation string may be invalid</strong>, as is the case for {@link
+     * net.minecraft.tileentity.TileEntityBanner TileEntityBanner} (always returns nonexistent translation code
+     * <code>banner</code> without a custom name), {@link net.minecraft.block.BlockAnvil.Anvil BlockAnvil$Anvil} (always
+     * returns <code>anvil</code>), {@link net.minecraft.block.BlockWorkbench.InterfaceCraftingTable
+     * BlockWorkbench$InterfaceCraftingTable} (always returns <code>crafting_table</code>), {@link
+     * net.minecraft.inventory.InventoryCraftResult InventoryCraftResult} (always returns <code>Result</code>) and the
+     * {@link net.minecraft.entity.item.EntityMinecart EntityMinecart} family (uses the entity definition). This is not
+     * an exaustive list.</dd>
+     * <dd>In general, this method should be safe to use on tile entities that implement IInventory.</dd>
+     * <dt>{@link net.minecraft.command.ICommandSender#getName() ICommandSender.getName()} and {@link
+     * net.minecraft.entity.Entity#getName() Entity.getName()}</dt>
+     * <dd>Returns a valid, displayable name (which may be localized). For most entities, this is the translated version
+     * of its translation string (obtained via {@link net.minecraft.entity.EntityList#getEntityString
+     * EntityList.getEntityString}).</dd>
+     * <dd>If this entity has a custom name set, this will return that name.</dd>
+     * <dd>For some entities, this will attempt to translate a nonexistent translation string; see <a
+     * href="https://bugs.mojang.com/browse/MC-68446">MC-68446</a>. For {@linkplain
+     * net.minecraft.entity.player.EntityPlayer#getName() players} this returns the player's name. For {@linkplain
+     * net.minecraft.entity.passive.EntityOcelot ocelots} this may return the translation of
+     * <code>entity.Cat.name</code> if it is tamed. For {@linkplain net.minecraft.entity.item.EntityItem#getName() item
+     * entities}, this will attempt to return the name of the item in that item entity. In all cases other than players,
+     * the custom name will overrule this.</dd>
+     * <dd>For non-entity command senders, this will return some arbitrary name, such as "Rcon" or "Server".</dd>
+     * </dl>
+     */
     public String getName()
     {
         return this.hasCustomName() ? this.getCustomNameTag() : I18n.translateToLocal("item." + this.getItem().getTranslationKey());

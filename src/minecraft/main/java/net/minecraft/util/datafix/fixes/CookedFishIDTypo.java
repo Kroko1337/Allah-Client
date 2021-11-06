@@ -15,9 +15,9 @@ public class CookedFishIDTypo implements IFixableData
 
     public NBTTagCompound fixTagCompound(NBTTagCompound compound)
     {
-        if (compound.contains("id", 8) && WRONG.equals(new ResourceLocation(compound.getString("id"))))
+        if (compound.hasKey("id", 8) && WRONG.equals(new ResourceLocation(compound.getString("id"))))
         {
-            compound.putString("id", "minecraft:cooked_fish");
+            compound.setString("id", "minecraft:cooked_fish");
         }
 
         return compound;

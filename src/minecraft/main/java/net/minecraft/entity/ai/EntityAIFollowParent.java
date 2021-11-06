@@ -5,6 +5,7 @@ import net.minecraft.entity.passive.EntityAnimal;
 
 public class EntityAIFollowParent extends EntityAIBase
 {
+    /** The child that is following its parent. */
     EntityAnimal childAnimal;
     EntityAnimal parentAnimal;
     double moveSpeed;
@@ -17,8 +18,7 @@ public class EntityAIFollowParent extends EntityAIBase
     }
 
     /**
-     * Returns whether execution should begin. You can also read and cache any state necessary for execution in this
-     * method as well.
+     * Returns whether the EntityAIBase should begin execution.
      */
     public boolean shouldExecute()
     {
@@ -28,7 +28,7 @@ public class EntityAIFollowParent extends EntityAIBase
         }
         else
         {
-            List<EntityAnimal> list = this.childAnimal.world.<EntityAnimal>getEntitiesWithinAABB(this.childAnimal.getClass(), this.childAnimal.getBoundingBox().grow(8.0D, 4.0D, 8.0D));
+            List<EntityAnimal> list = this.childAnimal.world.<EntityAnimal>getEntitiesWithinAABB(this.childAnimal.getClass(), this.childAnimal.getEntityBoundingBox().grow(8.0D, 4.0D, 8.0D));
             EntityAnimal entityanimal = null;
             double d0 = Double.MAX_VALUE;
 
@@ -71,7 +71,7 @@ public class EntityAIFollowParent extends EntityAIBase
         {
             return false;
         }
-        else if (!this.parentAnimal.isAlive())
+        else if (!this.parentAnimal.isEntityAlive())
         {
             return false;
         }
@@ -101,7 +101,7 @@ public class EntityAIFollowParent extends EntityAIBase
     /**
      * Keep ticking a continuous task that has already been started
      */
-    public void tick()
+    public void updateTask()
     {
         if (--this.delayCounter <= 0)
         {

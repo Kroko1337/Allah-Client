@@ -39,9 +39,9 @@ public class TileEntityHopper extends TileEntityLockableLoot implements IHopper,
         fixer.registerWalker(FixTypes.BLOCK_ENTITY, new ItemStackDataLists(TileEntityHopper.class, new String[] {"Items"}));
     }
 
-    public void read(NBTTagCompound compound)
+    public void readFromNBT(NBTTagCompound compound)
     {
-        super.read(compound);
+        super.readFromNBT(compound);
         this.inventory = NonNullList.<ItemStack>withSize(this.getSizeInventory(), ItemStack.EMPTY);
 
         if (!this.checkLootAndRead(compound))
@@ -49,28 +49,28 @@ public class TileEntityHopper extends TileEntityLockableLoot implements IHopper,
             ItemStackHelper.loadAllItems(compound, this.inventory);
         }
 
-        if (compound.contains("CustomName", 8))
+        if (compound.hasKey("CustomName", 8))
         {
             this.customName = compound.getString("CustomName");
         }
 
-        this.transferCooldown = compound.getInt("TransferCooldown");
+        this.transferCooldown = compound.getInteger("TransferCooldown");
     }
 
-    public NBTTagCompound write(NBTTagCompound compound)
+    public NBTTagCompound writeToNBT(NBTTagCompound compound)
     {
-        super.write(compound);
+        super.writeToNBT(compound);
 
         if (!this.checkLootAndWrite(compound))
         {
             ItemStackHelper.saveAllItems(compound, this.inventory);
         }
 
-        compound.putInt("TransferCooldown", this.transferCooldown);
+        compound.setInteger("TransferCooldown", this.transferCooldown);
 
         if (this.hasCustomName())
         {
-            compound.putString("CustomName", this.customName);
+            compound.setString("CustomName", this.customName);
         }
 
         return compound;
@@ -108,6 +108,41 @@ public class TileEntityHopper extends TileEntityLockableLoot implements IHopper,
         }
     }
 
+    /**
+     * Gets the name of this thing. This method has slightly different behavior depending on the interface (for <a
+     * href="https://github.com/ModCoderPack/MCPBot-Issues/issues/14">technical reasons</a> the same method is used for
+     * both IWorldNameable and ICommandSender):
+     *  
+     * <dl>
+     * <dt>{@link net.minecraft.util.INameable#getName() INameable.getName()}</dt>
+     * <dd>Returns the name of this inventory. If this {@linkplain net.minecraft.inventory#hasCustomName() has a custom
+     * name} then this <em>should</em> be a direct string; otherwise it <em>should</em> be a valid translation
+     * string.</dd>
+     * <dd>However, note that <strong>the translation string may be invalid</strong>, as is the case for {@link
+     * net.minecraft.tileentity.TileEntityBanner TileEntityBanner} (always returns nonexistent translation code
+     * <code>banner</code> without a custom name), {@link net.minecraft.block.BlockAnvil.Anvil BlockAnvil$Anvil} (always
+     * returns <code>anvil</code>), {@link net.minecraft.block.BlockWorkbench.InterfaceCraftingTable
+     * BlockWorkbench$InterfaceCraftingTable} (always returns <code>crafting_table</code>), {@link
+     * net.minecraft.inventory.InventoryCraftResult InventoryCraftResult} (always returns <code>Result</code>) and the
+     * {@link net.minecraft.entity.item.EntityMinecart EntityMinecart} family (uses the entity definition). This is not
+     * an exaustive list.</dd>
+     * <dd>In general, this method should be safe to use on tile entities that implement IInventory.</dd>
+     * <dt>{@link net.minecraft.command.ICommandSender#getName() ICommandSender.getName()} and {@link
+     * net.minecraft.entity.Entity#getName() Entity.getName()}</dt>
+     * <dd>Returns a valid, displayable name (which may be localized). For most entities, this is the translated version
+     * of its translation string (obtained via {@link net.minecraft.entity.EntityList#getEntityString
+     * EntityList.getEntityString}).</dd>
+     * <dd>If this entity has a custom name set, this will return that name.</dd>
+     * <dd>For some entities, this will attempt to translate a nonexistent translation string; see <a
+     * href="https://bugs.mojang.com/browse/MC-68446">MC-68446</a>. For {@linkplain
+     * net.minecraft.entity.player.EntityPlayer#getName() players} this returns the player's name. For {@linkplain
+     * net.minecraft.entity.passive.EntityOcelot ocelots} this may return the translation of
+     * <code>entity.Cat.name</code> if it is tamed. For {@linkplain net.minecraft.entity.item.EntityItem#getName() item
+     * entities}, this will attempt to return the name of the item in that item entity. In all cases other than players,
+     * the custom name will overrule this.</dd>
+     * <dd>For non-entity command senders, this will return some arbitrary name, such as "Rcon" or "Server".</dd>
+     * </dl>
+     */
     public String getName()
     {
         return this.hasCustomName() ? this.customName : "container.hopper";
@@ -121,12 +156,15 @@ public class TileEntityHopper extends TileEntityLockableLoot implements IHopper,
         return 64;
     }
 
-    public void tick()
+    /**
+     * Like the old updateEntity(), except more generic.
+     */
+    public void update()
     {
         if (this.world != null && !this.world.isRemote)
         {
             --this.transferCooldown;
-            this.tickedGameTime = this.world.getGameTime();
+            this.tickedGameTime = this.world.getTotalWorldTime();
 
             if (!this.isOnTransferCooldown())
             {
@@ -398,6 +436,10 @@ public class TileEntityHopper extends TileEntityLockableLoot implements IHopper,
         return false;
     }
 
+    /**
+     * Attempts to place the passed EntityItem's stack into the inventory using as many slots as possible. Returns false
+     * if the stackSize of the drop was not depleted.
+     */
     public static boolean putDropInInventoryAllSlots(IInventory source, IInventory destination, EntityItem entity)
     {
         boolean flag = false;
@@ -414,7 +456,7 @@ public class TileEntityHopper extends TileEntityLockableLoot implements IHopper,
             if (itemstack1.isEmpty())
             {
                 flag = true;
-                entity.remove();
+                entity.setDead();
             }
             else
             {

@@ -6,6 +6,7 @@ import java.io.IOException;
 
 public class NBTTagShort extends NBTPrimitive
 {
+    /** The short value for the tag. */
     private short data;
 
     public NBTTagShort()

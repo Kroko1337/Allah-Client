@@ -26,7 +26,7 @@ public class PathNavigateFlying extends PathNavigate
      */
     protected boolean canNavigate()
     {
-        return this.canFloat() && this.isInLiquid() || !this.entity.isPassenger();
+        return this.canFloat() && this.isInLiquid() || !this.entity.isRiding();
     }
 
     protected Vec3d getEntityPosition()
@@ -37,12 +37,12 @@ public class PathNavigateFlying extends PathNavigate
     /**
      * Returns the path to the given EntityLiving. Args : entity
      */
-    public Path getPathToEntity(Entity entityIn)
+    public Path getPathToEntityLiving(Entity entityIn)
     {
         return this.getPathToPos(new BlockPos(entityIn));
     }
 
-    public void tick()
+    public void onUpdateNavigation()
     {
         ++this.totalTicks;
 

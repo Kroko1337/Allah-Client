@@ -20,24 +20,40 @@ import org.apache.logging.log4j.Logger;
 public class CommandDebug extends CommandBase
 {
     private static final Logger LOGGER = LogManager.getLogger();
+
+    /** The time (in milliseconds) that profiling was started */
     private long profileStartTime;
+
+    /** The tick number that profiling was started on */
     private int profileStartTick;
 
+    /**
+     * Gets the name of the command
+     */
     public String getName()
     {
         return "debug";
     }
 
+    /**
+     * Return the required permission level for this command.
+     */
     public int getRequiredPermissionLevel()
     {
         return 3;
     }
 
+    /**
+     * Gets the usage string for the command.
+     */
     public String getUsage(ICommandSender sender)
     {
         return "commands.debug.usage";
     }
 
+    /**
+     * Callback for when the command is executed
+     */
     public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
     {
         if (args.length < 1)
@@ -156,6 +172,9 @@ public class CommandDebug extends CommandBase
         }
     }
 
+    /**
+     * Get a random witty comment
+     */
     private static String getWittyComment()
     {
         String[] astring = new String[] {"Shiny numbers!", "Am I not running fast enough? :(", "I'm working as hard as I can!", "Will I ever be good enough for you? :(", "Speedy. Zoooooom!", "Hello world", "40% better than a crash report.", "Now with extra numbers", "Now with less numbers", "Now with the same numbers", "You should add flames to things, it makes them go faster!", "Do you feel the need for... optimization?", "*cracks redstone whip*", "Maybe if you treated it better then it'll have more motivation to work faster! Poor server."};

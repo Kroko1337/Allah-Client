@@ -20,20 +20,32 @@ public class EmptyChunk extends Chunk
         super(worldIn, x, z);
     }
 
+    /**
+     * Checks whether the chunk is at the X/Z location specified
+     */
     public boolean isAtLocation(int x, int z)
     {
         return x == this.x && z == this.z;
     }
 
+    /**
+     * Returns the value in the height map at this x, z coordinate in the chunk
+     */
     public int getHeightValue(int x, int z)
     {
         return 0;
     }
 
+    /**
+     * Generates the height map for a chunk from scratch
+     */
     public void generateHeightMap()
     {
     }
 
+    /**
+     * Generates the initial skylight map for the chunk upon generation or load.
+     */
     public void generateSkylightMap()
     {
     }
@@ -106,10 +118,16 @@ public class EmptyChunk extends Chunk
     {
     }
 
+    /**
+     * Called when this Chunk is loaded by the ChunkProvider
+     */
     public void onLoad()
     {
     }
 
+    /**
+     * Called when this Chunk is unloaded by the ChunkProvider
+     */
     public void onUnload()
     {
     }
@@ -132,6 +150,9 @@ public class EmptyChunk extends Chunk
     {
     }
 
+    /**
+     * Returns true if this Chunk needs to be saved
+     */
     public boolean needsSaving(boolean p_76601_1_)
     {
         return false;

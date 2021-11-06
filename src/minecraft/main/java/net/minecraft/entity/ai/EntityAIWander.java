@@ -6,7 +6,7 @@ import net.minecraft.util.math.Vec3d;
 
 public class EntityAIWander extends EntityAIBase
 {
-    protected final EntityCreature creature;
+    protected final EntityCreature entity;
     protected double x;
     protected double y;
     protected double z;
@@ -21,26 +21,25 @@ public class EntityAIWander extends EntityAIBase
 
     public EntityAIWander(EntityCreature creatureIn, double speedIn, int chance)
     {
-        this.creature = creatureIn;
+        this.entity = creatureIn;
         this.speed = speedIn;
         this.executionChance = chance;
         this.setMutexBits(1);
     }
 
     /**
-     * Returns whether execution should begin. You can also read and cache any state necessary for execution in this
-     * method as well.
+     * Returns whether the EntityAIBase should begin execution.
      */
     public boolean shouldExecute()
     {
         if (!this.mustUpdate)
         {
-            if (this.creature.getIdleTime() >= 100)
+            if (this.entity.getIdleTime() >= 100)
             {
                 return false;
             }
 
-            if (this.creature.getRNG().nextInt(this.executionChance) != 0)
+            if (this.entity.getRNG().nextInt(this.executionChance) != 0)
             {
                 return false;
             }
@@ -65,7 +64,7 @@ public class EntityAIWander extends EntityAIBase
     @Nullable
     protected Vec3d getPosition()
     {
-        return RandomPositionGenerator.findRandomTarget(this.creature, 10, 7);
+        return RandomPositionGenerator.findRandomTarget(this.entity, 10, 7);
     }
 
     /**
@@ -73,7 +72,7 @@ public class EntityAIWander extends EntityAIBase
      */
     public boolean shouldContinueExecuting()
     {
-        return !this.creature.getNavigator().noPath();
+        return !this.entity.getNavigator().noPath();
     }
 
     /**
@@ -81,7 +80,7 @@ public class EntityAIWander extends EntityAIBase
      */
     public void startExecuting()
     {
-        this.creature.getNavigator().tryMoveToXYZ(this.x, this.y, this.z, this.speed);
+        this.entity.getNavigator().tryMoveToXYZ(this.x, this.y, this.z, this.speed);
     }
 
     /**

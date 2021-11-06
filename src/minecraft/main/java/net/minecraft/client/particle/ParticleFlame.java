@@ -7,6 +7,7 @@ import net.minecraft.world.World;
 
 public class ParticleFlame extends Particle
 {
+    /** the scale of the flame FX */
     private final float flameScale;
 
     protected ParticleFlame(World worldIn, double xCoordIn, double yCoordIn, double zCoordIn, double xSpeedIn, double ySpeedIn, double zSpeedIn)
@@ -22,7 +23,7 @@ public class ParticleFlame extends Particle
         this.particleRed = 1.0F;
         this.particleGreen = 1.0F;
         this.particleBlue = 1.0F;
-        this.maxAge = (int)(8.0D / (Math.random() * 0.8D + 0.2D)) + 4;
+        this.particleMaxAge = (int)(8.0D / (Math.random() * 0.8D + 0.2D)) + 4;
         this.setParticleTextureIndex(48);
     }
 
@@ -32,16 +33,19 @@ public class ParticleFlame extends Particle
         this.resetPositionToBB();
     }
 
+    /**
+     * Renders the particle
+     */
     public void renderParticle(BufferBuilder buffer, Entity entityIn, float partialTicks, float rotationX, float rotationZ, float rotationYZ, float rotationXY, float rotationXZ)
     {
-        float f = ((float)this.age + partialTicks) / (float)this.maxAge;
+        float f = ((float)this.particleAge + partialTicks) / (float)this.particleMaxAge;
         this.particleScale = this.flameScale * (1.0F - f * f * 0.5F);
         super.renderParticle(buffer, entityIn, partialTicks, rotationX, rotationZ, rotationYZ, rotationXY, rotationXZ);
     }
 
     public int getBrightnessForRender(float partialTick)
     {
-        float f = ((float)this.age + partialTick) / (float)this.maxAge;
+        float f = ((float)this.particleAge + partialTick) / (float)this.particleMaxAge;
         f = MathHelper.clamp(f, 0.0F, 1.0F);
         int i = super.getBrightnessForRender(partialTick);
         int j = i & 255;
@@ -56,13 +60,13 @@ public class ParticleFlame extends Particle
         return j | k << 16;
     }
 
-    public void tick()
+    public void onUpdate()
     {
         this.prevPosX = this.posX;
         this.prevPosY = this.posY;
         this.prevPosZ = this.posZ;
 
-        if (this.age++ >= this.maxAge)
+        if (this.particleAge++ >= this.particleMaxAge)
         {
             this.setExpired();
         }

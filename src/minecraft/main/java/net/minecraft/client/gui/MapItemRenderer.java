@@ -43,12 +43,12 @@ public class MapItemRenderer
      */
     private MapItemRenderer.Instance getMapRendererInstance(MapData mapdataIn)
     {
-        MapItemRenderer.Instance mapitemrenderer$instance = this.loadedMaps.get(mapdataIn.name);
+        MapItemRenderer.Instance mapitemrenderer$instance = this.loadedMaps.get(mapdataIn.mapName);
 
         if (mapitemrenderer$instance == null)
         {
             mapitemrenderer$instance = new MapItemRenderer.Instance(mapdataIn);
-            this.loadedMaps.put(mapdataIn.name, mapitemrenderer$instance);
+            this.loadedMaps.put(mapdataIn.mapName, mapitemrenderer$instance);
         }
 
         return mapitemrenderer$instance;
@@ -91,7 +91,7 @@ public class MapItemRenderer
             this.mapData = mapdataIn;
             this.mapTexture = new DynamicTexture(128, 128);
             this.mapTextureData = this.mapTexture.getTextureData();
-            this.location = MapItemRenderer.this.textureManager.getDynamicTextureLocation("map/" + mapdataIn.name, this.mapTexture);
+            this.location = MapItemRenderer.this.textureManager.getDynamicTextureLocation("map/" + mapdataIn.mapName, this.mapTexture);
 
             for (int i = 0; i < this.mapTextureData.length; ++i)
             {

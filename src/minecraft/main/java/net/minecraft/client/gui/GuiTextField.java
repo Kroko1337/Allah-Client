@@ -16,6 +16,8 @@ public class GuiTextField extends Gui
     private final FontRenderer fontRenderer;
     public int x;
     public int y;
+
+    /** The width of this text field. */
     private final int width;
     private final int height;
 
@@ -29,6 +31,10 @@ public class GuiTextField extends Gui
      * if true the textbox can lose focus by clicking elsewhere on the screen
      */
     private boolean canLoseFocus = true;
+
+    /**
+     * If this value is true along with isEnabled, keyTyped will process the keys.
+     */
     private boolean isFocused;
 
     /**
@@ -46,6 +52,8 @@ public class GuiTextField extends Gui
     private int selectionEnd;
     private int enabledColor = 14737632;
     private int disabledColor = 7368816;
+
+    /** True if this textbox is visible */
     private boolean visible = true;
     private GuiPageButtonList.GuiResponder guiResponder;
     private Predicate<String> validator = Predicates.<String>alwaysTrue();
@@ -60,6 +68,9 @@ public class GuiTextField extends Gui
         this.height = par6Height;
     }
 
+    /**
+     * Sets the GuiResponder associated with this text box.
+     */
     public void setGuiResponder(GuiPageButtonList.GuiResponder guiResponderIn)
     {
         this.guiResponder = guiResponderIn;
@@ -68,7 +79,7 @@ public class GuiTextField extends Gui
     /**
      * Increments the cursor counter
      */
-    public void tick()
+    public void updateCursorCounter()
     {
         ++this.cursorCounter;
     }
@@ -158,6 +169,9 @@ public class GuiTextField extends Gui
         }
     }
 
+    /**
+     * Notifies this text box's {@linkplain GuiPageButtonList.GuiResponder responder} that the text has changed.
+     */
     public void setResponderEntryValue(int idIn, String textIn)
     {
         if (this.guiResponder != null)
@@ -330,6 +344,9 @@ public class GuiTextField extends Gui
         this.setCursorPosition(this.text.length());
     }
 
+    /**
+     * Call this method from your GuiScreen to process the keys into the textbox
+     */
     public boolean textboxKeyTyped(char typedChar, int keyCode)
     {
         if (!this.isFocused)
@@ -489,13 +506,16 @@ public class GuiTextField extends Gui
         }
     }
 
+    /**
+     * Called when mouse is clicked, regardless as to whether it is over this button or not.
+     */
     public boolean mouseClicked(int mouseX, int mouseY, int mouseButton)
     {
         boolean flag = mouseX >= this.x && mouseX < this.x + this.width && mouseY >= this.y && mouseY < this.y + this.height;
 
         if (this.canLoseFocus)
         {
-            this.setFocused2(flag);
+            this.setFocused(flag);
         }
 
         if (this.isFocused && flag && mouseButton == 0)
@@ -507,7 +527,7 @@ public class GuiTextField extends Gui
                 i -= 4;
             }
 
-            String s = this.fontRenderer.trimStringToWidth(this.text.substring(this.lineScrollOffset), this.getAdjustedWidth());
+            String s = this.fontRenderer.trimStringToWidth(this.text.substring(this.lineScrollOffset), this.getWidth());
             this.setCursorPosition(this.fontRenderer.trimStringToWidth(s, i).length() + this.lineScrollOffset);
             return true;
         }
@@ -517,6 +537,9 @@ public class GuiTextField extends Gui
         }
     }
 
+    /**
+     * Draws the textbox
+     */
     public void drawTextBox()
     {
         if (this.getVisible())
@@ -530,7 +553,7 @@ public class GuiTextField extends Gui
             int i = this.isEnabled ? this.enabledColor : this.disabledColor;
             int j = this.cursorPosition - this.lineScrollOffset;
             int k = this.selectionEnd - this.lineScrollOffset;
-            String s = this.fontRenderer.trimStringToWidth(this.text.substring(this.lineScrollOffset), this.getAdjustedWidth());
+            String s = this.fontRenderer.trimStringToWidth(this.text.substring(this.lineScrollOffset), this.getWidth());
             boolean flag = j >= 0 && j <= s.length();
             boolean flag1 = this.isFocused && this.cursorCounter / 6 % 2 == 0 && flag;
             int l = this.enableBackgroundDrawing ? this.x + 4 : this.x;
@@ -696,7 +719,7 @@ public class GuiTextField extends Gui
     /**
      * Sets focus to this gui element
      */
-    public void setFocused2(boolean isFocusedIn)
+    public void setFocused(boolean isFocusedIn)
     {
         if (isFocusedIn && !this.isFocused)
         {
@@ -705,12 +728,15 @@ public class GuiTextField extends Gui
 
         this.isFocused = isFocusedIn;
 
-        if (Minecraft.getInstance().currentScreen != null)
+        if (Minecraft.getMinecraft().currentScreen != null)
         {
-            Minecraft.getInstance().currentScreen.setFocused(isFocusedIn);
+            Minecraft.getMinecraft().currentScreen.setFocused(isFocusedIn);
         }
     }
 
+    /**
+     * Getter for the focused field
+     */
     public boolean isFocused()
     {
         return this.isFocused;
@@ -724,6 +750,9 @@ public class GuiTextField extends Gui
         this.isEnabled = enabled;
     }
 
+    /**
+     * the side of the selection that is not the cursor, may be the same as the cursor
+     */
     public int getSelectionEnd()
     {
         return this.selectionEnd;
@@ -732,7 +761,7 @@ public class GuiTextField extends Gui
     /**
      * returns the width of the textbox depending on if background drawing is enabled
      */
-    public int getAdjustedWidth()
+    public int getWidth()
     {
         return this.getEnableBackgroundDrawing() ? this.width - 8 : this.width;
     }
@@ -764,7 +793,7 @@ public class GuiTextField extends Gui
                 this.lineScrollOffset = i;
             }
 
-            int j = this.getAdjustedWidth();
+            int j = this.getWidth();
             String s = this.fontRenderer.trimStringToWidth(this.text.substring(this.lineScrollOffset), j);
             int k = s.length() + this.lineScrollOffset;
 

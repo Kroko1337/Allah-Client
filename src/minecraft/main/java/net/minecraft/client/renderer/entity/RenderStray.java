@@ -8,14 +8,14 @@ public class RenderStray extends RenderSkeleton
 {
     private static final ResourceLocation STRAY_SKELETON_TEXTURES = new ResourceLocation("textures/entity/skeleton/stray.png");
 
-    public RenderStray(RenderManager renderManagerIn)
+    public RenderStray(RenderManager p_i47191_1_)
     {
-        super(renderManagerIn);
+        super(p_i47191_1_);
         this.addLayer(new LayerStrayClothing(this));
     }
 
     /**
-     * Returns the location of an entity's texture.
+     * Returns the location of an entity's texture. Doesn't seem to be called unless you call Render.bindEntityTexture.
      */
     protected ResourceLocation getEntityTexture(AbstractSkeleton entity)
     {

@@ -4,6 +4,8 @@ public class Tessellator
 {
     private final BufferBuilder buffer;
     private final WorldVertexBufferUploader vboUploader = new WorldVertexBufferUploader();
+
+    /** The static instance of the Tessellator. */
     private static final Tessellator INSTANCE = new Tessellator(2097152);
 
     public static Tessellator getInstance()

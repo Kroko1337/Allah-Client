@@ -23,7 +23,7 @@ import net.minecraft.world.IBlockAccess;
 
 public class ItemColors
 {
-    private final ObjectIntIdentityMap<IItemColor> colors = new ObjectIntIdentityMap<IItemColor>(32);
+    private final ObjectIntIdentityMap<IItemColor> mapItemColors = new ObjectIntIdentityMap<IItemColor>(32);
 
     public static ItemColors init(final BlockColors colors)
     {
@@ -40,7 +40,7 @@ public class ItemColors
             public int colorMultiplier(ItemStack stack, int tintIndex)
             {
                 BlockDoublePlant.EnumPlantType blockdoubleplant$enumplanttype = BlockDoublePlant.EnumPlantType.byMetadata(stack.getMetadata());
-                return blockdoubleplant$enumplanttype != BlockDoublePlant.EnumPlantType.GRASS && blockdoubleplant$enumplanttype != BlockDoublePlant.EnumPlantType.FERN ? -1 : ColorizerGrass.get(0.5D, 1.0D);
+                return blockdoubleplant$enumplanttype != BlockDoublePlant.EnumPlantType.GRASS && blockdoubleplant$enumplanttype != BlockDoublePlant.EnumPlantType.FERN ? -1 : ColorizerGrass.getGrassColor(0.5D, 1.0D);
             }
         }, Blocks.DOUBLE_PLANT);
         itemcolors.registerItemColorHandler(new IItemColor()
@@ -95,7 +95,7 @@ public class ItemColors
             {
                 return tintIndex > 0 ? -1 : PotionUtils.getColor(stack);
             }
-        }, Items.POTION, Items.SPLASH_POTION, Items.LINGERING_POTION);
+        }, Items.POTIONITEM, Items.SPLASH_POTION, Items.LINGERING_POTION);
         itemcolors.registerItemColorHandler(new IItemColor()
         {
             public int colorMultiplier(ItemStack stack, int tintIndex)
@@ -137,9 +137,9 @@ public class ItemColors
         return itemcolors;
     }
 
-    public int getColor(ItemStack stack, int tintIndex)
+    public int colorMultiplier(ItemStack stack, int tintIndex)
     {
-        IItemColor iitemcolor = this.colors.getByValue(Item.REGISTRY.getId(stack.getItem()));
+        IItemColor iitemcolor = this.mapItemColors.getByValue(Item.REGISTRY.getIDForObject(stack.getItem()));
         return iitemcolor == null ? -1 : iitemcolor.colorMultiplier(stack, tintIndex);
     }
 
@@ -147,7 +147,7 @@ public class ItemColors
     {
         for (Block block : blocksIn)
         {
-            this.colors.put(itemColor, Item.getIdFromItem(Item.getItemFromBlock(block)));
+            this.mapItemColors.put(itemColor, Item.getIdFromItem(Item.getItemFromBlock(block)));
         }
     }
 
@@ -155,7 +155,7 @@ public class ItemColors
     {
         for (Item item : itemsIn)
         {
-            this.colors.put(itemColor, Item.getIdFromItem(item));
+            this.mapItemColors.put(itemColor, Item.getIdFromItem(item));
         }
     }
 }

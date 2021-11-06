@@ -39,23 +39,23 @@ public class EntityCow extends EntityAnimal
         EntityLiving.registerFixesMob(fixer, EntityCow.class);
     }
 
-    protected void registerGoals()
+    protected void initEntityAI()
     {
-        this.goalSelector.addGoal(0, new EntityAISwimming(this));
-        this.goalSelector.addGoal(1, new EntityAIPanic(this, 2.0D));
-        this.goalSelector.addGoal(2, new EntityAIMate(this, 1.0D));
-        this.goalSelector.addGoal(3, new EntityAITempt(this, 1.25D, Items.WHEAT, false));
-        this.goalSelector.addGoal(4, new EntityAIFollowParent(this, 1.25D));
-        this.goalSelector.addGoal(5, new EntityAIWanderAvoidWater(this, 1.0D));
-        this.goalSelector.addGoal(6, new EntityAIWatchClosest(this, EntityPlayer.class, 6.0F));
-        this.goalSelector.addGoal(7, new EntityAILookIdle(this));
+        this.tasks.addTask(0, new EntityAISwimming(this));
+        this.tasks.addTask(1, new EntityAIPanic(this, 2.0D));
+        this.tasks.addTask(2, new EntityAIMate(this, 1.0D));
+        this.tasks.addTask(3, new EntityAITempt(this, 1.25D, Items.WHEAT, false));
+        this.tasks.addTask(4, new EntityAIFollowParent(this, 1.25D));
+        this.tasks.addTask(5, new EntityAIWanderAvoidWater(this, 1.0D));
+        this.tasks.addTask(6, new EntityAIWatchClosest(this, EntityPlayer.class, 6.0F));
+        this.tasks.addTask(7, new EntityAILookIdle(this));
     }
 
-    protected void registerAttributes()
+    protected void applyEntityAttributes()
     {
-        super.registerAttributes();
-        this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(10.0D);
-        this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.20000000298023224D);
+        super.applyEntityAttributes();
+        this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(10.0D);
+        this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.20000000298023224D);
     }
 
     protected SoundEvent getAmbientSound()
@@ -96,7 +96,7 @@ public class EntityCow extends EntityAnimal
     {
         ItemStack itemstack = player.getHeldItem(hand);
 
-        if (itemstack.getItem() == Items.BUCKET && !player.abilities.isCreativeMode && !this.isChild())
+        if (itemstack.getItem() == Items.BUCKET && !player.capabilities.isCreativeMode && !this.isChild())
         {
             player.playSound(SoundEvents.ENTITY_COW_MILK, 1.0F, 1.0F);
             itemstack.shrink(1);

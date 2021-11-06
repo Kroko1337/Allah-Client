@@ -98,7 +98,7 @@ public class Items
     public static final Item IRON_DOOR;
     public static final Item REDSTONE;
     public static final Item SNOWBALL;
-    public static final Item OAK_BOAT;
+    public static final Item BOAT;
     public static final Item SPRUCE_BOAT;
     public static final Item BIRCH_BOAT;
     public static final Item JUNGLE_BOAT;
@@ -130,7 +130,7 @@ public class Items
     public static final Item COOKIE;
     public static final ItemMap FILLED_MAP;
     public static final ItemShears SHEARS;
-    public static final Item MELON_SLICE;
+    public static final Item MELON;
     public static final Item PUMPKIN_SEEDS;
     public static final Item MELON_SEEDS;
     public static final Item BEEF;
@@ -150,7 +150,7 @@ public class Items
     public static final Item GHAST_TEAR;
     public static final Item GOLD_NUGGET;
     public static final Item NETHER_WART;
-    public static final ItemPotion POTION;
+    public static final ItemPotion POTIONITEM;
     public static final ItemPotion SPLASH_POTION;
     public static final ItemPotion LINGERING_POTION;
     public static final Item GLASS_BOTTLE;
@@ -162,7 +162,7 @@ public class Items
     public static final Item BREWING_STAND;
     public static final Item CAULDRON;
     public static final Item ENDER_EYE;
-    public static final Item GLISTERING_MELON_SLICE;
+    public static final Item SPECKLED_MELON;
     public static final Item SPAWN_EGG;
     public static final Item EXPERIENCE_BOTTLE;
     public static final Item FIRE_CHARGE;
@@ -215,7 +215,7 @@ public class Items
     public static final Item SHIELD;
     public static final Item ELYTRA;
     public static final Item CHORUS_FRUIT;
-    public static final Item POPPED_CHORUS_FRUIT;
+    public static final Item CHORUS_FRUIT_POPPED;
     public static final Item BEETROOT_SEEDS;
     public static final Item BEETROOT;
     public static final Item BEETROOT_SOUP;
@@ -226,7 +226,7 @@ public class Items
 
     private static Item getRegisteredItem(String name)
     {
-        Item item = Item.REGISTRY.getOrDefault(new ResourceLocation(name));
+        Item item = Item.REGISTRY.getObject(new ResourceLocation(name));
 
         if (item == null)
         {
@@ -331,7 +331,7 @@ public class Items
             IRON_DOOR = getRegisteredItem("iron_door");
             REDSTONE = getRegisteredItem("redstone");
             SNOWBALL = getRegisteredItem("snowball");
-            OAK_BOAT = getRegisteredItem("boat");
+            BOAT = getRegisteredItem("boat");
             SPRUCE_BOAT = getRegisteredItem("spruce_boat");
             BIRCH_BOAT = getRegisteredItem("birch_boat");
             JUNGLE_BOAT = getRegisteredItem("jungle_boat");
@@ -363,7 +363,7 @@ public class Items
             COOKIE = getRegisteredItem("cookie");
             FILLED_MAP = (ItemMap)getRegisteredItem("filled_map");
             SHEARS = (ItemShears)getRegisteredItem("shears");
-            MELON_SLICE = getRegisteredItem("melon");
+            MELON = getRegisteredItem("melon");
             PUMPKIN_SEEDS = getRegisteredItem("pumpkin_seeds");
             MELON_SEEDS = getRegisteredItem("melon_seeds");
             BEEF = getRegisteredItem("beef");
@@ -383,7 +383,7 @@ public class Items
             GHAST_TEAR = getRegisteredItem("ghast_tear");
             GOLD_NUGGET = getRegisteredItem("gold_nugget");
             NETHER_WART = getRegisteredItem("nether_wart");
-            POTION = (ItemPotion)getRegisteredItem("potion");
+            POTIONITEM = (ItemPotion)getRegisteredItem("potion");
             SPLASH_POTION = (ItemPotion)getRegisteredItem("splash_potion");
             LINGERING_POTION = (ItemPotion)getRegisteredItem("lingering_potion");
             GLASS_BOTTLE = getRegisteredItem("glass_bottle");
@@ -395,7 +395,7 @@ public class Items
             BREWING_STAND = getRegisteredItem("brewing_stand");
             CAULDRON = getRegisteredItem("cauldron");
             ENDER_EYE = getRegisteredItem("ender_eye");
-            GLISTERING_MELON_SLICE = getRegisteredItem("speckled_melon");
+            SPECKLED_MELON = getRegisteredItem("speckled_melon");
             SPAWN_EGG = getRegisteredItem("spawn_egg");
             EXPERIENCE_BOTTLE = getRegisteredItem("experience_bottle");
             FIRE_CHARGE = getRegisteredItem("fire_charge");
@@ -448,7 +448,7 @@ public class Items
             SHIELD = getRegisteredItem("shield");
             ELYTRA = getRegisteredItem("elytra");
             CHORUS_FRUIT = getRegisteredItem("chorus_fruit");
-            POPPED_CHORUS_FRUIT = getRegisteredItem("chorus_fruit_popped");
+            CHORUS_FRUIT_POPPED = getRegisteredItem("chorus_fruit_popped");
             BEETROOT_SEEDS = getRegisteredItem("beetroot_seeds");
             BEETROOT = getRegisteredItem("beetroot");
             BEETROOT_SOUP = getRegisteredItem("beetroot_soup");

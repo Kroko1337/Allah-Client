@@ -4,12 +4,25 @@ import net.minecraft.world.storage.WorldInfo;
 
 public final class WorldSettings
 {
+    /** The seed for the map. */
     private final long seed;
+
+    /** The EnumGameType. */
     private final GameType gameType;
+
+    /**
+     * Switch for the map features. 'true' for enabled, 'false' for disabled.
+     */
     private final boolean mapFeaturesEnabled;
+
+    /** True if hardcore mode is enabled */
     private final boolean hardcoreEnabled;
     private final WorldType terrainType;
+
+    /** True if Commands (cheats) are allowed. */
     private boolean commandsAllowed;
+
+    /** True if the Bonus Chest is enabled. */
     private boolean bonusChestEnabled;
     private String generatorOptions;
 
@@ -25,7 +38,7 @@ public final class WorldSettings
 
     public WorldSettings(WorldInfo info)
     {
-        this(info.getSeed(), info.getGameType(), info.isMapFeaturesEnabled(), info.isHardcore(), info.getGenerator());
+        this(info.getSeed(), info.getGameType(), info.isMapFeaturesEnabled(), info.isHardcoreModeEnabled(), info.getTerrainType());
     }
 
     /**
@@ -105,6 +118,9 @@ public final class WorldSettings
         return this.commandsAllowed;
     }
 
+    /**
+     * Gets the GameType by ID
+     */
     public static GameType getGameTypeById(int id)
     {
         return GameType.getByID(id);

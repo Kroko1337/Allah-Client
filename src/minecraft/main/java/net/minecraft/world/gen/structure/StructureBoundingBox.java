@@ -7,11 +7,22 @@ import net.minecraft.util.math.Vec3i;
 
 public class StructureBoundingBox
 {
+    /** The first x coordinate of a bounding box. */
     public int minX;
+
+    /** The first y coordinate of a bounding box. */
     public int minY;
+
+    /** The first z coordinate of a bounding box. */
     public int minZ;
+
+    /** The second x coordinate of a bounding box. */
     public int maxX;
+
+    /** The second y coordinate of a bounding box. */
     public int maxY;
+
+    /** The second z coordinate of a bounding box. */
     public int maxZ;
 
     public StructureBoundingBox()

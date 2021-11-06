@@ -17,6 +17,9 @@ public class RenderCreeper extends RenderLiving<EntityCreeper>
         this.addLayer(new LayerCreeperCharge(this));
     }
 
+    /**
+     * Allows the render to do state modifications necessary before the model is rendered.
+     */
     protected void preRenderCallback(EntityCreeper entitylivingbaseIn, float partialTickTime)
     {
         float f = entitylivingbaseIn.getCreeperFlashIntensity(partialTickTime);
@@ -29,6 +32,9 @@ public class RenderCreeper extends RenderLiving<EntityCreeper>
         GlStateManager.scale(f2, f3, f2);
     }
 
+    /**
+     * Gets an RGBA int color multiplier to apply.
+     */
     protected int getColorMultiplier(EntityCreeper entitylivingbaseIn, float lightBrightness, float partialTickTime)
     {
         float f = entitylivingbaseIn.getCreeperFlashIntensity(partialTickTime);
@@ -46,7 +52,7 @@ public class RenderCreeper extends RenderLiving<EntityCreeper>
     }
 
     /**
-     * Returns the location of an entity's texture.
+     * Returns the location of an entity's texture. Doesn't seem to be called unless you call Render.bindEntityTexture.
      */
     protected ResourceLocation getEntityTexture(EntityCreeper entity)
     {

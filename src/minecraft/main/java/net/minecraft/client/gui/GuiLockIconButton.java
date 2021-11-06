@@ -22,6 +22,9 @@ public class GuiLockIconButton extends GuiButton
         this.locked = lockedIn;
     }
 
+    /**
+     * Draws this button to the screen.
+     */
     public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks)
     {
         if (this.visible)

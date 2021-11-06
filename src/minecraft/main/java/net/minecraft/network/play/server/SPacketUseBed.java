@@ -11,6 +11,8 @@ import net.minecraft.world.World;
 public class SPacketUseBed implements Packet<INetHandlerPlayClient>
 {
     private int playerID;
+
+    /** Block location of the head part of the bed */
     private BlockPos bedPos;
 
     public SPacketUseBed()

@@ -13,9 +13,9 @@ public class OptionsLowerCaseLanguage implements IFixableData
 
     public NBTTagCompound fixTagCompound(NBTTagCompound compound)
     {
-        if (compound.contains("lang", 8))
+        if (compound.hasKey("lang", 8))
         {
-            compound.putString("lang", compound.getString("lang").toLowerCase(Locale.ROOT));
+            compound.setString("lang", compound.getString("lang").toLowerCase(Locale.ROOT));
         }
 
         return compound;

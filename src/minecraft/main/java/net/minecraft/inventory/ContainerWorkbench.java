@@ -9,9 +9,12 @@ import net.minecraft.world.World;
 
 public class ContainerWorkbench extends Container
 {
+    /** The crafting matrix inventory (3x3). */
     public InventoryCrafting craftMatrix = new InventoryCrafting(this, 3, 3);
     public InventoryCraftResult craftResult = new InventoryCraftResult();
     private final World world;
+
+    /** Position of the workbench */
     private final BlockPos pos;
     private final EntityPlayer player;
 
@@ -20,13 +23,13 @@ public class ContainerWorkbench extends Container
         this.world = worldIn;
         this.pos = posIn;
         this.player = playerInventory.player;
-        this.addSlot(new SlotCrafting(playerInventory.player, this.craftMatrix, this.craftResult, 0, 124, 35));
+        this.addSlotToContainer(new SlotCrafting(playerInventory.player, this.craftMatrix, this.craftResult, 0, 124, 35));
 
         for (int i = 0; i < 3; ++i)
         {
             for (int j = 0; j < 3; ++j)
             {
-                this.addSlot(new Slot(this.craftMatrix, j + i * 3, 30 + j * 18, 17 + i * 18));
+                this.addSlotToContainer(new Slot(this.craftMatrix, j + i * 3, 30 + j * 18, 17 + i * 18));
             }
         }
 
@@ -34,13 +37,13 @@ public class ContainerWorkbench extends Container
         {
             for (int i1 = 0; i1 < 9; ++i1)
             {
-                this.addSlot(new Slot(playerInventory, i1 + k * 9 + 9, 8 + i1 * 18, 84 + k * 18));
+                this.addSlotToContainer(new Slot(playerInventory, i1 + k * 9 + 9, 8 + i1 * 18, 84 + k * 18));
             }
         }
 
         for (int l = 0; l < 9; ++l)
         {
-            this.addSlot(new Slot(playerInventory, l, 8 + l * 18, 142));
+            this.addSlotToContainer(new Slot(playerInventory, l, 8 + l * 18, 142));
         }
     }
 

@@ -6,6 +6,7 @@ import java.util.List;
 
 public class ThreadedFileIOBase implements Runnable
 {
+    /** Instance of ThreadedFileIOBase */
     private static final ThreadedFileIOBase INSTANCE = new ThreadedFileIOBase();
     private final List<IThreadedFileIO> threadedIOQueue = Collections.<IThreadedFileIO>synchronizedList(Lists.newArrayList());
     private volatile long writeQueuedCounter;
@@ -19,6 +20,9 @@ public class ThreadedFileIOBase implements Runnable
         thread.start();
     }
 
+    /**
+     * Retrieves an instance of the threadedFileIOBase.
+     */
     public static ThreadedFileIOBase getThreadedIOInstance()
     {
         return INSTANCE;
@@ -32,6 +36,9 @@ public class ThreadedFileIOBase implements Runnable
         }
     }
 
+    /**
+     * Process the items that are in the queue
+     */
     private void processQueue()
     {
         for (int i = 0; i < this.threadedIOQueue.size(); ++i)
@@ -68,6 +75,9 @@ public class ThreadedFileIOBase implements Runnable
         }
     }
 
+    /**
+     * Queues an IO task. If the given task has already been queued, nothing happens.
+     */
     public void queueIO(IThreadedFileIO fileIo)
     {
         if (!this.threadedIOQueue.contains(fileIo))
@@ -77,6 +87,10 @@ public class ThreadedFileIOBase implements Runnable
         }
     }
 
+    /**
+     * Causes the current thread to block until all pending IO tasks have been written, and also disables the sleep
+     * between IO tasks until that time.
+     */
     public void waitForFinish() throws InterruptedException
     {
         this.isThreadWaiting = true;

@@ -16,21 +16,33 @@ import net.minecraft.util.text.TextComponentUtils;
 
 public class CommandMessageRaw extends CommandBase
 {
+    /**
+     * Gets the name of the command
+     */
     public String getName()
     {
         return "tellraw";
     }
 
+    /**
+     * Return the required permission level for this command.
+     */
     public int getRequiredPermissionLevel()
     {
         return 2;
     }
 
+    /**
+     * Gets the usage string for the command.
+     */
     public String getUsage(ICommandSender sender)
     {
         return "commands.tellraw.usage";
     }
 
+    /**
+     * Callback for when the command is executed
+     */
     public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
     {
         if (args.length < 2)
@@ -44,7 +56,7 @@ public class CommandMessageRaw extends CommandBase
 
             try
             {
-                ITextComponent itextcomponent = ITextComponent.Serializer.fromJson(s);
+                ITextComponent itextcomponent = ITextComponent.Serializer.jsonToComponent(s);
                 entityplayer.sendMessage(TextComponentUtils.processComponent(sender, itextcomponent, entityplayer));
             }
             catch (JsonParseException jsonparseexception)
@@ -59,6 +71,9 @@ public class CommandMessageRaw extends CommandBase
         return args.length == 1 ? getListOfStringsMatchingLastWord(args, server.getOnlinePlayerNames()) : Collections.emptyList();
     }
 
+    /**
+     * Return whether the specified command parameter index is a username parameter.
+     */
     public boolean isUsernameIndex(String[] args, int index)
     {
         return index == 0;

@@ -4,13 +4,33 @@ import net.minecraft.world.World;
 
 public class ParticleSimpleAnimated extends Particle
 {
+    /**
+     * The base texture index. The texture index starts at this + (numAgingFrames - 1), and works its way down to this
+     * number as the particle decays.
+     */
     private final int textureIdx;
+
+    /**
+     * How many different textures there are to progress through as the particle decays
+     */
     private final int numAgingFrames;
+
+    /**
+     * Added to the ySpeed every tick. Usually a small (thousandths), negative value.
+     */
     private final float yAccel;
     private float baseAirFriction = 0.91F;
+
+    /** The red value to drift toward */
     private float fadeTargetRed;
+
+    /** The green value to drift toward */
     private float fadeTargetGreen;
+
+    /** The blue value to drift toward */
     private float fadeTargetBlue;
+
+    /** True if setColorFade has been called */
     private boolean fadingColor;
 
     public ParticleSimpleAnimated(World worldIn, double x, double y, double z, int textureIdxIn, int numFrames, float yAccelIn)
@@ -27,7 +47,7 @@ public class ParticleSimpleAnimated extends Particle
         float f1 = (float)((p_187146_1_ & 65280) >> 8) / 255.0F;
         float f2 = (float)((p_187146_1_ & 255) >> 0) / 255.0F;
         float f3 = 1.0F;
-        this.setColor(f * 1.0F, f1 * 1.0F, f2 * 1.0F);
+        this.setRBGColorF(f * 1.0F, f1 * 1.0F, f2 * 1.0F);
     }
 
     /**
@@ -46,20 +66,20 @@ public class ParticleSimpleAnimated extends Particle
         return true;
     }
 
-    public void tick()
+    public void onUpdate()
     {
         this.prevPosX = this.posX;
         this.prevPosY = this.posY;
         this.prevPosZ = this.posZ;
 
-        if (this.age++ >= this.maxAge)
+        if (this.particleAge++ >= this.particleMaxAge)
         {
             this.setExpired();
         }
 
-        if (this.age > this.maxAge / 2)
+        if (this.particleAge > this.particleMaxAge / 2)
         {
-            this.setAlphaF(1.0F - ((float)this.age - (float)(this.maxAge / 2)) / (float)this.maxAge);
+            this.setAlphaF(1.0F - ((float)this.particleAge - (float)(this.particleMaxAge / 2)) / (float)this.particleMaxAge);
 
             if (this.fadingColor)
             {
@@ -69,7 +89,7 @@ public class ParticleSimpleAnimated extends Particle
             }
         }
 
-        this.setParticleTextureIndex(this.textureIdx + (this.numAgingFrames - 1 - this.age * this.numAgingFrames / this.maxAge));
+        this.setParticleTextureIndex(this.textureIdx + (this.numAgingFrames - 1 - this.particleAge * this.numAgingFrames / this.particleMaxAge));
         this.motionY += (double)this.yAccel;
         this.move(this.motionX, this.motionY, this.motionZ);
         this.motionX *= (double)this.baseAirFriction;

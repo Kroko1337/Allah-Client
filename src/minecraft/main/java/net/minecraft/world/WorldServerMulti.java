@@ -40,7 +40,7 @@ public class WorldServerMulti extends WorldServer
             }
             public void onDamageAmountChanged(WorldBorder border, double newAmount)
             {
-                WorldServerMulti.this.getWorldBorder().setDamagePerBlock(newAmount);
+                WorldServerMulti.this.getWorldBorder().setDamageAmount(newAmount);
             }
             public void onDamageBufferChanged(WorldBorder border, double newSize)
             {
@@ -62,7 +62,7 @@ public class WorldServerMulti extends WorldServer
         this.worldScoreboard = this.delegate.getScoreboard();
         this.lootTable = this.delegate.getLootTableManager();
         this.advancementManager = this.delegate.getAdvancementManager();
-        String s = VillageCollection.fileNameForProvider(this.dimension);
+        String s = VillageCollection.fileNameForProvider(this.provider);
         VillageCollection villagecollection = (VillageCollection)this.mapStorage.getOrLoadData(VillageCollection.class, s);
 
         if (villagecollection == null)
@@ -79,8 +79,12 @@ public class WorldServerMulti extends WorldServer
         return this;
     }
 
+    /**
+     * Called during saving of a world to give children worlds a chance to save additional data. Only used to save
+     * WorldProviderEnd's data in Vanilla.
+     */
     public void saveAdditionalData()
     {
-        this.dimension.onWorldSave();
+        this.provider.onWorldSave();
     }
 }

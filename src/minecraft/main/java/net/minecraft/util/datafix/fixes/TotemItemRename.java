@@ -14,7 +14,7 @@ public class TotemItemRename implements IFixableData
     {
         if ("minecraft:totem".equals(compound.getString("id")))
         {
-            compound.putString("id", "minecraft:totem_of_undying");
+            compound.setString("id", "minecraft:totem_of_undying");
         }
 
         return compound;

@@ -18,6 +18,8 @@ public class ParticleExplosionLarge extends Particle
     private static final VertexFormat VERTEX_FORMAT = (new VertexFormat()).addElement(DefaultVertexFormats.POSITION_3F).addElement(DefaultVertexFormats.TEX_2F).addElement(DefaultVertexFormats.COLOR_4UB).addElement(DefaultVertexFormats.TEX_2S).addElement(DefaultVertexFormats.NORMAL_3B).addElement(DefaultVertexFormats.PADDING_1B);
     private int life;
     private final int lifeTime;
+
+    /** The Rendering Engine. */
     private final TextureManager textureManager;
     private final float size;
 
@@ -33,6 +35,9 @@ public class ParticleExplosionLarge extends Particle
         this.size = 1.0F - (float)p_i1213_9_ * 0.5F;
     }
 
+    /**
+     * Renders the particle
+     */
     public void renderParticle(BufferBuilder buffer, Entity entityIn, float partialTicks, float rotationX, float rotationZ, float rotationYZ, float rotationXY, float rotationXZ)
     {
         int i = (int)(((float)this.life + partialTicks) * 15.0F / (float)this.lifeTime);
@@ -66,7 +71,7 @@ public class ParticleExplosionLarge extends Particle
         return 61680;
     }
 
-    public void tick()
+    public void onUpdate()
     {
         this.prevPosX = this.posX;
         this.prevPosY = this.posY;
@@ -79,6 +84,10 @@ public class ParticleExplosionLarge extends Particle
         }
     }
 
+    /**
+     * Retrieve what effect layer (what texture) the particle should be rendered with. 0 for the particle sprite sheet,
+     * 1 for the main Texture atlas, and 3 for a custom texture
+     */
     public int getFXLayer()
     {
         return 3;
@@ -88,7 +97,7 @@ public class ParticleExplosionLarge extends Particle
     {
         public Particle createParticle(int particleID, World worldIn, double xCoordIn, double yCoordIn, double zCoordIn, double xSpeedIn, double ySpeedIn, double zSpeedIn, int... p_178902_15_)
         {
-            return new ParticleExplosionLarge(Minecraft.getInstance().getTextureManager(), worldIn, xCoordIn, yCoordIn, zCoordIn, xSpeedIn, ySpeedIn, zSpeedIn);
+            return new ParticleExplosionLarge(Minecraft.getMinecraft().getTextureManager(), worldIn, xCoordIn, yCoordIn, zCoordIn, xSpeedIn, ySpeedIn, zSpeedIn);
         }
     }
 }

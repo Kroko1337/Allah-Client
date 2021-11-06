@@ -5,15 +5,34 @@ import net.minecraft.util.math.MathHelper;
 
 public class PathPoint
 {
+    /** The x coordinate of this point */
     public final int x;
+
+    /** The y coordinate of this point */
     public final int y;
+
+    /** The z coordinate of this point */
     public final int z;
+
+    /** A hash of the coordinates used to identify this point */
     private final int hash;
+
+    /** The index of this point in its assigned path */
     public int index = -1;
+
+    /** The distance along the path to this point */
     public float totalPathDistance;
+
+    /** The linear distance to the next point */
     public float distanceToNext;
+
+    /** The distance to the target */
     public float distanceToTarget;
+
+    /** The point preceding this in its assigned path */
     public PathPoint previous;
+
+    /** True if the pathfinder has already visited this point */
     public boolean visited;
     public float distanceFromOrigin;
     public float cost;

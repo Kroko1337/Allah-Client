@@ -21,7 +21,7 @@ public abstract class TileEntityLockableLoot extends TileEntityLockable implemen
 
     protected boolean checkLootAndRead(NBTTagCompound compound)
     {
-        if (compound.contains("LootTable", 8))
+        if (compound.hasKey("LootTable", 8))
         {
             this.lootTable = new ResourceLocation(compound.getString("LootTable"));
             this.lootTableSeed = compound.getLong("LootTableSeed");
@@ -37,11 +37,11 @@ public abstract class TileEntityLockableLoot extends TileEntityLockable implemen
     {
         if (this.lootTable != null)
         {
-            compound.putString("LootTable", this.lootTable.toString());
+            compound.setString("LootTable", this.lootTable.toString());
 
             if (this.lootTableSeed != 0L)
             {
-                compound.putLong("LootTableSeed", this.lootTableSeed);
+                compound.setLong("LootTableSeed", this.lootTableSeed);
             }
 
             return true;
@@ -85,12 +85,26 @@ public abstract class TileEntityLockableLoot extends TileEntityLockable implemen
         return this.lootTable;
     }
 
-    public void setLootTable(ResourceLocation lootTableIn, long seedIn)
+    public void setLootTable(ResourceLocation p_189404_1_, long p_189404_2_)
     {
-        this.lootTable = lootTableIn;
-        this.lootTableSeed = seedIn;
+        this.lootTable = p_189404_1_;
+        this.lootTableSeed = p_189404_2_;
     }
 
+    /**
+     * Checks if this thing has a custom name. This method has slightly different behavior depending on the interface
+     * (for <a href="https://github.com/ModCoderPack/MCPBot-Issues/issues/14">technical reasons</a> the same method is
+     * used for both IWorldNameable and Entity):
+     *  
+     * <dl>
+     * <dt>{@link net.minecraft.util.INameable#hasCustomName() INameable.hasCustomName()}</dt>
+     * <dd>If true, then {@link #getName()} probably returns a preformatted name; otherwise, it probably returns a
+     * translation string. However, exact behavior varies.</dd>
+     * <dt>{@link net.minecraft.entity.Entity#hasCustomName() Entity.hasCustomName()}</dt>
+     * <dd>If true, then {@link net.minecraft.entity.Entity#getCustomNameTag() Entity.getCustomNameTag()} will return a
+     * non-empty string, which will be used by {@link #getName()}.</dd>
+     * </dl>
+     */
     public boolean hasCustomName()
     {
         return this.customName != null && !this.customName.isEmpty();

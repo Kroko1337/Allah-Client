@@ -119,9 +119,12 @@ public class ChunkGeneratorFlat implements IChunkGenerator
         }
 
         worldIn.setSeaLevel(j);
-        this.hasDecoration = flag && this.flatWorldGenInfo.getBiome() != Biome.getIdForBiome(Biomes.THE_VOID) ? false : this.flatWorldGenInfo.getWorldFeatures().containsKey("decoration");
+        this.hasDecoration = flag && this.flatWorldGenInfo.getBiome() != Biome.getIdForBiome(Biomes.VOID) ? false : this.flatWorldGenInfo.getWorldFeatures().containsKey("decoration");
     }
 
+    /**
+     * Generates the chunk at the specified position, from scratch
+     */
     public Chunk generateChunk(int x, int z)
     {
         ChunkPrimer chunkprimer = new ChunkPrimer();
@@ -160,6 +163,12 @@ public class ChunkGeneratorFlat implements IChunkGenerator
         return chunk;
     }
 
+    /**
+     * Generate initial structures in this chunk, e.g. mineshafts, temples, lakes, and dungeons
+     *  
+     * @param x Chunk x coordinate
+     * @param z Chunk z coordinate
+     */
     public void populate(int x, int z)
     {
         int i = x * 16;
@@ -212,6 +221,9 @@ public class ChunkGeneratorFlat implements IChunkGenerator
         }
     }
 
+    /**
+     * Called to generate additional structures after initial worldgen, used by ocean monuments
+     */
     public boolean generateStructures(Chunk chunkIn, int x, int z)
     {
         return false;
@@ -220,7 +232,7 @@ public class ChunkGeneratorFlat implements IChunkGenerator
     public List<Biome.SpawnListEntry> getPossibleCreatures(EnumCreatureType creatureType, BlockPos pos)
     {
         Biome biome = this.world.getBiome(pos);
-        return biome.getSpawns(creatureType);
+        return biome.getSpawnableList(creatureType);
     }
 
     @Nullable
@@ -236,6 +248,11 @@ public class ChunkGeneratorFlat implements IChunkGenerator
         return mapgenstructure != null ? mapgenstructure.isInsideStructure(pos) : false;
     }
 
+    /**
+     * Recreates data about structures intersecting given chunk (used for example by getPossibleCreatures), without
+     * placing any blocks. When called for the first time before any chunk is generated - also initializes the internal
+     * state needed by getPossibleCreatures.
+     */
     public void recreateStructures(Chunk chunkIn, int x, int z)
     {
         for (MapGenStructure mapgenstructure : this.structureGenerators.values())

@@ -22,9 +22,14 @@ import net.minecraft.world.World;
 
 public class ShapedRecipes implements IRecipe
 {
+    /** How many horizontal slots this recipe is wide. */
     private final int recipeWidth;
+
+    /** How many vertical slots this recipe uses. */
     private final int recipeHeight;
     private final NonNullList<Ingredient> recipeItems;
+
+    /** Is the ItemStack that you get when craft the recipe. */
     private final ItemStack recipeOutput;
     private final String group;
 
@@ -161,6 +166,9 @@ public class ShapedRecipes implements IRecipe
         return this.recipeHeight;
     }
 
+    /**
+     * Returns a shaped recipe json object as a Java ShapedRecipe object.
+     */
     public static ShapedRecipes deserialize(JsonObject json)
     {
         String s = JsonUtils.getString(json, "group", "");
@@ -335,6 +343,9 @@ public class ShapedRecipes implements IRecipe
         return map;
     }
 
+    /**
+     * Returns an ingredient json element as a Java Ingredient object.
+     */
     public static Ingredient deserializeIngredient(@Nullable JsonElement jsonElement)
     {
         if (jsonElement != null && !jsonElement.isJsonNull())
@@ -374,10 +385,13 @@ public class ShapedRecipes implements IRecipe
         }
     }
 
+    /**
+     * Returns an item json object as a Java ItemStack object.
+     */
     public static ItemStack deserializeItem(JsonObject json, boolean useCount)
     {
         String s = JsonUtils.getString(json, "item");
-        Item item = Item.REGISTRY.getOrDefault(new ResourceLocation(s));
+        Item item = Item.REGISTRY.getObject(new ResourceLocation(s));
 
         if (item == null)
         {

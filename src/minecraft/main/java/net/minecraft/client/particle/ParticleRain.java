@@ -21,10 +21,10 @@ public class ParticleRain extends Particle
         this.setParticleTextureIndex(19 + this.rand.nextInt(4));
         this.setSize(0.01F, 0.01F);
         this.particleGravity = 0.06F;
-        this.maxAge = (int)(8.0D / (Math.random() * 0.8D + 0.2D));
+        this.particleMaxAge = (int)(8.0D / (Math.random() * 0.8D + 0.2D));
     }
 
-    public void tick()
+    public void onUpdate()
     {
         this.prevPosX = this.posX;
         this.prevPosY = this.posY;
@@ -35,7 +35,7 @@ public class ParticleRain extends Particle
         this.motionY *= 0.9800000190734863D;
         this.motionZ *= 0.9800000190734863D;
 
-        if (this.maxAge-- <= 0)
+        if (this.particleMaxAge-- <= 0)
         {
             this.setExpired();
         }
@@ -61,7 +61,7 @@ public class ParticleRain extends Particle
 
             if (iblockstate.getBlock() instanceof BlockLiquid)
             {
-                d0 = (double)(1.0F - BlockLiquid.getLiquidHeightPercent(((Integer)iblockstate.get(BlockLiquid.LEVEL)).intValue()));
+                d0 = (double)(1.0F - BlockLiquid.getLiquidHeightPercent(((Integer)iblockstate.getValue(BlockLiquid.LEVEL)).intValue()));
             }
             else
             {

@@ -23,6 +23,10 @@ public class GuiConfirmOpenLink extends GuiYesNo
         this.linkText = linkTextIn;
     }
 
+    /**
+     * Adds the buttons (and other controls) to the screen in question. Called when the GUI is displayed and when the
+     * window resizes, the buttonList is cleared beforehand.
+     */
     public void initGui()
     {
         super.initGui();
@@ -32,6 +36,9 @@ public class GuiConfirmOpenLink extends GuiYesNo
         this.buttonList.add(new GuiButton(1, this.width / 2 - 50 + 105, this.height / 6 + 96, 100, 20, this.cancelButtonText));
     }
 
+    /**
+     * Called by the controls from the buttonList when activated. (Mouse pressed for buttons)
+     */
     protected void actionPerformed(GuiButton button) throws IOException
     {
         if (button.id == 2)
@@ -50,6 +57,9 @@ public class GuiConfirmOpenLink extends GuiYesNo
         setClipboardString(this.linkText);
     }
 
+    /**
+     * Draws the screen and all the components in it.
+     */
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         super.drawScreen(mouseX, mouseY, partialTicks);

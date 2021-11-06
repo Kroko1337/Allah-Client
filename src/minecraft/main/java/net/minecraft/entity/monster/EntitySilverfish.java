@@ -42,15 +42,15 @@ public class EntitySilverfish extends EntityMob
         EntityLiving.registerFixesMob(fixer, EntitySilverfish.class);
     }
 
-    protected void registerGoals()
+    protected void initEntityAI()
     {
         this.summonSilverfish = new EntitySilverfish.AISummonSilverfish(this);
-        this.goalSelector.addGoal(1, new EntityAISwimming(this));
-        this.goalSelector.addGoal(3, this.summonSilverfish);
-        this.goalSelector.addGoal(4, new EntityAIAttackMelee(this, 1.0D, false));
-        this.goalSelector.addGoal(5, new EntitySilverfish.AIHideInStone(this));
-        this.targetSelector.addGoal(1, new EntityAIHurtByTarget(this, true, new Class[0]));
-        this.targetSelector.addGoal(2, new EntityAINearestAttackableTarget(this, EntityPlayer.class, true));
+        this.tasks.addTask(1, new EntityAISwimming(this));
+        this.tasks.addTask(3, this.summonSilverfish);
+        this.tasks.addTask(4, new EntityAIAttackMelee(this, 1.0D, false));
+        this.tasks.addTask(5, new EntitySilverfish.AIHideInStone(this));
+        this.targetTasks.addTask(1, new EntityAIHurtByTarget(this, true, new Class[0]));
+        this.targetTasks.addTask(2, new EntityAINearestAttackableTarget(this, EntityPlayer.class, true));
     }
 
     /**
@@ -66,14 +66,18 @@ public class EntitySilverfish extends EntityMob
         return 0.1F;
     }
 
-    protected void registerAttributes()
+    protected void applyEntityAttributes()
     {
-        super.registerAttributes();
-        this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(8.0D);
-        this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.25D);
-        this.getAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(1.0D);
+        super.applyEntityAttributes();
+        this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(8.0D);
+        this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.25D);
+        this.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).setBaseValue(1.0D);
     }
 
+    /**
+     * returns if this entity triggers Block.onEntityWalking on the blocks they walk on. used for spiders and wolves to
+     * prevent them from trampling crops
+     */
     protected boolean canTriggerWalking()
     {
         return false;
@@ -104,7 +108,7 @@ public class EntitySilverfish extends EntityMob
      */
     public boolean attackEntityFrom(DamageSource source, float amount)
     {
-        if (this.isInvulnerableTo(source))
+        if (this.isEntityInvulnerable(source))
         {
             return false;
         }
@@ -128,10 +132,10 @@ public class EntitySilverfish extends EntityMob
     /**
      * Called to update the entity's position/logic.
      */
-    public void tick()
+    public void onUpdate()
     {
         this.renderYawOffset = this.rotationYaw;
-        super.tick();
+        super.onUpdate();
     }
 
     /**
@@ -148,11 +152,17 @@ public class EntitySilverfish extends EntityMob
         return this.world.getBlockState(pos.down()).getBlock() == Blocks.STONE ? 10.0F : super.getBlockPathWeight(pos);
     }
 
+    /**
+     * Checks to make sure the light is not too bright where the mob is spawning
+     */
     protected boolean isValidLightLevel()
     {
         return true;
     }
 
+    /**
+     * Checks if the entity's current position is a valid location to spawn this entity.
+     */
     public boolean getCanSpawnHere()
     {
         if (super.getCanSpawnHere())
@@ -166,6 +176,9 @@ public class EntitySilverfish extends EntityMob
         }
     }
 
+    /**
+     * Get this Entity's EnumCreatureAttribute
+     */
     public EnumCreatureAttribute getCreatureAttribute()
     {
         return EnumCreatureAttribute.ARTHROPOD;
@@ -184,23 +197,23 @@ public class EntitySilverfish extends EntityMob
 
         public boolean shouldExecute()
         {
-            if (this.creature.getAttackTarget() != null)
+            if (this.entity.getAttackTarget() != null)
             {
                 return false;
             }
-            else if (!this.creature.getNavigator().noPath())
+            else if (!this.entity.getNavigator().noPath())
             {
                 return false;
             }
             else
             {
-                Random random = this.creature.getRNG();
+                Random random = this.entity.getRNG();
 
-                if (this.creature.world.getGameRules().getBoolean("mobGriefing") && random.nextInt(10) == 0)
+                if (this.entity.world.getGameRules().getBoolean("mobGriefing") && random.nextInt(10) == 0)
                 {
                     this.facing = EnumFacing.random(random);
-                    BlockPos blockpos = (new BlockPos(this.creature.posX, this.creature.posY + 0.5D, this.creature.posZ)).offset(this.facing);
-                    IBlockState iblockstate = this.creature.world.getBlockState(blockpos);
+                    BlockPos blockpos = (new BlockPos(this.entity.posX, this.entity.posY + 0.5D, this.entity.posZ)).offset(this.facing);
+                    IBlockState iblockstate = this.entity.world.getBlockState(blockpos);
 
                     if (BlockSilverfish.canContainSilverfish(iblockstate))
                     {
@@ -227,15 +240,15 @@ public class EntitySilverfish extends EntityMob
             }
             else
             {
-                World world = this.creature.world;
-                BlockPos blockpos = (new BlockPos(this.creature.posX, this.creature.posY + 0.5D, this.creature.posZ)).offset(this.facing);
+                World world = this.entity.world;
+                BlockPos blockpos = (new BlockPos(this.entity.posX, this.entity.posY + 0.5D, this.entity.posZ)).offset(this.facing);
                 IBlockState iblockstate = world.getBlockState(blockpos);
 
                 if (BlockSilverfish.canContainSilverfish(iblockstate))
                 {
                     world.setBlockState(blockpos, Blocks.MONSTER_EGG.getDefaultState().withProperty(BlockSilverfish.VARIANT, BlockSilverfish.EnumType.forModelBlock(iblockstate)), 3);
-                    this.creature.spawnExplosionParticle();
-                    this.creature.remove();
+                    this.entity.spawnExplosionParticle();
+                    this.entity.setDead();
                 }
             }
         }
@@ -264,7 +277,7 @@ public class EntitySilverfish extends EntityMob
             return this.lookForFriends > 0;
         }
 
-        public void tick()
+        public void updateTask()
         {
             --this.lookForFriends;
 
@@ -291,7 +304,7 @@ public class EntitySilverfish extends EntityMob
                                 }
                                 else
                                 {
-                                    world.setBlockState(blockpos1, ((BlockSilverfish.EnumType)iblockstate.get(BlockSilverfish.VARIANT)).getModelBlock(), 3);
+                                    world.setBlockState(blockpos1, ((BlockSilverfish.EnumType)iblockstate.getValue(BlockSilverfish.VARIANT)).getModelBlock(), 3);
                                 }
 
                                 if (random.nextBoolean())

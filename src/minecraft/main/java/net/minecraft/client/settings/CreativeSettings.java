@@ -40,7 +40,7 @@ public class CreativeSettings
 
             for (int i = 0; i < 9; ++i)
             {
-                this.hotbarSnapshots[i].fromTag(nbttagcompound.getList(String.valueOf(i), 10));
+                this.hotbarSnapshots[i].fromTag(nbttagcompound.getTagList(String.valueOf(i), 10));
             }
         }
         catch (Exception exception)
@@ -49,7 +49,7 @@ public class CreativeSettings
         }
     }
 
-    public void save()
+    public void write()
     {
         try
         {

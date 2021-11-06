@@ -422,7 +422,7 @@ public class JsonUtils
     }
 
     @Nullable
-    public static <T> T fromJson(Gson gsonIn, Reader readerIn, Class<T> adapter, boolean lenient)
+    public static <T> T gsonDeserialize(Gson gsonIn, Reader readerIn, Class<T> adapter, boolean lenient)
     {
         try
         {
@@ -437,13 +437,13 @@ public class JsonUtils
     }
 
     @Nullable
-    public static <T> T fromJson(Gson gson, Reader reader, Type type, boolean lenient)
+    public static <T> T fromJson(Gson gson, Reader p_193838_1_, Type p_193838_2_, boolean p_193838_3_)
     {
         try
         {
-            JsonReader jsonreader = new JsonReader(reader);
-            jsonreader.setLenient(lenient);
-            return (T)gson.getAdapter(TypeToken.get(type)).read(jsonreader);
+            JsonReader jsonreader = new JsonReader(p_193838_1_);
+            jsonreader.setLenient(p_193838_3_);
+            return (T)gson.getAdapter(TypeToken.get(p_193838_2_)).read(jsonreader);
         }
         catch (IOException ioexception)
         {
@@ -452,38 +452,38 @@ public class JsonUtils
     }
 
     @Nullable
-    public static <T> T fromJson(Gson gson, String json, Type type, boolean lenient)
+    public static <T> T fromJson(Gson p_193837_0_, String p_193837_1_, Type p_193837_2_, boolean p_193837_3_)
     {
-        return (T)fromJson(gson, new StringReader(json), type, lenient);
+        return (T)fromJson(p_193837_0_, new StringReader(p_193837_1_), p_193837_2_, p_193837_3_);
     }
 
     @Nullable
-    public static <T> T fromJson(Gson gsonIn, String json, Class<T> adapter, boolean lenient)
+    public static <T> T gsonDeserialize(Gson gsonIn, String json, Class<T> adapter, boolean lenient)
     {
-        return (T)fromJson(gsonIn, new StringReader(json), adapter, lenient);
+        return (T)gsonDeserialize(gsonIn, new StringReader(json), adapter, lenient);
     }
 
     @Nullable
-    public static <T> T fromJson(Gson gson, Reader reader, Type type)
+    public static <T> T fromJson(Gson p_193841_0_, Reader p_193841_1_, Type p_193841_2_)
     {
-        return (T)fromJson(gson, reader, type, false);
+        return (T)fromJson(p_193841_0_, p_193841_1_, p_193841_2_, false);
     }
 
     @Nullable
-    public static <T> T fromJson(Gson gson, String json, Type type)
+    public static <T> T gsonDeserialize(Gson p_193840_0_, String p_193840_1_, Type p_193840_2_)
     {
-        return (T)fromJson(gson, json, type, false);
+        return (T)fromJson(p_193840_0_, p_193840_1_, p_193840_2_, false);
     }
 
     @Nullable
     public static <T> T fromJson(Gson gson, Reader reader, Class<T> jsonClass)
     {
-        return (T)fromJson(gson, reader, jsonClass, false);
+        return (T)gsonDeserialize(gson, reader, jsonClass, false);
     }
 
     @Nullable
-    public static <T> T fromJson(Gson gsonIn, String json, Class<T> adapter)
+    public static <T> T gsonDeserialize(Gson gsonIn, String json, Class<T> adapter)
     {
-        return (T)fromJson(gsonIn, json, adapter, false);
+        return (T)gsonDeserialize(gsonIn, json, adapter, false);
     }
 }

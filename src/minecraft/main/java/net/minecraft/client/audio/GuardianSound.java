@@ -17,13 +17,16 @@ public class GuardianSound extends MovingSound
         this.repeatDelay = 0;
     }
 
-    public void tick()
+    /**
+     * Like the old updateEntity(), except more generic.
+     */
+    public void update()
     {
-        if (!this.guardian.removed && this.guardian.hasTargetedEntity())
+        if (!this.guardian.isDead && this.guardian.hasTargetedEntity())
         {
-            this.x = (float)this.guardian.posX;
-            this.y = (float)this.guardian.posY;
-            this.z = (float)this.guardian.posZ;
+            this.xPosF = (float)this.guardian.posX;
+            this.yPosF = (float)this.guardian.posY;
+            this.zPosF = (float)this.guardian.posZ;
             float f = this.guardian.getAttackAnimationScale(0.0F);
             this.volume = 0.0F + 1.0F * f * f;
             this.pitch = 0.7F + 0.5F * f;

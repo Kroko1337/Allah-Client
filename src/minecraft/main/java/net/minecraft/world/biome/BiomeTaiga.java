@@ -60,6 +60,9 @@ public class BiomeTaiga extends Biome
         }
     }
 
+    /**
+     * Gets a WorldGen appropriate for this biome.
+     */
     public WorldGenerator getRandomWorldGenForGrass(Random rand)
     {
         return rand.nextInt(5) > 0 ? new WorldGenTallGrass(BlockTallGrass.EnumType.FERN) : new WorldGenTallGrass(BlockTallGrass.EnumType.GRASS);

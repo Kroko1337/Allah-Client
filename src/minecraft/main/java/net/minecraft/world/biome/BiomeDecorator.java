@@ -28,9 +28,17 @@ public class BiomeDecorator
     protected boolean decorating;
     protected BlockPos chunkPos;
     protected ChunkGeneratorSettings chunkProviderSettings;
+
+    /** The clay generator. */
     protected WorldGenerator clayGen = new WorldGenClay(4);
+
+    /** The sand generator. */
     protected WorldGenerator sandGen = new WorldGenSand(Blocks.SAND, 7);
+
+    /** The gravel generator. */
     protected WorldGenerator gravelGen = new WorldGenSand(Blocks.GRAVEL, 6);
+
+    /** The dirt generator. */
     protected WorldGenerator dirtGen;
     protected WorldGenerator gravelOreGen;
     protected WorldGenerator graniteGen;
@@ -38,30 +46,90 @@ public class BiomeDecorator
     protected WorldGenerator andesiteGen;
     protected WorldGenerator coalGen;
     protected WorldGenerator ironGen;
+
+    /** Field that holds gold WorldGenMinable */
     protected WorldGenerator goldGen;
     protected WorldGenerator redstoneGen;
     protected WorldGenerator diamondGen;
+
+    /** Field that holds Lapis WorldGenMinable */
     protected WorldGenerator lapisGen;
     protected WorldGenFlowers flowerGen = new WorldGenFlowers(Blocks.YELLOW_FLOWER, BlockFlower.EnumFlowerType.DANDELION);
+
+    /** Field that holds mushroomBrown WorldGenFlowers */
     protected WorldGenerator mushroomBrownGen = new WorldGenBush(Blocks.BROWN_MUSHROOM);
+
+    /** Field that holds mushroomRed WorldGenFlowers */
     protected WorldGenerator mushroomRedGen = new WorldGenBush(Blocks.RED_MUSHROOM);
+
+    /** Field that holds big mushroom generator */
     protected WorldGenerator bigMushroomGen = new WorldGenBigMushroom();
+
+    /** Field that holds WorldGenReed */
     protected WorldGenerator reedGen = new WorldGenReed();
+
+    /** Field that holds WorldGenCactus */
     protected WorldGenerator cactusGen = new WorldGenCactus();
+
+    /** The water lily generation! */
     protected WorldGenerator waterlilyGen = new WorldGenWaterlily();
+
+    /** Amount of waterlilys per chunk. */
     protected int waterlilyPerChunk;
+
+    /**
+     * The number of trees to attempt to generate per chunk. Up to 10 in forests, none in deserts.
+     */
     protected int treesPerChunk;
     protected float extraTreeChance = 0.1F;
+
+    /**
+     * The number of yellow flower patches to generate per chunk. The game generates much less than this number, since
+     * it attempts to generate them at a random altitude.
+     */
     protected int flowersPerChunk = 2;
+
+    /** The amount of tall grass to generate per chunk. */
     protected int grassPerChunk = 1;
+
+    /**
+     * The number of dead bushes to generate per chunk. Used in deserts and swamps.
+     */
     protected int deadBushPerChunk;
+
+    /**
+     * The number of extra mushroom patches per chunk. It generates 1/4 this number in brown mushroom patches, and 1/8
+     * this number in red mushroom patches. These mushrooms go beyond the default base number of mushrooms.
+     */
     protected int mushroomsPerChunk;
+
+    /**
+     * The number of reeds to generate per chunk. Reeds won't generate if the randomly selected placement is unsuitable.
+     */
     protected int reedsPerChunk;
+
+    /**
+     * The number of cactus plants to generate per chunk. Cacti only work on sand.
+     */
     protected int cactiPerChunk;
+
+    /** The number of gravel patches to generate per chunk. */
     protected int gravelPatchesPerChunk = 1;
+
+    /**
+     * The number of sand patches to generate per chunk. Sand patches only generate when part of it is underwater.
+     */
     protected int sandPatchesPerChunk = 3;
+
+    /**
+     * The number of clay patches to generate per chunk. Only generates when part of it is underwater.
+     */
     protected int clayPerChunk = 1;
+
+    /** Amount of big mushrooms per chunk */
     protected int bigMushroomsPerChunk;
+
+    /** True if decorator should generate surface lava & water */
     public boolean generateFalls = true;
 
     public void decorate(World worldIn, Random random, Biome biome, BlockPos pos)
@@ -346,6 +414,9 @@ public class BiomeDecorator
         }
     }
 
+    /**
+     * Generates ores in the current chunk
+     */
     protected void generateOres(World worldIn, Random random)
     {
         this.genStandardOre1(worldIn, random, this.chunkProviderSettings.dirtCount, this.dirtGen, this.chunkProviderSettings.dirtMinHeight, this.chunkProviderSettings.dirtMaxHeight);
@@ -361,6 +432,11 @@ public class BiomeDecorator
         this.genStandardOre2(worldIn, random, this.chunkProviderSettings.lapisCount, this.lapisGen, this.chunkProviderSettings.lapisCenterHeight, this.chunkProviderSettings.lapisSpread);
     }
 
+    /**
+     * Standard ore generation helper. Vanilla uses this to generate most ores.
+     * The main difference between this and {@link #genStandardOre2} is that this takes min and max heights, while
+     * genStandardOre2 takes center and spread.
+     */
     protected void genStandardOre1(World worldIn, Random random, int blockCount, WorldGenerator generator, int minHeight, int maxHeight)
     {
         if (maxHeight < minHeight)
@@ -388,6 +464,11 @@ public class BiomeDecorator
         }
     }
 
+    /**
+     * Standard ore generation helper. Vanilla uses this to generate Lapis Lazuli.
+     * The main difference between this and {@link #genStandardOre1} is that this takes takes center and spread, while
+     * genStandardOre1 takes min and max heights.
+     */
     protected void genStandardOre2(World worldIn, Random random, int blockCount, WorldGenerator generator, int centerHeight, int spread)
     {
         for (int i = 0; i < blockCount; ++i)

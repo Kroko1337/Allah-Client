@@ -21,7 +21,7 @@ public class BlockFaceUV
         this.rotation = rotationIn;
     }
 
-    public float getVertexU(int indexIn)
+    public float getVertexU(int p_178348_1_)
     {
         if (this.uvs == null)
         {
@@ -29,12 +29,12 @@ public class BlockFaceUV
         }
         else
         {
-            int i = this.getVertexRotated(indexIn);
+            int i = this.getVertexRotated(p_178348_1_);
             return i != 0 && i != 1 ? this.uvs[2] : this.uvs[0];
         }
     }
 
-    public float getVertexV(int indexIn)
+    public float getVertexV(int p_178346_1_)
     {
         if (this.uvs == null)
         {
@@ -42,19 +42,19 @@ public class BlockFaceUV
         }
         else
         {
-            int i = this.getVertexRotated(indexIn);
+            int i = this.getVertexRotated(p_178346_1_);
             return i != 0 && i != 3 ? this.uvs[3] : this.uvs[1];
         }
     }
 
-    private int getVertexRotated(int indexIn)
+    private int getVertexRotated(int p_178347_1_)
     {
-        return (indexIn + this.rotation / 90) % 4;
+        return (p_178347_1_ + this.rotation / 90) % 4;
     }
 
-    public int getVertexRotatedRev(int indexIn)
+    public int getVertexRotatedRev(int p_178345_1_)
     {
-        return (indexIn + (4 - this.rotation / 90)) % 4;
+        return (p_178345_1_ + (4 - this.rotation / 90)) % 4;
     }
 
     public void setUvs(float[] uvsIn)

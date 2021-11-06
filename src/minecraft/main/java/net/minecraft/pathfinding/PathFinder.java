@@ -10,8 +10,11 @@ import net.minecraft.world.IBlockAccess;
 
 public class PathFinder
 {
+    /** The path being generated */
     private final PathHeap path = new PathHeap();
     private final Set<PathPoint> closedSet = Sets.<PathPoint>newHashSet();
+
+    /** Selection of path points to add to the path */
     private final PathPoint[] pathOptions = new PathPoint[32];
     private final NodeProcessor nodeProcessor;
 
@@ -23,7 +26,7 @@ public class PathFinder
     @Nullable
     public Path findPath(IBlockAccess worldIn, EntityLiving entitylivingIn, Entity targetEntity, float maxDistance)
     {
-        return this.findPath(worldIn, entitylivingIn, targetEntity.posX, targetEntity.getBoundingBox().minY, targetEntity.posZ, maxDistance);
+        return this.findPath(worldIn, entitylivingIn, targetEntity.posX, targetEntity.getEntityBoundingBox().minY, targetEntity.posZ, maxDistance);
     }
 
     @Nullable
@@ -119,6 +122,9 @@ public class PathFinder
         }
     }
 
+    /**
+     * Returns a new PathEntity for a given start and end point
+     */
     private Path createPath(PathPoint start, PathPoint end)
     {
         int i = 1;

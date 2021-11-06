@@ -128,9 +128,9 @@ public class NetHandlerPlayServer implements INetHandlerPlayServer, ITickable
     private final MinecraftServer server;
     public EntityPlayerMP player;
     private int networkTickCount;
-    private long keepAliveTime;
-    private boolean keepAlivePending;
-    private long keepAliveKey;
+    private long field_194402_f;
+    private boolean field_194403_g;
+    private long field_194404_h;
 
     /**
      * Incremented by 20 each time a user sends a chat message, decreased by one every tick. Non-ops kicked when over
@@ -163,6 +163,10 @@ public class NetHandlerPlayServer implements INetHandlerPlayServer, ITickable
      */
     private int floatingTickCount;
     private boolean vehicleFloating;
+
+    /**
+     * Used to keep track of how long the player is floating in a vehicle. Surpassing 80 means a kick
+     */
     private int vehicleFloatingTickCount;
     private int movePacketCounter;
     private int lastMovePacketCounter;
@@ -177,10 +181,13 @@ public class NetHandlerPlayServer implements INetHandlerPlayServer, ITickable
         playerIn.connection = this;
     }
 
-    public void tick()
+    /**
+     * Like the old updateEntity(), except more generic.
+     */
+    public void update()
     {
         this.captureCurrentPosition();
-        this.player.playerTick();
+        this.player.onUpdateEntity();
         this.player.setPositionAndRotation(this.firstGoodX, this.firstGoodY, this.firstGoodZ, this.player.rotationYaw, this.player.rotationPitch);
         ++this.networkTickCount;
         this.lastMovePacketCounter = this.movePacketCounter;
@@ -236,18 +243,18 @@ public class NetHandlerPlayServer implements INetHandlerPlayServer, ITickable
         this.server.profiler.startSection("keepAlive");
         long i = this.currentTimeMillis();
 
-        if (i - this.keepAliveTime >= 15000L)
+        if (i - this.field_194402_f >= 15000L)
         {
-            if (this.keepAlivePending)
+            if (this.field_194403_g)
             {
                 this.disconnect(new TextComponentTranslation("disconnect.timeout", new Object[0]));
             }
             else
             {
-                this.keepAlivePending = true;
-                this.keepAliveTime = i;
-                this.keepAliveKey = i;
-                this.sendPacket(new SPacketKeepAlive(this.keepAliveKey));
+                this.field_194403_g = true;
+                this.field_194402_f = i;
+                this.field_194404_h = i;
+                this.sendPacket(new SPacketKeepAlive(this.field_194404_h));
             }
         }
 
@@ -369,7 +376,7 @@ public class NetHandlerPlayServer implements INetHandlerPlayServer, ITickable
                     return;
                 }
 
-                boolean flag = worldserver.getCollisionBoxes(entity, entity.getBoundingBox().shrink(0.0625D)).isEmpty();
+                boolean flag = worldserver.getCollisionBoxes(entity, entity.getEntityBoundingBox().shrink(0.0625D)).isEmpty();
                 d6 = d3 - this.lowestRiddenX1;
                 d7 = d4 - this.lowestRiddenY1 - 1.0E-6D;
                 d8 = d5 - this.lowestRiddenZ1;
@@ -394,7 +401,7 @@ public class NetHandlerPlayServer implements INetHandlerPlayServer, ITickable
                 }
 
                 entity.setPositionAndRotation(d3, d4, d5, f, f1);
-                boolean flag2 = worldserver.getCollisionBoxes(entity, entity.getBoundingBox().shrink(0.0625D)).isEmpty();
+                boolean flag2 = worldserver.getCollisionBoxes(entity, entity.getEntityBoundingBox().shrink(0.0625D)).isEmpty();
 
                 if (flag && (flag1 || !flag2))
                 {
@@ -405,7 +412,7 @@ public class NetHandlerPlayServer implements INetHandlerPlayServer, ITickable
 
                 this.server.getPlayerList().serverUpdateMovingPlayer(this.player);
                 this.player.addMovementStat(this.player.posX - d0, this.player.posY - d1, this.player.posZ - d2);
-                this.vehicleFloating = d11 >= -0.03125D && !this.server.isFlightAllowed() && !worldserver.checkBlockCollision(entity.getBoundingBox().grow(0.0625D).expand(0.0D, -0.55D, 0.0D));
+                this.vehicleFloating = d11 >= -0.03125D && !this.server.isFlightAllowed() && !worldserver.checkBlockCollision(entity.getEntityBoundingBox().grow(0.0625D).expand(0.0D, -0.55D, 0.0D));
                 this.lowestRiddenX1 = entity.posX;
                 this.lowestRiddenY1 = entity.posY;
                 this.lowestRiddenZ1 = entity.posZ;
@@ -433,28 +440,28 @@ public class NetHandlerPlayServer implements INetHandlerPlayServer, ITickable
         }
     }
 
-    public void handleRecipeBookUpdate(CPacketRecipeInfo packetIn)
+    public void handleRecipeBookUpdate(CPacketRecipeInfo p_191984_1_)
     {
-        PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.player.getServerWorld());
+        PacketThreadUtil.checkThreadAndEnqueue(p_191984_1_, this, this.player.getServerWorld());
 
-        if (packetIn.getPurpose() == CPacketRecipeInfo.Purpose.SHOWN)
+        if (p_191984_1_.getPurpose() == CPacketRecipeInfo.Purpose.SHOWN)
         {
-            this.player.getRecipeBook().markSeen(packetIn.getRecipe());
+            this.player.getRecipeBook().markSeen(p_191984_1_.getRecipe());
         }
-        else if (packetIn.getPurpose() == CPacketRecipeInfo.Purpose.SETTINGS)
+        else if (p_191984_1_.getPurpose() == CPacketRecipeInfo.Purpose.SETTINGS)
         {
-            this.player.getRecipeBook().setGuiOpen(packetIn.isGuiOpen());
-            this.player.getRecipeBook().setFilteringCraftable(packetIn.isFilteringCraftable());
+            this.player.getRecipeBook().setGuiOpen(p_191984_1_.isGuiOpen());
+            this.player.getRecipeBook().setFilteringCraftable(p_191984_1_.isFilteringCraftable());
         }
     }
 
-    public void handleSeenAdvancements(CPacketSeenAdvancements packetIn)
+    public void handleSeenAdvancements(CPacketSeenAdvancements p_194027_1_)
     {
-        PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.player.getServerWorld());
+        PacketThreadUtil.checkThreadAndEnqueue(p_194027_1_, this, this.player.getServerWorld());
 
-        if (packetIn.getAction() == CPacketSeenAdvancements.Action.OPENED_TAB)
+        if (p_194027_1_.getAction() == CPacketSeenAdvancements.Action.OPENED_TAB)
         {
-            ResourceLocation resourcelocation = packetIn.getTab();
+            ResourceLocation resourcelocation = p_194027_1_.getTab();
             Advancement advancement = this.server.getAdvancementManager().getAdvancement(resourcelocation);
 
             if (advancement != null)
@@ -498,7 +505,7 @@ public class NetHandlerPlayServer implements INetHandlerPlayServer, ITickable
                 {
                     this.lastPositionUpdate = this.networkTickCount;
 
-                    if (this.player.isPassenger())
+                    if (this.player.isRiding())
                     {
                         this.player.setPositionAndRotation(this.player.posX, this.player.posY, this.player.posZ, packetIn.getYaw(this.player.rotationYaw), packetIn.getPitch(this.player.rotationPitch));
                         this.server.getPlayerList().serverUpdateMovingPlayer(this.player);
@@ -520,7 +527,7 @@ public class NetHandlerPlayServer implements INetHandlerPlayServer, ITickable
                         double d10 = this.player.motionX * this.player.motionX + this.player.motionY * this.player.motionY + this.player.motionZ * this.player.motionZ;
                         double d11 = d7 * d7 + d8 * d8 + d9 * d9;
 
-                        if (this.player.isSleeping())
+                        if (this.player.isPlayerSleeping())
                         {
                             if (d11 > 1.0D)
                             {
@@ -550,7 +557,7 @@ public class NetHandlerPlayServer implements INetHandlerPlayServer, ITickable
                                 }
                             }
 
-                            boolean flag2 = worldserver.getCollisionBoxes(this.player, this.player.getBoundingBox().shrink(0.0625D)).isEmpty();
+                            boolean flag2 = worldserver.getCollisionBoxes(this.player, this.player.getEntityBoundingBox().shrink(0.0625D)).isEmpty();
                             d7 = d4 - this.lastGoodX;
                             d8 = d5 - this.lastGoodY;
                             d9 = d6 - this.lastGoodZ;
@@ -575,7 +582,7 @@ public class NetHandlerPlayServer implements INetHandlerPlayServer, ITickable
                             d11 = d7 * d7 + d8 * d8 + d9 * d9;
                             boolean flag = false;
 
-                            if (!this.player.isInvulnerableDimensionChange() && d11 > 0.0625D && !this.player.isSleeping() && !this.player.interactionManager.isCreative() && this.player.interactionManager.getGameType() != GameType.SPECTATOR)
+                            if (!this.player.isInvulnerableDimensionChange() && d11 > 0.0625D && !this.player.isPlayerSleeping() && !this.player.interactionManager.isCreative() && this.player.interactionManager.getGameType() != GameType.SPECTATOR)
                             {
                                 flag = true;
                                 LOGGER.warn("{} moved wrongly!", (Object)this.player.getName());
@@ -584,9 +591,9 @@ public class NetHandlerPlayServer implements INetHandlerPlayServer, ITickable
                             this.player.setPositionAndRotation(d4, d5, d6, f, f1);
                             this.player.addMovementStat(this.player.posX - d0, this.player.posY - d1, this.player.posZ - d2);
 
-                            if (!this.player.noClip && !this.player.isSleeping())
+                            if (!this.player.noClip && !this.player.isPlayerSleeping())
                             {
-                                boolean flag1 = worldserver.getCollisionBoxes(this.player, this.player.getBoundingBox().shrink(0.0625D)).isEmpty();
+                                boolean flag1 = worldserver.getCollisionBoxes(this.player, this.player.getEntityBoundingBox().shrink(0.0625D)).isEmpty();
 
                                 if (flag2 && (flag || !flag1))
                                 {
@@ -596,8 +603,8 @@ public class NetHandlerPlayServer implements INetHandlerPlayServer, ITickable
                             }
 
                             this.floating = d12 >= -0.03125D;
-                            this.floating &= !this.server.isFlightAllowed() && !this.player.abilities.allowFlying;
-                            this.floating &= !this.player.isPotionActive(MobEffects.LEVITATION) && !this.player.isElytraFlying() && !worldserver.checkBlockCollision(this.player.getBoundingBox().grow(0.0625D).expand(0.0D, -0.55D, 0.0D));
+                            this.floating &= !this.server.isFlightAllowed() && !this.player.capabilities.allowFlying;
+                            this.floating &= !this.player.isPotionActive(MobEffects.LEVITATION) && !this.player.isElytraFlying() && !worldserver.checkBlockCollision(this.player.getEntityBoundingBox().grow(0.0625D).expand(0.0D, -0.55D, 0.0D));
                             this.player.onGround = packetIn.isOnGround();
                             this.server.getPlayerList().serverUpdateMovingPlayer(this.player);
                             this.player.handleFalling(this.player.posY - d3, packetIn.isOnGround());
@@ -813,7 +820,7 @@ public class NetHandlerPlayServer implements INetHandlerPlayServer, ITickable
             if (entity != null)
             {
                 this.player.setSpectatingEntity(this.player);
-                this.player.stopRiding();
+                this.player.dismountRidingEntity();
 
                 if (entity.world == this.player.world)
                 {
@@ -824,16 +831,16 @@ public class NetHandlerPlayServer implements INetHandlerPlayServer, ITickable
                     WorldServer worldserver1 = this.player.getServerWorld();
                     WorldServer worldserver2 = (WorldServer)entity.world;
                     this.player.dimension = entity.dimension;
-                    this.sendPacket(new SPacketRespawn(this.player.dimension, worldserver1.getDifficulty(), worldserver1.getWorldInfo().getGenerator(), this.player.interactionManager.getGameType()));
+                    this.sendPacket(new SPacketRespawn(this.player.dimension, worldserver1.getDifficulty(), worldserver1.getWorldInfo().getTerrainType(), this.player.interactionManager.getGameType()));
                     this.server.getPlayerList().updatePermissionLevel(this.player);
                     worldserver1.removeEntityDangerously(this.player);
-                    this.player.removed = false;
+                    this.player.isDead = false;
                     this.player.setLocationAndAngles(entity.posX, entity.posY, entity.posZ, entity.rotationYaw, entity.rotationPitch);
 
-                    if (this.player.isAlive())
+                    if (this.player.isEntityAlive())
                     {
                         worldserver1.updateEntityWithOptionalForce(this.player, false);
-                        worldserver2.addEntity0(this.player);
+                        worldserver2.spawnEntity(this.player);
                         worldserver2.updateEntityWithOptionalForce(this.player, false);
                     }
 
@@ -841,8 +848,8 @@ public class NetHandlerPlayServer implements INetHandlerPlayServer, ITickable
                     this.server.getPlayerList().preparePlayer(this.player, worldserver1);
                     this.player.setPositionAndUpdate(entity.posX, entity.posY, entity.posZ);
                     this.player.interactionManager.setWorld(worldserver2);
-                    this.server.getPlayerList().sendWorldInfo(this.player, worldserver2);
-                    this.server.getPlayerList().sendInventory(this.player);
+                    this.server.getPlayerList().updateTimeAndWeatherForPlayer(this.player, worldserver2);
+                    this.server.getPlayerList().syncPlayerInventory(this.player);
                 }
             }
         }
@@ -873,7 +880,7 @@ public class NetHandlerPlayServer implements INetHandlerPlayServer, ITickable
         TextComponentTranslation textcomponenttranslation = new TextComponentTranslation("multiplayer.player.left", new Object[] {this.player.getDisplayName()});
         textcomponenttranslation.getStyle().setColor(TextFormatting.YELLOW);
         this.server.getPlayerList().sendMessage(textcomponenttranslation);
-        this.player.disconnect();
+        this.player.mountEntityAndWakeUp();
         this.server.getPlayerList().playerLoggedOut(this.player);
 
         if (this.server.isSinglePlayer() && this.player.getName().equals(this.server.getServerOwner()))
@@ -1028,7 +1035,7 @@ public class NetHandlerPlayServer implements INetHandlerPlayServer, ITickable
                 break;
 
             case STOP_SLEEPING:
-                if (this.player.isSleeping())
+                if (this.player.isPlayerSleeping())
                 {
                     this.player.wakeUpPlayer(false, true, true);
                     this.targetPos = new Vec3d(this.player.posX, this.player.posY, this.player.posZ);
@@ -1174,7 +1181,7 @@ public class NetHandlerPlayServer implements INetHandlerPlayServer, ITickable
                 break;
 
             case REQUEST_STATS:
-                this.player.getStats().sendStats(this.player);
+                this.player.getStatFile().sendStats(this.player);
         }
     }
 
@@ -1242,14 +1249,14 @@ public class NetHandlerPlayServer implements INetHandlerPlayServer, ITickable
         }
     }
 
-    public void processPlaceRecipe(CPacketPlaceRecipe packetIn)
+    public void func_194308_a(CPacketPlaceRecipe p_194308_1_)
     {
-        PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.player.getServerWorld());
+        PacketThreadUtil.checkThreadAndEnqueue(p_194308_1_, this, this.player.getServerWorld());
         this.player.markPlayerActive();
 
-        if (!this.player.isSpectator() && this.player.openContainer.windowId == packetIn.getWindowId() && this.player.openContainer.getCanCraft(this.player))
+        if (!this.player.isSpectator() && this.player.openContainer.windowId == p_194308_1_.func_194318_a() && this.player.openContainer.getCanCraft(this.player))
         {
-            this.field_194309_H.place(this.player, packetIn.func_194317_b(), packetIn.shouldPlaceAll());
+            this.field_194309_H.func_194327_a(this.player, p_194308_1_.func_194317_b(), p_194308_1_.func_194319_c());
         }
     }
 
@@ -1281,21 +1288,21 @@ public class NetHandlerPlayServer implements INetHandlerPlayServer, ITickable
             boolean flag = packetIn.getSlotId() < 0;
             ItemStack itemstack = packetIn.getStack();
 
-            if (!itemstack.isEmpty() && itemstack.hasTag() && itemstack.getTag().contains("BlockEntityTag", 10))
+            if (!itemstack.isEmpty() && itemstack.hasTagCompound() && itemstack.getTagCompound().hasKey("BlockEntityTag", 10))
             {
-                NBTTagCompound nbttagcompound = itemstack.getTag().getCompound("BlockEntityTag");
+                NBTTagCompound nbttagcompound = itemstack.getTagCompound().getCompoundTag("BlockEntityTag");
 
-                if (nbttagcompound.contains("x") && nbttagcompound.contains("y") && nbttagcompound.contains("z"))
+                if (nbttagcompound.hasKey("x") && nbttagcompound.hasKey("y") && nbttagcompound.hasKey("z"))
                 {
-                    BlockPos blockpos = new BlockPos(nbttagcompound.getInt("x"), nbttagcompound.getInt("y"), nbttagcompound.getInt("z"));
+                    BlockPos blockpos = new BlockPos(nbttagcompound.getInteger("x"), nbttagcompound.getInteger("y"), nbttagcompound.getInteger("z"));
                     TileEntity tileentity = this.player.world.getTileEntity(blockpos);
 
                     if (tileentity != null)
                     {
-                        NBTTagCompound nbttagcompound1 = tileentity.write(new NBTTagCompound());
-                        nbttagcompound1.remove("x");
-                        nbttagcompound1.remove("y");
-                        nbttagcompound1.remove("z");
+                        NBTTagCompound nbttagcompound1 = tileentity.writeToNBT(new NBTTagCompound());
+                        nbttagcompound1.removeTag("x");
+                        nbttagcompound1.removeTag("y");
+                        nbttagcompound1.removeTag("z");
                         itemstack.setTagInfo("BlockEntityTag", nbttagcompound1);
                     }
                 }
@@ -1308,14 +1315,14 @@ public class NetHandlerPlayServer implements INetHandlerPlayServer, ITickable
             {
                 if (itemstack.isEmpty())
                 {
-                    this.player.container.putStackInSlot(packetIn.getSlotId(), ItemStack.EMPTY);
+                    this.player.inventoryContainer.putStackInSlot(packetIn.getSlotId(), ItemStack.EMPTY);
                 }
                 else
                 {
-                    this.player.container.putStackInSlot(packetIn.getSlotId(), itemstack);
+                    this.player.inventoryContainer.putStackInSlot(packetIn.getSlotId(), itemstack);
                 }
 
-                this.player.container.setCanCraft(this.player, true);
+                this.player.inventoryContainer.setCanCraft(this.player, true);
             }
             else if (flag && flag2 && this.itemDropThreshold < 200)
             {
@@ -1388,11 +1395,11 @@ public class NetHandlerPlayServer implements INetHandlerPlayServer, ITickable
      */
     public void processKeepAlive(CPacketKeepAlive packetIn)
     {
-        if (this.keepAlivePending && packetIn.getKey() == this.keepAliveKey)
+        if (this.field_194403_g && packetIn.getKey() == this.field_194404_h)
         {
-            int i = (int)(this.currentTimeMillis() - this.keepAliveTime);
+            int i = (int)(this.currentTimeMillis() - this.field_194402_f);
             this.player.ping = (this.player.ping * 3 + i) / 4;
-            this.keepAlivePending = false;
+            this.field_194403_g = false;
         }
         else if (!this.player.getName().equals(this.server.getServerOwner()))
         {
@@ -1411,9 +1418,12 @@ public class NetHandlerPlayServer implements INetHandlerPlayServer, ITickable
     public void processPlayerAbilities(CPacketPlayerAbilities packetIn)
     {
         PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.player.getServerWorld());
-        this.player.abilities.isFlying = packetIn.isFlying() && this.player.abilities.allowFlying;
+        this.player.capabilities.isFlying = packetIn.isFlying() && this.player.capabilities.allowFlying;
     }
 
+    /**
+     * Retrieves possible tab completions for the requested command string and sends them to the client
+     */
     public void processTabComplete(CPacketTabComplete packetIn)
     {
         PacketThreadUtil.checkThreadAndEnqueue(packetIn, this, this.player.getServerWorld());
@@ -1458,7 +1468,7 @@ public class NetHandlerPlayServer implements INetHandlerPlayServer, ITickable
                     return;
                 }
 
-                if (!ItemWritableBook.isNBTValid(itemstack.getTag()))
+                if (!ItemWritableBook.isNBTValid(itemstack.getTagCompound()))
                 {
                     throw new IOException("Invalid book tag!");
                 }
@@ -1472,7 +1482,7 @@ public class NetHandlerPlayServer implements INetHandlerPlayServer, ITickable
 
                 if (itemstack.getItem() == Items.WRITABLE_BOOK && itemstack.getItem() == itemstack1.getItem())
                 {
-                    itemstack1.setTagInfo("pages", itemstack.getTag().getList("pages", 8));
+                    itemstack1.setTagInfo("pages", itemstack.getTagCompound().getTagList("pages", 8));
                 }
             }
             catch (Exception exception6)
@@ -1493,7 +1503,7 @@ public class NetHandlerPlayServer implements INetHandlerPlayServer, ITickable
                     return;
                 }
 
-                if (!ItemWrittenBook.validBookTagContents(itemstack3.getTag()))
+                if (!ItemWrittenBook.validBookTagContents(itemstack3.getTagCompound()))
                 {
                     throw new IOException("Invalid book tag!");
                 }
@@ -1509,14 +1519,14 @@ public class NetHandlerPlayServer implements INetHandlerPlayServer, ITickable
                 {
                     ItemStack itemstack2 = new ItemStack(Items.WRITTEN_BOOK);
                     itemstack2.setTagInfo("author", new NBTTagString(this.player.getName()));
-                    itemstack2.setTagInfo("title", new NBTTagString(itemstack3.getTag().getString("title")));
-                    NBTTagList nbttaglist = itemstack3.getTag().getList("pages", 8);
+                    itemstack2.setTagInfo("title", new NBTTagString(itemstack3.getTagCompound().getString("title")));
+                    NBTTagList nbttaglist = itemstack3.getTagCompound().getTagList("pages", 8);
 
                     for (int i = 0; i < nbttaglist.tagCount(); ++i)
                     {
-                        String s1 = nbttaglist.getString(i);
+                        String s1 = nbttaglist.getStringTagAt(i);
                         ITextComponent itextcomponent = new TextComponentString(s1);
-                        s1 = ITextComponent.Serializer.toJson(itextcomponent);
+                        s1 = ITextComponent.Serializer.componentToJson(itextcomponent);
                         nbttaglist.set(i, new NBTTagString(s1));
                     }
 
@@ -1645,7 +1655,7 @@ public class NetHandlerPlayServer implements INetHandlerPlayServer, ITickable
 
                 if (commandblockbaselogic != null)
                 {
-                    EnumFacing enumfacing = (EnumFacing)this.player.world.getBlockState(blockpos1).get(BlockCommandBlock.FACING);
+                    EnumFacing enumfacing = (EnumFacing)this.player.world.getBlockState(blockpos1).getValue(BlockCommandBlock.FACING);
 
                     switch (tileentitycommandblock$mode)
                     {

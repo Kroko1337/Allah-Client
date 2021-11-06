@@ -3,6 +3,8 @@ package net.minecraft.client.renderer.entity.layers;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.RenderWolf;
 import net.minecraft.entity.passive.EntityWolf;
+import net.minecraft.src.Config;
+import net.minecraft.src.CustomColors;
 import net.minecraft.util.ResourceLocation;
 
 public class LayerWolfCollar implements LayerRenderer<EntityWolf>
@@ -21,6 +23,12 @@ public class LayerWolfCollar implements LayerRenderer<EntityWolf>
         {
             this.wolfRenderer.bindTexture(WOLF_COLLAR);
             float[] afloat = entitylivingbaseIn.getCollarColor().getColorComponentValues();
+
+            if (Config.isCustomColors())
+            {
+                afloat = CustomColors.getWolfCollarColors(entitylivingbaseIn.getCollarColor(), afloat);
+            }
+
             GlStateManager.color(afloat[0], afloat[1], afloat[2]);
             this.wolfRenderer.getMainModel().render(entitylivingbaseIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
         }

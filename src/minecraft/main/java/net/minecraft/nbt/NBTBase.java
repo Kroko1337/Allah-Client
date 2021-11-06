@@ -22,6 +22,9 @@ public abstract class NBTBase
      */
     public abstract byte getId();
 
+    /**
+     * Creates a new NBTBase object that corresponds with the passed in id.
+     */
     protected static NBTBase create(byte id)
     {
         switch (id)
@@ -126,6 +129,9 @@ public abstract class NBTBase
      */
     public abstract NBTBase copy();
 
+    /**
+     * Return whether this compound has no tags.
+     */
     public boolean isEmpty()
     {
         return false;

@@ -37,7 +37,7 @@ public class RecipeBookClient extends RecipeBook
 
     private static CreativeTabs getItemStackTab(ItemStack stackIn)
     {
-        CreativeTabs creativetabs = stackIn.getItem().getGroup();
+        CreativeTabs creativetabs = stackIn.getItem().getCreativeTab();
 
         if (creativetabs != CreativeTabs.BUILDING_BLOCKS && creativetabs != CreativeTabs.TOOLS && creativetabs != CreativeTabs.REDSTONE)
         {

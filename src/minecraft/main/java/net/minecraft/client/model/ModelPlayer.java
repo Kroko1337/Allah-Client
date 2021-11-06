@@ -67,6 +67,9 @@ public class ModelPlayer extends ModelBiped
         this.bipedBodyWear.setRotationPoint(0.0F, 0.0F, 0.0F);
     }
 
+    /**
+     * Sets the models various rotation angles then renders the model.
+     */
     public void render(Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale)
     {
         super.render(entityIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
@@ -113,6 +116,11 @@ public class ModelPlayer extends ModelBiped
         this.bipedCape.render(scale);
     }
 
+    /**
+     * Sets the model's various rotation angles. For bipeds, par1 and par2 are used for animating the movement of arms
+     * and legs, where par1 represents the time(so that arms and legs swing back and forth) and par2 represents how
+     * "far" arms and legs can swing at most.
+     */
     public void setRotationAngles(float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scaleFactor, Entity entityIn)
     {
         super.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, entityIn);
@@ -121,15 +129,6 @@ public class ModelPlayer extends ModelBiped
         copyModelAngles(this.bipedLeftArm, this.bipedLeftArmwear);
         copyModelAngles(this.bipedRightArm, this.bipedRightArmwear);
         copyModelAngles(this.bipedBody, this.bipedBodyWear);
-
-        if (entityIn.isSneaking())
-        {
-            this.bipedCape.rotationPointY = 2.0F;
-        }
-        else
-        {
-            this.bipedCape.rotationPointY = 0.0F;
-        }
     }
 
     public void setVisible(boolean visible)

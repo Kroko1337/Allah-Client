@@ -37,6 +37,9 @@ public class ItemBanner extends ItemBlock
         this.setMaxDamage(0);
     }
 
+    /**
+     * Called when a Block is right-clicked with this Item
+     */
     public EnumActionResult onItemUse(EntityPlayer player, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
         IBlockState iblockstate = worldIn.getBlockState(pos);
@@ -104,16 +107,16 @@ public class ItemBanner extends ItemBlock
 
     public static void appendHoverTextFromTileEntityTag(ItemStack stack, List<String> p_185054_1_)
     {
-        NBTTagCompound nbttagcompound = stack.getChildTag("BlockEntityTag");
+        NBTTagCompound nbttagcompound = stack.getSubCompound("BlockEntityTag");
 
-        if (nbttagcompound != null && nbttagcompound.contains("Patterns"))
+        if (nbttagcompound != null && nbttagcompound.hasKey("Patterns"))
         {
-            NBTTagList nbttaglist = nbttagcompound.getList("Patterns", 10);
+            NBTTagList nbttaglist = nbttagcompound.getTagList("Patterns", 10);
 
             for (int i = 0; i < nbttaglist.tagCount() && i < 6; ++i)
             {
-                NBTTagCompound nbttagcompound1 = nbttaglist.getCompound(i);
-                EnumDyeColor enumdyecolor = EnumDyeColor.byDyeDamage(nbttagcompound1.getInt("Color"));
+                NBTTagCompound nbttagcompound1 = nbttaglist.getCompoundTagAt(i);
+                EnumDyeColor enumdyecolor = EnumDyeColor.byDyeDamage(nbttagcompound1.getInteger("Color"));
                 BannerPattern bannerpattern = BannerPattern.byHash(nbttagcompound1.getString("Pattern"));
 
                 if (bannerpattern != null)
@@ -135,9 +138,9 @@ public class ItemBanner extends ItemBlock
     /**
      * returns a list of items with the same ID, but different meta (eg: dye returns 16 items)
      */
-    public void fillItemGroup(CreativeTabs group, NonNullList<ItemStack> items)
+    public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> items)
     {
-        if (this.isInGroup(group))
+        if (this.isInCreativeTab(tab))
         {
             for (EnumDyeColor enumdyecolor : EnumDyeColor.values())
             {
@@ -152,7 +155,7 @@ public class ItemBanner extends ItemBlock
 
         if (patterns != null && !patterns.isEmpty())
         {
-            itemstack.getOrCreateChildTag("BlockEntityTag").setTag("Patterns", patterns.copy());
+            itemstack.getOrCreateSubCompound("BlockEntityTag").setTag("Patterns", patterns.copy());
         }
 
         return itemstack;
@@ -161,7 +164,7 @@ public class ItemBanner extends ItemBlock
     /**
      * gets the CreativeTab this item is displayed on
      */
-    public CreativeTabs getGroup()
+    public CreativeTabs getCreativeTab()
     {
         return CreativeTabs.DECORATIONS;
     }

@@ -36,7 +36,7 @@ public class RenderArmorStand extends RenderLivingBase<EntityArmorStand>
     }
 
     /**
-     * Returns the location of an entity's texture.
+     * Returns the location of an entity's texture. Doesn't seem to be called unless you call Render.bindEntityTexture.
      */
     protected ResourceLocation getEntityTexture(EntityArmorStand entity)
     {
@@ -51,7 +51,7 @@ public class RenderArmorStand extends RenderLivingBase<EntityArmorStand>
     protected void applyRotations(EntityArmorStand entityLiving, float ageInTicks, float rotationYaw, float partialTicks)
     {
         GlStateManager.rotate(180.0F - rotationYaw, 0.0F, 1.0F, 0.0F);
-        float f = (float)(entityLiving.world.getGameTime() - entityLiving.punchCooldown) + partialTicks;
+        float f = (float)(entityLiving.world.getTotalWorldTime() - entityLiving.punchCooldown) + partialTicks;
 
         if (f < 5.0F)
         {
@@ -61,9 +61,12 @@ public class RenderArmorStand extends RenderLivingBase<EntityArmorStand>
 
     protected boolean canRenderName(EntityArmorStand entity)
     {
-        return entity.isCustomNameVisible();
+        return entity.getAlwaysRenderNameTag();
     }
 
+    /**
+     * Renders the desired {@code T} type Entity.
+     */
     public void doRender(EntityArmorStand entity, double x, double y, double z, float entityYaw, float partialTicks)
     {
         if (entity.hasMarker())

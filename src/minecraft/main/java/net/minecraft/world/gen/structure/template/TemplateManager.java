@@ -20,6 +20,10 @@ import org.apache.commons.io.IOUtils;
 public class TemplateManager
 {
     private final Map<String, Template> templates = Maps.<String, Template>newHashMap();
+
+    /**
+     * the folder in the assets folder where the structure templates are found.
+     */
     private final String baseFolder;
     private final DataFixer fixer;
 
@@ -66,6 +70,11 @@ public class TemplateManager
         }
     }
 
+    /**
+     * This reads a structure template from the given location and stores it.
+     * This first attempts get the template from an external folder.
+     * If it isn't there then it attempts to take it from the minecraft jar.
+     */
     public boolean readTemplate(ResourceLocation server)
     {
         String s = server.getPath();
@@ -99,6 +108,9 @@ public class TemplateManager
         }
     }
 
+    /**
+     * reads a template from the minecraft jar
+     */
     private boolean readTemplateFromJar(ResourceLocation id)
     {
         String s = id.getNamespace();
@@ -124,13 +136,16 @@ public class TemplateManager
         return flag;
     }
 
+    /**
+     * reads a template from an inputstream
+     */
     private void readTemplateFromStream(String id, InputStream stream) throws IOException
     {
         NBTTagCompound nbttagcompound = CompressedStreamTools.readCompressed(stream);
 
-        if (!nbttagcompound.contains("DataVersion", 99))
+        if (!nbttagcompound.hasKey("DataVersion", 99))
         {
-            nbttagcompound.putInt("DataVersion", 500);
+            nbttagcompound.setInteger("DataVersion", 500);
         }
 
         Template template = new Template();
@@ -138,6 +153,9 @@ public class TemplateManager
         this.templates.put(id, template);
     }
 
+    /**
+     * writes the template to an external folder
+     */
     public boolean writeTemplate(@Nullable MinecraftServer server, ResourceLocation id)
     {
         String s = id.getPath();

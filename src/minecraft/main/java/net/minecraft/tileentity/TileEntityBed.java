@@ -16,20 +16,20 @@ public class TileEntityBed extends TileEntity
         this.setColor(EnumDyeColor.byMetadata(p_193051_1_.getMetadata()));
     }
 
-    public void read(NBTTagCompound compound)
+    public void readFromNBT(NBTTagCompound compound)
     {
-        super.read(compound);
+        super.readFromNBT(compound);
 
-        if (compound.contains("color"))
+        if (compound.hasKey("color"))
         {
-            this.color = EnumDyeColor.byMetadata(compound.getInt("color"));
+            this.color = EnumDyeColor.byMetadata(compound.getInteger("color"));
         }
     }
 
-    public NBTTagCompound write(NBTTagCompound compound)
+    public NBTTagCompound writeToNBT(NBTTagCompound compound)
     {
-        super.write(compound);
-        compound.putInt("color", this.color.getMetadata());
+        super.writeToNBT(compound);
+        compound.setInteger("color", this.color.getMetadata());
         return compound;
     }
 
@@ -39,7 +39,7 @@ public class TileEntityBed extends TileEntity
      */
     public NBTTagCompound getUpdateTag()
     {
-        return this.write(new NBTTagCompound());
+        return this.writeToNBT(new NBTTagCompound());
     }
 
     /**

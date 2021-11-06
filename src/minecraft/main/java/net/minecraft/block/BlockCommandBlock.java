@@ -37,9 +37,12 @@ public class BlockCommandBlock extends BlockContainer
     public BlockCommandBlock(MapColor color)
     {
         super(Material.IRON, color);
-        this.setDefaultState(this.stateContainer.getBaseState().withProperty(FACING, EnumFacing.NORTH).withProperty(CONDITIONAL, Boolean.valueOf(false)));
+        this.setDefaultState(this.blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH).withProperty(CONDITIONAL, Boolean.valueOf(false)));
     }
 
+    /**
+     * Returns a new instance of a block's tile entity class. Called on placing the block.
+     */
     public TileEntity createNewTileEntity(World worldIn, int meta)
     {
         TileEntityCommandBlock tileentitycommandblock = new TileEntityCommandBlock();
@@ -47,6 +50,11 @@ public class BlockCommandBlock extends BlockContainer
         return tileentitycommandblock;
     }
 
+    /**
+     * Called when a neighboring block was changed and marks that this state should perform any checks during a neighbor
+     * change. Cases may include when redstone power is updated, cactus blocks popping off due to a neighboring solid
+     * block, etc.
+     */
     public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos)
     {
         if (!worldIn.isRemote)
@@ -132,7 +140,7 @@ public class BlockCommandBlock extends BlockContainer
             p_193387_4_.setSuccessCount(0);
         }
 
-        executeChain(p_193387_2_, p_193387_3_, (EnumFacing)p_193387_1_.get(FACING));
+        executeChain(p_193387_2_, p_193387_3_, (EnumFacing)p_193387_1_.getValue(FACING));
     }
 
     /**
@@ -143,13 +151,16 @@ public class BlockCommandBlock extends BlockContainer
         return 1;
     }
 
+    /**
+     * Called when the block is right clicked by a player.
+     */
     public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
         TileEntity tileentity = worldIn.getTileEntity(pos);
 
         if (tileentity instanceof TileEntityCommandBlock && playerIn.canUseCommandBlock())
         {
-            playerIn.openCommandBlock((TileEntityCommandBlock)tileentity);
+            playerIn.displayGuiCommandBlock((TileEntityCommandBlock)tileentity);
             return true;
         }
         else
@@ -196,9 +207,9 @@ public class BlockCommandBlock extends BlockContainer
 
             if (!worldIn.isRemote)
             {
-                NBTTagCompound nbttagcompound = stack.getTag();
+                NBTTagCompound nbttagcompound = stack.getTagCompound();
 
-                if (nbttagcompound == null || !nbttagcompound.contains("BlockEntityTag", 10))
+                if (nbttagcompound == null || !nbttagcompound.hasKey("BlockEntityTag", 10))
                 {
                     commandblockbaselogic.setTrackOutput(worldIn.getGameRules().getBoolean("sendCommandFeedback"));
                     tileentitycommandblock.setAuto(this == Blocks.CHAIN_COMMAND_BLOCK);
@@ -213,6 +224,9 @@ public class BlockCommandBlock extends BlockContainer
         }
     }
 
+    /**
+     * Returns the quantity of items to drop on block destruction.
+     */
     public int quantityDropped(Random random)
     {
         return 0;
@@ -228,14 +242,20 @@ public class BlockCommandBlock extends BlockContainer
         return EnumBlockRenderType.MODEL;
     }
 
+    /**
+     * Convert the given metadata into a BlockState for this Block
+     */
     public IBlockState getStateFromMeta(int meta)
     {
         return this.getDefaultState().withProperty(FACING, EnumFacing.byIndex(meta & 7)).withProperty(CONDITIONAL, Boolean.valueOf((meta & 8) != 0));
     }
 
+    /**
+     * Convert the BlockState into the correct metadata value
+     */
     public int getMetaFromState(IBlockState state)
     {
-        return ((EnumFacing)state.get(FACING)).getIndex() | (((Boolean)state.get(CONDITIONAL)).booleanValue() ? 8 : 0);
+        return ((EnumFacing)state.getValue(FACING)).getIndex() | (((Boolean)state.getValue(CONDITIONAL)).booleanValue() ? 8 : 0);
     }
 
     /**
@@ -244,9 +264,9 @@ public class BlockCommandBlock extends BlockContainer
      * @deprecated call via {@link IBlockState#withRotation(Rotation)} whenever possible. Implementing/overriding is
      * fine.
      */
-    public IBlockState rotate(IBlockState state, Rotation rot)
+    public IBlockState withRotation(IBlockState state, Rotation rot)
     {
-        return state.withProperty(FACING, rot.rotate((EnumFacing)state.get(FACING)));
+        return state.withProperty(FACING, rot.rotate((EnumFacing)state.getValue(FACING)));
     }
 
     /**
@@ -254,9 +274,9 @@ public class BlockCommandBlock extends BlockContainer
      * blockstate.
      * @deprecated call via {@link IBlockState#withMirror(Mirror)} whenever possible. Implementing/overriding is fine.
      */
-    public IBlockState mirror(IBlockState state, Mirror mirrorIn)
+    public IBlockState withMirror(IBlockState state, Mirror mirrorIn)
     {
-        return state.rotate(mirrorIn.toRotation((EnumFacing)state.get(FACING)));
+        return state.withRotation(mirrorIn.toRotation((EnumFacing)state.getValue(FACING)));
     }
 
     protected BlockStateContainer createBlockState()
@@ -264,22 +284,26 @@ public class BlockCommandBlock extends BlockContainer
         return new BlockStateContainer(this, new IProperty[] {FACING, CONDITIONAL});
     }
 
+    /**
+     * Called by ItemBlocks just before a block is actually set in the world, to allow for adjustments to the
+     * IBlockstate
+     */
     public IBlockState getStateForPlacement(World worldIn, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer)
     {
         return this.getDefaultState().withProperty(FACING, EnumFacing.getDirectionFromEntityLiving(pos, placer)).withProperty(CONDITIONAL, Boolean.valueOf(false));
     }
 
-    private static void executeChain(World worldIn, BlockPos pos, EnumFacing directionIn)
+    private static void executeChain(World p_193386_0_, BlockPos p_193386_1_, EnumFacing p_193386_2_)
     {
-        BlockPos.MutableBlockPos blockpos$mutableblockpos = new BlockPos.MutableBlockPos(pos);
-        GameRules gamerules = worldIn.getGameRules();
+        BlockPos.MutableBlockPos blockpos$mutableblockpos = new BlockPos.MutableBlockPos(p_193386_1_);
+        GameRules gamerules = p_193386_0_.getGameRules();
         int i;
         IBlockState iblockstate;
 
-        for (i = gamerules.getInt("maxCommandChainLength"); i-- > 0; directionIn = (EnumFacing)iblockstate.get(FACING))
+        for (i = gamerules.getInt("maxCommandChainLength"); i-- > 0; p_193386_2_ = (EnumFacing)iblockstate.getValue(FACING))
         {
-            blockpos$mutableblockpos.move(directionIn);
-            iblockstate = worldIn.getBlockState(blockpos$mutableblockpos);
+            blockpos$mutableblockpos.move(p_193386_2_);
+            iblockstate = p_193386_0_.getBlockState(blockpos$mutableblockpos);
             Block block = iblockstate.getBlock();
 
             if (block != Blocks.CHAIN_COMMAND_BLOCK)
@@ -287,7 +311,7 @@ public class BlockCommandBlock extends BlockContainer
                 break;
             }
 
-            TileEntity tileentity = worldIn.getTileEntity(blockpos$mutableblockpos);
+            TileEntity tileentity = p_193386_0_.getTileEntity(blockpos$mutableblockpos);
 
             if (!(tileentity instanceof TileEntityCommandBlock))
             {
@@ -307,12 +331,12 @@ public class BlockCommandBlock extends BlockContainer
 
                 if (tileentitycommandblock.setConditionMet())
                 {
-                    if (!commandblockbaselogic.trigger(worldIn))
+                    if (!commandblockbaselogic.trigger(p_193386_0_))
                     {
                         break;
                     }
 
-                    worldIn.updateComparatorOutputLevel(blockpos$mutableblockpos, block);
+                    p_193386_0_.updateComparatorOutputLevel(blockpos$mutableblockpos, block);
                 }
                 else if (tileentitycommandblock.isConditional())
                 {

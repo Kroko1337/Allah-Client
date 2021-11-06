@@ -25,6 +25,9 @@ public class BlockWorkbench extends Block
         this.setCreativeTab(CreativeTabs.DECORATIONS);
     }
 
+    /**
+     * Called when the block is right clicked by a player.
+     */
     public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
         if (worldIn.isRemote)
@@ -34,7 +37,7 @@ public class BlockWorkbench extends Block
         else
         {
             playerIn.displayGui(new BlockWorkbench.InterfaceCraftingTable(worldIn, pos));
-            playerIn.addStat(StatList.INTERACT_WITH_CRAFTING_TABLE);
+            playerIn.addStat(StatList.CRAFTING_TABLE_INTERACTION);
             return true;
         }
     }

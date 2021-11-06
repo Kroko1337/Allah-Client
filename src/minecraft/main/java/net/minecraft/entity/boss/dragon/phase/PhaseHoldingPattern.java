@@ -32,7 +32,7 @@ public class PhaseHoldingPattern extends PhaseBase
      * Gives the phase a chance to update its status.
      * Called by dragon's onLivingUpdate. Only used when !worldObj.isRemote.
      */
-    public void serverTick()
+    public void doLocalUpdate()
     {
         double d0 = this.targetLocation == null ? 0.0D : this.targetLocation.squareDistanceTo(this.dragon.posX, this.dragon.posY, this.dragon.posZ);
 
@@ -168,7 +168,7 @@ public class PhaseHoldingPattern extends PhaseBase
 
     public void onCrystalDestroyed(EntityEnderCrystal crystal, BlockPos pos, DamageSource dmgSrc, @Nullable EntityPlayer plyr)
     {
-        if (plyr != null && !plyr.abilities.disableDamage)
+        if (plyr != null && !plyr.capabilities.disableDamage)
         {
             this.strafePlayer(plyr);
         }

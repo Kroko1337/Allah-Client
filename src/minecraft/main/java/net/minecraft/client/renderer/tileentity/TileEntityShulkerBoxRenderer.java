@@ -27,7 +27,7 @@ public class TileEntityShulkerBoxRenderer extends TileEntitySpecialRenderer<Tile
 
             if (iblockstate.getBlock() instanceof BlockShulkerBox)
             {
-                enumfacing = (EnumFacing)iblockstate.get(BlockShulkerBox.FACING);
+                enumfacing = (EnumFacing)iblockstate.getValue(BlockShulkerBox.FACING);
             }
         }
 

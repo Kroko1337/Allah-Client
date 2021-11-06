@@ -81,14 +81,18 @@ public class EntityFallingBlock extends Entity
         return (BlockPos)this.dataManager.get(ORIGIN);
     }
 
+    /**
+     * returns if this entity triggers Block.onEntityWalking on the blocks they walk on. used for spiders and wolves to
+     * prevent them from trampling crops
+     */
     protected boolean canTriggerWalking()
     {
         return false;
     }
 
-    protected void registerData()
+    protected void entityInit()
     {
-        this.dataManager.register(ORIGIN, BlockPos.ZERO);
+        this.dataManager.register(ORIGIN, BlockPos.ORIGIN);
     }
 
     /**
@@ -96,19 +100,19 @@ public class EntityFallingBlock extends Entity
      */
     public boolean canBeCollidedWith()
     {
-        return !this.removed;
+        return !this.isDead;
     }
 
     /**
      * Called to update the entity's position/logic.
      */
-    public void tick()
+    public void onUpdate()
     {
         Block block = this.fallTile.getBlock();
 
         if (this.fallTile.getMaterial() == Material.AIR)
         {
-            this.remove();
+            this.setDead();
         }
         else
         {
@@ -126,7 +130,7 @@ public class EntityFallingBlock extends Entity
                 }
                 else if (!this.world.isRemote)
                 {
-                    this.remove();
+                    this.setDead();
                     return;
                 }
             }
@@ -165,7 +169,7 @@ public class EntityFallingBlock extends Entity
                             this.entityDropItem(new ItemStack(block, 1, block.damageDropped(this.fallTile)), 0.0F);
                         }
 
-                        this.remove();
+                        this.setDead();
                     }
                 }
                 else
@@ -184,7 +188,7 @@ public class EntityFallingBlock extends Entity
 
                     if (iblockstate.getBlock() != Blocks.PISTON_EXTENSION)
                     {
-                        this.remove();
+                        this.setDead();
 
                         if (!this.dontSetBlock)
                         {
@@ -201,11 +205,11 @@ public class EntityFallingBlock extends Entity
 
                                     if (tileentity != null)
                                     {
-                                        NBTTagCompound nbttagcompound = tileentity.write(new NBTTagCompound());
+                                        NBTTagCompound nbttagcompound = tileentity.writeToNBT(new NBTTagCompound());
 
-                                        for (String s : this.tileEntityData.keySet())
+                                        for (String s : this.tileEntityData.getKeySet())
                                         {
-                                            NBTBase nbtbase = this.tileEntityData.get(s);
+                                            NBTBase nbtbase = this.tileEntityData.getTag(s);
 
                                             if (!"x".equals(s) && !"y".equals(s) && !"z".equals(s))
                                             {
@@ -213,7 +217,7 @@ public class EntityFallingBlock extends Entity
                                             }
                                         }
 
-                                        tileentity.read(nbttagcompound);
+                                        tileentity.readFromNBT(nbttagcompound);
                                         tileentity.markDirty();
                                     }
                                 }
@@ -247,7 +251,7 @@ public class EntityFallingBlock extends Entity
 
             if (i > 0)
             {
-                List<Entity> list = Lists.newArrayList(this.world.getEntitiesWithinAABBExcludingEntity(this, this.getBoundingBox()));
+                List<Entity> list = Lists.newArrayList(this.world.getEntitiesWithinAABBExcludingEntity(this, this.getEntityBoundingBox()));
                 boolean flag = block == Blocks.ANVIL;
                 DamageSource damagesource = flag ? DamageSource.ANVIL : DamageSource.FALLING_BLOCK;
 
@@ -258,7 +262,7 @@ public class EntityFallingBlock extends Entity
 
                 if (flag && (double)this.rand.nextFloat() < 0.05000000074505806D + (double)i * 0.05D)
                 {
-                    int j = ((Integer)this.fallTile.get(BlockAnvil.DAMAGE)).intValue();
+                    int j = ((Integer)this.fallTile.getValue(BlockAnvil.DAMAGE)).intValue();
                     ++j;
 
                     if (j > 2)
@@ -278,17 +282,20 @@ public class EntityFallingBlock extends Entity
     {
     }
 
+    /**
+     * (abstract) Protected helper method to write subclass entity data to NBT.
+     */
     protected void writeEntityToNBT(NBTTagCompound compound)
     {
         Block block = this.fallTile != null ? this.fallTile.getBlock() : Blocks.AIR;
-        ResourceLocation resourcelocation = Block.REGISTRY.getKey(block);
-        compound.putString("Block", resourcelocation == null ? "" : resourcelocation.toString());
-        compound.putByte("Data", (byte)block.getMetaFromState(this.fallTile));
-        compound.putInt("Time", this.fallTime);
-        compound.putBoolean("DropItem", this.shouldDropItem);
-        compound.putBoolean("HurtEntities", this.hurtEntities);
-        compound.putFloat("FallHurtAmount", this.fallHurtAmount);
-        compound.putInt("FallHurtMax", this.fallHurtMax);
+        ResourceLocation resourcelocation = Block.REGISTRY.getNameForObject(block);
+        compound.setString("Block", resourcelocation == null ? "" : resourcelocation.toString());
+        compound.setByte("Data", (byte)block.getMetaFromState(this.fallTile));
+        compound.setInteger("Time", this.fallTime);
+        compound.setBoolean("DropItem", this.shouldDropItem);
+        compound.setBoolean("HurtEntities", this.hurtEntities);
+        compound.setFloat("FallHurtAmount", this.fallHurtAmount);
+        compound.setInteger("FallHurtMax", this.fallHurtMax);
 
         if (this.tileEntityData != null)
         {
@@ -299,45 +306,45 @@ public class EntityFallingBlock extends Entity
     /**
      * (abstract) Protected helper method to read subclass entity data from NBT.
      */
-    protected void readAdditional(NBTTagCompound compound)
+    protected void readEntityFromNBT(NBTTagCompound compound)
     {
         int i = compound.getByte("Data") & 255;
 
-        if (compound.contains("Block", 8))
+        if (compound.hasKey("Block", 8))
         {
             this.fallTile = Block.getBlockFromName(compound.getString("Block")).getStateFromMeta(i);
         }
-        else if (compound.contains("TileID", 99))
+        else if (compound.hasKey("TileID", 99))
         {
-            this.fallTile = Block.getBlockById(compound.getInt("TileID")).getStateFromMeta(i);
+            this.fallTile = Block.getBlockById(compound.getInteger("TileID")).getStateFromMeta(i);
         }
         else
         {
             this.fallTile = Block.getBlockById(compound.getByte("Tile") & 255).getStateFromMeta(i);
         }
 
-        this.fallTime = compound.getInt("Time");
+        this.fallTime = compound.getInteger("Time");
         Block block = this.fallTile.getBlock();
 
-        if (compound.contains("HurtEntities", 99))
+        if (compound.hasKey("HurtEntities", 99))
         {
             this.hurtEntities = compound.getBoolean("HurtEntities");
             this.fallHurtAmount = compound.getFloat("FallHurtAmount");
-            this.fallHurtMax = compound.getInt("FallHurtMax");
+            this.fallHurtMax = compound.getInteger("FallHurtMax");
         }
         else if (block == Blocks.ANVIL)
         {
             this.hurtEntities = true;
         }
 
-        if (compound.contains("DropItem", 99))
+        if (compound.hasKey("DropItem", 99))
         {
             this.shouldDropItem = compound.getBoolean("DropItem");
         }
 
-        if (compound.contains("TileEntityData", 10))
+        if (compound.hasKey("TileEntityData", 10))
         {
-            this.tileEntityData = compound.getCompound("TileEntityData");
+            this.tileEntityData = compound.getCompoundTag("TileEntityData");
         }
 
         if (block == null || block.getDefaultState().getMaterial() == Material.AIR)
@@ -351,9 +358,9 @@ public class EntityFallingBlock extends Entity
         return this.world;
     }
 
-    public void setHurtEntities(boolean hurtEntitiesIn)
+    public void setHurtEntities(boolean p_145806_1_)
     {
-        this.hurtEntities = hurtEntitiesIn;
+        this.hurtEntities = p_145806_1_;
     }
 
     /**
@@ -364,15 +371,15 @@ public class EntityFallingBlock extends Entity
         return false;
     }
 
-    public void fillCrashReport(CrashReportCategory category)
+    public void addEntityCrashInfo(CrashReportCategory category)
     {
-        super.fillCrashReport(category);
+        super.addEntityCrashInfo(category);
 
         if (this.fallTile != null)
         {
             Block block = this.fallTile.getBlock();
-            category.addDetail("Immitating block ID", Integer.valueOf(Block.getIdFromBlock(block)));
-            category.addDetail("Immitating block data", Integer.valueOf(block.getMetaFromState(this.fallTile)));
+            category.addCrashSection("Immitating block ID", Integer.valueOf(Block.getIdFromBlock(block)));
+            category.addCrashSection("Immitating block data", Integer.valueOf(block.getMetaFromState(this.fallTile)));
         }
     }
 
@@ -382,15 +389,6 @@ public class EntityFallingBlock extends Entity
         return this.fallTile;
     }
 
-    /**
-     * Checks if players can use this entity to access operator (permission level 2) commands either directly or
-     * indirectly, such as give or setblock. A similar method exists for entities at {@link
-     * net.minecraft.tileentity.TileEntity#onlyOpsCanSetNbt()}.<p>For example, {@link
-     * net.minecraft.entity.item.EntityMinecartCommandBlock#ignoreItemEntityData() command block minecarts} and {@link
-     * net.minecraft.entity.item.EntityMinecartMobSpawner#ignoreItemEntityData() mob spawner minecarts} (spawning
-     * command block minecarts or drops) are considered accessible.</p>@return true if this entity offers ways for
-     * unauthorized players to use restricted commands
-     */
     public boolean ignoreItemEntityData()
     {
         return true;

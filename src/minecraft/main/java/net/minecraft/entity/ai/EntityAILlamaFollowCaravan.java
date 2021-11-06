@@ -18,14 +18,13 @@ public class EntityAILlamaFollowCaravan extends EntityAIBase
     }
 
     /**
-     * Returns whether execution should begin. You can also read and cache any state necessary for execution in this
-     * method as well.
+     * Returns whether the EntityAIBase should begin execution.
      */
     public boolean shouldExecute()
     {
         if (!this.llama.getLeashed() && !this.llama.inCaravan())
         {
-            List<EntityLlama> list = this.llama.world.<EntityLlama>getEntitiesWithinAABB(this.llama.getClass(), this.llama.getBoundingBox().grow(9.0D, 4.0D, 9.0D));
+            List<EntityLlama> list = this.llama.world.<EntityLlama>getEntitiesWithinAABB(this.llama.getClass(), this.llama.getEntityBoundingBox().grow(9.0D, 4.0D, 9.0D));
             EntityLlama entityllama = null;
             double d0 = Double.MAX_VALUE;
 
@@ -89,7 +88,7 @@ public class EntityAILlamaFollowCaravan extends EntityAIBase
      */
     public boolean shouldContinueExecuting()
     {
-        if (this.llama.inCaravan() && this.llama.getCaravanHead().isAlive() && this.firstIsLeashed(this.llama, 0))
+        if (this.llama.inCaravan() && this.llama.getCaravanHead().isEntityAlive() && this.firstIsLeashed(this.llama, 0))
         {
             double d0 = this.llama.getDistanceSq(this.llama.getCaravanHead());
 
@@ -133,7 +132,7 @@ public class EntityAILlamaFollowCaravan extends EntityAIBase
     /**
      * Keep ticking a continuous task that has already been started
      */
-    public void tick()
+    public void updateTask()
     {
         if (this.llama.inCaravan())
         {

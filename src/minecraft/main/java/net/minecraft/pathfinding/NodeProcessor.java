@@ -57,6 +57,9 @@ public abstract class NodeProcessor
 
     public abstract PathPoint getStart();
 
+    /**
+     * Returns PathPoint for given coordinates
+     */
     public abstract PathPoint getPathPointToCoords(double x, double y, double z);
 
     public abstract int findPathOptions(PathPoint[] pathOptions, PathPoint currentPoint, PathPoint targetPoint, float maxDistance);

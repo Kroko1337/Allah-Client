@@ -63,7 +63,7 @@ public class ChunkGeneratorOverworld implements IChunkGenerator
     {
         this.world = worldIn;
         this.mapFeaturesEnabled = mapFeaturesEnabledIn;
-        this.terrainType = worldIn.getWorldInfo().getGenerator();
+        this.terrainType = worldIn.getWorldInfo().getTerrainType();
         this.rand = new Random(seed);
         this.minLimitPerlinNoise = new NoiseGeneratorOctaves(this.rand, 16);
         this.maxLimitPerlinNoise = new NoiseGeneratorOctaves(this.rand, 16);
@@ -176,6 +176,9 @@ public class ChunkGeneratorOverworld implements IChunkGenerator
         }
     }
 
+    /**
+     * Generates the chunk at the specified position, from scratch
+     */
     public Chunk generateChunk(int x, int z)
     {
         this.rand.setSeed((long)x * 341873128712L + (long)z * 132897987541L);
@@ -265,8 +268,8 @@ public class ChunkGeneratorOverworld implements IChunkGenerator
                     for (int k1 = -2; k1 <= 2; ++k1)
                     {
                         Biome biome1 = this.biomesForGeneration[k + j1 + 2 + (l + k1 + 2) * 10];
-                        float f5 = this.settings.biomeDepthOffSet + biome1.getDepth() * this.settings.biomeDepthWeight;
-                        float f6 = this.settings.biomeScaleOffset + biome1.getScale() * this.settings.biomeScaleWeight;
+                        float f5 = this.settings.biomeDepthOffSet + biome1.getBaseHeight() * this.settings.biomeDepthWeight;
+                        float f6 = this.settings.biomeScaleOffset + biome1.getHeightVariation() * this.settings.biomeScaleWeight;
 
                         if (this.terrainType == WorldType.AMPLIFIED && f5 > 0.0F)
                         {
@@ -276,7 +279,7 @@ public class ChunkGeneratorOverworld implements IChunkGenerator
 
                         float f7 = this.biomeWeights[j1 + 2 + (k1 + 2) * 5] / (f5 + 2.0F);
 
-                        if (biome1.getDepth() > biome.getDepth())
+                        if (biome1.getBaseHeight() > biome.getBaseHeight())
                         {
                             f7 /= 2.0F;
                         }
@@ -356,6 +359,12 @@ public class ChunkGeneratorOverworld implements IChunkGenerator
         }
     }
 
+    /**
+     * Generate initial structures in this chunk, e.g. mineshafts, temples, lakes, and dungeons
+     *  
+     * @param x Chunk x coordinate
+     * @param z Chunk z coordinate
+     */
     public void populate(int x, int z)
     {
         BlockFalling.fallInstantly = true;
@@ -460,6 +469,9 @@ public class ChunkGeneratorOverworld implements IChunkGenerator
         BlockFalling.fallInstantly = false;
     }
 
+    /**
+     * Called to generate additional structures after initial worldgen, used by ocean monuments
+     */
     public boolean generateStructures(Chunk chunkIn, int x, int z)
     {
         boolean flag = false;
@@ -489,7 +501,7 @@ public class ChunkGeneratorOverworld implements IChunkGenerator
             }
         }
 
-        return biome.getSpawns(creatureType);
+        return biome.getSpawnableList(creatureType);
     }
 
     public boolean isInsideStructure(World worldIn, String structureName, BlockPos pos)
@@ -557,6 +569,11 @@ public class ChunkGeneratorOverworld implements IChunkGenerator
         }
     }
 
+    /**
+     * Recreates data about structures intersecting given chunk (used for example by getPossibleCreatures), without
+     * placing any blocks. When called for the first time before any chunk is generated - also initializes the internal
+     * state needed by getPossibleCreatures.
+     */
     public void recreateStructures(Chunk chunkIn, int x, int z)
     {
         if (this.mapFeaturesEnabled)

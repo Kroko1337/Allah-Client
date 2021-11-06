@@ -11,8 +11,12 @@ import net.minecraft.item.ItemStack;
 public class ContainerPlayer extends Container
 {
     private static final EntityEquipmentSlot[] VALID_EQUIPMENT_SLOTS = new EntityEquipmentSlot[] {EntityEquipmentSlot.HEAD, EntityEquipmentSlot.CHEST, EntityEquipmentSlot.LEGS, EntityEquipmentSlot.FEET};
+
+    /** The crafting matrix inventory. */
     public InventoryCrafting craftMatrix = new InventoryCrafting(this, 2, 2);
     public InventoryCraftResult craftResult = new InventoryCraftResult();
+
+    /** Determines if inventory manipulation should be handled. */
     public boolean isLocalWorld;
     private final EntityPlayer player;
 
@@ -20,20 +24,20 @@ public class ContainerPlayer extends Container
     {
         this.isLocalWorld = localWorld;
         this.player = playerIn;
-        this.addSlot(new SlotCrafting(playerInventory.player, this.craftMatrix, this.craftResult, 0, 154, 28));
+        this.addSlotToContainer(new SlotCrafting(playerInventory.player, this.craftMatrix, this.craftResult, 0, 154, 28));
 
         for (int i = 0; i < 2; ++i)
         {
             for (int j = 0; j < 2; ++j)
             {
-                this.addSlot(new Slot(this.craftMatrix, j + i * 2, 98 + j * 18, 18 + i * 18));
+                this.addSlotToContainer(new Slot(this.craftMatrix, j + i * 2, 98 + j * 18, 18 + i * 18));
             }
         }
 
         for (int k = 0; k < 4; ++k)
         {
             final EntityEquipmentSlot entityequipmentslot = VALID_EQUIPMENT_SLOTS[k];
-            this.addSlot(new Slot(playerInventory, 36 + (3 - k), 8, 8 + k * 18)
+            this.addSlotToContainer(new Slot(playerInventory, 36 + (3 - k), 8, 8 + k * 18)
             {
                 public int getSlotStackLimit()
                 {
@@ -60,16 +64,16 @@ public class ContainerPlayer extends Container
         {
             for (int j1 = 0; j1 < 9; ++j1)
             {
-                this.addSlot(new Slot(playerInventory, j1 + (l + 1) * 9, 8 + j1 * 18, 84 + l * 18));
+                this.addSlotToContainer(new Slot(playerInventory, j1 + (l + 1) * 9, 8 + j1 * 18, 84 + l * 18));
             }
         }
 
         for (int i1 = 0; i1 < 9; ++i1)
         {
-            this.addSlot(new Slot(playerInventory, i1, 8 + i1 * 18, 142));
+            this.addSlotToContainer(new Slot(playerInventory, i1, 8 + i1 * 18, 142));
         }
 
-        this.addSlot(new Slot(playerInventory, 40, 77, 62)
+        this.addSlotToContainer(new Slot(playerInventory, 40, 77, 62)
         {
             @Nullable
             public String getSlotTexture()

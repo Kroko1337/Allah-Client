@@ -13,23 +13,23 @@ public class RedundantChanceTags implements IFixableData
 
     public NBTTagCompound fixTagCompound(NBTTagCompound compound)
     {
-        if (compound.contains("HandDropChances", 9))
+        if (compound.hasKey("HandDropChances", 9))
         {
-            NBTTagList nbttaglist = compound.getList("HandDropChances", 5);
+            NBTTagList nbttaglist = compound.getTagList("HandDropChances", 5);
 
-            if (nbttaglist.tagCount() == 2 && nbttaglist.getFloat(0) == 0.0F && nbttaglist.getFloat(1) == 0.0F)
+            if (nbttaglist.tagCount() == 2 && nbttaglist.getFloatAt(0) == 0.0F && nbttaglist.getFloatAt(1) == 0.0F)
             {
-                compound.remove("HandDropChances");
+                compound.removeTag("HandDropChances");
             }
         }
 
-        if (compound.contains("ArmorDropChances", 9))
+        if (compound.hasKey("ArmorDropChances", 9))
         {
-            NBTTagList nbttaglist1 = compound.getList("ArmorDropChances", 5);
+            NBTTagList nbttaglist1 = compound.getTagList("ArmorDropChances", 5);
 
-            if (nbttaglist1.tagCount() == 4 && nbttaglist1.getFloat(0) == 0.0F && nbttaglist1.getFloat(1) == 0.0F && nbttaglist1.getFloat(2) == 0.0F && nbttaglist1.getFloat(3) == 0.0F)
+            if (nbttaglist1.tagCount() == 4 && nbttaglist1.getFloatAt(0) == 0.0F && nbttaglist1.getFloatAt(1) == 0.0F && nbttaglist1.getFloatAt(2) == 0.0F && nbttaglist1.getFloatAt(3) == 0.0F)
             {
-                compound.remove("ArmorDropChances");
+                compound.removeTag("ArmorDropChances");
             }
         }
 

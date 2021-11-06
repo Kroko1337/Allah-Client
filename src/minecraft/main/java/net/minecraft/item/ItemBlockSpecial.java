@@ -25,12 +25,15 @@ public class ItemBlockSpecial extends Item
         this.block = block;
     }
 
+    /**
+     * Called when a Block is right-clicked with this Item
+     */
     public EnumActionResult onItemUse(EntityPlayer player, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
         IBlockState iblockstate = worldIn.getBlockState(pos);
         Block block = iblockstate.getBlock();
 
-        if (block == Blocks.SNOW_LAYER && ((Integer)iblockstate.get(BlockSnow.LAYERS)).intValue() < 1)
+        if (block == Blocks.SNOW_LAYER && ((Integer)iblockstate.getValue(BlockSnow.LAYERS)).intValue() < 1)
         {
             facing = EnumFacing.UP;
         }

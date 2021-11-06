@@ -111,7 +111,7 @@ public class LootTableManager
 
                         try
                         {
-                            return (LootTable)JsonUtils.fromJson(LootTableManager.GSON_INSTANCE, s, LootTable.class);
+                            return (LootTable)JsonUtils.gsonDeserialize(LootTableManager.GSON_INSTANCE, s, LootTable.class);
                         }
                         catch (IllegalArgumentException | JsonParseException jsonparseexception)
                         {
@@ -153,7 +153,7 @@ public class LootTableManager
 
                 try
                 {
-                    return (LootTable)JsonUtils.fromJson(LootTableManager.GSON_INSTANCE, s, LootTable.class);
+                    return (LootTable)JsonUtils.gsonDeserialize(LootTableManager.GSON_INSTANCE, s, LootTable.class);
                 }
                 catch (JsonParseException jsonparseexception)
                 {

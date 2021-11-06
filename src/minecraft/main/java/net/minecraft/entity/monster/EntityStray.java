@@ -27,6 +27,9 @@ public class EntityStray extends AbstractSkeleton
         EntityLiving.registerFixesMob(fixer, EntityStray.class);
     }
 
+    /**
+     * Checks if the entity's current position is a valid location to spawn this entity.
+     */
     public boolean getCanSpawnHere()
     {
         return super.getCanSpawnHere() && this.world.canSeeSky(new BlockPos(this));

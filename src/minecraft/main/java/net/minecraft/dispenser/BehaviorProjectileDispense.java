@@ -16,10 +16,10 @@ public abstract class BehaviorProjectileDispense extends BehaviorDefaultDispense
     {
         World world = source.getWorld();
         IPosition iposition = BlockDispenser.getDispensePosition(source);
-        EnumFacing enumfacing = (EnumFacing)source.getBlockState().get(BlockDispenser.FACING);
+        EnumFacing enumfacing = (EnumFacing)source.getBlockState().getValue(BlockDispenser.FACING);
         IProjectile iprojectile = this.getProjectileEntity(world, iposition, stack);
         iprojectile.shoot((double)enumfacing.getXOffset(), (double)((float)enumfacing.getYOffset() + 0.1F), (double)enumfacing.getZOffset(), this.getProjectileVelocity(), this.getProjectileInaccuracy());
-        world.addEntity0((Entity)iprojectile);
+        world.spawnEntity((Entity)iprojectile);
         stack.shrink(1);
         return stack;
     }

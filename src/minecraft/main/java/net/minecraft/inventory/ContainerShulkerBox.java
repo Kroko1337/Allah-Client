@@ -19,7 +19,7 @@ public class ContainerShulkerBox extends Container
         {
             for (int l = 0; l < 9; ++l)
             {
-                this.addSlot(new SlotShulkerBox(inventoryIn, l + k * 9, 8 + l * 18, 18 + k * 18));
+                this.addSlotToContainer(new SlotShulkerBox(inventoryIn, l + k * 9, 8 + l * 18, 18 + k * 18));
             }
         }
 
@@ -27,13 +27,13 @@ public class ContainerShulkerBox extends Container
         {
             for (int k1 = 0; k1 < 9; ++k1)
             {
-                this.addSlot(new Slot(playerInventoryIn, k1 + i1 * 9 + 9, 8 + k1 * 18, 84 + i1 * 18));
+                this.addSlotToContainer(new Slot(playerInventoryIn, k1 + i1 * 9 + 9, 8 + k1 * 18, 84 + i1 * 18));
             }
         }
 
         for (int j1 = 0; j1 < 9; ++j1)
         {
-            this.addSlot(new Slot(playerInventoryIn, j1, 8 + j1 * 18, 142));
+            this.addSlotToContainer(new Slot(playerInventoryIn, j1, 8 + j1 * 18, 142));
         }
     }
 

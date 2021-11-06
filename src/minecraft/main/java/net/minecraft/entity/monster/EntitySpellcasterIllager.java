@@ -22,25 +22,28 @@ public abstract class EntitySpellcasterIllager extends AbstractIllager
         super(p_i47506_1_);
     }
 
-    protected void registerData()
+    protected void entityInit()
     {
-        super.registerData();
+        super.entityInit();
         this.dataManager.register(SPELL, Byte.valueOf((byte)0));
     }
 
     /**
      * (abstract) Protected helper method to read subclass entity data from NBT.
      */
-    public void readAdditional(NBTTagCompound compound)
+    public void readEntityFromNBT(NBTTagCompound compound)
     {
-        super.readAdditional(compound);
-        this.spellTicks = compound.getInt("SpellTicks");
+        super.readEntityFromNBT(compound);
+        this.spellTicks = compound.getInteger("SpellTicks");
     }
 
+    /**
+     * (abstract) Protected helper method to write subclass entity data to NBT.
+     */
     public void writeEntityToNBT(NBTTagCompound compound)
     {
         super.writeEntityToNBT(compound);
-        compound.putInt("SpellTicks", this.spellTicks);
+        compound.setInteger("SpellTicks", this.spellTicks);
     }
 
     public AbstractIllager.IllagerArmPose getArmPose()
@@ -84,9 +87,9 @@ public abstract class EntitySpellcasterIllager extends AbstractIllager
     /**
      * Called to update the entity's position/logic.
      */
-    public void tick()
+    public void onUpdate()
     {
-        super.tick();
+        super.onUpdate();
 
         if (this.world.isRemote && this.isSpellcasting())
         {
@@ -133,11 +136,11 @@ public abstract class EntitySpellcasterIllager extends AbstractIllager
             EntitySpellcasterIllager.this.setSpellType(EntitySpellcasterIllager.SpellType.NONE);
         }
 
-        public void tick()
+        public void updateTask()
         {
             if (EntitySpellcasterIllager.this.getAttackTarget() != null)
             {
-                EntitySpellcasterIllager.this.getLookController().setLookPositionWithEntity(EntitySpellcasterIllager.this.getAttackTarget(), (float)EntitySpellcasterIllager.this.getHorizontalFaceSpeed(), (float)EntitySpellcasterIllager.this.getVerticalFaceSpeed());
+                EntitySpellcasterIllager.this.getLookHelper().setLookPositionWithEntity(EntitySpellcasterIllager.this.getAttackTarget(), (float)EntitySpellcasterIllager.this.getHorizontalFaceSpeed(), (float)EntitySpellcasterIllager.this.getVerticalFaceSpeed());
             }
         }
     }
@@ -183,7 +186,7 @@ public abstract class EntitySpellcasterIllager extends AbstractIllager
             EntitySpellcasterIllager.this.setSpellType(this.getSpellType());
         }
 
-        public void tick()
+        public void updateTask()
         {
             --this.spellWarmup;
 

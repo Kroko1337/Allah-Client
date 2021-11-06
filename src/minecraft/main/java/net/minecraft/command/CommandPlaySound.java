@@ -13,21 +13,33 @@ import net.minecraft.util.math.Vec3d;
 
 public class CommandPlaySound extends CommandBase
 {
+    /**
+     * Gets the name of the command
+     */
     public String getName()
     {
         return "playsound";
     }
 
+    /**
+     * Return the required permission level for this command.
+     */
     public int getRequiredPermissionLevel()
     {
         return 2;
     }
 
+    /**
+     * Gets the usage string for the command.
+     */
     public String getUsage(ICommandSender sender)
     {
         return "commands.playsound.usage";
     }
 
+    /**
+     * Callback for when the command is executed
+     */
     public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
     {
         if (args.length < 2)
@@ -90,7 +102,7 @@ public class CommandPlaySound extends CommandBase
     {
         if (args.length == 1)
         {
-            return getListOfStringsMatchingLastWord(args, SoundEvent.REGISTRY.keySet());
+            return getListOfStringsMatchingLastWord(args, SoundEvent.REGISTRY.getKeys());
         }
         else if (args.length == 2)
         {
@@ -106,6 +118,9 @@ public class CommandPlaySound extends CommandBase
         }
     }
 
+    /**
+     * Return whether the specified command parameter index is a username parameter.
+     */
     public boolean isUsernameIndex(String[] args, int index)
     {
         return index == 2;

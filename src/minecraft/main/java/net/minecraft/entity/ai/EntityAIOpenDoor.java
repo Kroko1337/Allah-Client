@@ -4,7 +4,12 @@ import net.minecraft.entity.EntityLiving;
 
 public class EntityAIOpenDoor extends EntityAIDoorInteract
 {
+    /** If the entity close the door */
     boolean closeDoor;
+
+    /**
+     * The temporisation before the entity close the door (in ticks, always 20 = 1 second)
+     */
     int closeDoorTemporisation;
 
     public EntityAIOpenDoor(EntityLiving entitylivingIn, boolean shouldClose)
@@ -45,9 +50,9 @@ public class EntityAIOpenDoor extends EntityAIDoorInteract
     /**
      * Keep ticking a continuous task that has already been started
      */
-    public void tick()
+    public void updateTask()
     {
         --this.closeDoorTemporisation;
-        super.tick();
+        super.updateTask();
     }
 }

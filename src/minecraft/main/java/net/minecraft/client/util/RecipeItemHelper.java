@@ -20,11 +20,12 @@ import net.minecraft.item.crafting.Ingredient;
 
 public class RecipeItemHelper
 {
+    /** Map from {@link #pack} packed ids to counts */
     public final Int2IntMap itemToCount = new Int2IntOpenHashMap();
 
     public void accountStack(ItemStack stack)
     {
-        if (!stack.isEmpty() && !stack.isDamaged() && !stack.isEnchanted() && !stack.hasDisplayName())
+        if (!stack.isEmpty() && !stack.isItemDamaged() && !stack.isItemEnchanted() && !stack.hasDisplayName())
         {
             int i = pack(stack);
             int j = stack.getCount();
@@ -36,7 +37,7 @@ public class RecipeItemHelper
     {
         Item item = stack.getItem();
         int i = item.getHasSubtypes() ? stack.getMetadata() : 0;
-        return Item.REGISTRY.getId(item) << 16 | i & 65535;
+        return Item.REGISTRY.getIDForObject(item) << 16 | i & 65535;
     }
 
     public boolean containsItem(int packedItem)

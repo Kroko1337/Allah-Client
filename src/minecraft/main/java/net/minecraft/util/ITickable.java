@@ -2,5 +2,8 @@ package net.minecraft.util;
 
 public interface ITickable
 {
-    void tick();
+    /**
+     * Like the old updateEntity(), except more generic.
+     */
+    void update();
 }

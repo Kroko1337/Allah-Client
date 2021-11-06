@@ -174,7 +174,7 @@ public class NetworkSystem
      * Will try to process the packets received by each NetworkManager, gracefully manage processing failures and cleans
      * up dead connections
      */
-    public void tick()
+    public void networkTick()
     {
         synchronized (this.networkManagers)
         {
@@ -190,7 +190,7 @@ public class NetworkSystem
                     {
                         try
                         {
-                            networkmanager.tick();
+                            networkmanager.processReceivedPackets();
                         }
                         catch (Exception exception)
                         {

@@ -24,20 +24,31 @@ import net.minecraft.world.gen.structure.MapGenEndCity;
 
 public class ChunkGeneratorEnd implements IChunkGenerator
 {
+    /** RNG. */
     private final Random rand;
     protected static final IBlockState END_STONE = Blocks.END_STONE.getDefaultState();
     protected static final IBlockState AIR = Blocks.AIR.getDefaultState();
     private final NoiseGeneratorOctaves lperlinNoise1;
     private final NoiseGeneratorOctaves lperlinNoise2;
     private final NoiseGeneratorOctaves perlinNoise1;
+
+    /** A NoiseGeneratorOctaves used in generating terrain */
     public NoiseGeneratorOctaves noiseGen5;
+
+    /** A NoiseGeneratorOctaves used in generating terrain */
     public NoiseGeneratorOctaves noiseGen6;
+
+    /** Reference to the World object. */
     private final World world;
+
+    /** are map structures going to be generated (e.g. strongholds) */
     private final boolean mapFeaturesEnabled;
     private final BlockPos spawnPoint;
     private final MapGenEndCity endCityGen = new MapGenEndCity(this);
     private final NoiseGeneratorSimplex islandNoise;
     private double[] buffer;
+
+    /** The biomes that are used to generate the chunk */
     private Biome[] biomesForGeneration;
     double[] pnr;
     double[] ar;
@@ -58,6 +69,9 @@ public class ChunkGeneratorEnd implements IChunkGenerator
         this.islandNoise = new NoiseGeneratorSimplex(this.rand);
     }
 
+    /**
+     * Generates a bare-bones chunk of nothing but stone or ocean blocks, formed, but featureless.
+     */
     public void setBlocksInChunk(int x, int z, ChunkPrimer primer)
     {
         int i = 2;
@@ -171,6 +185,9 @@ public class ChunkGeneratorEnd implements IChunkGenerator
         }
     }
 
+    /**
+     * Generates the chunk at the specified position, from scratch
+     */
     public Chunk generateChunk(int x, int z)
     {
         this.rand.setSeed((long)x * 341873128712L + (long)z * 132897987541L);
@@ -323,6 +340,12 @@ public class ChunkGeneratorEnd implements IChunkGenerator
         return p_185963_1_;
     }
 
+    /**
+     * Generate initial structures in this chunk, e.g. mineshafts, temples, lakes, and dungeons
+     *  
+     * @param x Chunk x coordinate
+     * @param z Chunk z coordinate
+     */
     public void populate(int x, int z)
     {
         BlockFalling.fallInstantly = true;
@@ -397,6 +420,9 @@ public class ChunkGeneratorEnd implements IChunkGenerator
         BlockFalling.fallInstantly = false;
     }
 
+    /**
+     * Called to generate additional structures after initial worldgen, used by ocean monuments
+     */
     public boolean generateStructures(Chunk chunkIn, int x, int z)
     {
         return false;
@@ -404,7 +430,7 @@ public class ChunkGeneratorEnd implements IChunkGenerator
 
     public List<Biome.SpawnListEntry> getPossibleCreatures(EnumCreatureType creatureType, BlockPos pos)
     {
-        return this.world.getBiome(pos).getSpawns(creatureType);
+        return this.world.getBiome(pos).getSpawnableList(creatureType);
     }
 
     @Nullable
@@ -418,6 +444,11 @@ public class ChunkGeneratorEnd implements IChunkGenerator
         return "EndCity".equals(structureName) && this.endCityGen != null ? this.endCityGen.isInsideStructure(pos) : false;
     }
 
+    /**
+     * Recreates data about structures intersecting given chunk (used for example by getPossibleCreatures), without
+     * placing any blocks. When called for the first time before any chunk is generated - also initializes the internal
+     * state needed by getPossibleCreatures.
+     */
     public void recreateStructures(Chunk chunkIn, int x, int z)
     {
     }

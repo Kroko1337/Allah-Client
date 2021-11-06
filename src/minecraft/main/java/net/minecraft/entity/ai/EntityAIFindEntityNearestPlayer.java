@@ -19,9 +19,15 @@ import org.apache.logging.log4j.Logger;
 public class EntityAIFindEntityNearestPlayer extends EntityAIBase
 {
     private static final Logger LOGGER = LogManager.getLogger();
+
+    /** The entity that use this AI */
     private final EntityLiving entityLiving;
     private final Predicate<Entity> predicate;
+
+    /** Used to compare two entities */
     private final EntityAINearestAttackableTarget.Sorter sorter;
+
+    /** The current target */
     private EntityLivingBase entityTarget;
 
     public EntityAIFindEntityNearestPlayer(EntityLiving entityLivingIn)
@@ -41,7 +47,7 @@ public class EntityAIFindEntityNearestPlayer extends EntityAIBase
                 {
                     return false;
                 }
-                else if (((EntityPlayer)p_apply_1_).abilities.disableDamage)
+                else if (((EntityPlayer)p_apply_1_).capabilities.disableDamage)
                 {
                     return false;
                 }
@@ -74,13 +80,12 @@ public class EntityAIFindEntityNearestPlayer extends EntityAIBase
     }
 
     /**
-     * Returns whether execution should begin. You can also read and cache any state necessary for execution in this
-     * method as well.
+     * Returns whether the EntityAIBase should begin execution.
      */
     public boolean shouldExecute()
     {
         double d0 = this.maxTargetRange();
-        List<EntityPlayer> list = this.entityLiving.world.<EntityPlayer>getEntitiesWithinAABB(EntityPlayer.class, this.entityLiving.getBoundingBox().grow(d0, 4.0D, d0), this.predicate);
+        List<EntityPlayer> list = this.entityLiving.world.<EntityPlayer>getEntitiesWithinAABB(EntityPlayer.class, this.entityLiving.getEntityBoundingBox().grow(d0, 4.0D, d0), this.predicate);
         Collections.sort(list, this.sorter);
 
         if (list.isEmpty())
@@ -105,11 +110,11 @@ public class EntityAIFindEntityNearestPlayer extends EntityAIBase
         {
             return false;
         }
-        else if (!entitylivingbase.isAlive())
+        else if (!entitylivingbase.isEntityAlive())
         {
             return false;
         }
-        else if (entitylivingbase instanceof EntityPlayer && ((EntityPlayer)entitylivingbase).abilities.disableDamage)
+        else if (entitylivingbase instanceof EntityPlayer && ((EntityPlayer)entitylivingbase).capabilities.disableDamage)
         {
             return false;
         }
@@ -156,9 +161,12 @@ public class EntityAIFindEntityNearestPlayer extends EntityAIBase
         super.startExecuting();
     }
 
+    /**
+     * Return the max target range of the entiity (16 by default)
+     */
     protected double maxTargetRange()
     {
-        IAttributeInstance iattributeinstance = this.entityLiving.getAttribute(SharedMonsterAttributes.FOLLOW_RANGE);
-        return iattributeinstance == null ? 16.0D : iattributeinstance.getValue();
+        IAttributeInstance iattributeinstance = this.entityLiving.getEntityAttribute(SharedMonsterAttributes.FOLLOW_RANGE);
+        return iattributeinstance == null ? 16.0D : iattributeinstance.getAttributeValue();
     }
 }

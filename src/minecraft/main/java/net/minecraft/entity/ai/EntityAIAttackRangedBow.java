@@ -28,14 +28,13 @@ public class EntityAIAttackRangedBow<T extends EntityMob & IRangedAttackMob> ext
         this.setMutexBits(3);
     }
 
-    public void setAttackCooldown(int attackCooldownIn)
+    public void setAttackCooldown(int p_189428_1_)
     {
-        this.attackCooldown = attackCooldownIn;
+        this.attackCooldown = p_189428_1_;
     }
 
     /**
-     * Returns whether execution should begin. You can also read and cache any state necessary for execution in this
-     * method as well.
+     * Returns whether the EntityAIBase should begin execution.
      */
     public boolean shouldExecute()
     {
@@ -79,13 +78,13 @@ public class EntityAIAttackRangedBow<T extends EntityMob & IRangedAttackMob> ext
     /**
      * Keep ticking a continuous task that has already been started
      */
-    public void tick()
+    public void updateTask()
     {
         EntityLivingBase entitylivingbase = this.entity.getAttackTarget();
 
         if (entitylivingbase != null)
         {
-            double d0 = this.entity.getDistanceSq(entitylivingbase.posX, entitylivingbase.getBoundingBox().minY, entitylivingbase.posZ);
+            double d0 = this.entity.getDistanceSq(entitylivingbase.posX, entitylivingbase.getEntityBoundingBox().minY, entitylivingbase.posZ);
             boolean flag = this.entity.getEntitySenses().canSee(entitylivingbase);
             boolean flag1 = this.seeTime > 0;
 
@@ -145,7 +144,7 @@ public class EntityAIAttackRangedBow<T extends EntityMob & IRangedAttackMob> ext
             }
             else
             {
-                this.entity.getLookController().setLookPositionWithEntity(entitylivingbase, 30.0F, 30.0F);
+                this.entity.getLookHelper().setLookPositionWithEntity(entitylivingbase, 30.0F, 30.0F);
             }
 
             if (this.entity.isHandActive())

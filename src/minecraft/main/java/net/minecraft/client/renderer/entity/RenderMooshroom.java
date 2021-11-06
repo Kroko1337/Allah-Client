@@ -9,9 +9,9 @@ public class RenderMooshroom extends RenderLiving<EntityMooshroom>
 {
     private static final ResourceLocation MOOSHROOM_TEXTURES = new ResourceLocation("textures/entity/cow/mooshroom.png");
 
-    public RenderMooshroom(RenderManager renderManagerIn)
+    public RenderMooshroom(RenderManager p_i47200_1_)
     {
-        super(renderManagerIn, new ModelCow(), 0.7F);
+        super(p_i47200_1_, new ModelCow(), 0.7F);
         this.addLayer(new LayerMooshroomMushroom(this));
     }
 
@@ -21,7 +21,7 @@ public class RenderMooshroom extends RenderLiving<EntityMooshroom>
     }
 
     /**
-     * Returns the location of an entity's texture.
+     * Returns the location of an entity's texture. Doesn't seem to be called unless you call Render.bindEntityTexture.
      */
     protected ResourceLocation getEntityTexture(EntityMooshroom entity)
     {

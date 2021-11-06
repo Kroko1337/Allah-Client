@@ -165,7 +165,7 @@ public class ModifiableAttributeInstance implements IAttributeInstance
         }
     }
 
-    public double getValue()
+    public double getAttributeValue()
     {
         if (this.needsUpdate)
         {

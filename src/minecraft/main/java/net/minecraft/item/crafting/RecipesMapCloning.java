@@ -90,9 +90,9 @@ public class RecipesMapCloning implements IRecipe
                 itemstack2.setStackDisplayName(itemstack.getDisplayName());
             }
 
-            if (itemstack.hasTag())
+            if (itemstack.hasTagCompound())
             {
-                itemstack2.setTag(itemstack.getTag());
+                itemstack2.setTagCompound(itemstack.getTagCompound());
             }
 
             return itemstack2;

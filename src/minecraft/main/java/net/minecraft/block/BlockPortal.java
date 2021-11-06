@@ -38,13 +38,17 @@ public class BlockPortal extends BlockBreakable
     public BlockPortal()
     {
         super(Material.PORTAL, false);
-        this.setDefaultState(this.stateContainer.getBaseState().withProperty(AXIS, EnumFacing.Axis.X));
+        this.setDefaultState(this.blockState.getBaseState().withProperty(AXIS, EnumFacing.Axis.X));
         this.setTickRandomly(true);
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#getBoundingBox(IBlockAccess,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
     {
-        switch ((EnumFacing.Axis)state.get(AXIS))
+        switch ((EnumFacing.Axis)state.getValue(AXIS))
         {
             case X:
                 return X_AABB;
@@ -62,7 +66,7 @@ public class BlockPortal extends BlockBreakable
     {
         super.updateTick(worldIn, pos, state, rand);
 
-        if (worldIn.dimension.isSurfaceWorld() && worldIn.getGameRules().getBoolean("doMobSpawning") && rand.nextInt(2000) < worldIn.getDifficulty().getId())
+        if (worldIn.provider.isSurfaceWorld() && worldIn.getGameRules().getBoolean("doMobSpawning") && rand.nextInt(2000) < worldIn.getDifficulty().getId())
         {
             int i = pos.getY();
             BlockPos blockpos;
@@ -85,6 +89,11 @@ public class BlockPortal extends BlockBreakable
     }
 
     @Nullable
+
+    /**
+     * @deprecated call via {@link IBlockState#getCollisionBoundingBox(IBlockAccess,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public AxisAlignedBB getCollisionBoundingBox(IBlockState blockState, IBlockAccess worldIn, BlockPos pos)
     {
         return NULL_AABB;
@@ -102,6 +111,9 @@ public class BlockPortal extends BlockBreakable
         }
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#isFullCube()} whenever possible. Implementing/overriding is fine.
+     */
     public boolean isFullCube(IBlockState state)
     {
         return false;
@@ -132,9 +144,14 @@ public class BlockPortal extends BlockBreakable
         }
     }
 
+    /**
+     * Called when a neighboring block was changed and marks that this state should perform any checks during a neighbor
+     * change. Cases may include when redstone power is updated, cactus blocks popping off due to a neighboring solid
+     * block, etc.
+     */
     public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos)
     {
-        EnumFacing.Axis enumfacing$axis = (EnumFacing.Axis)state.get(AXIS);
+        EnumFacing.Axis enumfacing$axis = (EnumFacing.Axis)state.getValue(AXIS);
 
         if (enumfacing$axis == EnumFacing.Axis.X)
         {
@@ -157,7 +174,8 @@ public class BlockPortal extends BlockBreakable
     }
 
     /**
-     * ""
+     * @deprecated call via {@link IBlockState#shouldSideBeRendered(IBlockAccess,BlockPos,EnumFacing)} whenever
+     * possible. Implementing/overriding is fine.
      */
     public boolean shouldSideBeRendered(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side)
     {
@@ -166,7 +184,7 @@ public class BlockPortal extends BlockBreakable
 
         if (blockState.getBlock() == this)
         {
-            enumfacing$axis = (EnumFacing.Axis)blockState.get(AXIS);
+            enumfacing$axis = (EnumFacing.Axis)blockState.getValue(AXIS);
 
             if (enumfacing$axis == null)
             {
@@ -209,19 +227,29 @@ public class BlockPortal extends BlockBreakable
         }
     }
 
+    /**
+     * Returns the quantity of items to drop on block destruction.
+     */
     public int quantityDropped(Random random)
     {
         return 0;
     }
 
+    /**
+     * Gets the render layer this block will render on. SOLID for solid blocks, CUTOUT or CUTOUT_MIPPED for on-off
+     * transparency (glass, reeds), TRANSLUCENT for fully blended transparency (stained glass)
+     */
     public BlockRenderLayer getRenderLayer()
     {
         return BlockRenderLayer.TRANSLUCENT;
     }
 
+    /**
+     * Called When an Entity Collided with the Block
+     */
     public void onEntityCollision(World worldIn, BlockPos pos, IBlockState state, Entity entityIn)
     {
-        if (!entityIn.isPassenger() && !entityIn.isBeingRidden() && entityIn.isNonBoss())
+        if (!entityIn.isRiding() && !entityIn.isBeingRidden() && entityIn.isNonBoss())
         {
             entityIn.setPortal(pos);
         }
@@ -232,7 +260,7 @@ public class BlockPortal extends BlockBreakable
      * this method is unrelated to {@link randomTick} and {@link #needsRandomTick}, and will always be called regardless
      * of whether the block can receive random update ticks
      */
-    public void animateTick(IBlockState stateIn, World worldIn, BlockPos pos, Random rand)
+    public void randomDisplayTick(IBlockState stateIn, World worldIn, BlockPos pos, Random rand)
     {
         if (rand.nextInt(100) == 0)
         {
@@ -269,14 +297,20 @@ public class BlockPortal extends BlockBreakable
         return ItemStack.EMPTY;
     }
 
+    /**
+     * Convert the given metadata into a BlockState for this Block
+     */
     public IBlockState getStateFromMeta(int meta)
     {
         return this.getDefaultState().withProperty(AXIS, (meta & 3) == 2 ? EnumFacing.Axis.Z : EnumFacing.Axis.X);
     }
 
+    /**
+     * Convert the BlockState into the correct metadata value
+     */
     public int getMetaFromState(IBlockState state)
     {
-        return getMetaForAxis((EnumFacing.Axis)state.get(AXIS));
+        return getMetaForAxis((EnumFacing.Axis)state.getValue(AXIS));
     }
 
     /**
@@ -285,13 +319,13 @@ public class BlockPortal extends BlockBreakable
      * @deprecated call via {@link IBlockState#withRotation(Rotation)} whenever possible. Implementing/overriding is
      * fine.
      */
-    public IBlockState rotate(IBlockState state, Rotation rot)
+    public IBlockState withRotation(IBlockState state, Rotation rot)
     {
         switch (rot)
         {
             case COUNTERCLOCKWISE_90:
             case CLOCKWISE_90:
-                switch ((EnumFacing.Axis)state.get(AXIS))
+                switch ((EnumFacing.Axis)state.getValue(AXIS))
                 {
                     case X:
                         return state.withProperty(AXIS, EnumFacing.Axis.Z);
@@ -367,6 +401,17 @@ public class BlockPortal extends BlockBreakable
         }
     }
 
+    /**
+     * Get the geometry of the queried face at the given position and state. This is used to decide whether things like
+     * buttons are allowed to be placed on the face, or how glass panes connect to the face, among other things.
+     * <p>
+     * Common values are {@code SOLID}, which is the default, and {@code UNDEFINED}, which represents something that
+     * does not fit the other descriptions and will generally cause other things not to connect to the face.
+
+     * @return an approximation of the form of the given face
+     * @deprecated call via {@link IBlockState#getBlockFaceShape(IBlockAccess,BlockPos,EnumFacing)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public BlockFaceShape getBlockFaceShape(IBlockAccess worldIn, IBlockState state, BlockPos pos, EnumFacing face)
     {
         return BlockFaceShape.UNDEFINED;
@@ -424,13 +469,13 @@ public class BlockPortal extends BlockBreakable
             }
         }
 
-        protected int getDistanceUntilEdge(BlockPos pos, EnumFacing directionIn)
+        protected int getDistanceUntilEdge(BlockPos p_180120_1_, EnumFacing p_180120_2_)
         {
             int i;
 
             for (i = 0; i < 22; ++i)
             {
-                BlockPos blockpos = pos.offset(directionIn, i);
+                BlockPos blockpos = p_180120_1_.offset(p_180120_2_, i);
 
                 if (!this.isEmptyBlock(this.world.getBlockState(blockpos).getBlock()) || this.world.getBlockState(blockpos.down()).getBlock() != Blocks.OBSIDIAN)
                 {
@@ -438,7 +483,7 @@ public class BlockPortal extends BlockBreakable
                 }
             }
 
-            Block block = this.world.getBlockState(pos.offset(directionIn, i)).getBlock();
+            Block block = this.world.getBlockState(p_180120_1_.offset(p_180120_2_, i)).getBlock();
             return block == Blocks.OBSIDIAN ? i : 0;
         }
 
@@ -468,7 +513,7 @@ public class BlockPortal extends BlockBreakable
                         break label56;
                     }
 
-                    if (block == Blocks.NETHER_PORTAL)
+                    if (block == Blocks.PORTAL)
                     {
                         ++this.portalBlockCount;
                     }
@@ -518,7 +563,7 @@ public class BlockPortal extends BlockBreakable
 
         protected boolean isEmptyBlock(Block blockIn)
         {
-            return blockIn.material == Material.AIR || blockIn == Blocks.FIRE || blockIn == Blocks.NETHER_PORTAL;
+            return blockIn.material == Material.AIR || blockIn == Blocks.FIRE || blockIn == Blocks.PORTAL;
         }
 
         public boolean isValid()
@@ -534,7 +579,7 @@ public class BlockPortal extends BlockBreakable
 
                 for (int j = 0; j < this.height; ++j)
                 {
-                    this.world.setBlockState(blockpos.up(j), Blocks.NETHER_PORTAL.getDefaultState().withProperty(BlockPortal.AXIS, this.axis), 2);
+                    this.world.setBlockState(blockpos.up(j), Blocks.PORTAL.getDefaultState().withProperty(BlockPortal.AXIS, this.axis), 2);
                 }
             }
         }

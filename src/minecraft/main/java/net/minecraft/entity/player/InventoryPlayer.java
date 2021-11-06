@@ -31,8 +31,14 @@ public class InventoryPlayer implements IInventory
     public final NonNullList<ItemStack> armorInventory = NonNullList.<ItemStack>withSize(4, ItemStack.EMPTY);
     public final NonNullList<ItemStack> offHandInventory = NonNullList.<ItemStack>withSize(1, ItemStack.EMPTY);
     private final List<NonNullList<ItemStack>> allInventories;
+
+    /** The index of the currently held item (0-8). */
     public int currentItem;
+
+    /** The player whose inventory this is. */
     public EntityPlayer player;
+
+    /** The stack currently held by the mouse cursor */
     private ItemStack itemStack;
     private int timesChanged;
 
@@ -156,7 +162,7 @@ public class InventoryPlayer implements IInventory
         {
             ItemStack itemstack = this.mainInventory.get(i);
 
-            if (!((ItemStack)this.mainInventory.get(i)).isEmpty() && this.stackEqualExact(p_194014_1_, this.mainInventory.get(i)) && !((ItemStack)this.mainInventory.get(i)).isDamaged() && !itemstack.isEnchanted() && !itemstack.hasDisplayName())
+            if (!((ItemStack)this.mainInventory.get(i)).isEmpty() && this.stackEqualExact(p_194014_1_, this.mainInventory.get(i)) && !((ItemStack)this.mainInventory.get(i)).isItemDamaged() && !itemstack.isItemEnchanted() && !itemstack.hasDisplayName())
             {
                 return i;
             }
@@ -181,7 +187,7 @@ public class InventoryPlayer implements IInventory
         {
             int l = (this.currentItem + k) % 9;
 
-            if (!((ItemStack)this.mainInventory.get(l)).isEnchanted())
+            if (!((ItemStack)this.mainInventory.get(l)).isItemEnchanted())
             {
                 return l;
             }
@@ -190,6 +196,9 @@ public class InventoryPlayer implements IInventory
         return this.currentItem;
     }
 
+    /**
+     * Switch the current item to the next one or the previous one
+     */
     public void changeCurrentItem(int direction)
     {
         if (direction > 0)
@@ -213,6 +222,14 @@ public class InventoryPlayer implements IInventory
         }
     }
 
+    /**
+     * Removes matching items from the inventory.
+     * @param itemIn The item to match, null ignores.
+     * @param metadataIn The metadata to match, -1 ignores.
+     * @param removeCount The number of items to remove. If less than 1, removes all matching items.
+     * @param itemNBT The NBT data to match, null ignores.
+     * @return The number of items removed from the inventory.
+     */
     public int clearMatchingItems(@Nullable Item itemIn, int metadataIn, int removeCount, @Nullable NBTTagCompound itemNBT)
     {
         int i = 0;
@@ -221,7 +238,7 @@ public class InventoryPlayer implements IInventory
         {
             ItemStack itemstack = this.getStackInSlot(j);
 
-            if (!itemstack.isEmpty() && (itemIn == null || itemstack.getItem() == itemIn) && (metadataIn <= -1 || itemstack.getMetadata() == metadataIn) && (itemNBT == null || NBTUtil.areNBTEquals(itemNBT, itemstack.getTag(), true)))
+            if (!itemstack.isEmpty() && (itemIn == null || itemstack.getItem() == itemIn) && (metadataIn <= -1 || itemstack.getMetadata() == metadataIn) && (itemNBT == null || NBTUtil.areNBTEquals(itemNBT, itemstack.getTagCompound(), true)))
             {
                 int k = removeCount <= 0 ? itemstack.getCount() : Math.min(removeCount - i, itemstack.getCount());
                 i += k;
@@ -255,7 +272,7 @@ public class InventoryPlayer implements IInventory
                 return i;
             }
 
-            if (itemNBT != null && !NBTUtil.areNBTEquals(itemNBT, this.itemStack.getTag(), true))
+            if (itemNBT != null && !NBTUtil.areNBTEquals(itemNBT, this.itemStack.getTagCompound(), true))
             {
                 return i;
             }
@@ -308,9 +325,9 @@ public class InventoryPlayer implements IInventory
         {
             itemstack = new ItemStack(item, 0, p_191973_2_.getMetadata());
 
-            if (p_191973_2_.hasTag())
+            if (p_191973_2_.hasTagCompound())
             {
-                itemstack.setTag(p_191973_2_.getTag().copy());
+                itemstack.setTagCompound(p_191973_2_.getTagCompound().copy());
             }
 
             this.setInventorySlotContents(p_191973_1_, itemstack);
@@ -342,8 +359,7 @@ public class InventoryPlayer implements IInventory
     }
 
     /**
-     * Stores a stack in the player's inventory. It first tries to place it in the selected slot in the player's hotbar,
-     * then the offhand slot, then any available/empty slot in the player's inventory.
+     * stores an itemstack in the users inventory
      */
     public int storeItemStack(ItemStack itemStackIn)
     {
@@ -373,7 +389,7 @@ public class InventoryPlayer implements IInventory
      * Decrement the number of animations remaining. Only called on client side. This is used to handle the animation of
      * receiving a block.
      */
-    public void tick()
+    public void decrementAnimations()
     {
         for (NonNullList<ItemStack> nonnulllist : this.allInventories)
         {
@@ -381,28 +397,23 @@ public class InventoryPlayer implements IInventory
             {
                 if (!((ItemStack)nonnulllist.get(i)).isEmpty())
                 {
-                    ((ItemStack)nonnulllist.get(i)).inventoryTick(this.player.world, this.player, i, this.currentItem == i);
+                    ((ItemStack)nonnulllist.get(i)).updateAnimation(this.player.world, this.player, i, this.currentItem == i);
                 }
             }
         }
     }
 
     /**
-     * Adds the stack to the first empty slot in the player's inventory. Returns {@code false} if it's not possible to
-     * place the entire stack in the inventory.
+     * Adds the item stack to the inventory, returns false if it is impossible.
      */
     public boolean addItemStackToInventory(ItemStack itemStackIn)
     {
         return this.add(-1, itemStackIn);
     }
 
-    /**
-     * Adds the stack to the specified slot in the player's inventory. Returns {@code false} if it's not possible to
-     * place the entire stack in the inventory.
-     */
-    public boolean add(int slotIn, final ItemStack stack)
+    public boolean add(int p_191971_1_, final ItemStack p_191971_2_)
     {
-        if (stack.isEmpty())
+        if (p_191971_2_.isEmpty())
         {
             return false;
         }
@@ -410,23 +421,23 @@ public class InventoryPlayer implements IInventory
         {
             try
             {
-                if (stack.isDamaged())
+                if (p_191971_2_.isItemDamaged())
                 {
-                    if (slotIn == -1)
+                    if (p_191971_1_ == -1)
                     {
-                        slotIn = this.getFirstEmptyStack();
+                        p_191971_1_ = this.getFirstEmptyStack();
                     }
 
-                    if (slotIn >= 0)
+                    if (p_191971_1_ >= 0)
                     {
-                        this.mainInventory.set(slotIn, stack.copy());
-                        ((ItemStack)this.mainInventory.get(slotIn)).setAnimationsToGo(5);
-                        stack.setCount(0);
+                        this.mainInventory.set(p_191971_1_, p_191971_2_.copy());
+                        ((ItemStack)this.mainInventory.get(p_191971_1_)).setAnimationsToGo(5);
+                        p_191971_2_.setCount(0);
                         return true;
                     }
-                    else if (this.player.abilities.isCreativeMode)
+                    else if (this.player.capabilities.isCreativeMode)
                     {
-                        stack.setCount(0);
+                        p_191971_2_.setCount(0);
                         return true;
                     }
                     else
@@ -440,31 +451,31 @@ public class InventoryPlayer implements IInventory
 
                     while (true)
                     {
-                        i = stack.getCount();
+                        i = p_191971_2_.getCount();
 
-                        if (slotIn == -1)
+                        if (p_191971_1_ == -1)
                         {
-                            stack.setCount(this.storePartialItemStack(stack));
+                            p_191971_2_.setCount(this.storePartialItemStack(p_191971_2_));
                         }
                         else
                         {
-                            stack.setCount(this.addResource(slotIn, stack));
+                            p_191971_2_.setCount(this.addResource(p_191971_1_, p_191971_2_));
                         }
 
-                        if (stack.isEmpty() || stack.getCount() >= i)
+                        if (p_191971_2_.isEmpty() || p_191971_2_.getCount() >= i)
                         {
                             break;
                         }
                     }
 
-                    if (stack.getCount() == i && this.player.abilities.isCreativeMode)
+                    if (p_191971_2_.getCount() == i && this.player.capabilities.isCreativeMode)
                     {
-                        stack.setCount(0);
+                        p_191971_2_.setCount(0);
                         return true;
                     }
                     else
                     {
-                        return stack.getCount() < i;
+                        return p_191971_2_.getCount() < i;
                     }
                 }
             }
@@ -472,13 +483,13 @@ public class InventoryPlayer implements IInventory
             {
                 CrashReport crashreport = CrashReport.makeCrashReport(throwable, "Adding item to inventory");
                 CrashReportCategory crashreportcategory = crashreport.makeCategory("Item being added");
-                crashreportcategory.addDetail("Item ID", Integer.valueOf(Item.getIdFromItem(stack.getItem())));
-                crashreportcategory.addDetail("Item data", Integer.valueOf(stack.getMetadata()));
+                crashreportcategory.addCrashSection("Item ID", Integer.valueOf(Item.getIdFromItem(p_191971_2_.getItem())));
+                crashreportcategory.addCrashSection("Item data", Integer.valueOf(p_191971_2_.getMetadata()));
                 crashreportcategory.addDetail("Item name", new ICrashReportDetail<String>()
                 {
                     public String call() throws Exception
                     {
-                        return stack.getDisplayName();
+                        return p_191971_2_.getDisplayName();
                     }
                 });
                 throw new ReportedException(crashreport);
@@ -486,13 +497,13 @@ public class InventoryPlayer implements IInventory
         }
     }
 
-    public void placeItemBackInInventory(World worldIn, ItemStack stack)
+    public void placeItemBackInInventory(World p_191975_1_, ItemStack p_191975_2_)
     {
-        if (!worldIn.isRemote)
+        if (!p_191975_1_.isRemote)
         {
-            while (!stack.isEmpty())
+            while (!p_191975_2_.isEmpty())
             {
-                int i = this.storeItemStack(stack);
+                int i = this.storeItemStack(p_191975_2_);
 
                 if (i == -1)
                 {
@@ -501,13 +512,13 @@ public class InventoryPlayer implements IInventory
 
                 if (i == -1)
                 {
-                    this.player.dropItem(stack, false);
+                    this.player.dropItem(p_191975_2_, false);
                     break;
                 }
 
-                int j = stack.getMaxStackSize() - this.getStackInSlot(i).getCount();
+                int j = p_191975_2_.getMaxStackSize() - this.getStackInSlot(i).getCount();
 
-                if (this.add(i, stack.split(j)))
+                if (this.add(i, p_191975_2_.splitStack(j)))
                 {
                     ((EntityPlayerMP)this.player).connection.sendPacket(new SPacketSetSlot(-2, i, this.getStackInSlot(i)));
                 }
@@ -621,15 +632,15 @@ public class InventoryPlayer implements IInventory
      * Writes the inventory out as a list of compound tags. This is where the slot indices are used (+100 for armor, +80
      * for crafting).
      */
-    public NBTTagList write(NBTTagList nbtTagListIn)
+    public NBTTagList writeToNBT(NBTTagList nbtTagListIn)
     {
         for (int i = 0; i < this.mainInventory.size(); ++i)
         {
             if (!((ItemStack)this.mainInventory.get(i)).isEmpty())
             {
                 NBTTagCompound nbttagcompound = new NBTTagCompound();
-                nbttagcompound.putByte("Slot", (byte)i);
-                ((ItemStack)this.mainInventory.get(i)).write(nbttagcompound);
+                nbttagcompound.setByte("Slot", (byte)i);
+                ((ItemStack)this.mainInventory.get(i)).writeToNBT(nbttagcompound);
                 nbtTagListIn.appendTag(nbttagcompound);
             }
         }
@@ -639,8 +650,8 @@ public class InventoryPlayer implements IInventory
             if (!((ItemStack)this.armorInventory.get(j)).isEmpty())
             {
                 NBTTagCompound nbttagcompound1 = new NBTTagCompound();
-                nbttagcompound1.putByte("Slot", (byte)(j + 100));
-                ((ItemStack)this.armorInventory.get(j)).write(nbttagcompound1);
+                nbttagcompound1.setByte("Slot", (byte)(j + 100));
+                ((ItemStack)this.armorInventory.get(j)).writeToNBT(nbttagcompound1);
                 nbtTagListIn.appendTag(nbttagcompound1);
             }
         }
@@ -650,8 +661,8 @@ public class InventoryPlayer implements IInventory
             if (!((ItemStack)this.offHandInventory.get(k)).isEmpty())
             {
                 NBTTagCompound nbttagcompound2 = new NBTTagCompound();
-                nbttagcompound2.putByte("Slot", (byte)(k + 150));
-                ((ItemStack)this.offHandInventory.get(k)).write(nbttagcompound2);
+                nbttagcompound2.setByte("Slot", (byte)(k + 150));
+                ((ItemStack)this.offHandInventory.get(k)).writeToNBT(nbttagcompound2);
                 nbtTagListIn.appendTag(nbttagcompound2);
             }
         }
@@ -662,7 +673,7 @@ public class InventoryPlayer implements IInventory
     /**
      * Reads from the given tag list and fills the slots in the inventory with the correct items.
      */
-    public void read(NBTTagList nbtTagListIn)
+    public void readFromNBT(NBTTagList nbtTagListIn)
     {
         this.mainInventory.clear();
         this.armorInventory.clear();
@@ -670,7 +681,7 @@ public class InventoryPlayer implements IInventory
 
         for (int i = 0; i < nbtTagListIn.tagCount(); ++i)
         {
-            NBTTagCompound nbttagcompound = nbtTagListIn.getCompound(i);
+            NBTTagCompound nbttagcompound = nbtTagListIn.getCompoundTagAt(i);
             int j = nbttagcompound.getByte("Slot") & 255;
             ItemStack itemstack = new ItemStack(nbttagcompound);
 
@@ -750,16 +761,86 @@ public class InventoryPlayer implements IInventory
         return list == null ? ItemStack.EMPTY : (ItemStack)list.get(index);
     }
 
+    /**
+     * Gets the name of this thing. This method has slightly different behavior depending on the interface (for <a
+     * href="https://github.com/ModCoderPack/MCPBot-Issues/issues/14">technical reasons</a> the same method is used for
+     * both IWorldNameable and ICommandSender):
+     *  
+     * <dl>
+     * <dt>{@link net.minecraft.util.INameable#getName() INameable.getName()}</dt>
+     * <dd>Returns the name of this inventory. If this {@linkplain net.minecraft.inventory#hasCustomName() has a custom
+     * name} then this <em>should</em> be a direct string; otherwise it <em>should</em> be a valid translation
+     * string.</dd>
+     * <dd>However, note that <strong>the translation string may be invalid</strong>, as is the case for {@link
+     * net.minecraft.tileentity.TileEntityBanner TileEntityBanner} (always returns nonexistent translation code
+     * <code>banner</code> without a custom name), {@link net.minecraft.block.BlockAnvil.Anvil BlockAnvil$Anvil} (always
+     * returns <code>anvil</code>), {@link net.minecraft.block.BlockWorkbench.InterfaceCraftingTable
+     * BlockWorkbench$InterfaceCraftingTable} (always returns <code>crafting_table</code>), {@link
+     * net.minecraft.inventory.InventoryCraftResult InventoryCraftResult} (always returns <code>Result</code>) and the
+     * {@link net.minecraft.entity.item.EntityMinecart EntityMinecart} family (uses the entity definition). This is not
+     * an exaustive list.</dd>
+     * <dd>In general, this method should be safe to use on tile entities that implement IInventory.</dd>
+     * <dt>{@link net.minecraft.command.ICommandSender#getName() ICommandSender.getName()} and {@link
+     * net.minecraft.entity.Entity#getName() Entity.getName()}</dt>
+     * <dd>Returns a valid, displayable name (which may be localized). For most entities, this is the translated version
+     * of its translation string (obtained via {@link net.minecraft.entity.EntityList#getEntityString
+     * EntityList.getEntityString}).</dd>
+     * <dd>If this entity has a custom name set, this will return that name.</dd>
+     * <dd>For some entities, this will attempt to translate a nonexistent translation string; see <a
+     * href="https://bugs.mojang.com/browse/MC-68446">MC-68446</a>. For {@linkplain
+     * net.minecraft.entity.player.EntityPlayer#getName() players} this returns the player's name. For {@linkplain
+     * net.minecraft.entity.passive.EntityOcelot ocelots} this may return the translation of
+     * <code>entity.Cat.name</code> if it is tamed. For {@linkplain net.minecraft.entity.item.EntityItem#getName() item
+     * entities}, this will attempt to return the name of the item in that item entity. In all cases other than players,
+     * the custom name will overrule this.</dd>
+     * <dd>For non-entity command senders, this will return some arbitrary name, such as "Rcon" or "Server".</dd>
+     * </dl>
+     */
     public String getName()
     {
         return "container.inventory";
     }
 
+    /**
+     * Checks if this thing has a custom name. This method has slightly different behavior depending on the interface
+     * (for <a href="https://github.com/ModCoderPack/MCPBot-Issues/issues/14">technical reasons</a> the same method is
+     * used for both IWorldNameable and Entity):
+     *  
+     * <dl>
+     * <dt>{@link net.minecraft.util.INameable#hasCustomName() INameable.hasCustomName()}</dt>
+     * <dd>If true, then {@link #getName()} probably returns a preformatted name; otherwise, it probably returns a
+     * translation string. However, exact behavior varies.</dd>
+     * <dt>{@link net.minecraft.entity.Entity#hasCustomName() Entity.hasCustomName()}</dt>
+     * <dd>If true, then {@link net.minecraft.entity.Entity#getCustomNameTag() Entity.getCustomNameTag()} will return a
+     * non-empty string, which will be used by {@link #getName()}.</dd>
+     * </dl>
+     */
     public boolean hasCustomName()
     {
         return false;
     }
 
+    /**
+     * Returns a displayable component representing this thing's name. This method should be implemented slightly
+     * differently depending on the interface (for <a href="https://github.com/ModCoderPack/MCPBot-
+     * Issues/issues/14">technical reasons</a> the same method is used for both IWorldNameable and ICommandSender), but
+     * unlike {@link #getName()} this method will generally behave sanely.
+     *  
+     * <dl>
+     * <dt>{@link net.minecraft.util.INameable#getDisplayName() INameable.getDisplayName()}</dt>
+     * <dd>A normal component. Might be a translation component or a text component depending on the context. Usually
+     * implemented as:</dd>
+     * <dd><pre><code>return this.{@link net.minecraft.util.INameable#hasCustomName() hasCustomName()} ? new
+     * TextComponentString(this.{@link #getName()}) : new TextComponentTranslation(this.{@link
+     * #getName()});</code></pre></dd>
+     * <dt>{@link net.minecraft.command.ICommandSender#getDisplayName() ICommandSender.getDisplayName()} and {@link
+     * net.minecraft.entity.Entity#getDisplayName() Entity.getDisplayName()}</dt>
+     * <dd>For most entities, this returns the result of {@link #getName()}, with {@linkplain
+     * net.minecraft.scoreboard.ScorePlayerTeam#formatPlayerName scoreboard formatting} and a {@linkplain
+     * net.minecraft.entity.Entity#getHoverEvent special hover event}.</dd>
+     * <dd>For non-entity command senders, this will return the result of {@link #getName()} in a text component.</dd>
+     * </dl>
+     */
     public ITextComponent getDisplayName()
     {
         return (ITextComponent)(this.hasCustomName() ? new TextComponentString(this.getName()) : new TextComponentTranslation(this.getName(), new Object[0]));
@@ -872,7 +953,7 @@ public class InventoryPlayer implements IInventory
      */
     public boolean isUsableByPlayer(EntityPlayer player)
     {
-        if (this.player.removed)
+        if (this.player.isDead)
         {
             return false;
         }

@@ -25,6 +25,9 @@ public class ModelLlamaSpit extends ModelBase
         this.main.setRotationPoint(0.0F, 0.0F, 0.0F);
     }
 
+    /**
+     * Sets the models various rotation angles then renders the model.
+     */
     public void render(Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale)
     {
         this.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale, entityIn);

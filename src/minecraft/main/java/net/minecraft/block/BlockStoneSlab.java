@@ -26,7 +26,7 @@ public abstract class BlockStoneSlab extends BlockSlab
     public BlockStoneSlab()
     {
         super(Material.ROCK);
-        IBlockState iblockstate = this.stateContainer.getBaseState();
+        IBlockState iblockstate = this.blockState.getBaseState();
 
         if (this.isDouble())
         {
@@ -41,6 +41,9 @@ public abstract class BlockStoneSlab extends BlockSlab
         this.setCreativeTab(CreativeTabs.BUILDING_BLOCKS);
     }
 
+    /**
+     * Get the Item that this Block should drop when harvested.
+     */
     public Item getItemDropped(IBlockState state, Random rand, int fortune)
     {
         return Item.getItemFromBlock(Blocks.STONE_SLAB);
@@ -48,9 +51,12 @@ public abstract class BlockStoneSlab extends BlockSlab
 
     public ItemStack getItem(World worldIn, BlockPos pos, IBlockState state)
     {
-        return new ItemStack(Blocks.STONE_SLAB, 1, ((BlockStoneSlab.EnumType)state.get(VARIANT)).getMetadata());
+        return new ItemStack(Blocks.STONE_SLAB, 1, ((BlockStoneSlab.EnumType)state.getValue(VARIANT)).getMetadata());
     }
 
+    /**
+     * Returns the slab block name with the type associated with it
+     */
     public String getTranslationKey(int meta)
     {
         return super.getTranslationKey() + "." + BlockStoneSlab.EnumType.byMetadata(meta).getTranslationKey();
@@ -69,7 +75,7 @@ public abstract class BlockStoneSlab extends BlockSlab
     /**
      * returns a list of blocks with the same ID, but different meta (eg: wood returns 4 blocks)
      */
-    public void fillItemGroup(CreativeTabs group, NonNullList<ItemStack> items)
+    public void getSubBlocks(CreativeTabs itemIn, NonNullList<ItemStack> items)
     {
         for (BlockStoneSlab.EnumType blockstoneslab$enumtype : BlockStoneSlab.EnumType.values())
         {
@@ -80,6 +86,9 @@ public abstract class BlockStoneSlab extends BlockSlab
         }
     }
 
+    /**
+     * Convert the given metadata into a BlockState for this Block
+     */
     public IBlockState getStateFromMeta(int meta)
     {
         IBlockState iblockstate = this.getDefaultState().withProperty(VARIANT, BlockStoneSlab.EnumType.byMetadata(meta & 7));
@@ -96,19 +105,22 @@ public abstract class BlockStoneSlab extends BlockSlab
         return iblockstate;
     }
 
+    /**
+     * Convert the BlockState into the correct metadata value
+     */
     public int getMetaFromState(IBlockState state)
     {
         int i = 0;
-        i = i | ((BlockStoneSlab.EnumType)state.get(VARIANT)).getMetadata();
+        i = i | ((BlockStoneSlab.EnumType)state.getValue(VARIANT)).getMetadata();
 
         if (this.isDouble())
         {
-            if (((Boolean)state.get(SEAMLESS)).booleanValue())
+            if (((Boolean)state.getValue(SEAMLESS)).booleanValue())
             {
                 i |= 8;
             }
         }
-        else if (state.get(HALF) == BlockSlab.EnumBlockHalf.TOP)
+        else if (state.getValue(HALF) == BlockSlab.EnumBlockHalf.TOP)
         {
             i |= 8;
         }
@@ -121,9 +133,13 @@ public abstract class BlockStoneSlab extends BlockSlab
         return this.isDouble() ? new BlockStateContainer(this, new IProperty[] {SEAMLESS, VARIANT}) : new BlockStateContainer(this, new IProperty[] {HALF, VARIANT});
     }
 
+    /**
+     * Gets the metadata of the item this Block can drop. This method is called when the block gets destroyed. It
+     * returns the metadata of the dropped item based on the old metadata of the block.
+     */
     public int damageDropped(IBlockState state)
     {
-        return ((BlockStoneSlab.EnumType)state.get(VARIANT)).getMetadata();
+        return ((BlockStoneSlab.EnumType)state.getValue(VARIANT)).getMetadata();
     }
 
     /**
@@ -131,9 +147,9 @@ public abstract class BlockStoneSlab extends BlockSlab
      * @deprecated call via {@link IBlockState#getMapColor(IBlockAccess,BlockPos)} whenever possible.
      * Implementing/overriding is fine.
      */
-    public MapColor getMaterialColor(IBlockState state, IBlockAccess worldIn, BlockPos pos)
+    public MapColor getMapColor(IBlockState state, IBlockAccess worldIn, BlockPos pos)
     {
-        return ((BlockStoneSlab.EnumType)state.get(VARIANT)).getMapColor();
+        return ((BlockStoneSlab.EnumType)state.getValue(VARIANT)).getMapColor();
     }
 
     public static enum EnumType implements IStringSerializable

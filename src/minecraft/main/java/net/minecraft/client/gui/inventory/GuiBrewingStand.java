@@ -11,6 +11,8 @@ public class GuiBrewingStand extends GuiContainer
 {
     private static final ResourceLocation BREWING_STAND_GUI_TEXTURES = new ResourceLocation("textures/gui/container/brewing_stand.png");
     private static final int[] BUBBLELENGTHS = new int[] {29, 24, 20, 16, 11, 6, 0};
+
+    /** The player inventory bound to this GUI. */
     private final InventoryPlayer playerInventory;
     private final IInventory tileBrewingStand;
 
@@ -21,6 +23,9 @@ public class GuiBrewingStand extends GuiContainer
         this.tileBrewingStand = inventoryIn;
     }
 
+    /**
+     * Draws the screen and all the components in it.
+     */
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         this.drawDefaultBackground();

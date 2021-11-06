@@ -33,7 +33,7 @@ public class SPacketChunkData implements Packet<INetHandlerPlayClient>
         this.chunkX = chunkIn.x;
         this.chunkZ = chunkIn.z;
         this.fullChunk = changedSectionFilter == 65535;
-        boolean flag = chunkIn.getWorld().dimension.hasSkyLight();
+        boolean flag = chunkIn.getWorld().provider.hasSkyLight();
         this.buffer = new byte[this.calculateChunkSize(chunkIn, flag, changedSectionFilter)];
         this.availableSections = this.extractChunkData(new PacketBuffer(this.getWriteBuffer()), chunkIn, flag, changedSectionFilter);
         this.tileEntityTags = Lists.<NBTTagCompound>newArrayList();
@@ -123,14 +123,14 @@ public class SPacketChunkData implements Packet<INetHandlerPlayClient>
     public int extractChunkData(PacketBuffer buf, Chunk chunkIn, boolean writeSkylight, int changedSectionFilter)
     {
         int i = 0;
-        ExtendedBlockStorage[] aextendedblockstorage = chunkIn.getSections();
+        ExtendedBlockStorage[] aextendedblockstorage = chunkIn.getBlockStorageArray();
         int j = 0;
 
         for (int k = aextendedblockstorage.length; j < k; ++j)
         {
             ExtendedBlockStorage extendedblockstorage = aextendedblockstorage[j];
 
-            if (extendedblockstorage != Chunk.EMPTY_SECTION && (!this.isFullChunk() || !extendedblockstorage.isEmpty()) && (changedSectionFilter & 1 << j) != 0)
+            if (extendedblockstorage != Chunk.NULL_BLOCK_STORAGE && (!this.isFullChunk() || !extendedblockstorage.isEmpty()) && (changedSectionFilter & 1 << j) != 0)
             {
                 i |= 1 << j;
                 extendedblockstorage.getData().write(buf);
@@ -154,14 +154,14 @@ public class SPacketChunkData implements Packet<INetHandlerPlayClient>
     protected int calculateChunkSize(Chunk chunkIn, boolean p_189556_2_, int p_189556_3_)
     {
         int i = 0;
-        ExtendedBlockStorage[] aextendedblockstorage = chunkIn.getSections();
+        ExtendedBlockStorage[] aextendedblockstorage = chunkIn.getBlockStorageArray();
         int j = 0;
 
         for (int k = aextendedblockstorage.length; j < k; ++j)
         {
             ExtendedBlockStorage extendedblockstorage = aextendedblockstorage[j];
 
-            if (extendedblockstorage != Chunk.EMPTY_SECTION && (!this.isFullChunk() || !extendedblockstorage.isEmpty()) && (p_189556_3_ & 1 << j) != 0)
+            if (extendedblockstorage != Chunk.NULL_BLOCK_STORAGE && (!this.isFullChunk() || !extendedblockstorage.isEmpty()) && (p_189556_3_ & 1 << j) != 0)
             {
                 i = i + extendedblockstorage.getData().getSerializedSize();
                 i = i + extendedblockstorage.getBlockLight().getData().length;
@@ -191,7 +191,7 @@ public class SPacketChunkData implements Packet<INetHandlerPlayClient>
         return this.chunkZ;
     }
 
-    public int getAvailableSections()
+    public int getExtractedSize()
     {
         return this.availableSections;
     }

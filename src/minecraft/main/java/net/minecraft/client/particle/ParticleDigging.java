@@ -19,7 +19,7 @@ public class ParticleDigging extends Particle
     {
         super(worldIn, xCoordIn, yCoordIn, zCoordIn, xSpeedIn, ySpeedIn, zSpeedIn);
         this.sourceState = state;
-        this.setParticleTexture(Minecraft.getInstance().getBlockRendererDispatcher().getBlockModelShapes().getTexture(state));
+        this.setParticleTexture(Minecraft.getMinecraft().getBlockRendererDispatcher().getBlockModelShapes().getTexture(state));
         this.particleGravity = state.getBlock().blockParticleGravity;
         this.particleRed = 0.6F;
         this.particleGreen = 0.6F;
@@ -63,17 +63,24 @@ public class ParticleDigging extends Particle
 
     protected void multiplyColor(@Nullable BlockPos p_187154_1_)
     {
-        int i = Minecraft.getInstance().getBlockColors().colorMultiplier(this.sourceState, this.world, p_187154_1_, 0);
+        int i = Minecraft.getMinecraft().getBlockColors().colorMultiplier(this.sourceState, this.world, p_187154_1_, 0);
         this.particleRed *= (float)(i >> 16 & 255) / 255.0F;
         this.particleGreen *= (float)(i >> 8 & 255) / 255.0F;
         this.particleBlue *= (float)(i & 255) / 255.0F;
     }
 
+    /**
+     * Retrieve what effect layer (what texture) the particle should be rendered with. 0 for the particle sprite sheet,
+     * 1 for the main Texture atlas, and 3 for a custom texture
+     */
     public int getFXLayer()
     {
         return 1;
     }
 
+    /**
+     * Renders the particle
+     */
     public void renderParticle(BufferBuilder buffer, Entity entityIn, float partialTicks, float rotationX, float rotationZ, float rotationYZ, float rotationXY, float rotationXZ)
     {
         float f = ((float)this.particleTextureIndexX + this.particleTextureJitterX / 4.0F) / 16.0F;

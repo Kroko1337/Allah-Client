@@ -29,10 +29,13 @@ public class BlockTNT extends Block
     public BlockTNT()
     {
         super(Material.TNT);
-        this.setDefaultState(this.stateContainer.getBaseState().withProperty(EXPLODE, Boolean.valueOf(false)));
+        this.setDefaultState(this.blockState.getBaseState().withProperty(EXPLODE, Boolean.valueOf(false)));
         this.setCreativeTab(CreativeTabs.REDSTONE);
     }
 
+    /**
+     * Called after the block is set in the Chunk data, but before the Tile Entity is set
+     */
     public void onBlockAdded(World worldIn, BlockPos pos, IBlockState state)
     {
         super.onBlockAdded(worldIn, pos, state);
@@ -44,6 +47,11 @@ public class BlockTNT extends Block
         }
     }
 
+    /**
+     * Called when a neighboring block was changed and marks that this state should perform any checks during a neighbor
+     * change. Cases may include when redstone power is updated, cactus blocks popping off due to a neighboring solid
+     * block, etc.
+     */
     public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos)
     {
         if (worldIn.isBlockPowered(pos))
@@ -62,7 +70,7 @@ public class BlockTNT extends Block
         {
             EntityTNTPrimed entitytntprimed = new EntityTNTPrimed(worldIn, (double)((float)pos.getX() + 0.5F), (double)pos.getY(), (double)((float)pos.getZ() + 0.5F), explosionIn.getExplosivePlacedBy());
             entitytntprimed.setFuse((short)(worldIn.rand.nextInt(entitytntprimed.getFuse() / 4) + entitytntprimed.getFuse() / 8));
-            worldIn.addEntity0(entitytntprimed);
+            worldIn.spawnEntity(entitytntprimed);
         }
     }
 
@@ -78,15 +86,18 @@ public class BlockTNT extends Block
     {
         if (!worldIn.isRemote)
         {
-            if (((Boolean)state.get(EXPLODE)).booleanValue())
+            if (((Boolean)state.getValue(EXPLODE)).booleanValue())
             {
                 EntityTNTPrimed entitytntprimed = new EntityTNTPrimed(worldIn, (double)((float)pos.getX() + 0.5F), (double)pos.getY(), (double)((float)pos.getZ() + 0.5F), igniter);
-                worldIn.addEntity0(entitytntprimed);
+                worldIn.spawnEntity(entitytntprimed);
                 worldIn.playSound((EntityPlayer)null, entitytntprimed.posX, entitytntprimed.posY, entitytntprimed.posZ, SoundEvents.ENTITY_TNT_PRIMED, SoundCategory.BLOCKS, 1.0F, 1.0F);
             }
         }
     }
 
+    /**
+     * Called when the block is right clicked by a player.
+     */
     public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
         ItemStack itemstack = playerIn.getHeldItem(hand);
@@ -100,7 +111,7 @@ public class BlockTNT extends Block
             {
                 itemstack.damageItem(1, playerIn);
             }
-            else if (!playerIn.abilities.isCreativeMode)
+            else if (!playerIn.capabilities.isCreativeMode)
             {
                 itemstack.shrink(1);
             }
@@ -113,6 +124,9 @@ public class BlockTNT extends Block
         }
     }
 
+    /**
+     * Called When an Entity Collided with the Block
+     */
     public void onEntityCollision(World worldIn, BlockPos pos, IBlockState state, Entity entityIn)
     {
         if (!worldIn.isRemote && entityIn instanceof EntityArrow)
@@ -135,14 +149,20 @@ public class BlockTNT extends Block
         return false;
     }
 
+    /**
+     * Convert the given metadata into a BlockState for this Block
+     */
     public IBlockState getStateFromMeta(int meta)
     {
         return this.getDefaultState().withProperty(EXPLODE, Boolean.valueOf((meta & 1) > 0));
     }
 
+    /**
+     * Convert the BlockState into the correct metadata value
+     */
     public int getMetaFromState(IBlockState state)
     {
-        return ((Boolean)state.get(EXPLODE)).booleanValue() ? 1 : 0;
+        return ((Boolean)state.getValue(EXPLODE)).booleanValue() ? 1 : 0;
     }
 
     protected BlockStateContainer createBlockState()

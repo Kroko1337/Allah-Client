@@ -14,6 +14,10 @@ import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
+import net.minecraft.src.CapeUtils;
+import net.minecraft.src.Config;
+import net.minecraft.src.PlayerConfigurations;
+import net.minecraft.src.Reflector;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StringUtils;
 import net.minecraft.world.GameType;
@@ -25,10 +29,22 @@ public abstract class AbstractClientPlayer extends EntityPlayer
     public float rotateElytraX;
     public float rotateElytraY;
     public float rotateElytraZ;
+    private ResourceLocation locationOfCape = null;
+    private String nameClear = null;
+    private static final ResourceLocation TEXTURE_ELYTRA = new ResourceLocation("textures/entity/elytra.png");
 
     public AbstractClientPlayer(World worldIn, GameProfile playerProfile)
     {
         super(worldIn, playerProfile);
+        this.nameClear = playerProfile.getName();
+
+        if (this.nameClear != null && !this.nameClear.isEmpty())
+        {
+            this.nameClear = StringUtils.stripControlCodes(this.nameClear);
+        }
+
+        CapeUtils.downloadCape(this);
+        PlayerConfigurations.getPlayerConfiguration(this);
     }
 
     /**
@@ -36,13 +52,13 @@ public abstract class AbstractClientPlayer extends EntityPlayer
      */
     public boolean isSpectator()
     {
-        NetworkPlayerInfo networkplayerinfo = Minecraft.getInstance().getConnection().getPlayerInfo(this.getGameProfile().getId());
+        NetworkPlayerInfo networkplayerinfo = Minecraft.getMinecraft().getConnection().getPlayerInfo(this.getGameProfile().getId());
         return networkplayerinfo != null && networkplayerinfo.getGameType() == GameType.SPECTATOR;
     }
 
     public boolean isCreative()
     {
-        NetworkPlayerInfo networkplayerinfo = Minecraft.getInstance().getConnection().getPlayerInfo(this.getGameProfile().getId());
+        NetworkPlayerInfo networkplayerinfo = Minecraft.getMinecraft().getConnection().getPlayerInfo(this.getGameProfile().getId());
         return networkplayerinfo != null && networkplayerinfo.getGameType() == GameType.CREATIVE;
     }
 
@@ -59,7 +75,7 @@ public abstract class AbstractClientPlayer extends EntityPlayer
     {
         if (this.playerInfo == null)
         {
-            this.playerInfo = Minecraft.getInstance().getConnection().getPlayerInfo(this.getUniqueID());
+            this.playerInfo = Minecraft.getMinecraft().getConnection().getPlayerInfo(this.getUniqueID());
         }
 
         return this.playerInfo;
@@ -86,8 +102,19 @@ public abstract class AbstractClientPlayer extends EntityPlayer
     @Nullable
     public ResourceLocation getLocationCape()
     {
-        NetworkPlayerInfo networkplayerinfo = this.getPlayerInfo();
-        return networkplayerinfo == null ? null : networkplayerinfo.getLocationCape();
+        if (!Config.isShowCapes())
+        {
+            return null;
+        }
+        else if (this.locationOfCape != null)
+        {
+            return this.locationOfCape;
+        }
+        else
+        {
+            NetworkPlayerInfo networkplayerinfo = this.getPlayerInfo();
+            return networkplayerinfo == null ? null : networkplayerinfo.getLocationCape();
+        }
     }
 
     public boolean isPlayerInfoSet()
@@ -108,7 +135,7 @@ public abstract class AbstractClientPlayer extends EntityPlayer
 
     public static ThreadDownloadImageData getDownloadImageSkin(ResourceLocation resourceLocationIn, String username)
     {
-        TextureManager texturemanager = Minecraft.getInstance().getTextureManager();
+        TextureManager texturemanager = Minecraft.getMinecraft().getTextureManager();
         ITextureObject itextureobject = texturemanager.getTexture(resourceLocationIn);
 
         if (itextureobject == null)
@@ -138,15 +165,15 @@ public abstract class AbstractClientPlayer extends EntityPlayer
     {
         float f = 1.0F;
 
-        if (this.abilities.isFlying)
+        if (this.capabilities.isFlying)
         {
             f *= 1.1F;
         }
 
-        IAttributeInstance iattributeinstance = this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED);
-        f = (float)((double)f * ((iattributeinstance.getValue() / (double)this.abilities.getWalkSpeed() + 1.0D) / 2.0D));
+        IAttributeInstance iattributeinstance = this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED);
+        f = (float)((double)f * ((iattributeinstance.getAttributeValue() / (double)this.capabilities.getWalkSpeed() + 1.0D) / 2.0D));
 
-        if (this.abilities.getWalkSpeed() == 0.0F || Float.isNaN(f) || Float.isInfinite(f))
+        if (this.capabilities.getWalkSpeed() == 0.0F || Float.isNaN(f) || Float.isInfinite(f))
         {
             f = 1.0F;
         }
@@ -168,6 +195,35 @@ public abstract class AbstractClientPlayer extends EntityPlayer
             f *= 1.0F - f1 * 0.15F;
         }
 
-        return f;
+        return Reflector.ForgeHooksClient_getOffsetFOV.exists() ? Reflector.callFloat(Reflector.ForgeHooksClient_getOffsetFOV, this, f) : f;
+    }
+
+    public String getNameClear()
+    {
+        return this.nameClear;
+    }
+
+    public ResourceLocation getLocationOfCape()
+    {
+        return this.locationOfCape;
+    }
+
+    public void setLocationOfCape(ResourceLocation p_setLocationOfCape_1_)
+    {
+        this.locationOfCape = p_setLocationOfCape_1_;
+    }
+
+    public boolean hasElytraCape()
+    {
+        ResourceLocation resourcelocation = this.getLocationCape();
+
+        if (resourcelocation == null)
+        {
+            return false;
+        }
+        else
+        {
+            return resourcelocation != this.locationOfCape;
+        }
     }
 }

@@ -192,6 +192,9 @@ public class PlayerProfileCache
         return playerprofilecache$profileentry == null ? null : playerprofilecache$profileentry.getGameProfile();
     }
 
+    /**
+     * Get an array of the usernames that are cached in this cache
+     */
     public String[] getUsernames()
     {
         List<String> list = Lists.newArrayList(this.usernameToProfileEntryMap.keySet());

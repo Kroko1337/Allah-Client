@@ -28,9 +28,9 @@ public class GuiButtonToggle extends GuiButton
         this.resourceLocation = resourceLocationIn;
     }
 
-    public void setStateTriggered(boolean triggered)
+    public void setStateTriggered(boolean p_191753_1_)
     {
-        this.stateTriggered = triggered;
+        this.stateTriggered = p_191753_1_;
     }
 
     public boolean isStateTriggered()
@@ -38,12 +38,15 @@ public class GuiButtonToggle extends GuiButton
         return this.stateTriggered;
     }
 
-    public void setPosition(int xIn, int yIn)
+    public void setPosition(int p_191752_1_, int p_191752_2_)
     {
-        this.x = xIn;
-        this.y = yIn;
+        this.x = p_191752_1_;
+        this.y = p_191752_2_;
     }
 
+    /**
+     * Draws this button to the screen.
+     */
     public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks)
     {
         if (this.visible)

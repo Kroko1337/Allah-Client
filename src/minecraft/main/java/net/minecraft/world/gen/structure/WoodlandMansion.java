@@ -18,7 +18,7 @@ public class WoodlandMansion extends MapGenStructure
 {
     private final int featureSpacing = 80;
     private final int minFeatureSeparation = 20;
-    public static final List<Biome> ALLOWED_BIOMES = Arrays.<Biome>asList(Biomes.DARK_FOREST, Biomes.DARK_FOREST_HILLS);
+    public static final List<Biome> ALLOWED_BIOMES = Arrays.<Biome>asList(Biomes.ROOFED_FOREST, Biomes.MUTATED_ROOFED_FOREST);
     private final ChunkGeneratorOverworld provider;
 
     public WoodlandMansion(ChunkGeneratorOverworld providerIn)
@@ -71,7 +71,7 @@ public class WoodlandMansion extends MapGenStructure
     {
         this.world = worldIn;
         BiomeProvider biomeprovider = worldIn.getBiomeProvider();
-        return biomeprovider.isFixedBiome() && biomeprovider.getFixedBiome() != Biomes.DARK_FOREST ? null : findNearestStructurePosBySpacing(worldIn, this, pos, 80, 20, 10387319, true, 100, findUnexplored);
+        return biomeprovider.isFixedBiome() && biomeprovider.getFixedBiome() != Biomes.ROOFED_FOREST ? null : findNearestStructurePosBySpacing(worldIn, this, pos, 80, 20, 10387319, true, 100, findUnexplored);
     }
 
     protected StructureStart getStructureStart(int chunkX, int chunkZ)
@@ -139,7 +139,7 @@ public class WoodlandMansion extends MapGenStructure
         public void generateStructure(World worldIn, Random rand, StructureBoundingBox structurebb)
         {
             super.generateStructure(worldIn, rand, structurebb);
-            int i = this.bounds.minY;
+            int i = this.boundingBox.minY;
 
             for (int j = structurebb.minX; j <= structurebb.maxX; ++j)
             {
@@ -147,7 +147,7 @@ public class WoodlandMansion extends MapGenStructure
                 {
                     BlockPos blockpos = new BlockPos(j, i, k);
 
-                    if (!worldIn.isAirBlock(blockpos) && this.bounds.isVecInside(blockpos))
+                    if (!worldIn.isAirBlock(blockpos) && this.boundingBox.isVecInside(blockpos))
                     {
                         boolean flag = false;
 
@@ -179,7 +179,7 @@ public class WoodlandMansion extends MapGenStructure
             }
         }
 
-        public boolean isValid()
+        public boolean isSizeableStructure()
         {
             return this.isValid;
         }

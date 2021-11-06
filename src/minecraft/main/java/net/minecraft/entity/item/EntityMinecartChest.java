@@ -48,7 +48,7 @@ public class EntityMinecartChest extends EntityMinecartContainer
         return 27;
     }
 
-    public EntityMinecart.Type getMinecartType()
+    public EntityMinecart.Type getType()
     {
         return EntityMinecart.Type.CHEST;
     }

@@ -14,9 +14,16 @@ import net.minecraft.world.World;
 
 public class CommandResultStats
 {
+    /** The number of result command result types that are possible. */
     private static final int NUM_RESULT_TYPES = CommandResultStats.Type.values().length;
     private static final String[] STRING_RESULT_TYPES = new String[NUM_RESULT_TYPES];
+
+    /**
+     * List of entityID who set a stat, username for a player, UUID for all entities
+     */
     private String[] entitiesID;
+
+    /** List of all the Objectives names */
     private String[] objectives;
 
     public CommandResultStats()
@@ -110,16 +117,16 @@ public class CommandResultStats
 
     public void readStatsFromNBT(NBTTagCompound tagcompound)
     {
-        if (tagcompound.contains("CommandStats", 10))
+        if (tagcompound.hasKey("CommandStats", 10))
         {
-            NBTTagCompound nbttagcompound = tagcompound.getCompound("CommandStats");
+            NBTTagCompound nbttagcompound = tagcompound.getCompoundTag("CommandStats");
 
             for (CommandResultStats.Type commandresultstats$type : CommandResultStats.Type.values())
             {
                 String s = commandresultstats$type.getTypeName() + "Name";
                 String s1 = commandresultstats$type.getTypeName() + "Objective";
 
-                if (nbttagcompound.contains(s, 8) && nbttagcompound.contains(s1, 8))
+                if (nbttagcompound.hasKey(s, 8) && nbttagcompound.hasKey(s1, 8))
                 {
                     String s2 = nbttagcompound.getString(s);
                     String s3 = nbttagcompound.getString(s1);
@@ -140,8 +147,8 @@ public class CommandResultStats
 
             if (s != null && s1 != null)
             {
-                nbttagcompound.putString(commandresultstats$type.getTypeName() + "Name", s);
-                nbttagcompound.putString(commandresultstats$type.getTypeName() + "Objective", s1);
+                nbttagcompound.setString(commandresultstats$type.getTypeName() + "Name", s);
+                nbttagcompound.setString(commandresultstats$type.getTypeName() + "Objective", s1);
             }
         }
 
@@ -151,6 +158,9 @@ public class CommandResultStats
         }
     }
 
+    /**
+     * Set a stat in the scoreboard
+     */
     public static void setScoreBoardStat(CommandResultStats stats, CommandResultStats.Type resultType, @Nullable String entityID, @Nullable String objectiveName)
     {
         if (entityID != null && !entityID.isEmpty() && objectiveName != null && !objectiveName.isEmpty())
@@ -170,6 +180,9 @@ public class CommandResultStats
         }
     }
 
+    /**
+     * Remove a stat from the scoreboard
+     */
     private static void removeScoreBoardStat(CommandResultStats resultStatsIn, CommandResultStats.Type resultTypeIn)
     {
         if (resultStatsIn.entitiesID != STRING_RESULT_TYPES && resultStatsIn.objectives != STRING_RESULT_TYPES)
@@ -195,6 +208,9 @@ public class CommandResultStats
         }
     }
 
+    /**
+     * Add all stats in the CommandResultStats
+     */
     public void addAllStats(CommandResultStats resultStatsIn)
     {
         for (CommandResultStats.Type commandresultstats$type : CommandResultStats.Type.values())

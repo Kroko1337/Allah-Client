@@ -25,14 +25,20 @@ public class BlockStructure extends BlockContainer
     public BlockStructure()
     {
         super(Material.IRON, MapColor.SILVER);
-        this.setDefaultState(this.stateContainer.getBaseState());
+        this.setDefaultState(this.blockState.getBaseState());
     }
 
+    /**
+     * Returns a new instance of a block's tile entity class. Called on placing the block.
+     */
     public TileEntity createNewTileEntity(World worldIn, int meta)
     {
         return new TileEntityStructure();
     }
 
+    /**
+     * Called when the block is right clicked by a player.
+     */
     public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
         TileEntity tileentity = worldIn.getTileEntity(pos);
@@ -56,6 +62,9 @@ public class BlockStructure extends BlockContainer
         }
     }
 
+    /**
+     * Returns the quantity of items to drop on block destruction.
+     */
     public int quantityDropped(Random random)
     {
         return 0;
@@ -71,19 +80,29 @@ public class BlockStructure extends BlockContainer
         return EnumBlockRenderType.MODEL;
     }
 
+    /**
+     * Called by ItemBlocks just before a block is actually set in the world, to allow for adjustments to the
+     * IBlockstate
+     */
     public IBlockState getStateForPlacement(World worldIn, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer)
     {
         return this.getDefaultState().withProperty(MODE, TileEntityStructure.Mode.DATA);
     }
 
+    /**
+     * Convert the given metadata into a BlockState for this Block
+     */
     public IBlockState getStateFromMeta(int meta)
     {
         return this.getDefaultState().withProperty(MODE, TileEntityStructure.Mode.getById(meta));
     }
 
+    /**
+     * Convert the BlockState into the correct metadata value
+     */
     public int getMetaFromState(IBlockState state)
     {
-        return ((TileEntityStructure.Mode)state.get(MODE)).getModeId();
+        return ((TileEntityStructure.Mode)state.getValue(MODE)).getModeId();
     }
 
     protected BlockStateContainer createBlockState()
@@ -91,6 +110,11 @@ public class BlockStructure extends BlockContainer
         return new BlockStateContainer(this, new IProperty[] {MODE});
     }
 
+    /**
+     * Called when a neighboring block was changed and marks that this state should perform any checks during a neighbor
+     * change. Cases may include when redstone power is updated, cactus blocks popping off due to a neighboring solid
+     * block, etc.
+     */
     public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos)
     {
         if (!worldIn.isRemote)
@@ -116,20 +140,20 @@ public class BlockStructure extends BlockContainer
         }
     }
 
-    private void trigger(TileEntityStructure structureIn)
+    private void trigger(TileEntityStructure p_189874_1_)
     {
-        switch (structureIn.getMode())
+        switch (p_189874_1_.getMode())
         {
             case SAVE:
-                structureIn.save(false);
+                p_189874_1_.save(false);
                 break;
 
             case LOAD:
-                structureIn.load(false);
+                p_189874_1_.load(false);
                 break;
 
             case CORNER:
-                structureIn.unloadStructure();
+                p_189874_1_.unloadStructure();
 
             case DATA:
         }

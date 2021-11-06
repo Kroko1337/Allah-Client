@@ -1569,7 +1569,7 @@ public class StructureOceanMonumentPieces
         {
         }
 
-        protected void readAdditional(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
+        protected void readStructureFromNBT(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
         {
         }
 
@@ -1597,22 +1597,22 @@ public class StructureOceanMonumentPieces
             }
         }
 
-        protected void generateDefaultFloor(World worldIn, StructureBoundingBox p_175821_2_, int x, int z, boolean hasOpeningDownwards)
+        protected void generateDefaultFloor(World worldIn, StructureBoundingBox p_175821_2_, int p_175821_3_, int p_175821_4_, boolean p_175821_5_)
         {
-            if (hasOpeningDownwards)
+            if (p_175821_5_)
             {
-                this.fillWithBlocks(worldIn, p_175821_2_, x + 0, 0, z + 0, x + 2, 0, z + 8 - 1, ROUGH_PRISMARINE, ROUGH_PRISMARINE, false);
-                this.fillWithBlocks(worldIn, p_175821_2_, x + 5, 0, z + 0, x + 8 - 1, 0, z + 8 - 1, ROUGH_PRISMARINE, ROUGH_PRISMARINE, false);
-                this.fillWithBlocks(worldIn, p_175821_2_, x + 3, 0, z + 0, x + 4, 0, z + 2, ROUGH_PRISMARINE, ROUGH_PRISMARINE, false);
-                this.fillWithBlocks(worldIn, p_175821_2_, x + 3, 0, z + 5, x + 4, 0, z + 8 - 1, ROUGH_PRISMARINE, ROUGH_PRISMARINE, false);
-                this.fillWithBlocks(worldIn, p_175821_2_, x + 3, 0, z + 2, x + 4, 0, z + 2, BRICKS_PRISMARINE, BRICKS_PRISMARINE, false);
-                this.fillWithBlocks(worldIn, p_175821_2_, x + 3, 0, z + 5, x + 4, 0, z + 5, BRICKS_PRISMARINE, BRICKS_PRISMARINE, false);
-                this.fillWithBlocks(worldIn, p_175821_2_, x + 2, 0, z + 3, x + 2, 0, z + 4, BRICKS_PRISMARINE, BRICKS_PRISMARINE, false);
-                this.fillWithBlocks(worldIn, p_175821_2_, x + 5, 0, z + 3, x + 5, 0, z + 4, BRICKS_PRISMARINE, BRICKS_PRISMARINE, false);
+                this.fillWithBlocks(worldIn, p_175821_2_, p_175821_3_ + 0, 0, p_175821_4_ + 0, p_175821_3_ + 2, 0, p_175821_4_ + 8 - 1, ROUGH_PRISMARINE, ROUGH_PRISMARINE, false);
+                this.fillWithBlocks(worldIn, p_175821_2_, p_175821_3_ + 5, 0, p_175821_4_ + 0, p_175821_3_ + 8 - 1, 0, p_175821_4_ + 8 - 1, ROUGH_PRISMARINE, ROUGH_PRISMARINE, false);
+                this.fillWithBlocks(worldIn, p_175821_2_, p_175821_3_ + 3, 0, p_175821_4_ + 0, p_175821_3_ + 4, 0, p_175821_4_ + 2, ROUGH_PRISMARINE, ROUGH_PRISMARINE, false);
+                this.fillWithBlocks(worldIn, p_175821_2_, p_175821_3_ + 3, 0, p_175821_4_ + 5, p_175821_3_ + 4, 0, p_175821_4_ + 8 - 1, ROUGH_PRISMARINE, ROUGH_PRISMARINE, false);
+                this.fillWithBlocks(worldIn, p_175821_2_, p_175821_3_ + 3, 0, p_175821_4_ + 2, p_175821_3_ + 4, 0, p_175821_4_ + 2, BRICKS_PRISMARINE, BRICKS_PRISMARINE, false);
+                this.fillWithBlocks(worldIn, p_175821_2_, p_175821_3_ + 3, 0, p_175821_4_ + 5, p_175821_3_ + 4, 0, p_175821_4_ + 5, BRICKS_PRISMARINE, BRICKS_PRISMARINE, false);
+                this.fillWithBlocks(worldIn, p_175821_2_, p_175821_3_ + 2, 0, p_175821_4_ + 3, p_175821_3_ + 2, 0, p_175821_4_ + 4, BRICKS_PRISMARINE, BRICKS_PRISMARINE, false);
+                this.fillWithBlocks(worldIn, p_175821_2_, p_175821_3_ + 5, 0, p_175821_4_ + 3, p_175821_3_ + 5, 0, p_175821_4_ + 4, BRICKS_PRISMARINE, BRICKS_PRISMARINE, false);
             }
             else
             {
-                this.fillWithBlocks(worldIn, p_175821_2_, x + 0, 0, z + 0, x + 8 - 1, 0, z + 8 - 1, ROUGH_PRISMARINE, ROUGH_PRISMARINE, false);
+                this.fillWithBlocks(worldIn, p_175821_2_, p_175821_3_ + 0, 0, p_175821_4_ + 0, p_175821_3_ + 8 - 1, 0, p_175821_4_ + 8 - 1, ROUGH_PRISMARINE, ROUGH_PRISMARINE, false);
             }
         }
 
@@ -1654,7 +1654,7 @@ public class StructureOceanMonumentPieces
                 entityelderguardian.heal(entityelderguardian.getMaxHealth());
                 entityelderguardian.setLocationAndAngles((double)i + 0.5D, (double)j, (double)k + 0.5D, 0.0F, 0.0F);
                 entityelderguardian.onInitialSpawn(worldIn.getDifficultyForLocation(new BlockPos(entityelderguardian)), (IEntityLivingData)null);
-                worldIn.addEntity0(entityelderguardian);
+                worldIn.spawnEntity(entityelderguardian);
                 return true;
             }
             else

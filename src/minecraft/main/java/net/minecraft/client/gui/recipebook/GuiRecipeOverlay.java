@@ -254,7 +254,7 @@ public class GuiRecipeOverlay extends Gui
                             int j2 = (int)((float)(this.y + j1) / 0.42F - 3.0F);
                             GlStateManager.scale(0.42F, 0.42F, 1.0F);
                             GlStateManager.enableLighting();
-                            mc.getItemRenderer().renderItemAndEffectIntoGUI(aitemstack[MathHelper.floor(GuiRecipeOverlay.this.time / 30.0F) % aitemstack.length], i2, j2);
+                            mc.getRenderItem().renderItemAndEffectIntoGUI(aitemstack[MathHelper.floor(GuiRecipeOverlay.this.time / 30.0F) % aitemstack.length], i2, j2);
                             GlStateManager.disableLighting();
                             GlStateManager.popMatrix();
                         }

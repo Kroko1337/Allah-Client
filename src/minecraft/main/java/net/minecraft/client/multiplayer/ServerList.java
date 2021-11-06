@@ -13,6 +13,8 @@ import org.apache.logging.log4j.Logger;
 public class ServerList
 {
     private static final Logger LOGGER = LogManager.getLogger();
+
+    /** The Minecraft instance. */
     private final Minecraft mc;
     private final List<ServerData> servers = Lists.<ServerData>newArrayList();
 
@@ -38,11 +40,11 @@ public class ServerList
                 return;
             }
 
-            NBTTagList nbttaglist = nbttagcompound.getList("servers", 10);
+            NBTTagList nbttaglist = nbttagcompound.getTagList("servers", 10);
 
             for (int i = 0; i < nbttaglist.tagCount(); ++i)
             {
-                this.servers.add(ServerData.getServerDataFromNBTCompound(nbttaglist.getCompound(i)));
+                this.servers.add(ServerData.getServerDataFromNBTCompound(nbttaglist.getCompoundTagAt(i)));
             }
         }
         catch (Exception exception)
@@ -84,6 +86,9 @@ public class ServerList
         return this.servers.get(index);
     }
 
+    /**
+     * Removes the ServerData instance stored for the given index in the list.
+     */
     public void removeServerData(int index)
     {
         this.servers.remove(index);
@@ -123,7 +128,7 @@ public class ServerList
 
     public static void saveSingleServer(ServerData server)
     {
-        ServerList serverlist = new ServerList(Minecraft.getInstance());
+        ServerList serverlist = new ServerList(Minecraft.getMinecraft());
         serverlist.loadServerList();
 
         for (int i = 0; i < serverlist.countServers(); ++i)

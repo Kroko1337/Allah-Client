@@ -33,7 +33,7 @@ public class ItemBucketMilk extends Item
             entityplayermp.addStat(StatList.getObjectUseStats(this));
         }
 
-        if (entityLiving instanceof EntityPlayer && !((EntityPlayer)entityLiving).abilities.isCreativeMode)
+        if (entityLiving instanceof EntityPlayer && !((EntityPlayer)entityLiving).capabilities.isCreativeMode)
         {
             stack.shrink(1);
         }
@@ -49,7 +49,7 @@ public class ItemBucketMilk extends Item
     /**
      * How long it takes to use or consume an item
      */
-    public int getUseDuration(ItemStack stack)
+    public int getMaxItemUseDuration(ItemStack stack)
     {
         return 32;
     }
@@ -57,7 +57,7 @@ public class ItemBucketMilk extends Item
     /**
      * returns the action that specifies what animation to play when the items is being used
      */
-    public EnumAction getUseAction(ItemStack stack)
+    public EnumAction getItemUseAction(ItemStack stack)
     {
         return EnumAction.DRINK;
     }

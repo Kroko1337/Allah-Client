@@ -23,9 +23,13 @@ public class BlockDeadBush extends BlockBush
 
     protected BlockDeadBush()
     {
-        super(Material.TALL_PLANTS);
+        super(Material.VINE);
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#getBoundingBox(IBlockAccess,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
     {
         return DEAD_BUSH_AABB;
@@ -36,26 +40,38 @@ public class BlockDeadBush extends BlockBush
      * @deprecated call via {@link IBlockState#getMapColor(IBlockAccess,BlockPos)} whenever possible.
      * Implementing/overriding is fine.
      */
-    public MapColor getMaterialColor(IBlockState state, IBlockAccess worldIn, BlockPos pos)
+    public MapColor getMapColor(IBlockState state, IBlockAccess worldIn, BlockPos pos)
     {
         return MapColor.WOOD;
     }
 
+    /**
+     * Return true if the block can sustain a Bush
+     */
     protected boolean canSustainBush(IBlockState state)
     {
-        return state.getBlock() == Blocks.SAND || state.getBlock() == Blocks.TERRACOTTA || state.getBlock() == Blocks.STAINED_HARDENED_CLAY || state.getBlock() == Blocks.DIRT;
+        return state.getBlock() == Blocks.SAND || state.getBlock() == Blocks.HARDENED_CLAY || state.getBlock() == Blocks.STAINED_HARDENED_CLAY || state.getBlock() == Blocks.DIRT;
     }
 
+    /**
+     * Whether this Block can be replaced directly by other blocks (true for e.g. tall grass)
+     */
     public boolean isReplaceable(IBlockAccess worldIn, BlockPos pos)
     {
         return true;
     }
 
+    /**
+     * Returns the quantity of items to drop on block destruction.
+     */
     public int quantityDropped(Random random)
     {
         return random.nextInt(3);
     }
 
+    /**
+     * Get the Item that this Block should drop when harvested.
+     */
     public Item getItemDropped(IBlockState state, Random rand, int fortune)
     {
         return Items.STICK;

@@ -9,9 +9,15 @@ import net.minecraft.world.gen.IChunkGenerator;
 
 public class WorldProviderHell extends WorldProvider
 {
+    /**
+     * Creates a new {@link BiomeProvider} for the WorldProvider, and also sets the values of {@link #hasSkylight} and
+     * {@link #hasNoSky} appropriately.
+     *  
+     * Note that subclasses generally override this method without calling the parent version.
+     */
     public void init()
     {
-        this.biomeProvider = new BiomeProviderSingle(Biomes.NETHER);
+        this.biomeProvider = new BiomeProviderSingle(Biomes.HELL);
         this.doesWaterVaporize = true;
         this.nether = true;
     }
@@ -19,11 +25,14 @@ public class WorldProviderHell extends WorldProvider
     /**
      * Return Vec3D with biome specific fog color
      */
-    public Vec3d getFogColor(float celestialAngle, float partialTicks)
+    public Vec3d getFogColor(float p_76562_1_, float p_76562_2_)
     {
         return new Vec3d(0.20000000298023224D, 0.029999999329447746D, 0.029999999329447746D);
     }
 
+    /**
+     * Creates the light to brightness table
+     */
     protected void generateLightBrightnessTable()
     {
         float f = 0.1F;
@@ -48,6 +57,9 @@ public class WorldProviderHell extends WorldProvider
         return false;
     }
 
+    /**
+     * Will check if the x, z position specified is alright to be set as the map spawn point
+     */
     public boolean canCoordinateBeSpawn(int x, int z)
     {
         return false;
@@ -92,7 +104,7 @@ public class WorldProviderHell extends WorldProvider
         };
     }
 
-    public DimensionType getType()
+    public DimensionType getDimensionType()
     {
         return DimensionType.NETHER;
     }

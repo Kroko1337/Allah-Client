@@ -23,19 +23,23 @@ public class BlockStainedGlass extends BlockBreakable
     public BlockStainedGlass(Material materialIn)
     {
         super(materialIn, false);
-        this.setDefaultState(this.stateContainer.getBaseState().withProperty(COLOR, EnumDyeColor.WHITE));
+        this.setDefaultState(this.blockState.getBaseState().withProperty(COLOR, EnumDyeColor.WHITE));
         this.setCreativeTab(CreativeTabs.BUILDING_BLOCKS);
     }
 
+    /**
+     * Gets the metadata of the item this Block can drop. This method is called when the block gets destroyed. It
+     * returns the metadata of the dropped item based on the old metadata of the block.
+     */
     public int damageDropped(IBlockState state)
     {
-        return ((EnumDyeColor)state.get(COLOR)).getMetadata();
+        return ((EnumDyeColor)state.getValue(COLOR)).getMetadata();
     }
 
     /**
      * returns a list of blocks with the same ID, but different meta (eg: wood returns 4 blocks)
      */
-    public void fillItemGroup(CreativeTabs group, NonNullList<ItemStack> items)
+    public void getSubBlocks(CreativeTabs itemIn, NonNullList<ItemStack> items)
     {
         for (EnumDyeColor enumdyecolor : EnumDyeColor.values())
         {
@@ -48,16 +52,23 @@ public class BlockStainedGlass extends BlockBreakable
      * @deprecated call via {@link IBlockState#getMapColor(IBlockAccess,BlockPos)} whenever possible.
      * Implementing/overriding is fine.
      */
-    public MapColor getMaterialColor(IBlockState state, IBlockAccess worldIn, BlockPos pos)
+    public MapColor getMapColor(IBlockState state, IBlockAccess worldIn, BlockPos pos)
     {
-        return MapColor.getBlockColor((EnumDyeColor)state.get(COLOR));
+        return MapColor.getBlockColor((EnumDyeColor)state.getValue(COLOR));
     }
 
+    /**
+     * Gets the render layer this block will render on. SOLID for solid blocks, CUTOUT or CUTOUT_MIPPED for on-off
+     * transparency (glass, reeds), TRANSLUCENT for fully blended transparency (stained glass)
+     */
     public BlockRenderLayer getRenderLayer()
     {
         return BlockRenderLayer.TRANSLUCENT;
     }
 
+    /**
+     * Returns the quantity of items to drop on block destruction.
+     */
     public int quantityDropped(Random random)
     {
         return 0;
@@ -68,16 +79,25 @@ public class BlockStainedGlass extends BlockBreakable
         return true;
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#isFullCube()} whenever possible. Implementing/overriding is fine.
+     */
     public boolean isFullCube(IBlockState state)
     {
         return false;
     }
 
+    /**
+     * Convert the given metadata into a BlockState for this Block
+     */
     public IBlockState getStateFromMeta(int meta)
     {
         return this.getDefaultState().withProperty(COLOR, EnumDyeColor.byMetadata(meta));
     }
 
+    /**
+     * Called after the block is set in the Chunk data, but before the Tile Entity is set
+     */
     public void onBlockAdded(World worldIn, BlockPos pos, IBlockState state)
     {
         if (!worldIn.isRemote)
@@ -86,6 +106,9 @@ public class BlockStainedGlass extends BlockBreakable
         }
     }
 
+    /**
+     * Called serverside after this block is replaced with another in Chunk, but before the Tile Entity is updated
+     */
     public void breakBlock(World worldIn, BlockPos pos, IBlockState state)
     {
         if (!worldIn.isRemote)
@@ -94,9 +117,12 @@ public class BlockStainedGlass extends BlockBreakable
         }
     }
 
+    /**
+     * Convert the BlockState into the correct metadata value
+     */
     public int getMetaFromState(IBlockState state)
     {
-        return ((EnumDyeColor)state.get(COLOR)).getMetadata();
+        return ((EnumDyeColor)state.getValue(COLOR)).getMetadata();
     }
 
     protected BlockStateContainer createBlockState()

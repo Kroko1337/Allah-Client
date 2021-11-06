@@ -47,15 +47,34 @@ import net.minecraft.world.World;
 
 public class PlayerControllerMP
 {
+    /** The Minecraft instance. */
     private final Minecraft mc;
     private final NetHandlerPlayClient connection;
     private BlockPos currentBlock = new BlockPos(-1, -1, -1);
+
+    /** The Item currently being used to destroy a block */
     private ItemStack currentItemHittingBlock = ItemStack.EMPTY;
+
+    /** Current block damage (MP) */
     private float curBlockDamageMP;
+
+    /**
+     * Tick counter, when it hits 4 it resets back to 0 and plays the step sound
+     */
     private float stepSoundTickCounter;
+
+    /**
+     * Delays the first damage on the block after the first click on the block
+     */
     private int blockHitDelay;
+
+    /** Tells if the player is hitting a block */
     private boolean isHittingBlock;
+
+    /** Current game type for the player */
     private GameType currentGameType = GameType.SURVIVAL;
+
+    /** Index of the current item held by the player in the inventory hotbar */
     private int currentPlayerItem;
 
     public PlayerControllerMP(Minecraft mcIn, NetHandlerPlayClient netHandler)
@@ -77,9 +96,12 @@ public class PlayerControllerMP
      */
     public void setPlayerCapabilities(EntityPlayer player)
     {
-        this.currentGameType.configurePlayerCapabilities(player.abilities);
+        this.currentGameType.configurePlayerCapabilities(player.capabilities);
     }
 
+    /**
+     * None
+     */
     public boolean isSpectator()
     {
         return this.currentGameType == GameType.SPECTATOR;
@@ -91,9 +113,12 @@ public class PlayerControllerMP
     public void setGameType(GameType type)
     {
         this.currentGameType = type;
-        this.currentGameType.configurePlayerCapabilities(this.mc.player.abilities);
+        this.currentGameType.configurePlayerCapabilities(this.mc.player.capabilities);
     }
 
+    /**
+     * Flips the player around.
+     */
     public void flipPlayer(EntityPlayer playerIn)
     {
         playerIn.rotationYaw = -180.0F;
@@ -307,7 +332,7 @@ public class PlayerControllerMP
                 if (this.stepSoundTickCounter % 4.0F == 0.0F)
                 {
                     SoundType soundtype = block.getSoundType();
-                    this.mc.getSoundHandler().play(new PositionedSoundRecord(soundtype.getHitSound(), SoundCategory.NEUTRAL, (soundtype.getVolume() + 1.0F) / 8.0F, soundtype.getPitch() * 0.5F, posBlock));
+                    this.mc.getSoundHandler().playSound(new PositionedSoundRecord(soundtype.getHitSound(), SoundCategory.NEUTRAL, (soundtype.getVolume() + 1.0F) / 8.0F, soundtype.getPitch() * 0.5F, posBlock));
                 }
 
                 ++this.stepSoundTickCounter;
@@ -341,13 +366,13 @@ public class PlayerControllerMP
         return this.currentGameType.isCreative() ? 5.0F : 4.5F;
     }
 
-    public void tick()
+    public void updateController()
     {
         this.syncCurrentPlayItem();
 
         if (this.connection.getNetworkManager().isChannelOpen())
         {
-            this.connection.getNetworkManager().tick();
+            this.connection.getNetworkManager().processReceivedPackets();
         }
         else
         {
@@ -362,7 +387,7 @@ public class PlayerControllerMP
 
         if (!this.currentItemHittingBlock.isEmpty() && !itemstack.isEmpty())
         {
-            flag = itemstack.getItem() == this.currentItemHittingBlock.getItem() && ItemStack.areItemStackTagsEqual(itemstack, this.currentItemHittingBlock) && (itemstack.isDamageable() || itemstack.getMetadata() == this.currentItemHittingBlock.getMetadata());
+            flag = itemstack.getItem() == this.currentItemHittingBlock.getItem() && ItemStack.areItemStackTagsEqual(itemstack, this.currentItemHittingBlock) && (itemstack.isItemStackDamageable() || itemstack.getMetadata() == this.currentItemHittingBlock.getMetadata());
         }
 
         return pos.equals(this.currentBlock) && flag;
@@ -531,7 +556,7 @@ public class PlayerControllerMP
     public EnumActionResult interactWithEntity(EntityPlayer player, Entity target, RayTraceResult ray, EnumHand hand)
     {
         this.syncCurrentPlayItem();
-        Vec3d vec3d = new Vec3d(ray.hitResult.x - target.posX, ray.hitResult.y - target.posY, ray.hitResult.z - target.posZ);
+        Vec3d vec3d = new Vec3d(ray.hitVec.x - target.posX, ray.hitVec.y - target.posY, ray.hitVec.z - target.posZ);
         this.connection.sendPacket(new CPacketUseEntity(target, hand, vec3d));
         return this.currentGameType == GameType.SPECTATOR ? EnumActionResult.PASS : target.applyPlayerInteraction(player, vec3d, hand);
     }
@@ -586,7 +611,7 @@ public class PlayerControllerMP
     public void onStoppedUsingItem(EntityPlayer playerIn)
     {
         this.syncCurrentPlayItem();
-        this.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ZERO, EnumFacing.DOWN));
+        this.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, EnumFacing.DOWN));
         playerIn.stopActiveHand();
     }
 
@@ -624,7 +649,7 @@ public class PlayerControllerMP
      */
     public boolean isRidingHorse()
     {
-        return this.mc.player.isPassenger() && this.mc.player.getRidingEntity() instanceof AbstractHorse;
+        return this.mc.player.isRiding() && this.mc.player.getRidingEntity() instanceof AbstractHorse;
     }
 
     public boolean isSpectatorMode()

@@ -99,7 +99,7 @@ public enum DragonSpawnManager
                 {
                     entityendercrystal.setBeamTarget((BlockPos)null);
                     worldIn.createExplosion(entityendercrystal, entityendercrystal.posX, entityendercrystal.posY, entityendercrystal.posZ, 6.0F, false);
-                    entityendercrystal.remove();
+                    entityendercrystal.setDead();
                 }
             }
             else if (ticks >= 80)

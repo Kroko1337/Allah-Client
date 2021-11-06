@@ -4,20 +4,23 @@ import net.minecraft.nbt.NBTTagCompound;
 
 public abstract class WorldSavedData
 {
-    public final String name;
+    /** The name of the map data nbt */
+    public final String mapName;
+
+    /** Whether this MapDataBase needs saving to disk. */
     private boolean dirty;
 
     public WorldSavedData(String name)
     {
-        this.name = name;
+        this.mapName = name;
     }
 
     /**
      * reads in data from the NBTTagCompound into this MapDataBase
      */
-    public abstract void read(NBTTagCompound nbt);
+    public abstract void readFromNBT(NBTTagCompound nbt);
 
-    public abstract NBTTagCompound write(NBTTagCompound compound);
+    public abstract NBTTagCompound writeToNBT(NBTTagCompound compound);
 
     /**
      * Marks this MapDataBase dirty, to be saved to disk when the level next saves.

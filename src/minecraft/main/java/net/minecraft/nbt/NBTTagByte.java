@@ -6,6 +6,7 @@ import java.io.IOException;
 
 public class NBTTagByte extends NBTPrimitive
 {
+    /** The byte value for the tag. */
     private byte data;
 
     NBTTagByte()

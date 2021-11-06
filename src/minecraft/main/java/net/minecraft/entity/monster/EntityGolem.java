@@ -44,6 +44,9 @@ public abstract class EntityGolem extends EntityCreature implements IAnimals
         return 120;
     }
 
+    /**
+     * Determines if an entity can be despawned, used on idle far away entities
+     */
     protected boolean canDespawn()
     {
         return false;

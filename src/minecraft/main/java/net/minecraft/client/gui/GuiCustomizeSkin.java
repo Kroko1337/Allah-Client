@@ -7,7 +7,10 @@ import net.minecraft.entity.player.EnumPlayerModelParts;
 
 public class GuiCustomizeSkin extends GuiScreen
 {
+    /** The parent GUI for this GUI */
     private final GuiScreen parentScreen;
+
+    /** The title of the GUI. */
     private String title;
 
     public GuiCustomizeSkin(GuiScreen parentScreenIn)
@@ -15,6 +18,10 @@ public class GuiCustomizeSkin extends GuiScreen
         this.parentScreen = parentScreenIn;
     }
 
+    /**
+     * Adds the buttons (and other controls) to the screen in question. Called when the GUI is displayed and when the
+     * window resizes, the buttonList is cleared beforehand.
+     */
     public void initGui()
     {
         int i = 0;
@@ -37,6 +44,10 @@ public class GuiCustomizeSkin extends GuiScreen
         this.buttonList.add(new GuiButton(200, this.width / 2 - 100, this.height / 6 + 24 * (i >> 1), I18n.format("gui.done")));
     }
 
+    /**
+     * Fired when a key is typed (except F11 which toggles full screen). This is the equivalent of
+     * KeyListener.keyTyped(KeyEvent e). Args : character (character on the key), keyCode (lwjgl Keyboard key code)
+     */
     protected void keyTyped(char typedChar, int keyCode) throws IOException
     {
         if (keyCode == 1)
@@ -47,6 +58,9 @@ public class GuiCustomizeSkin extends GuiScreen
         super.keyTyped(typedChar, keyCode);
     }
 
+    /**
+     * Called by the controls from the buttonList when activated. (Mouse pressed for buttons)
+     */
     protected void actionPerformed(GuiButton button) throws IOException
     {
         if (button.enabled)
@@ -71,6 +85,9 @@ public class GuiCustomizeSkin extends GuiScreen
         }
     }
 
+    /**
+     * Draws the screen and all the components in it.
+     */
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         this.drawDefaultBackground();

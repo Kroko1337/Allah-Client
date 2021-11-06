@@ -21,12 +21,16 @@ public class GuiGameOver extends GuiScreen
         this.causeOfDeath = causeOfDeathIn;
     }
 
+    /**
+     * Adds the buttons (and other controls) to the screen in question. Called when the GUI is displayed and when the
+     * window resizes, the buttonList is cleared beforehand.
+     */
     public void initGui()
     {
         this.buttonList.clear();
         this.enableButtonsTimer = 0;
 
-        if (this.mc.world.getWorldInfo().isHardcore())
+        if (this.mc.world.getWorldInfo().isHardcoreModeEnabled())
         {
             this.buttonList.add(new GuiButton(0, this.width / 2 - 100, this.height / 4 + 72, I18n.format("deathScreen.spectate")));
             this.buttonList.add(new GuiButton(1, this.width / 2 - 100, this.height / 4 + 96, I18n.format("deathScreen." + (this.mc.isIntegratedServerRunning() ? "deleteWorld" : "leaveServer"))));
@@ -48,10 +52,17 @@ public class GuiGameOver extends GuiScreen
         }
     }
 
+    /**
+     * Fired when a key is typed (except F11 which toggles full screen). This is the equivalent of
+     * KeyListener.keyTyped(KeyEvent e). Args : character (character on the key), keyCode (lwjgl Keyboard key code)
+     */
     protected void keyTyped(char typedChar, int keyCode) throws IOException
     {
     }
 
+    /**
+     * Called by the controls from the buttonList when activated. (Mouse pressed for buttons)
+     */
     protected void actionPerformed(GuiButton button) throws IOException
     {
         switch (button.id)
@@ -62,7 +73,7 @@ public class GuiGameOver extends GuiScreen
                 break;
 
             case 1:
-                if (this.mc.world.getWorldInfo().isHardcore())
+                if (this.mc.world.getWorldInfo().isHardcoreModeEnabled())
                 {
                     this.mc.displayGuiScreen(new GuiMainMenu());
                 }
@@ -94,9 +105,12 @@ public class GuiGameOver extends GuiScreen
         }
     }
 
+    /**
+     * Draws the screen and all the components in it.
+     */
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
-        boolean flag = this.mc.world.getWorldInfo().isHardcore();
+        boolean flag = this.mc.world.getWorldInfo().isHardcoreModeEnabled();
         this.drawGradientRect(0, 0, this.width, this.height, 1615855616, -1602211792);
         GlStateManager.pushMatrix();
         GlStateManager.scale(2.0F, 2.0F, 2.0F);
@@ -158,11 +172,17 @@ public class GuiGameOver extends GuiScreen
         }
     }
 
+    /**
+     * Returns true if this GUI should pause the game when it is displayed in single-player
+     */
     public boolean doesGuiPauseGame()
     {
         return false;
     }
 
+    /**
+     * Called from the main game loop to update the screen.
+     */
     public void updateScreen()
     {
         super.updateScreen();

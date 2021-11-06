@@ -132,7 +132,7 @@ public class MapGenEndCity extends MapGenStructure
             }
         }
 
-        public boolean isValid()
+        public boolean isSizeableStructure()
         {
             return this.isSizeable;
         }

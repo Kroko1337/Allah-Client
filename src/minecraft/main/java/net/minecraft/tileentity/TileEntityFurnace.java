@@ -36,7 +36,13 @@ public class TileEntityFurnace extends TileEntityLockable implements ITickable, 
     private static final int[] SLOTS_BOTTOM = new int[] {2, 1};
     private static final int[] SLOTS_SIDES = new int[] {1};
     private NonNullList<ItemStack> furnaceItemStacks = NonNullList.<ItemStack>withSize(3, ItemStack.EMPTY);
+
+    /** The number of ticks that the furnace will keep burning */
     private int furnaceBurnTime;
+
+    /**
+     * The number of ticks that a fresh copy of the currently-burning item would keep the furnace burning for
+     */
     private int currentItemBurnTime;
     private int cookTime;
     private int totalCookTime;
@@ -109,11 +115,60 @@ public class TileEntityFurnace extends TileEntityLockable implements ITickable, 
         }
     }
 
+    /**
+     * Gets the name of this thing. This method has slightly different behavior depending on the interface (for <a
+     * href="https://github.com/ModCoderPack/MCPBot-Issues/issues/14">technical reasons</a> the same method is used for
+     * both IWorldNameable and ICommandSender):
+     *  
+     * <dl>
+     * <dt>{@link net.minecraft.util.INameable#getName() INameable.getName()}</dt>
+     * <dd>Returns the name of this inventory. If this {@linkplain net.minecraft.inventory#hasCustomName() has a custom
+     * name} then this <em>should</em> be a direct string; otherwise it <em>should</em> be a valid translation
+     * string.</dd>
+     * <dd>However, note that <strong>the translation string may be invalid</strong>, as is the case for {@link
+     * net.minecraft.tileentity.TileEntityBanner TileEntityBanner} (always returns nonexistent translation code
+     * <code>banner</code> without a custom name), {@link net.minecraft.block.BlockAnvil.Anvil BlockAnvil$Anvil} (always
+     * returns <code>anvil</code>), {@link net.minecraft.block.BlockWorkbench.InterfaceCraftingTable
+     * BlockWorkbench$InterfaceCraftingTable} (always returns <code>crafting_table</code>), {@link
+     * net.minecraft.inventory.InventoryCraftResult InventoryCraftResult} (always returns <code>Result</code>) and the
+     * {@link net.minecraft.entity.item.EntityMinecart EntityMinecart} family (uses the entity definition). This is not
+     * an exaustive list.</dd>
+     * <dd>In general, this method should be safe to use on tile entities that implement IInventory.</dd>
+     * <dt>{@link net.minecraft.command.ICommandSender#getName() ICommandSender.getName()} and {@link
+     * net.minecraft.entity.Entity#getName() Entity.getName()}</dt>
+     * <dd>Returns a valid, displayable name (which may be localized). For most entities, this is the translated version
+     * of its translation string (obtained via {@link net.minecraft.entity.EntityList#getEntityString
+     * EntityList.getEntityString}).</dd>
+     * <dd>If this entity has a custom name set, this will return that name.</dd>
+     * <dd>For some entities, this will attempt to translate a nonexistent translation string; see <a
+     * href="https://bugs.mojang.com/browse/MC-68446">MC-68446</a>. For {@linkplain
+     * net.minecraft.entity.player.EntityPlayer#getName() players} this returns the player's name. For {@linkplain
+     * net.minecraft.entity.passive.EntityOcelot ocelots} this may return the translation of
+     * <code>entity.Cat.name</code> if it is tamed. For {@linkplain net.minecraft.entity.item.EntityItem#getName() item
+     * entities}, this will attempt to return the name of the item in that item entity. In all cases other than players,
+     * the custom name will overrule this.</dd>
+     * <dd>For non-entity command senders, this will return some arbitrary name, such as "Rcon" or "Server".</dd>
+     * </dl>
+     */
     public String getName()
     {
         return this.hasCustomName() ? this.furnaceCustomName : "container.furnace";
     }
 
+    /**
+     * Checks if this thing has a custom name. This method has slightly different behavior depending on the interface
+     * (for <a href="https://github.com/ModCoderPack/MCPBot-Issues/issues/14">technical reasons</a> the same method is
+     * used for both IWorldNameable and Entity):
+     *  
+     * <dl>
+     * <dt>{@link net.minecraft.util.INameable#hasCustomName() INameable.hasCustomName()}</dt>
+     * <dd>If true, then {@link #getName()} probably returns a preformatted name; otherwise, it probably returns a
+     * translation string. However, exact behavior varies.</dd>
+     * <dt>{@link net.minecraft.entity.Entity#hasCustomName() Entity.hasCustomName()}</dt>
+     * <dd>If true, then {@link net.minecraft.entity.Entity#getCustomNameTag() Entity.getCustomNameTag()} will return a
+     * non-empty string, which will be used by {@link #getName()}.</dd>
+     * </dl>
+     */
     public boolean hasCustomName()
     {
         return this.furnaceCustomName != null && !this.furnaceCustomName.isEmpty();
@@ -129,9 +184,9 @@ public class TileEntityFurnace extends TileEntityLockable implements ITickable, 
         fixer.registerWalker(FixTypes.BLOCK_ENTITY, new ItemStackDataLists(TileEntityFurnace.class, new String[] {"Items"}));
     }
 
-    public void read(NBTTagCompound compound)
+    public void readFromNBT(NBTTagCompound compound)
     {
-        super.read(compound);
+        super.readFromNBT(compound);
         this.furnaceItemStacks = NonNullList.<ItemStack>withSize(this.getSizeInventory(), ItemStack.EMPTY);
         ItemStackHelper.loadAllItems(compound, this.furnaceItemStacks);
         this.furnaceBurnTime = compound.getShort("BurnTime");
@@ -139,23 +194,23 @@ public class TileEntityFurnace extends TileEntityLockable implements ITickable, 
         this.totalCookTime = compound.getShort("CookTimeTotal");
         this.currentItemBurnTime = getItemBurnTime(this.furnaceItemStacks.get(1));
 
-        if (compound.contains("CustomName", 8))
+        if (compound.hasKey("CustomName", 8))
         {
             this.furnaceCustomName = compound.getString("CustomName");
         }
     }
 
-    public NBTTagCompound write(NBTTagCompound compound)
+    public NBTTagCompound writeToNBT(NBTTagCompound compound)
     {
-        super.write(compound);
-        compound.putShort("BurnTime", (short)this.furnaceBurnTime);
-        compound.putShort("CookTime", (short)this.cookTime);
-        compound.putShort("CookTimeTotal", (short)this.totalCookTime);
+        super.writeToNBT(compound);
+        compound.setShort("BurnTime", (short)this.furnaceBurnTime);
+        compound.setShort("CookTime", (short)this.cookTime);
+        compound.setShort("CookTimeTotal", (short)this.totalCookTime);
         ItemStackHelper.saveAllItems(compound, this.furnaceItemStacks);
 
         if (this.hasCustomName())
         {
-            compound.putString("CustomName", this.furnaceCustomName);
+            compound.setString("CustomName", this.furnaceCustomName);
         }
 
         return compound;
@@ -169,6 +224,9 @@ public class TileEntityFurnace extends TileEntityLockable implements ITickable, 
         return 64;
     }
 
+    /**
+     * Furnace isBurning
+     */
     public boolean isBurning()
     {
         return this.furnaceBurnTime > 0;
@@ -179,7 +237,10 @@ public class TileEntityFurnace extends TileEntityLockable implements ITickable, 
         return inventory.getField(0) > 0;
     }
 
-    public void tick()
+    /**
+     * Like the old updateEntity(), except more generic.
+     */
+    public void update()
     {
         boolean flag = this.isBurning();
         boolean flag1 = false;
@@ -258,6 +319,9 @@ public class TileEntityFurnace extends TileEntityLockable implements ITickable, 
         return 200;
     }
 
+    /**
+     * Returns true if the furnace can smelt an item, i.e. has a source item, destination stack isn't full, etc.
+     */
     private boolean canSmelt()
     {
         if (((ItemStack)this.furnaceItemStacks.get(0)).isEmpty())
@@ -296,6 +360,9 @@ public class TileEntityFurnace extends TileEntityLockable implements ITickable, 
         }
     }
 
+    /**
+     * Turn one item from the furnace source stack into the appropriate smelted item in the furnace result stack
+     */
     public void smeltItem()
     {
         if (this.canSmelt())
@@ -322,6 +389,10 @@ public class TileEntityFurnace extends TileEntityLockable implements ITickable, 
         }
     }
 
+    /**
+     * Returns the number of ticks that the supplied fuel item will keep the furnace burning, or 0 if the item isn't
+     * fuel
+     */
     public static int getItemBurnTime(ItemStack stack)
     {
         if (stack.isEmpty())

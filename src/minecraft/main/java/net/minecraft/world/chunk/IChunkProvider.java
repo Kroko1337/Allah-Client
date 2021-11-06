@@ -9,6 +9,9 @@ public interface IChunkProvider
 
     Chunk provideChunk(int x, int z);
 
+    /**
+     * Unloads chunks that are marked to be unloaded. This is not guaranteed to unload every such chunk.
+     */
     boolean tick();
 
     /**

@@ -28,6 +28,10 @@ public class GuiScreenCustomizePresets extends GuiScreen
         this.parent = parentIn;
     }
 
+    /**
+     * Adds the buttons (and other controls) to the screen in question. Called when the GUI is displayed and when the
+     * window resizes, the buttonList is cleared beforehand.
+     */
     public void initGui()
     {
         this.buttonList.clear();
@@ -44,23 +48,36 @@ public class GuiScreenCustomizePresets extends GuiScreen
         this.updateButtonValidity();
     }
 
+    /**
+     * Handles mouse input.
+     */
     public void handleMouseInput() throws IOException
     {
         super.handleMouseInput();
         this.list.handleMouseInput();
     }
 
+    /**
+     * Called when the screen is unloaded. Used to disable keyboard repeat events
+     */
     public void onGuiClosed()
     {
         Keyboard.enableRepeatEvents(false);
     }
 
+    /**
+     * Called when the mouse is clicked. Args : mouseX, mouseY, clickedButton
+     */
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
     {
         this.export.mouseClicked(mouseX, mouseY, mouseButton);
         super.mouseClicked(mouseX, mouseY, mouseButton);
     }
 
+    /**
+     * Fired when a key is typed (except F11 which toggles full screen). This is the equivalent of
+     * KeyListener.keyTyped(KeyEvent e). Args : character (character on the key), keyCode (lwjgl Keyboard key code)
+     */
     protected void keyTyped(char typedChar, int keyCode) throws IOException
     {
         if (!this.export.textboxKeyTyped(typedChar, keyCode))
@@ -69,6 +86,9 @@ public class GuiScreenCustomizePresets extends GuiScreen
         }
     }
 
+    /**
+     * Called by the controls from the buttonList when activated. (Mouse pressed for buttons)
+     */
     protected void actionPerformed(GuiButton button) throws IOException
     {
         switch (button.id)
@@ -83,6 +103,9 @@ public class GuiScreenCustomizePresets extends GuiScreen
         }
     }
 
+    /**
+     * Draws the screen and all the components in it.
+     */
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         this.drawDefaultBackground();
@@ -94,9 +117,12 @@ public class GuiScreenCustomizePresets extends GuiScreen
         super.drawScreen(mouseX, mouseY, partialTicks);
     }
 
+    /**
+     * Called from the main game loop to update the screen.
+     */
     public void updateScreen()
     {
-        this.export.tick();
+        this.export.updateCursorCounter();
         super.updateScreen();
     }
 

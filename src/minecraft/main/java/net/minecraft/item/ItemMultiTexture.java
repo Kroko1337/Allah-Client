@@ -34,6 +34,10 @@ public class ItemMultiTexture extends ItemBlock
         });
     }
 
+    /**
+     * Converts the given ItemStack damage value into a metadata value to be placed in the world when this Item is
+     * placed as a Block (mostly used with ItemBlocks).
+     */
     public int getMetadata(int damage)
     {
         return damage;

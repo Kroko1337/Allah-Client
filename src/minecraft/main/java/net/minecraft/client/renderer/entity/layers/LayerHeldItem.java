@@ -57,7 +57,7 @@ public class LayerHeldItem implements LayerRenderer<EntityLivingBase>
             GlStateManager.rotate(180.0F, 0.0F, 1.0F, 0.0F);
             boolean flag = handSide == EnumHandSide.LEFT;
             GlStateManager.translate((float)(flag ? -1 : 1) / 16.0F, 0.125F, -0.625F);
-            Minecraft.getInstance().getFirstPersonRenderer().renderItemSide(p_188358_1_, p_188358_2_, p_188358_3_, flag);
+            Minecraft.getMinecraft().getItemRenderer().renderItemSide(p_188358_1_, p_188358_2_, p_188358_3_, flag);
             GlStateManager.popMatrix();
         }
     }

@@ -77,7 +77,10 @@ public class FunctionManager implements ITickable
         return this.functions;
     }
 
-    public void tick()
+    /**
+     * Like the old updateEntity(), except more generic.
+     */
+    public void update()
     {
         String s = this.server.worlds[0].getGameRules().getString("gameLoopFunction");
 

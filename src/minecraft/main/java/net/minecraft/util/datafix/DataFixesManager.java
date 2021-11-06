@@ -258,9 +258,9 @@ public class DataFixesManager
 
     public static NBTTagCompound processItemStack(IDataFixer fixer, NBTTagCompound compound, int version, String key)
     {
-        if (compound.contains(key, 10))
+        if (compound.hasKey(key, 10))
         {
-            compound.setTag(key, fixer.process(FixTypes.ITEM_INSTANCE, compound.getCompound(key), version));
+            compound.setTag(key, fixer.process(FixTypes.ITEM_INSTANCE, compound.getCompoundTag(key), version));
         }
 
         return compound;
@@ -268,13 +268,13 @@ public class DataFixesManager
 
     public static NBTTagCompound processInventory(IDataFixer fixer, NBTTagCompound compound, int version, String key)
     {
-        if (compound.contains(key, 9))
+        if (compound.hasKey(key, 9))
         {
-            NBTTagList nbttaglist = compound.getList(key, 10);
+            NBTTagList nbttaglist = compound.getTagList(key, 10);
 
             for (int i = 0; i < nbttaglist.tagCount(); ++i)
             {
-                nbttaglist.set(i, fixer.process(FixTypes.ITEM_INSTANCE, nbttaglist.getCompound(i), version));
+                nbttaglist.set(i, fixer.process(FixTypes.ITEM_INSTANCE, nbttaglist.getCompoundTagAt(i), version));
             }
         }
 

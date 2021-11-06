@@ -87,7 +87,7 @@ public class EntityParrot extends EntityShoulderRiding implements EntityFlying
     {
         public boolean apply(@Nullable EntityLiving p_apply_1_)
         {
-            return p_apply_1_ != null && EntityParrot.IMITATION_SOUND_EVENTS.containsKey(EntityList.REGISTRY.getId(p_apply_1_.getClass()));
+            return p_apply_1_ != null && EntityParrot.IMITATION_SOUND_EVENTS.containsKey(EntityList.REGISTRY.getIDForObject(p_apply_1_.getClass()));
         }
     };
     private static final Item DEADLY_ITEM = Items.COOKIE;
@@ -105,36 +105,51 @@ public class EntityParrot extends EntityShoulderRiding implements EntityFlying
     {
         super(worldIn);
         this.setSize(0.5F, 0.9F);
-        this.moveController = new EntityFlyHelper(this);
+        this.moveHelper = new EntityFlyHelper(this);
     }
 
     @Nullable
+
+    /**
+     * Called only once on an entity when first time spawned, via egg, mob spawner, natural spawning etc, but not called
+     * when entity is reloaded from nbt. Mainly used for initializing attributes and inventory.
+     *  
+     * The livingdata parameter is used to pass data between all instances during a pack spawn. It will be null on the
+     * first call. Subclasses may check if it's null, and then create a new one and return it if so, initializing all
+     * entities in the pack with the contained data.
+     *  
+     * @return The IEntityLivingData to pass to this method for other instances of this entity class within the same
+     * pack
+     *  
+     * @param difficulty The current local difficulty
+     * @param livingdata Shared spawn data. Will usually be null. (See return value for more information)
+     */
     public IEntityLivingData onInitialSpawn(DifficultyInstance difficulty, @Nullable IEntityLivingData livingdata)
     {
         this.setVariant(this.rand.nextInt(5));
         return super.onInitialSpawn(difficulty, livingdata);
     }
 
-    protected void registerGoals()
+    protected void initEntityAI()
     {
-        this.sitGoal = new EntityAISit(this);
-        this.goalSelector.addGoal(0, new EntityAIPanic(this, 1.25D));
-        this.goalSelector.addGoal(0, new EntityAISwimming(this));
-        this.goalSelector.addGoal(1, new EntityAIWatchClosest(this, EntityPlayer.class, 8.0F));
-        this.goalSelector.addGoal(2, this.sitGoal);
-        this.goalSelector.addGoal(2, new EntityAIFollowOwnerFlying(this, 1.0D, 5.0F, 1.0F));
-        this.goalSelector.addGoal(2, new EntityAIWanderAvoidWaterFlying(this, 1.0D));
-        this.goalSelector.addGoal(3, new EntityAILandOnOwnersShoulder(this));
-        this.goalSelector.addGoal(3, new EntityAIFollow(this, 1.0D, 3.0F, 7.0F));
+        this.aiSit = new EntityAISit(this);
+        this.tasks.addTask(0, new EntityAIPanic(this, 1.25D));
+        this.tasks.addTask(0, new EntityAISwimming(this));
+        this.tasks.addTask(1, new EntityAIWatchClosest(this, EntityPlayer.class, 8.0F));
+        this.tasks.addTask(2, this.aiSit);
+        this.tasks.addTask(2, new EntityAIFollowOwnerFlying(this, 1.0D, 5.0F, 1.0F));
+        this.tasks.addTask(2, new EntityAIWanderAvoidWaterFlying(this, 1.0D));
+        this.tasks.addTask(3, new EntityAILandOnOwnersShoulder(this));
+        this.tasks.addTask(3, new EntityAIFollow(this, 1.0D, 3.0F, 7.0F));
     }
 
-    protected void registerAttributes()
+    protected void applyEntityAttributes()
     {
-        super.registerAttributes();
-        this.getAttributes().registerAttribute(SharedMonsterAttributes.FLYING_SPEED);
-        this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(6.0D);
-        this.getAttribute(SharedMonsterAttributes.FLYING_SPEED).setBaseValue(0.4000000059604645D);
-        this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.20000000298023224D);
+        super.applyEntityAttributes();
+        this.getAttributeMap().registerAttribute(SharedMonsterAttributes.FLYING_SPEED);
+        this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(6.0D);
+        this.getEntityAttribute(SharedMonsterAttributes.FLYING_SPEED).setBaseValue(0.4000000059604645D);
+        this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.20000000298023224D);
     }
 
     /**
@@ -158,7 +173,7 @@ public class EntityParrot extends EntityShoulderRiding implements EntityFlying
      * Called frequently so the entity can update its state every tick as required. For example, zombies and skeletons
      * use this to react to sunlight and start to burn.
      */
-    public void livingTick()
+    public void onLivingUpdate()
     {
         playMimicSound(this.world, this);
 
@@ -168,12 +183,15 @@ public class EntityParrot extends EntityShoulderRiding implements EntityFlying
             this.jukeboxPosition = null;
         }
 
-        super.livingTick();
+        super.onLivingUpdate();
         this.calculateFlapping();
     }
 
     /**
      * Called when a record starts or stops playing. Used to make parrots start or stop partying.
+     *  
+     * @param pos The location the record is being played at (usually a jukebox)
+     * @param isPartying True if the record started; false if it stopped.
      */
     public void setPartying(BlockPos pos, boolean isPartying)
     {
@@ -212,7 +230,7 @@ public class EntityParrot extends EntityShoulderRiding implements EntityFlying
     {
         if (!parrotIn.isSilent() && worldIn.rand.nextInt(50) == 0)
         {
-            List<EntityLiving> list = worldIn.<EntityLiving>getEntitiesWithinAABB(EntityLiving.class, parrotIn.getBoundingBox().grow(20.0D), CAN_MIMIC);
+            List<EntityLiving> list = worldIn.<EntityLiving>getEntitiesWithinAABB(EntityLiving.class, parrotIn.getEntityBoundingBox().grow(20.0D), CAN_MIMIC);
 
             if (!list.isEmpty())
             {
@@ -220,7 +238,7 @@ public class EntityParrot extends EntityShoulderRiding implements EntityFlying
 
                 if (!entityliving.isSilent())
                 {
-                    SoundEvent soundevent = getImitatedSound(EntityList.REGISTRY.getId(entityliving.getClass()));
+                    SoundEvent soundevent = getImitatedSound(EntityList.REGISTRY.getIDForObject(entityliving.getClass()));
                     worldIn.playSound((EntityPlayer)null, parrotIn.posX, parrotIn.posY, parrotIn.posZ, soundevent, parrotIn.getSoundCategory(), 0.7F, getPitch(worldIn.rand));
                     return true;
                 }
@@ -240,7 +258,7 @@ public class EntityParrot extends EntityShoulderRiding implements EntityFlying
 
         if (!this.isTamed() && TAME_ITEMS.contains(itemstack.getItem()))
         {
-            if (!player.abilities.isCreativeMode)
+            if (!player.capabilities.isCreativeMode)
             {
                 itemstack.shrink(1);
             }
@@ -269,14 +287,14 @@ public class EntityParrot extends EntityShoulderRiding implements EntityFlying
         }
         else if (itemstack.getItem() == DEADLY_ITEM)
         {
-            if (!player.abilities.isCreativeMode)
+            if (!player.capabilities.isCreativeMode)
             {
                 itemstack.shrink(1);
             }
 
             this.addPotionEffect(new PotionEffect(MobEffects.POISON, 900));
 
-            if (player.isCreative() || !this.isInvulnerable())
+            if (player.isCreative() || !this.getIsInvulnerable())
             {
                 this.attackEntityFrom(DamageSource.causePlayerDamage(player), Float.MAX_VALUE);
             }
@@ -287,7 +305,7 @@ public class EntityParrot extends EntityShoulderRiding implements EntityFlying
         {
             if (!this.world.isRemote && !this.isFlying() && this.isTamed() && this.isOwner(player))
             {
-                this.sitGoal.setSitting(!this.isSitting());
+                this.aiSit.setSitting(!this.isSitting());
             }
 
             return super.processInteract(player, hand);
@@ -303,10 +321,13 @@ public class EntityParrot extends EntityShoulderRiding implements EntityFlying
         return false;
     }
 
+    /**
+     * Checks if the entity's current position is a valid location to spawn this entity.
+     */
     public boolean getCanSpawnHere()
     {
         int i = MathHelper.floor(this.posX);
-        int j = MathHelper.floor(this.getBoundingBox().minY);
+        int j = MathHelper.floor(this.getEntityBoundingBox().minY);
         int k = MathHelper.floor(this.posZ);
         BlockPos blockpos = new BlockPos(i, j, k);
         Block block = this.world.getBlockState(blockpos.down()).getBlock();
@@ -387,10 +408,10 @@ public class EntityParrot extends EntityShoulderRiding implements EntityFlying
         this.playSound(SoundEvents.ENTITY_PARROT_STEP, 0.15F, 1.0F);
     }
 
-    protected float playFlySound(float volume)
+    protected float playFlySound(float p_191954_1_)
     {
         this.playSound(SoundEvents.ENTITY_PARROT_FLY, 0.15F, 1.0F);
-        return volume + this.flapSpeed / 2.0F;
+        return p_191954_1_ + this.flapSpeed / 2.0F;
     }
 
     protected boolean makeFlySound()
@@ -437,15 +458,15 @@ public class EntityParrot extends EntityShoulderRiding implements EntityFlying
      */
     public boolean attackEntityFrom(DamageSource source, float amount)
     {
-        if (this.isInvulnerableTo(source))
+        if (this.isEntityInvulnerable(source))
         {
             return false;
         }
         else
         {
-            if (this.sitGoal != null)
+            if (this.aiSit != null)
             {
-                this.sitGoal.setSitting(false);
+                this.aiSit.setSitting(false);
             }
 
             return super.attackEntityFrom(source, amount);
@@ -462,25 +483,28 @@ public class EntityParrot extends EntityShoulderRiding implements EntityFlying
         this.dataManager.set(VARIANT, Integer.valueOf(variantIn));
     }
 
-    protected void registerData()
+    protected void entityInit()
     {
-        super.registerData();
+        super.entityInit();
         this.dataManager.register(VARIANT, Integer.valueOf(0));
     }
 
+    /**
+     * (abstract) Protected helper method to write subclass entity data to NBT.
+     */
     public void writeEntityToNBT(NBTTagCompound compound)
     {
         super.writeEntityToNBT(compound);
-        compound.putInt("Variant", this.getVariant());
+        compound.setInteger("Variant", this.getVariant());
     }
 
     /**
      * (abstract) Protected helper method to read subclass entity data from NBT.
      */
-    public void readAdditional(NBTTagCompound compound)
+    public void readEntityFromNBT(NBTTagCompound compound)
     {
-        super.readAdditional(compound);
-        this.setVariant(compound.getInt("Variant"));
+        super.readEntityFromNBT(compound);
+        this.setVariant(compound.getInteger("Variant"));
     }
 
     @Nullable
@@ -496,33 +520,33 @@ public class EntityParrot extends EntityShoulderRiding implements EntityFlying
 
     static
     {
-        IMITATION_SOUND_EVENTS.put(EntityList.REGISTRY.getId(EntityBlaze.class), SoundEvents.ENTITY_PARROT_IMITATE_BLAZE);
-        IMITATION_SOUND_EVENTS.put(EntityList.REGISTRY.getId(EntityCaveSpider.class), SoundEvents.ENTITY_PARROT_IMITATE_SPIDER);
-        IMITATION_SOUND_EVENTS.put(EntityList.REGISTRY.getId(EntityCreeper.class), SoundEvents.ENTITY_PARROT_IMITATE_CREEPER);
-        IMITATION_SOUND_EVENTS.put(EntityList.REGISTRY.getId(EntityElderGuardian.class), SoundEvents.ENTITY_PARROT_IMITATE_ELDER_GUARDIAN);
-        IMITATION_SOUND_EVENTS.put(EntityList.REGISTRY.getId(EntityDragon.class), SoundEvents.ENTITY_PARROT_IMITATE_ENDER_DRAGON);
-        IMITATION_SOUND_EVENTS.put(EntityList.REGISTRY.getId(EntityEnderman.class), SoundEvents.E_PARROT_IM_ENDERMAN);
-        IMITATION_SOUND_EVENTS.put(EntityList.REGISTRY.getId(EntityEndermite.class), SoundEvents.ENTITY_PARROT_IMITATE_ENDERMITE);
-        IMITATION_SOUND_EVENTS.put(EntityList.REGISTRY.getId(EntityEvoker.class), SoundEvents.ENTITY_PARROT_IMITATE_EVOKER);
-        IMITATION_SOUND_EVENTS.put(EntityList.REGISTRY.getId(EntityGhast.class), SoundEvents.ENTITY_PARROT_IMITATE_GHAST);
-        IMITATION_SOUND_EVENTS.put(EntityList.REGISTRY.getId(EntityHusk.class), SoundEvents.ENTITY_PARROT_IMITATE_HUSK);
-        IMITATION_SOUND_EVENTS.put(EntityList.REGISTRY.getId(EntityIllusionIllager.class), SoundEvents.ENTITY_PARROT_IMITATE_ILLUSIONER);
-        IMITATION_SOUND_EVENTS.put(EntityList.REGISTRY.getId(EntityMagmaCube.class), SoundEvents.ENTITY_PARROT_IMITATE_MAGMA_CUBE);
-        IMITATION_SOUND_EVENTS.put(EntityList.REGISTRY.getId(EntityPigZombie.class), SoundEvents.E_PARROT_IM_ZOMBIE_PIGMAN);
-        IMITATION_SOUND_EVENTS.put(EntityList.REGISTRY.getId(EntityPolarBear.class), SoundEvents.E_PARROT_IM_POLAR_BEAR);
-        IMITATION_SOUND_EVENTS.put(EntityList.REGISTRY.getId(EntityShulker.class), SoundEvents.ENTITY_PARROT_IMITATE_SHULKER);
-        IMITATION_SOUND_EVENTS.put(EntityList.REGISTRY.getId(EntitySilverfish.class), SoundEvents.ENTITY_PARROT_IMITATE_SILVERFISH);
-        IMITATION_SOUND_EVENTS.put(EntityList.REGISTRY.getId(EntitySkeleton.class), SoundEvents.ENTITY_PARROT_IMITATE_SKELETON);
-        IMITATION_SOUND_EVENTS.put(EntityList.REGISTRY.getId(EntitySlime.class), SoundEvents.ENTITY_PARROT_IMITATE_SLIME);
-        IMITATION_SOUND_EVENTS.put(EntityList.REGISTRY.getId(EntitySpider.class), SoundEvents.ENTITY_PARROT_IMITATE_SPIDER);
-        IMITATION_SOUND_EVENTS.put(EntityList.REGISTRY.getId(EntityStray.class), SoundEvents.ENTITY_PARROT_IMITATE_STRAY);
-        IMITATION_SOUND_EVENTS.put(EntityList.REGISTRY.getId(EntityVex.class), SoundEvents.ENTITY_PARROT_IMITATE_VEX);
-        IMITATION_SOUND_EVENTS.put(EntityList.REGISTRY.getId(EntityVindicator.class), SoundEvents.ENTITY_PARROT_IMITATE_VINDICATOR);
-        IMITATION_SOUND_EVENTS.put(EntityList.REGISTRY.getId(EntityWitch.class), SoundEvents.ENTITY_PARROT_IMITATE_WITCH);
-        IMITATION_SOUND_EVENTS.put(EntityList.REGISTRY.getId(EntityWither.class), SoundEvents.ENTITY_PARROT_IMITATE_WITHER);
-        IMITATION_SOUND_EVENTS.put(EntityList.REGISTRY.getId(EntityWitherSkeleton.class), SoundEvents.ENTITY_PARROT_IMITATE_WITHER_SKELETON);
-        IMITATION_SOUND_EVENTS.put(EntityList.REGISTRY.getId(EntityWolf.class), SoundEvents.E_PARROT_IM_WOLF);
-        IMITATION_SOUND_EVENTS.put(EntityList.REGISTRY.getId(EntityZombie.class), SoundEvents.ENTITY_PARROT_IMITATE_ZOMBIE);
-        IMITATION_SOUND_EVENTS.put(EntityList.REGISTRY.getId(EntityZombieVillager.class), SoundEvents.ENTITY_PARROT_IMITATE_ZOMBIE_VILLAGER);
+        IMITATION_SOUND_EVENTS.put(EntityList.REGISTRY.getIDForObject(EntityBlaze.class), SoundEvents.E_PARROT_IM_BLAZE);
+        IMITATION_SOUND_EVENTS.put(EntityList.REGISTRY.getIDForObject(EntityCaveSpider.class), SoundEvents.E_PARROT_IM_SPIDER);
+        IMITATION_SOUND_EVENTS.put(EntityList.REGISTRY.getIDForObject(EntityCreeper.class), SoundEvents.E_PARROT_IM_CREEPER);
+        IMITATION_SOUND_EVENTS.put(EntityList.REGISTRY.getIDForObject(EntityElderGuardian.class), SoundEvents.E_PARROT_IM_ELDER_GUARDIAN);
+        IMITATION_SOUND_EVENTS.put(EntityList.REGISTRY.getIDForObject(EntityDragon.class), SoundEvents.E_PARROT_IM_ENDERDRAGON);
+        IMITATION_SOUND_EVENTS.put(EntityList.REGISTRY.getIDForObject(EntityEnderman.class), SoundEvents.E_PARROT_IM_ENDERMAN);
+        IMITATION_SOUND_EVENTS.put(EntityList.REGISTRY.getIDForObject(EntityEndermite.class), SoundEvents.E_PARROT_IM_ENDERMITE);
+        IMITATION_SOUND_EVENTS.put(EntityList.REGISTRY.getIDForObject(EntityEvoker.class), SoundEvents.E_PARROT_IM_EVOCATION_ILLAGER);
+        IMITATION_SOUND_EVENTS.put(EntityList.REGISTRY.getIDForObject(EntityGhast.class), SoundEvents.E_PARROT_IM_GHAST);
+        IMITATION_SOUND_EVENTS.put(EntityList.REGISTRY.getIDForObject(EntityHusk.class), SoundEvents.E_PARROT_IM_HUSK);
+        IMITATION_SOUND_EVENTS.put(EntityList.REGISTRY.getIDForObject(EntityIllusionIllager.class), SoundEvents.E_PARROT_IM_ILLUSION_ILLAGER);
+        IMITATION_SOUND_EVENTS.put(EntityList.REGISTRY.getIDForObject(EntityMagmaCube.class), SoundEvents.E_PARROT_IM_MAGMACUBE);
+        IMITATION_SOUND_EVENTS.put(EntityList.REGISTRY.getIDForObject(EntityPigZombie.class), SoundEvents.E_PARROT_IM_ZOMBIE_PIGMAN);
+        IMITATION_SOUND_EVENTS.put(EntityList.REGISTRY.getIDForObject(EntityPolarBear.class), SoundEvents.E_PARROT_IM_POLAR_BEAR);
+        IMITATION_SOUND_EVENTS.put(EntityList.REGISTRY.getIDForObject(EntityShulker.class), SoundEvents.E_PARROT_IM_SHULKER);
+        IMITATION_SOUND_EVENTS.put(EntityList.REGISTRY.getIDForObject(EntitySilverfish.class), SoundEvents.E_PARROT_IM_SILVERFISH);
+        IMITATION_SOUND_EVENTS.put(EntityList.REGISTRY.getIDForObject(EntitySkeleton.class), SoundEvents.E_PARROT_IM_SKELETON);
+        IMITATION_SOUND_EVENTS.put(EntityList.REGISTRY.getIDForObject(EntitySlime.class), SoundEvents.E_PARROT_IM_SLIME);
+        IMITATION_SOUND_EVENTS.put(EntityList.REGISTRY.getIDForObject(EntitySpider.class), SoundEvents.E_PARROT_IM_SPIDER);
+        IMITATION_SOUND_EVENTS.put(EntityList.REGISTRY.getIDForObject(EntityStray.class), SoundEvents.E_PARROT_IM_STRAY);
+        IMITATION_SOUND_EVENTS.put(EntityList.REGISTRY.getIDForObject(EntityVex.class), SoundEvents.E_PARROT_IM_VEX);
+        IMITATION_SOUND_EVENTS.put(EntityList.REGISTRY.getIDForObject(EntityVindicator.class), SoundEvents.E_PARROT_IM_VINDICATION_ILLAGER);
+        IMITATION_SOUND_EVENTS.put(EntityList.REGISTRY.getIDForObject(EntityWitch.class), SoundEvents.E_PARROT_IM_WITCH);
+        IMITATION_SOUND_EVENTS.put(EntityList.REGISTRY.getIDForObject(EntityWither.class), SoundEvents.E_PARROT_IM_WITHER);
+        IMITATION_SOUND_EVENTS.put(EntityList.REGISTRY.getIDForObject(EntityWitherSkeleton.class), SoundEvents.E_PARROT_IM_WITHER_SKELETON);
+        IMITATION_SOUND_EVENTS.put(EntityList.REGISTRY.getIDForObject(EntityWolf.class), SoundEvents.E_PARROT_IM_WOLF);
+        IMITATION_SOUND_EVENTS.put(EntityList.REGISTRY.getIDForObject(EntityZombie.class), SoundEvents.E_PARROT_IM_ZOMBIE);
+        IMITATION_SOUND_EVENTS.put(EntityList.REGISTRY.getIDForObject(EntityZombieVillager.class), SoundEvents.E_PARROT_IM_ZOMBIE_VILLAGER);
     }
 }

@@ -20,28 +20,44 @@ import net.minecraft.util.text.TextComponentTranslation;
 
 public class CommandBanIp extends CommandBase
 {
+    /** A regex that matches ip addresses */
     public static final Pattern IP_PATTERN = Pattern.compile("^([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.([01]?\\d\\d?|2[0-4]\\d|25[0-5])$");
 
+    /**
+     * Gets the name of the command
+     */
     public String getName()
     {
         return "ban-ip";
     }
 
+    /**
+     * Return the required permission level for this command.
+     */
     public int getRequiredPermissionLevel()
     {
         return 3;
     }
 
+    /**
+     * Check if the given ICommandSender has permission to execute this command
+     */
     public boolean checkPermission(MinecraftServer server, ICommandSender sender)
     {
         return server.getPlayerList().getBannedIPs().isLanServer() && super.checkPermission(server, sender);
     }
 
+    /**
+     * Gets the usage string for the command.
+     */
     public String getUsage(ICommandSender sender)
     {
         return "commands.banip.usage";
     }
 
+    /**
+     * Callback for when the command is executed
+     */
     public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
     {
         if (args.length >= 1 && args[0].length() > 1)

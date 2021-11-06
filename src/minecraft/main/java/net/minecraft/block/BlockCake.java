@@ -28,25 +28,39 @@ public class BlockCake extends Block
     protected BlockCake()
     {
         super(Material.CAKE);
-        this.setDefaultState(this.stateContainer.getBaseState().withProperty(BITES, Integer.valueOf(0)));
+        this.setDefaultState(this.blockState.getBaseState().withProperty(BITES, Integer.valueOf(0)));
         this.setTickRandomly(true);
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#getBoundingBox(IBlockAccess,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
     {
-        return CAKE_AABB[((Integer)state.get(BITES)).intValue()];
+        return CAKE_AABB[((Integer)state.getValue(BITES)).intValue()];
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#isFullCube()} whenever possible. Implementing/overriding is fine.
+     */
     public boolean isFullCube(IBlockState state)
     {
         return false;
     }
 
+    /**
+     * Used to determine ambient occlusion and culling when rebuilding chunks for render
+     * @deprecated call via {@link IBlockState#isOpaqueCube()} whenever possible. Implementing/overriding is fine.
+     */
     public boolean isOpaqueCube(IBlockState state)
     {
         return false;
     }
 
+    /**
+     * Called when the block is right clicked by a player.
+     */
     public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
         if (!worldIn.isRemote)
@@ -68,9 +82,9 @@ public class BlockCake extends Block
         }
         else
         {
-            player.addStat(StatList.EAT_CAKE_SLICE);
+            player.addStat(StatList.CAKE_SLICES_EATEN);
             player.getFoodStats().addStats(2, 0.1F);
-            int i = ((Integer)state.get(BITES)).intValue();
+            int i = ((Integer)state.getValue(BITES)).intValue();
 
             if (i < 6)
             {
@@ -85,11 +99,19 @@ public class BlockCake extends Block
         }
     }
 
+    /**
+     * Checks if this block can be placed exactly at the given position.
+     */
     public boolean canPlaceBlockAt(World worldIn, BlockPos pos)
     {
         return super.canPlaceBlockAt(worldIn, pos) ? this.canBlockStay(worldIn, pos) : false;
     }
 
+    /**
+     * Called when a neighboring block was changed and marks that this state should perform any checks during a neighbor
+     * change. Cases may include when redstone power is updated, cactus blocks popping off due to a neighboring solid
+     * block, etc.
+     */
     public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos)
     {
         if (!this.canBlockStay(worldIn, pos))
@@ -103,11 +125,17 @@ public class BlockCake extends Block
         return worldIn.getBlockState(pos.down()).getMaterial().isSolid();
     }
 
+    /**
+     * Returns the quantity of items to drop on block destruction.
+     */
     public int quantityDropped(Random random)
     {
         return 0;
     }
 
+    /**
+     * Get the Item that this Block should drop when harvested.
+     */
     public Item getItemDropped(IBlockState state, Random rand, int fortune)
     {
         return Items.AIR;
@@ -118,19 +146,29 @@ public class BlockCake extends Block
         return new ItemStack(Items.CAKE);
     }
 
+    /**
+     * Gets the render layer this block will render on. SOLID for solid blocks, CUTOUT or CUTOUT_MIPPED for on-off
+     * transparency (glass, reeds), TRANSLUCENT for fully blended transparency (stained glass)
+     */
     public BlockRenderLayer getRenderLayer()
     {
         return BlockRenderLayer.CUTOUT;
     }
 
+    /**
+     * Convert the given metadata into a BlockState for this Block
+     */
     public IBlockState getStateFromMeta(int meta)
     {
         return this.getDefaultState().withProperty(BITES, Integer.valueOf(meta));
     }
 
+    /**
+     * Convert the BlockState into the correct metadata value
+     */
     public int getMetaFromState(IBlockState state)
     {
-        return ((Integer)state.get(BITES)).intValue();
+        return ((Integer)state.getValue(BITES)).intValue();
     }
 
     protected BlockStateContainer createBlockState()
@@ -144,7 +182,7 @@ public class BlockCake extends Block
      */
     public int getComparatorInputOverride(IBlockState blockState, World worldIn, BlockPos pos)
     {
-        return (7 - ((Integer)blockState.get(BITES)).intValue()) * 2;
+        return (7 - ((Integer)blockState.getValue(BITES)).intValue()) * 2;
     }
 
     /**
@@ -156,6 +194,17 @@ public class BlockCake extends Block
         return true;
     }
 
+    /**
+     * Get the geometry of the queried face at the given position and state. This is used to decide whether things like
+     * buttons are allowed to be placed on the face, or how glass panes connect to the face, among other things.
+     * <p>
+     * Common values are {@code SOLID}, which is the default, and {@code UNDEFINED}, which represents something that
+     * does not fit the other descriptions and will generally cause other things not to connect to the face.
+
+     * @return an approximation of the form of the given face
+     * @deprecated call via {@link IBlockState#getBlockFaceShape(IBlockAccess,BlockPos,EnumFacing)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public BlockFaceShape getBlockFaceShape(IBlockAccess worldIn, IBlockState state, BlockPos pos, EnumFacing face)
     {
         return BlockFaceShape.UNDEFINED;

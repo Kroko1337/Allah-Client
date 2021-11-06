@@ -34,7 +34,7 @@ public class EntityMooshroom extends EntityCow
     {
         ItemStack itemstack = player.getHeldItem(hand);
 
-        if (itemstack.getItem() == Items.BOWL && this.getGrowingAge() >= 0 && !player.abilities.isCreativeMode)
+        if (itemstack.getItem() == Items.BOWL && this.getGrowingAge() >= 0 && !player.capabilities.isCreativeMode)
         {
             itemstack.shrink(1);
 
@@ -51,7 +51,7 @@ public class EntityMooshroom extends EntityCow
         }
         else if (itemstack.getItem() == Items.SHEARS && this.getGrowingAge() >= 0)
         {
-            this.remove();
+            this.setDead();
             this.world.spawnParticle(EnumParticleTypes.EXPLOSION_LARGE, this.posX, this.posY + (double)(this.height / 2.0F), this.posZ, 0.0D, 0.0D, 0.0D);
 
             if (!this.world.isRemote)
@@ -66,11 +66,11 @@ public class EntityMooshroom extends EntityCow
                     entitycow.setCustomNameTag(this.getCustomNameTag());
                 }
 
-                this.world.addEntity0(entitycow);
+                this.world.spawnEntity(entitycow);
 
                 for (int i = 0; i < 5; ++i)
                 {
-                    this.world.addEntity0(new EntityItem(this.world, this.posX, this.posY + (double)this.height, this.posZ, new ItemStack(Blocks.RED_MUSHROOM)));
+                    this.world.spawnEntity(new EntityItem(this.world, this.posX, this.posY + (double)this.height, this.posZ, new ItemStack(Blocks.RED_MUSHROOM)));
                 }
 
                 itemstack.damageItem(1, player);

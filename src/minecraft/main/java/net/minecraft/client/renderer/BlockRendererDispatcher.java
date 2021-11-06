@@ -22,11 +22,11 @@ public class BlockRendererDispatcher implements IResourceManagerReloadListener
     private final ChestRenderer chestRenderer = new ChestRenderer();
     private final BlockFluidRenderer fluidRenderer;
 
-    public BlockRendererDispatcher(BlockModelShapes shapes, BlockColors colors)
+    public BlockRendererDispatcher(BlockModelShapes p_i46577_1_, BlockColors p_i46577_2_)
     {
-        this.blockModelShapes = shapes;
-        this.blockModelRenderer = new BlockModelRenderer(colors);
-        this.fluidRenderer = new BlockFluidRenderer(colors);
+        this.blockModelShapes = p_i46577_1_;
+        this.blockModelRenderer = new BlockModelRenderer(p_i46577_2_);
+        this.fluidRenderer = new BlockFluidRenderer(p_i46577_2_);
     }
 
     public BlockModelShapes getBlockModelShapes()
@@ -39,8 +39,8 @@ public class BlockRendererDispatcher implements IResourceManagerReloadListener
         if (state.getRenderType() == EnumBlockRenderType.MODEL)
         {
             state = state.getActualState(blockAccess, pos);
-            IBakedModel ibakedmodel = this.blockModelShapes.getModel(state);
-            IBakedModel ibakedmodel1 = (new SimpleBakedModel.Builder(state, ibakedmodel, texture, pos)).build();
+            IBakedModel ibakedmodel = this.blockModelShapes.getModelForState(state);
+            IBakedModel ibakedmodel1 = (new SimpleBakedModel.Builder(state, ibakedmodel, texture, pos)).makeBakedModel();
             this.blockModelRenderer.renderModel(blockAccess, ibakedmodel1, state, pos, Tessellator.getInstance().getBuffer(), true);
         }
     }
@@ -101,7 +101,7 @@ public class BlockRendererDispatcher implements IResourceManagerReloadListener
 
     public IBakedModel getModelForState(IBlockState state)
     {
-        return this.blockModelShapes.getModel(state);
+        return this.blockModelShapes.getModelForState(state);
     }
 
     @SuppressWarnings("incomplete-switch")

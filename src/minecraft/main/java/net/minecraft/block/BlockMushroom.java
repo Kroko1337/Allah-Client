@@ -19,6 +19,10 @@ public class BlockMushroom extends BlockBush implements IGrowable
         this.setTickRandomly(true);
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#getBoundingBox(IBlockAccess,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
     {
         return MUSHROOM_AABB;
@@ -63,11 +67,17 @@ public class BlockMushroom extends BlockBush implements IGrowable
         }
     }
 
+    /**
+     * Checks if this block can be placed exactly at the given position.
+     */
     public boolean canPlaceBlockAt(World worldIn, BlockPos pos)
     {
         return super.canPlaceBlockAt(worldIn, pos) && this.canBlockStay(worldIn, pos, this.getDefaultState());
     }
 
+    /**
+     * Return true if the block can sustain a Bush
+     */
     protected boolean canSustainBush(IBlockState state)
     {
         return state.isFullBlock();
@@ -83,7 +93,7 @@ public class BlockMushroom extends BlockBush implements IGrowable
             {
                 return true;
             }
-            else if (iblockstate.getBlock() == Blocks.DIRT && iblockstate.get(BlockDirt.VARIANT) == BlockDirt.DirtType.PODZOL)
+            else if (iblockstate.getBlock() == Blocks.DIRT && iblockstate.getValue(BlockDirt.VARIANT) == BlockDirt.DirtType.PODZOL)
             {
                 return true;
             }

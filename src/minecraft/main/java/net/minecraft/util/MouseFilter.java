@@ -6,6 +6,9 @@ public class MouseFilter
     private float remainingValue;
     private float lastAmount;
 
+    /**
+     * Smooths mouse input
+     */
     public float smooth(float p_76333_1_, float p_76333_2_)
     {
         this.targetValue += p_76333_1_;

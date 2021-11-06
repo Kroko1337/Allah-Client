@@ -11,9 +11,13 @@ import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.block.model.ModelManager;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItemFrame;
 import net.minecraft.init.Items;
+import net.minecraft.item.ItemMap;
 import net.minecraft.item.ItemStack;
+import net.minecraft.src.Config;
+import net.minecraft.src.Reflector;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.storage.MapData;
@@ -21,7 +25,7 @@ import net.minecraft.world.storage.MapData;
 public class RenderItemFrame extends Render<EntityItemFrame>
 {
     private static final ResourceLocation MAP_BACKGROUND_TEXTURES = new ResourceLocation("textures/map/map_background.png");
-    private final Minecraft mc = Minecraft.getInstance();
+    private final Minecraft mc = Minecraft.getMinecraft();
     private final ModelResourceLocation itemFrameModel = new ModelResourceLocation("item_frame", "normal");
     private final ModelResourceLocation mapModel = new ModelResourceLocation("item_frame", "map");
     private final RenderItem itemRenderer;
@@ -32,6 +36,9 @@ public class RenderItemFrame extends Render<EntityItemFrame>
         this.itemRenderer = itemRendererIn;
     }
 
+    /**
+     * Renders the desired {@code T} type Entity.
+     */
     public void doRender(EntityItemFrame entity, double x, double y, double z, float entityYaw, float partialTicks)
     {
         GlStateManager.pushMatrix();
@@ -41,7 +48,7 @@ public class RenderItemFrame extends Render<EntityItemFrame>
         double d2 = (double)blockpos.getZ() - entity.posZ + z;
         GlStateManager.translate(d0 + 0.5D, d1 + 0.5D, d2 + 0.5D);
         GlStateManager.rotate(180.0F - entity.rotationYaw, 0.0F, 1.0F, 0.0F);
-        this.renderManager.textureManager.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+        this.renderManager.renderEngine.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
         BlockRendererDispatcher blockrendererdispatcher = this.mc.getBlockRendererDispatcher();
         ModelManager modelmanager = blockrendererdispatcher.getBlockModelShapes().getModelManager();
         IBakedModel ibakedmodel;
@@ -82,7 +89,7 @@ public class RenderItemFrame extends Render<EntityItemFrame>
     @Nullable
 
     /**
-     * Returns the location of an entity's texture.
+     * Returns the location of an entity's texture. Doesn't seem to be called unless you call Render.bindEntityTexture.
      */
     protected ResourceLocation getEntityTexture(EntityItemFrame entity)
     {
@@ -95,35 +102,49 @@ public class RenderItemFrame extends Render<EntityItemFrame>
 
         if (!itemstack.isEmpty())
         {
+            if (!Config.zoomMode)
+            {
+                Entity entity = this.mc.player;
+                double d0 = itemFrame.getDistanceSq(entity.posX, entity.posY, entity.posZ);
+
+                if (d0 > 4096.0D)
+                {
+                    return;
+                }
+            }
+
             GlStateManager.pushMatrix();
             GlStateManager.disableLighting();
-            boolean flag = itemstack.getItem() == Items.FILLED_MAP;
+            boolean flag = itemstack.getItem() instanceof ItemMap;
             int i = flag ? itemFrame.getRotation() % 4 * 2 : itemFrame.getRotation();
             GlStateManager.rotate((float)i * 360.0F / 8.0F, 0.0F, 0.0F, 1.0F);
 
-            if (flag)
+            if (!Reflector.postForgeBusEvent(Reflector.RenderItemInFrameEvent_Constructor, itemFrame, this))
             {
-                this.renderManager.textureManager.bindTexture(MAP_BACKGROUND_TEXTURES);
-                GlStateManager.rotate(180.0F, 0.0F, 0.0F, 1.0F);
-                float f = 0.0078125F;
-                GlStateManager.scale(0.0078125F, 0.0078125F, 0.0078125F);
-                GlStateManager.translate(-64.0F, -64.0F, 0.0F);
-                MapData mapdata = Items.FILLED_MAP.getMapData(itemstack, itemFrame.world);
-                GlStateManager.translate(0.0F, 0.0F, -1.0F);
-
-                if (mapdata != null)
+                if (flag)
                 {
-                    this.mc.gameRenderer.getMapItemRenderer().renderMap(mapdata, true);
+                    this.renderManager.renderEngine.bindTexture(MAP_BACKGROUND_TEXTURES);
+                    GlStateManager.rotate(180.0F, 0.0F, 0.0F, 1.0F);
+                    float f = 0.0078125F;
+                    GlStateManager.scale(0.0078125F, 0.0078125F, 0.0078125F);
+                    GlStateManager.translate(-64.0F, -64.0F, 0.0F);
+                    MapData mapdata = Items.FILLED_MAP.getMapData(itemstack, itemFrame.world);
+                    GlStateManager.translate(0.0F, 0.0F, -1.0F);
+
+                    if (mapdata != null)
+                    {
+                        this.mc.entityRenderer.getMapItemRenderer().renderMap(mapdata, true);
+                    }
                 }
-            }
-            else
-            {
-                GlStateManager.scale(0.5F, 0.5F, 0.5F);
-                GlStateManager.pushAttrib();
-                RenderHelper.enableStandardItemLighting();
-                this.itemRenderer.renderItem(itemstack, ItemCameraTransforms.TransformType.FIXED);
-                RenderHelper.disableStandardItemLighting();
-                GlStateManager.popAttrib();
+                else
+                {
+                    GlStateManager.scale(0.5F, 0.5F, 0.5F);
+                    GlStateManager.pushAttrib();
+                    RenderHelper.enableStandardItemLighting();
+                    this.itemRenderer.renderItem(itemstack, ItemCameraTransforms.TransformType.FIXED);
+                    RenderHelper.disableStandardItemLighting();
+                    GlStateManager.popAttrib();
+                }
             }
 
             GlStateManager.enableLighting();

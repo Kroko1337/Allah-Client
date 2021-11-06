@@ -31,7 +31,7 @@ public class VillageCollection extends WorldSavedData
 
     public VillageCollection(World worldIn)
     {
-        super(fileNameForProvider(worldIn.dimension));
+        super(fileNameForProvider(worldIn.provider));
         this.world = worldIn;
         this.markDirty();
     }
@@ -57,6 +57,9 @@ public class VillageCollection extends WorldSavedData
         }
     }
 
+    /**
+     * Runs a single tick for the village collection
+     */
     public void tick()
     {
         ++this.tickCounter;
@@ -182,6 +185,10 @@ public class VillageCollection extends WorldSavedData
     }
 
     @Nullable
+
+    /**
+     * returns the VillageDoorInfo if it exists in any village or in the newDoor list, otherwise returns null
+     */
     private VillageDoorInfo checkDoorExistence(BlockPos doorBlock)
     {
         for (VillageDoorInfo villagedoorinfo : this.newDoors)
@@ -218,6 +225,9 @@ public class VillageCollection extends WorldSavedData
         }
     }
 
+    /**
+     * Check five blocks in the direction. The centerPos will not be checked.
+     */
     private int countBlocksCanSeeSky(BlockPos centerPos, EnumFacing direction, int limitation)
     {
         int i = 0;
@@ -269,23 +279,23 @@ public class VillageCollection extends WorldSavedData
     /**
      * reads in data from the NBTTagCompound into this MapDataBase
      */
-    public void read(NBTTagCompound nbt)
+    public void readFromNBT(NBTTagCompound nbt)
     {
-        this.tickCounter = nbt.getInt("Tick");
-        NBTTagList nbttaglist = nbt.getList("Villages", 10);
+        this.tickCounter = nbt.getInteger("Tick");
+        NBTTagList nbttaglist = nbt.getTagList("Villages", 10);
 
         for (int i = 0; i < nbttaglist.tagCount(); ++i)
         {
-            NBTTagCompound nbttagcompound = nbttaglist.getCompound(i);
+            NBTTagCompound nbttagcompound = nbttaglist.getCompoundTagAt(i);
             Village village = new Village();
             village.readVillageDataFromNBT(nbttagcompound);
             this.villageList.add(village);
         }
     }
 
-    public NBTTagCompound write(NBTTagCompound compound)
+    public NBTTagCompound writeToNBT(NBTTagCompound compound)
     {
-        compound.putInt("Tick", this.tickCounter);
+        compound.setInteger("Tick", this.tickCounter);
         NBTTagList nbttaglist = new NBTTagList();
 
         for (Village village : this.villageList)
@@ -301,6 +311,6 @@ public class VillageCollection extends WorldSavedData
 
     public static String fileNameForProvider(WorldProvider provider)
     {
-        return "villages" + provider.getType().getSuffix();
+        return "villages" + provider.getDimensionType().getSuffix();
     }
 }

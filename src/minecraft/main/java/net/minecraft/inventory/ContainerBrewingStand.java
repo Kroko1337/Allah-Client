@@ -14,30 +14,40 @@ import net.minecraft.potion.PotionUtils;
 public class ContainerBrewingStand extends Container
 {
     private final IInventory tileBrewingStand;
+
+    /** Instance of Slot. */
     private final Slot slot;
+
+    /**
+     * Used to cache the brewing time to send changes to ICrafting listeners.
+     */
     private int prevBrewTime;
+
+    /**
+     * Used to cache the fuel remaining in the brewing stand to send changes to ICrafting listeners.
+     */
     private int prevFuel;
 
     public ContainerBrewingStand(InventoryPlayer playerInventory, IInventory tileBrewingStandIn)
     {
         this.tileBrewingStand = tileBrewingStandIn;
-        this.addSlot(new ContainerBrewingStand.Potion(tileBrewingStandIn, 0, 56, 51));
-        this.addSlot(new ContainerBrewingStand.Potion(tileBrewingStandIn, 1, 79, 58));
-        this.addSlot(new ContainerBrewingStand.Potion(tileBrewingStandIn, 2, 102, 51));
-        this.slot = this.addSlot(new ContainerBrewingStand.Ingredient(tileBrewingStandIn, 3, 79, 17));
-        this.addSlot(new ContainerBrewingStand.Fuel(tileBrewingStandIn, 4, 17, 17));
+        this.addSlotToContainer(new ContainerBrewingStand.Potion(tileBrewingStandIn, 0, 56, 51));
+        this.addSlotToContainer(new ContainerBrewingStand.Potion(tileBrewingStandIn, 1, 79, 58));
+        this.addSlotToContainer(new ContainerBrewingStand.Potion(tileBrewingStandIn, 2, 102, 51));
+        this.slot = this.addSlotToContainer(new ContainerBrewingStand.Ingredient(tileBrewingStandIn, 3, 79, 17));
+        this.addSlotToContainer(new ContainerBrewingStand.Fuel(tileBrewingStandIn, 4, 17, 17));
 
         for (int i = 0; i < 3; ++i)
         {
             for (int j = 0; j < 9; ++j)
             {
-                this.addSlot(new Slot(playerInventory, j + i * 9 + 9, 8 + j * 18, 84 + i * 18));
+                this.addSlotToContainer(new Slot(playerInventory, j + i * 9 + 9, 8 + j * 18, 84 + i * 18));
             }
         }
 
         for (int k = 0; k < 9; ++k)
         {
-            this.addSlot(new Slot(playerInventory, k, 8 + k * 18, 142));
+            this.addSlotToContainer(new Slot(playerInventory, k, 8 + k * 18, 142));
         }
     }
 
@@ -246,7 +256,7 @@ public class ContainerBrewingStand extends Container
         public static boolean canHoldPotion(ItemStack stack)
         {
             Item item = stack.getItem();
-            return item == Items.POTION || item == Items.SPLASH_POTION || item == Items.LINGERING_POTION || item == Items.GLASS_BOTTLE;
+            return item == Items.POTIONITEM || item == Items.SPLASH_POTION || item == Items.LINGERING_POTION || item == Items.GLASS_BOTTLE;
         }
     }
 }

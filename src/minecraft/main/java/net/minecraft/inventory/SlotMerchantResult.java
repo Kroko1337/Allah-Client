@@ -8,9 +8,14 @@ import net.minecraft.village.MerchantRecipe;
 
 public class SlotMerchantResult extends Slot
 {
+    /** Merchant's inventory. */
     private final InventoryMerchant merchantInventory;
+
+    /** The Player whos trying to buy/sell stuff. */
     private final EntityPlayer player;
     private int removeCount;
+
+    /** "Instance" of the Merchant. */
     private final IMerchant merchant;
 
     public SlotMerchantResult(EntityPlayer player, IMerchant merchant, InventoryMerchant merchantInventory, int slotIndex, int xPosition, int yPosition)

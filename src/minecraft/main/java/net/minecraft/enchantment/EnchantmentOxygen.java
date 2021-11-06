@@ -18,6 +18,9 @@ public class EnchantmentOxygen extends Enchantment
         return 10 * enchantmentLevel;
     }
 
+    /**
+     * Returns the maximum value of enchantability nedded on the enchantment level passed.
+     */
     public int getMaxEnchantability(int enchantmentLevel)
     {
         return this.getMinEnchantability(enchantmentLevel) + 30;

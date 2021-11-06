@@ -8,9 +8,16 @@ import net.minecraft.world.EnumDifficulty;
 
 public class FoodStats
 {
+    /** The player's food level. */
     private int foodLevel = 20;
+
+    /** The player's food saturation. */
     private float foodSaturationLevel = 5.0F;
+
+    /** The player's food exhaustion. */
     private float foodExhaustionLevel;
+
+    /** The player's food timer value. */
     private int foodTimer;
     private int prevFoodLevel = 20;
 
@@ -31,7 +38,7 @@ public class FoodStats
     /**
      * Handles the food game logic.
      */
-    public void tick(EntityPlayer player)
+    public void onUpdate(EntityPlayer player)
     {
         EnumDifficulty enumdifficulty = player.world.getDifficulty();
         this.prevFoodLevel = this.foodLevel;
@@ -98,12 +105,12 @@ public class FoodStats
     /**
      * Reads the food data for the player.
      */
-    public void read(NBTTagCompound compound)
+    public void readNBT(NBTTagCompound compound)
     {
-        if (compound.contains("foodLevel", 99))
+        if (compound.hasKey("foodLevel", 99))
         {
-            this.foodLevel = compound.getInt("foodLevel");
-            this.foodTimer = compound.getInt("foodTickTimer");
+            this.foodLevel = compound.getInteger("foodLevel");
+            this.foodTimer = compound.getInteger("foodTickTimer");
             this.foodSaturationLevel = compound.getFloat("foodSaturationLevel");
             this.foodExhaustionLevel = compound.getFloat("foodExhaustionLevel");
         }
@@ -112,12 +119,12 @@ public class FoodStats
     /**
      * Writes the food data for the player.
      */
-    public void write(NBTTagCompound compound)
+    public void writeNBT(NBTTagCompound compound)
     {
-        compound.putInt("foodLevel", this.foodLevel);
-        compound.putInt("foodTickTimer", this.foodTimer);
-        compound.putFloat("foodSaturationLevel", this.foodSaturationLevel);
-        compound.putFloat("foodExhaustionLevel", this.foodExhaustionLevel);
+        compound.setInteger("foodLevel", this.foodLevel);
+        compound.setInteger("foodTickTimer", this.foodTimer);
+        compound.setFloat("foodSaturationLevel", this.foodSaturationLevel);
+        compound.setFloat("foodExhaustionLevel", this.foodExhaustionLevel);
     }
 
     /**

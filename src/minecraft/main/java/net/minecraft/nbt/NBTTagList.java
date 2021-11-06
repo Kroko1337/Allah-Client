@@ -13,6 +13,10 @@ public class NBTTagList extends NBTBase
 {
     private static final Logger LOGGER = LogManager.getLogger();
     private List<NBTBase> tagList = Lists.<NBTBase>newArrayList();
+
+    /**
+     * The type byte for the tags in the list - they must all be of the same type.
+     */
     private byte tagType = 0;
 
     /**
@@ -95,6 +99,10 @@ public class NBTTagList extends NBTBase
         return stringbuilder.append(']').toString();
     }
 
+    /**
+     * Adds the provided tag to the end of the list. There is no check to verify this tag is of the same type as any
+     * previous tag.
+     */
     public void appendTag(NBTBase nbt)
     {
         if (nbt.getId() == 0)
@@ -117,6 +125,9 @@ public class NBTTagList extends NBTBase
         }
     }
 
+    /**
+     * Set the given index to the given tag
+     */
     public void set(int idx, NBTBase nbt)
     {
         if (nbt.getId() == 0)
@@ -143,11 +154,17 @@ public class NBTTagList extends NBTBase
         }
     }
 
+    /**
+     * Removes a tag at the given index.
+     */
     public NBTBase removeTag(int i)
     {
         return this.tagList.remove(i);
     }
 
+    /**
+     * Return whether this compound has no tags.
+     */
     public boolean isEmpty()
     {
         return this.tagList.isEmpty();
@@ -156,7 +173,7 @@ public class NBTTagList extends NBTBase
     /**
      * Retrieves the NBTTagCompound at the specified index in the list
      */
-    public NBTTagCompound getCompound(int i)
+    public NBTTagCompound getCompoundTagAt(int i)
     {
         if (i >= 0 && i < this.tagList.size())
         {
@@ -171,11 +188,11 @@ public class NBTTagList extends NBTBase
         return new NBTTagCompound();
     }
 
-    public int getInt(int iIn)
+    public int getIntAt(int p_186858_1_)
     {
-        if (iIn >= 0 && iIn < this.tagList.size())
+        if (p_186858_1_ >= 0 && p_186858_1_ < this.tagList.size())
         {
-            NBTBase nbtbase = this.tagList.get(iIn);
+            NBTBase nbtbase = this.tagList.get(p_186858_1_);
 
             if (nbtbase.getId() == 3)
             {
@@ -186,7 +203,7 @@ public class NBTTagList extends NBTBase
         return 0;
     }
 
-    public int[] getIntArray(int i)
+    public int[] getIntArrayAt(int i)
     {
         if (i >= 0 && i < this.tagList.size())
         {
@@ -201,7 +218,7 @@ public class NBTTagList extends NBTBase
         return new int[0];
     }
 
-    public double getDouble(int i)
+    public double getDoubleAt(int i)
     {
         if (i >= 0 && i < this.tagList.size())
         {
@@ -216,7 +233,7 @@ public class NBTTagList extends NBTBase
         return 0.0D;
     }
 
-    public float getFloat(int i)
+    public float getFloatAt(int i)
     {
         if (i >= 0 && i < this.tagList.size())
         {
@@ -234,7 +251,7 @@ public class NBTTagList extends NBTBase
     /**
      * Retrieves the tag String value at the specified index in the list
      */
-    public String getString(int i)
+    public String getStringTagAt(int i)
     {
         if (i >= 0 && i < this.tagList.size())
         {
@@ -247,11 +264,17 @@ public class NBTTagList extends NBTBase
         }
     }
 
+    /**
+     * Get the tag at the given position
+     */
     public NBTBase get(int idx)
     {
         return (NBTBase)(idx >= 0 && idx < this.tagList.size() ? (NBTBase)this.tagList.get(idx) : new NBTTagEnd());
     }
 
+    /**
+     * Returns the number of tags in the list.
+     */
     public int tagCount()
     {
         return this.tagList.size();

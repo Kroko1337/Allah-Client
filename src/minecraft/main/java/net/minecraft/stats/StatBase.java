@@ -11,7 +11,10 @@ import net.minecraft.util.text.TextFormatting;
 
 public class StatBase
 {
+    /** The Stat ID */
     public final String statId;
+
+    /** The Stat name */
     private final ITextComponent statName;
     public boolean isIndependent;
     private final IStatType formatter;
@@ -93,12 +96,19 @@ public class StatBase
         this(statIdIn, statNameIn, simpleStatType);
     }
 
+    /**
+     * Initializes the current stat as independent (i.e., lacking prerequisites for being updated) and returns the
+     * current instance.
+     */
     public StatBase initIndependentStat()
     {
         this.isIndependent = true;
         return this;
     }
 
+    /**
+     * Register the stat into StatList.
+     */
     public StatBase registerStat()
     {
         if (StatList.ID_TO_STAT_MAP.containsKey(this.statId))
@@ -120,7 +130,7 @@ public class StatBase
 
     public ITextComponent getStatName()
     {
-        ITextComponent itextcomponent = this.statName.shallowCopy();
+        ITextComponent itextcomponent = this.statName.createCopy();
         itextcomponent.getStyle().setColor(TextFormatting.GRAY);
         return itextcomponent;
     }
@@ -152,6 +162,9 @@ public class StatBase
         return "Stat{id=" + this.statId + ", nameId=" + this.statName + ", awardLocallyOnly=" + this.isIndependent + ", formatter=" + this.formatter + ", objectiveCriteria=" + this.objectiveCriteria + '}';
     }
 
+    /**
+     * 1.8.9
+     */
     public IScoreCriteria getCriteria()
     {
         return this.objectiveCriteria;

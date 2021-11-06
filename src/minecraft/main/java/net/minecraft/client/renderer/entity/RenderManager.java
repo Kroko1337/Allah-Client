@@ -1,6 +1,7 @@
 package net.minecraft.client.renderer.entity;
 
 import com.google.common.collect.Maps;
+import java.util.Collections;
 import java.util.Map;
 import javax.annotation.Nullable;
 import net.minecraft.block.Block;
@@ -106,124 +107,145 @@ import net.minecraft.entity.projectile.EntityTippedArrow;
 import net.minecraft.entity.projectile.EntityWitherSkull;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
+import net.minecraft.src.PlayerItemsLayer;
+import net.minecraft.src.Reflector;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ReportedException;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.optifine.entity.model.CustomEntityModels;
 
 public class RenderManager
 {
-    private final Map < Class <? extends Entity > , Render <? extends Entity >> renderers = Maps. < Class <? extends Entity > , Render <? extends Entity >> newHashMap();
+    private final Map<Class, Render> entityRenderMap = Maps.<Class, Render>newHashMap();
     private final Map<String, RenderPlayer> skinMap = Maps.<String, RenderPlayer>newHashMap();
     private final RenderPlayer playerRenderer;
+
+    /** Renders fonts */
     private FontRenderer textRenderer;
-    public double renderPosX;
-    public double renderPosY;
-    public double renderPosZ;
-    public TextureManager textureManager;
+    private double renderPosX;
+    private double renderPosY;
+    private double renderPosZ;
+    public TextureManager renderEngine;
+
+    /** Reference to the World object. */
     public World world;
+
+    /** RenderManager's field for the renderViewEntity */
     public Entity renderViewEntity;
     public Entity pointedEntity;
     public float playerViewY;
     public float playerViewX;
+
+    /** Reference to the GameSettings object. */
     public GameSettings options;
     public double viewerPosX;
     public double viewerPosY;
     public double viewerPosZ;
     private boolean renderOutlines;
     private boolean renderShadow = true;
+
+    /** whether bounding box should be rendered or not */
     private boolean debugBoundingBox;
+    public Entity renderEntity = null;
+    public Render renderRender = null;
 
     public RenderManager(TextureManager renderEngineIn, RenderItem itemRendererIn)
     {
-        this.textureManager = renderEngineIn;
-        this.renderers.put(EntityCaveSpider.class, new RenderCaveSpider(this));
-        this.renderers.put(EntitySpider.class, new RenderSpider(this));
-        this.renderers.put(EntityPig.class, new RenderPig(this));
-        this.renderers.put(EntitySheep.class, new RenderSheep(this));
-        this.renderers.put(EntityCow.class, new RenderCow(this));
-        this.renderers.put(EntityMooshroom.class, new RenderMooshroom(this));
-        this.renderers.put(EntityWolf.class, new RenderWolf(this));
-        this.renderers.put(EntityChicken.class, new RenderChicken(this));
-        this.renderers.put(EntityOcelot.class, new RenderOcelot(this));
-        this.renderers.put(EntityRabbit.class, new RenderRabbit(this));
-        this.renderers.put(EntityParrot.class, new RenderParrot(this));
-        this.renderers.put(EntitySilverfish.class, new RenderSilverfish(this));
-        this.renderers.put(EntityEndermite.class, new RenderEndermite(this));
-        this.renderers.put(EntityCreeper.class, new RenderCreeper(this));
-        this.renderers.put(EntityEnderman.class, new RenderEnderman(this));
-        this.renderers.put(EntitySnowman.class, new RenderSnowMan(this));
-        this.renderers.put(EntitySkeleton.class, new RenderSkeleton(this));
-        this.renderers.put(EntityWitherSkeleton.class, new RenderWitherSkeleton(this));
-        this.renderers.put(EntityStray.class, new RenderStray(this));
-        this.renderers.put(EntityWitch.class, new RenderWitch(this));
-        this.renderers.put(EntityBlaze.class, new RenderBlaze(this));
-        this.renderers.put(EntityPigZombie.class, new RenderPigZombie(this));
-        this.renderers.put(EntityZombie.class, new RenderZombie(this));
-        this.renderers.put(EntityZombieVillager.class, new RenderZombieVillager(this));
-        this.renderers.put(EntityHusk.class, new RenderHusk(this));
-        this.renderers.put(EntitySlime.class, new RenderSlime(this));
-        this.renderers.put(EntityMagmaCube.class, new RenderMagmaCube(this));
-        this.renderers.put(EntityGiantZombie.class, new RenderGiantZombie(this, 6.0F));
-        this.renderers.put(EntityGhast.class, new RenderGhast(this));
-        this.renderers.put(EntitySquid.class, new RenderSquid(this));
-        this.renderers.put(EntityVillager.class, new RenderVillager(this));
-        this.renderers.put(EntityIronGolem.class, new RenderIronGolem(this));
-        this.renderers.put(EntityBat.class, new RenderBat(this));
-        this.renderers.put(EntityGuardian.class, new RenderGuardian(this));
-        this.renderers.put(EntityElderGuardian.class, new RenderElderGuardian(this));
-        this.renderers.put(EntityShulker.class, new RenderShulker(this));
-        this.renderers.put(EntityPolarBear.class, new RenderPolarBear(this));
-        this.renderers.put(EntityEvoker.class, new RenderEvoker(this));
-        this.renderers.put(EntityVindicator.class, new RenderVindicator(this));
-        this.renderers.put(EntityVex.class, new RenderVex(this));
-        this.renderers.put(EntityIllusionIllager.class, new RenderIllusionIllager(this));
-        this.renderers.put(EntityDragon.class, new RenderDragon(this));
-        this.renderers.put(EntityEnderCrystal.class, new RenderEnderCrystal(this));
-        this.renderers.put(EntityWither.class, new RenderWither(this));
-        this.renderers.put(Entity.class, new RenderEntity(this));
-        this.renderers.put(EntityPainting.class, new RenderPainting(this));
-        this.renderers.put(EntityItemFrame.class, new RenderItemFrame(this, itemRendererIn));
-        this.renderers.put(EntityLeashKnot.class, new RenderLeashKnot(this));
-        this.renderers.put(EntityTippedArrow.class, new RenderTippedArrow(this));
-        this.renderers.put(EntitySpectralArrow.class, new RenderSpectralArrow(this));
-        this.renderers.put(EntitySnowball.class, new RenderSnowball(this, Items.SNOWBALL, itemRendererIn));
-        this.renderers.put(EntityEnderPearl.class, new RenderSnowball(this, Items.ENDER_PEARL, itemRendererIn));
-        this.renderers.put(EntityEnderEye.class, new RenderSnowball(this, Items.ENDER_EYE, itemRendererIn));
-        this.renderers.put(EntityEgg.class, new RenderSnowball(this, Items.EGG, itemRendererIn));
-        this.renderers.put(EntityPotion.class, new RenderPotion(this, itemRendererIn));
-        this.renderers.put(EntityExpBottle.class, new RenderSnowball(this, Items.EXPERIENCE_BOTTLE, itemRendererIn));
-        this.renderers.put(EntityFireworkRocket.class, new RenderSnowball(this, Items.FIREWORKS, itemRendererIn));
-        this.renderers.put(EntityLargeFireball.class, new RenderFireball(this, 2.0F));
-        this.renderers.put(EntitySmallFireball.class, new RenderFireball(this, 0.5F));
-        this.renderers.put(EntityDragonFireball.class, new RenderDragonFireball(this));
-        this.renderers.put(EntityWitherSkull.class, new RenderWitherSkull(this));
-        this.renderers.put(EntityShulkerBullet.class, new RenderShulkerBullet(this));
-        this.renderers.put(EntityItem.class, new RenderEntityItem(this, itemRendererIn));
-        this.renderers.put(EntityXPOrb.class, new RenderXPOrb(this));
-        this.renderers.put(EntityTNTPrimed.class, new RenderTNTPrimed(this));
-        this.renderers.put(EntityFallingBlock.class, new RenderFallingBlock(this));
-        this.renderers.put(EntityArmorStand.class, new RenderArmorStand(this));
-        this.renderers.put(EntityEvokerFangs.class, new RenderEvokerFangs(this));
-        this.renderers.put(EntityMinecartTNT.class, new RenderTntMinecart(this));
-        this.renderers.put(EntityMinecartMobSpawner.class, new RenderMinecartMobSpawner(this));
-        this.renderers.put(EntityMinecart.class, new RenderMinecart(this));
-        this.renderers.put(EntityBoat.class, new RenderBoat(this));
-        this.renderers.put(EntityFishHook.class, new RenderFish(this));
-        this.renderers.put(EntityAreaEffectCloud.class, new RenderAreaEffectCloud(this));
-        this.renderers.put(EntityHorse.class, new RenderHorse(this));
-        this.renderers.put(EntitySkeletonHorse.class, new RenderAbstractHorse(this));
-        this.renderers.put(EntityZombieHorse.class, new RenderAbstractHorse(this));
-        this.renderers.put(EntityMule.class, new RenderAbstractHorse(this, 0.92F));
-        this.renderers.put(EntityDonkey.class, new RenderAbstractHorse(this, 0.87F));
-        this.renderers.put(EntityLlama.class, new RenderLlama(this));
-        this.renderers.put(EntityLlamaSpit.class, new RenderLlamaSpit(this));
-        this.renderers.put(EntityLightningBolt.class, new RenderLightningBolt(this));
+        this.renderEngine = renderEngineIn;
+        this.entityRenderMap.put(EntityCaveSpider.class, new RenderCaveSpider(this));
+        this.entityRenderMap.put(EntitySpider.class, new RenderSpider(this));
+        this.entityRenderMap.put(EntityPig.class, new RenderPig(this));
+        this.entityRenderMap.put(EntitySheep.class, new RenderSheep(this));
+        this.entityRenderMap.put(EntityCow.class, new RenderCow(this));
+        this.entityRenderMap.put(EntityMooshroom.class, new RenderMooshroom(this));
+        this.entityRenderMap.put(EntityWolf.class, new RenderWolf(this));
+        this.entityRenderMap.put(EntityChicken.class, new RenderChicken(this));
+        this.entityRenderMap.put(EntityOcelot.class, new RenderOcelot(this));
+        this.entityRenderMap.put(EntityRabbit.class, new RenderRabbit(this));
+        this.entityRenderMap.put(EntityParrot.class, new RenderParrot(this));
+        this.entityRenderMap.put(EntitySilverfish.class, new RenderSilverfish(this));
+        this.entityRenderMap.put(EntityEndermite.class, new RenderEndermite(this));
+        this.entityRenderMap.put(EntityCreeper.class, new RenderCreeper(this));
+        this.entityRenderMap.put(EntityEnderman.class, new RenderEnderman(this));
+        this.entityRenderMap.put(EntitySnowman.class, new RenderSnowMan(this));
+        this.entityRenderMap.put(EntitySkeleton.class, new RenderSkeleton(this));
+        this.entityRenderMap.put(EntityWitherSkeleton.class, new RenderWitherSkeleton(this));
+        this.entityRenderMap.put(EntityStray.class, new RenderStray(this));
+        this.entityRenderMap.put(EntityWitch.class, new RenderWitch(this));
+        this.entityRenderMap.put(EntityBlaze.class, new RenderBlaze(this));
+        this.entityRenderMap.put(EntityPigZombie.class, new RenderPigZombie(this));
+        this.entityRenderMap.put(EntityZombie.class, new RenderZombie(this));
+        this.entityRenderMap.put(EntityZombieVillager.class, new RenderZombieVillager(this));
+        this.entityRenderMap.put(EntityHusk.class, new RenderHusk(this));
+        this.entityRenderMap.put(EntitySlime.class, new RenderSlime(this));
+        this.entityRenderMap.put(EntityMagmaCube.class, new RenderMagmaCube(this));
+        this.entityRenderMap.put(EntityGiantZombie.class, new RenderGiantZombie(this, 6.0F));
+        this.entityRenderMap.put(EntityGhast.class, new RenderGhast(this));
+        this.entityRenderMap.put(EntitySquid.class, new RenderSquid(this));
+        this.entityRenderMap.put(EntityVillager.class, new RenderVillager(this));
+        this.entityRenderMap.put(EntityIronGolem.class, new RenderIronGolem(this));
+        this.entityRenderMap.put(EntityBat.class, new RenderBat(this));
+        this.entityRenderMap.put(EntityGuardian.class, new RenderGuardian(this));
+        this.entityRenderMap.put(EntityElderGuardian.class, new RenderElderGuardian(this));
+        this.entityRenderMap.put(EntityShulker.class, new RenderShulker(this));
+        this.entityRenderMap.put(EntityPolarBear.class, new RenderPolarBear(this));
+        this.entityRenderMap.put(EntityEvoker.class, new RenderEvoker(this));
+        this.entityRenderMap.put(EntityVindicator.class, new RenderVindicator(this));
+        this.entityRenderMap.put(EntityVex.class, new RenderVex(this));
+        this.entityRenderMap.put(EntityIllusionIllager.class, new RenderIllusionIllager(this));
+        this.entityRenderMap.put(EntityDragon.class, new RenderDragon(this));
+        this.entityRenderMap.put(EntityEnderCrystal.class, new RenderEnderCrystal(this));
+        this.entityRenderMap.put(EntityWither.class, new RenderWither(this));
+        this.entityRenderMap.put(Entity.class, new RenderEntity(this));
+        this.entityRenderMap.put(EntityPainting.class, new RenderPainting(this));
+        this.entityRenderMap.put(EntityItemFrame.class, new RenderItemFrame(this, itemRendererIn));
+        this.entityRenderMap.put(EntityLeashKnot.class, new RenderLeashKnot(this));
+        this.entityRenderMap.put(EntityTippedArrow.class, new RenderTippedArrow(this));
+        this.entityRenderMap.put(EntitySpectralArrow.class, new RenderSpectralArrow(this));
+        this.entityRenderMap.put(EntitySnowball.class, new RenderSnowball(this, Items.SNOWBALL, itemRendererIn));
+        this.entityRenderMap.put(EntityEnderPearl.class, new RenderSnowball(this, Items.ENDER_PEARL, itemRendererIn));
+        this.entityRenderMap.put(EntityEnderEye.class, new RenderSnowball(this, Items.ENDER_EYE, itemRendererIn));
+        this.entityRenderMap.put(EntityEgg.class, new RenderSnowball(this, Items.EGG, itemRendererIn));
+        this.entityRenderMap.put(EntityPotion.class, new RenderPotion(this, itemRendererIn));
+        this.entityRenderMap.put(EntityExpBottle.class, new RenderSnowball(this, Items.EXPERIENCE_BOTTLE, itemRendererIn));
+        this.entityRenderMap.put(EntityFireworkRocket.class, new RenderSnowball(this, Items.FIREWORKS, itemRendererIn));
+        this.entityRenderMap.put(EntityLargeFireball.class, new RenderFireball(this, 2.0F));
+        this.entityRenderMap.put(EntitySmallFireball.class, new RenderFireball(this, 0.5F));
+        this.entityRenderMap.put(EntityDragonFireball.class, new RenderDragonFireball(this));
+        this.entityRenderMap.put(EntityWitherSkull.class, new RenderWitherSkull(this));
+        this.entityRenderMap.put(EntityShulkerBullet.class, new RenderShulkerBullet(this));
+        this.entityRenderMap.put(EntityItem.class, new RenderEntityItem(this, itemRendererIn));
+        this.entityRenderMap.put(EntityXPOrb.class, new RenderXPOrb(this));
+        this.entityRenderMap.put(EntityTNTPrimed.class, new RenderTNTPrimed(this));
+        this.entityRenderMap.put(EntityFallingBlock.class, new RenderFallingBlock(this));
+        this.entityRenderMap.put(EntityArmorStand.class, new RenderArmorStand(this));
+        this.entityRenderMap.put(EntityEvokerFangs.class, new RenderEvokerFangs(this));
+        this.entityRenderMap.put(EntityMinecartTNT.class, new RenderTntMinecart(this));
+        this.entityRenderMap.put(EntityMinecartMobSpawner.class, new RenderMinecartMobSpawner(this));
+        this.entityRenderMap.put(EntityMinecart.class, new RenderMinecart(this));
+        this.entityRenderMap.put(EntityBoat.class, new RenderBoat(this));
+        this.entityRenderMap.put(EntityFishHook.class, new RenderFish(this));
+        this.entityRenderMap.put(EntityAreaEffectCloud.class, new RenderAreaEffectCloud(this));
+        this.entityRenderMap.put(EntityHorse.class, new RenderHorse(this));
+        this.entityRenderMap.put(EntitySkeletonHorse.class, new RenderAbstractHorse(this));
+        this.entityRenderMap.put(EntityZombieHorse.class, new RenderAbstractHorse(this));
+        this.entityRenderMap.put(EntityMule.class, new RenderAbstractHorse(this, 0.92F));
+        this.entityRenderMap.put(EntityDonkey.class, new RenderAbstractHorse(this, 0.87F));
+        this.entityRenderMap.put(EntityLlama.class, new RenderLlama(this));
+        this.entityRenderMap.put(EntityLlamaSpit.class, new RenderLlamaSpit(this));
+        this.entityRenderMap.put(EntityLightningBolt.class, new RenderLightningBolt(this));
         this.playerRenderer = new RenderPlayer(this);
         this.skinMap.put("default", this.playerRenderer);
         this.skinMap.put("slim", new RenderPlayer(this, true));
+        PlayerItemsLayer.register(this.skinMap);
+
+        if (Reflector.RenderingRegistry_loadEntityRenderers.exists())
+        {
+            Reflector.call(Reflector.RenderingRegistry_loadEntityRenderers, this, this.entityRenderMap);
+        }
     }
 
     public void setRenderPosition(double renderPosXIn, double renderPosYIn, double renderPosZIn)
@@ -235,19 +257,19 @@ public class RenderManager
 
     public <T extends Entity> Render<T> getEntityClassRenderObject(Class <? extends Entity > entityClass)
     {
-        Render<T> render = (Render)this.renderers.get(entityClass);
+        Render<T> render = (Render)this.entityRenderMap.get(entityClass);
 
         if (render == null && entityClass != Entity.class)
         {
-            render = this.getEntityClassRenderObject((Class <? extends Entity >)entityClass.getSuperclass());
-            this.renderers.put(entityClass, render);
+            render = this.getEntityClassRenderObject((Class<? extends Entity>) entityClass.getSuperclass());
+            this.entityRenderMap.put(entityClass, render);
         }
 
         return render;
     }
 
     @Nullable
-    public <T extends Entity> Render<T> getRenderer(Entity entityIn)
+    public <T extends Entity> Render<T> getEntityRenderObject(Entity entityIn)
     {
         if (entityIn instanceof AbstractClientPlayer)
         {
@@ -269,15 +291,22 @@ public class RenderManager
         this.pointedEntity = pointedEntityIn;
         this.textRenderer = textRendererIn;
 
-        if (livingPlayerIn instanceof EntityLivingBase && ((EntityLivingBase)livingPlayerIn).isSleeping())
+        if (livingPlayerIn instanceof EntityLivingBase && ((EntityLivingBase)livingPlayerIn).isPlayerSleeping())
         {
             IBlockState iblockstate = worldIn.getBlockState(new BlockPos(livingPlayerIn));
             Block block = iblockstate.getBlock();
 
-            if (block == Blocks.BED)
+            if (Reflector.callBoolean(block, Reflector.ForgeBlock_isBed, iblockstate, worldIn, new BlockPos(livingPlayerIn), (EntityLivingBase)livingPlayerIn))
             {
-                int i = ((EnumFacing)iblockstate.get(BlockBed.HORIZONTAL_FACING)).getHorizontalIndex();
+                EnumFacing enumfacing = (EnumFacing)Reflector.call(block, Reflector.ForgeBlock_getBedDirection, iblockstate, worldIn, new BlockPos(livingPlayerIn));
+                int i = enumfacing.getHorizontalIndex();
                 this.playerViewY = (float)(i * 90 + 180);
+                this.playerViewX = 0.0F;
+            }
+            else if (block == Blocks.BED)
+            {
+                int j = ((EnumFacing)iblockstate.getValue(BlockBed.FACING)).getHorizontalIndex();
+                this.playerViewY = (float)(j * 90 + 180);
                 this.playerViewX = 0.0F;
             }
         }
@@ -324,12 +353,12 @@ public class RenderManager
 
     public boolean isRenderMultipass(Entity entityIn)
     {
-        return this.getRenderer(entityIn).isMultipass();
+        return this.getEntityRenderObject(entityIn).isMultipass();
     }
 
     public boolean shouldRender(Entity entityIn, ICamera camera, double camX, double camY, double camZ)
     {
-        Render<Entity> render = this.<Entity>getRenderer(entityIn);
+        Render<Entity> render = this.<Entity>getEntityRenderObject(entityIn);
         return render != null && render.shouldRender(entityIn, camera, camX, camY, camZ);
     }
 
@@ -366,18 +395,25 @@ public class RenderManager
 
         try
         {
-            render = this.<Entity>getRenderer(entityIn);
+            render = this.<Entity>getEntityRenderObject(entityIn);
 
-            if (render != null && this.textureManager != null)
+            if (render != null && this.renderEngine != null)
             {
                 try
                 {
                     render.setRenderOutlines(this.renderOutlines);
+
+                    if (CustomEntityModels.isActive())
+                    {
+                        this.renderEntity = entityIn;
+                        this.renderRender = render;
+                    }
+
                     render.doRender(entityIn, x, y, z, yaw, partialTicks);
                 }
-                catch (Throwable throwable1)
+                catch (Throwable throwable2)
                 {
-                    throw new ReportedException(CrashReport.makeCrashReport(throwable1, "Rendering entity in world"));
+                    throw new ReportedException(CrashReport.makeCrashReport(throwable2, "Rendering entity in world"));
                 }
 
                 try
@@ -387,12 +423,12 @@ public class RenderManager
                         render.doRenderShadowAndFire(entityIn, x, y, z, yaw, partialTicks);
                     }
                 }
-                catch (Throwable throwable2)
+                catch (Throwable throwable1)
                 {
-                    throw new ReportedException(CrashReport.makeCrashReport(throwable2, "Post-rendering entity in world"));
+                    throw new ReportedException(CrashReport.makeCrashReport(throwable1, "Post-rendering entity in world"));
                 }
 
-                if (this.debugBoundingBox && !entityIn.isInvisible() && !p_188391_10_ && !Minecraft.getInstance().isReducedDebug())
+                if (this.debugBoundingBox && !entityIn.isInvisible() && !p_188391_10_ && !Minecraft.getMinecraft().isReducedDebug())
                 {
                     try
                     {
@@ -409,12 +445,12 @@ public class RenderManager
         {
             CrashReport crashreport = CrashReport.makeCrashReport(throwable3, "Rendering entity in world");
             CrashReportCategory crashreportcategory = crashreport.makeCategory("Entity being rendered");
-            entityIn.fillCrashReport(crashreportcategory);
+            entityIn.addEntityCrashInfo(crashreportcategory);
             CrashReportCategory crashreportcategory1 = crashreport.makeCategory("Renderer details");
-            crashreportcategory1.addDetail("Assigned renderer", render);
-            crashreportcategory1.addDetail("Location", CrashReportCategory.getCoordinateInfo(x, y, z));
-            crashreportcategory1.addDetail("Rotation", Float.valueOf(yaw));
-            crashreportcategory1.addDetail("Delta", Float.valueOf(partialTicks));
+            crashreportcategory1.addCrashSection("Assigned renderer", render);
+            crashreportcategory1.addCrashSection("Location", CrashReportCategory.getCoordinateInfo(x, y, z));
+            crashreportcategory1.addCrashSection("Rotation", Float.valueOf(yaw));
+            crashreportcategory1.addCrashSection("Delta", Float.valueOf(partialTicks));
             throw new ReportedException(crashreport);
         }
     }
@@ -443,14 +479,17 @@ public class RenderManager
         int k = i / 65536;
         OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, (float)j, (float)k);
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-        Render<Entity> render = this.<Entity>getRenderer(entityIn);
+        Render<Entity> render = this.<Entity>getEntityRenderObject(entityIn);
 
-        if (render != null && this.textureManager != null)
+        if (render != null && this.renderEngine != null)
         {
             render.renderMultipass(entityIn, d0 - this.renderPosX, d1 - this.renderPosY, d2 - this.renderPosZ, f, partialTicks);
         }
     }
 
+    /**
+     * Renders the bounding box around an entity when F3+B is pressed
+     */
     private void renderDebugBoundingBox(Entity entityIn, double x, double y, double z, float entityYaw, float partialTicks)
     {
         GlStateManager.depthMask(false);
@@ -459,7 +498,7 @@ public class RenderManager
         GlStateManager.disableCull();
         GlStateManager.disableBlend();
         float f = entityIn.width / 2.0F;
-        AxisAlignedBB axisalignedbb = entityIn.getBoundingBox();
+        AxisAlignedBB axisalignedbb = entityIn.getEntityBoundingBox();
         RenderGlobal.drawBoundingBox(axisalignedbb.minX - entityIn.posX + x, axisalignedbb.minY - entityIn.posY + y, axisalignedbb.minZ - entityIn.posZ + z, axisalignedbb.maxX - entityIn.posX + x, axisalignedbb.maxY - entityIn.posY + y, axisalignedbb.maxZ - entityIn.posZ + z, 1.0F, 1.0F, 1.0F, 1.0F);
         Entity[] aentity = entityIn.getParts();
 
@@ -470,7 +509,7 @@ public class RenderManager
                 double d0 = (entity.posX - entity.prevPosX) * (double)partialTicks;
                 double d1 = (entity.posY - entity.prevPosY) * (double)partialTicks;
                 double d2 = (entity.posZ - entity.prevPosZ) * (double)partialTicks;
-                AxisAlignedBB axisalignedbb1 = entity.getBoundingBox();
+                AxisAlignedBB axisalignedbb1 = entity.getEntityBoundingBox();
                 RenderGlobal.drawBoundingBox(axisalignedbb1.minX - this.renderPosX + d0, axisalignedbb1.minY - this.renderPosY + d1, axisalignedbb1.minZ - this.renderPosZ + d2, axisalignedbb1.maxX - this.renderPosX + d0, axisalignedbb1.maxY - this.renderPosY + d1, axisalignedbb1.maxZ - this.renderPosZ + d2, 0.25F, 1.0F, 0.0F, 1.0F);
             }
         }
@@ -527,5 +566,15 @@ public class RenderManager
     public void setRenderOutlines(boolean renderOutlinesIn)
     {
         this.renderOutlines = renderOutlinesIn;
+    }
+
+    public Map<Class, Render> getEntityRenderMap()
+    {
+        return this.entityRenderMap;
+    }
+
+    public Map<String, RenderPlayer> getSkinMap()
+    {
+        return Collections.<String, RenderPlayer>unmodifiableMap(this.skinMap);
     }
 }

@@ -77,7 +77,7 @@ public class RealmsSliderButton extends RealmsButton
                 this.getProxy().displayString = this.getMessage();
             }
 
-            Minecraft.getInstance().getTextureManager().bindTexture(WIDGETS_LOCATION);
+            Minecraft.getMinecraft().getTextureManager().bindTexture(WIDGETS_LOCATION);
             GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
             this.blit(this.getProxy().x + (int)(this.value * (float)(this.getProxy().getButtonWidth() - 8)), this.getProxy().y, 0, 66, 4, 20);
             this.blit(this.getProxy().x + (int)(this.value * (float)(this.getProxy().getButtonWidth() - 8)) + 4, this.getProxy().y, 196, 66, 4, 20);

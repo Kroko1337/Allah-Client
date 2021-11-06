@@ -8,6 +8,7 @@ import net.minecraft.util.math.MathHelper;
 
 public class DistancePredicate
 {
+    /** The predicate that matches any distance. */
     public static final DistancePredicate ANY = new DistancePredicate(MinMaxBounds.UNBOUNDED, MinMaxBounds.UNBOUNDED, MinMaxBounds.UNBOUNDED, MinMaxBounds.UNBOUNDED, MinMaxBounds.UNBOUNDED);
     private final MinMaxBounds x;
     private final MinMaxBounds y;

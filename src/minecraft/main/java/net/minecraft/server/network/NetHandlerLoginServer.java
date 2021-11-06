@@ -58,7 +58,10 @@ public class NetHandlerLoginServer implements INetHandlerLoginServer, ITickable
         RANDOM.nextBytes(this.verifyToken);
     }
 
-    public void tick()
+    /**
+     * Like the old updateEntity(), except more generic.
+     */
+    public void update()
     {
         if (this.currentLoginState == NetHandlerLoginServer.LoginState.READY_TO_ACCEPT)
         {

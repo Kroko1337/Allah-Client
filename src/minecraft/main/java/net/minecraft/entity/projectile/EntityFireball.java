@@ -28,7 +28,7 @@ public abstract class EntityFireball extends Entity
         this.setSize(1.0F, 1.0F);
     }
 
-    protected void registerData()
+    protected void entityInit()
     {
     }
 
@@ -37,7 +37,7 @@ public abstract class EntityFireball extends Entity
      */
     public boolean isInRangeToRenderDist(double distance)
     {
-        double d0 = this.getBoundingBox().getAverageEdgeLength() * 4.0D;
+        double d0 = this.getEntityBoundingBox().getAverageEdgeLength() * 4.0D;
 
         if (Double.isNaN(d0))
         {
@@ -82,11 +82,11 @@ public abstract class EntityFireball extends Entity
     /**
      * Called to update the entity's position/logic.
      */
-    public void tick()
+    public void onUpdate()
     {
-        if (this.world.isRemote || (this.shootingEntity == null || !this.shootingEntity.removed) && this.world.isBlockLoaded(new BlockPos(this)))
+        if (this.world.isRemote || (this.shootingEntity == null || !this.shootingEntity.isDead) && this.world.isBlockLoaded(new BlockPos(this)))
         {
-            super.tick();
+            super.onUpdate();
 
             if (this.isFireballFiery())
             {
@@ -129,7 +129,7 @@ public abstract class EntityFireball extends Entity
         }
         else
         {
-            this.remove();
+            this.setDead();
         }
     }
 
@@ -160,42 +160,45 @@ public abstract class EntityFireball extends Entity
     {
     }
 
+    /**
+     * (abstract) Protected helper method to write subclass entity data to NBT.
+     */
     public void writeEntityToNBT(NBTTagCompound compound)
     {
         compound.setTag("direction", this.newDoubleNBTList(new double[] {this.motionX, this.motionY, this.motionZ}));
         compound.setTag("power", this.newDoubleNBTList(new double[] {this.accelerationX, this.accelerationY, this.accelerationZ}));
-        compound.putInt("life", this.ticksAlive);
+        compound.setInteger("life", this.ticksAlive);
     }
 
     /**
      * (abstract) Protected helper method to read subclass entity data from NBT.
      */
-    public void readAdditional(NBTTagCompound compound)
+    public void readEntityFromNBT(NBTTagCompound compound)
     {
-        if (compound.contains("power", 9))
+        if (compound.hasKey("power", 9))
         {
-            NBTTagList nbttaglist = compound.getList("power", 6);
+            NBTTagList nbttaglist = compound.getTagList("power", 6);
 
             if (nbttaglist.tagCount() == 3)
             {
-                this.accelerationX = nbttaglist.getDouble(0);
-                this.accelerationY = nbttaglist.getDouble(1);
-                this.accelerationZ = nbttaglist.getDouble(2);
+                this.accelerationX = nbttaglist.getDoubleAt(0);
+                this.accelerationY = nbttaglist.getDoubleAt(1);
+                this.accelerationZ = nbttaglist.getDoubleAt(2);
             }
         }
 
-        this.ticksAlive = compound.getInt("life");
+        this.ticksAlive = compound.getInteger("life");
 
-        if (compound.contains("direction", 9) && compound.getList("direction", 6).tagCount() == 3)
+        if (compound.hasKey("direction", 9) && compound.getTagList("direction", 6).tagCount() == 3)
         {
-            NBTTagList nbttaglist1 = compound.getList("direction", 6);
-            this.motionX = nbttaglist1.getDouble(0);
-            this.motionY = nbttaglist1.getDouble(1);
-            this.motionZ = nbttaglist1.getDouble(2);
+            NBTTagList nbttaglist1 = compound.getTagList("direction", 6);
+            this.motionX = nbttaglist1.getDoubleAt(0);
+            this.motionY = nbttaglist1.getDoubleAt(1);
+            this.motionZ = nbttaglist1.getDoubleAt(2);
         }
         else
         {
-            this.remove();
+            this.setDead();
         }
     }
 
@@ -217,7 +220,7 @@ public abstract class EntityFireball extends Entity
      */
     public boolean attackEntityFrom(DamageSource source, float amount)
     {
-        if (this.isInvulnerableTo(source))
+        if (this.isEntityInvulnerable(source))
         {
             return false;
         }

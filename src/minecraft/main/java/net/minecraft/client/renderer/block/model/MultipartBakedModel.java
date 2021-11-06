@@ -81,16 +81,16 @@ public class MultipartBakedModel implements IBakedModel
 
     public static class Builder
     {
-        private final Map<Predicate<IBlockState>, IBakedModel> selectors = Maps.<Predicate<IBlockState>, IBakedModel>newLinkedHashMap();
+        private final Map<Predicate<IBlockState>, IBakedModel> builderSelectors = Maps.<Predicate<IBlockState>, IBakedModel>newLinkedHashMap();
 
         public void putModel(Predicate<IBlockState> predicate, IBakedModel model)
         {
-            this.selectors.put(predicate, model);
+            this.builderSelectors.put(predicate, model);
         }
 
-        public IBakedModel build()
+        public IBakedModel makeMultipartModel()
         {
-            return new MultipartBakedModel(this.selectors);
+            return new MultipartBakedModel(this.builderSelectors);
         }
     }
 }

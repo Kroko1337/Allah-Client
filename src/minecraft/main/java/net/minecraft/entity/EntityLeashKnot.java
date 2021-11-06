@@ -27,7 +27,7 @@ public class EntityLeashKnot extends EntityHanging
         float f = 0.125F;
         float f1 = 0.1875F;
         float f2 = 0.25F;
-        this.setBoundingBox(new AxisAlignedBB(this.posX - 0.1875D, this.posY - 0.25D + 0.125D, this.posZ - 0.1875D, this.posX + 0.1875D, this.posY + 0.25D + 0.125D, this.posZ + 0.1875D));
+        this.setEntityBoundingBox(new AxisAlignedBB(this.posX - 0.1875D, this.posY - 0.25D + 0.125D, this.posZ - 0.1875D, this.posX + 0.1875D, this.posY + 0.25D + 0.125D, this.posZ + 0.1875D));
         this.forceSpawn = true;
     }
 
@@ -84,22 +84,22 @@ public class EntityLeashKnot extends EntityHanging
      */
     public void onBroken(@Nullable Entity brokenEntity)
     {
-        this.playSound(SoundEvents.ENTITY_LEASH_KNOT_BREAK, 1.0F, 1.0F);
+        this.playSound(SoundEvents.ENTITY_LEASHKNOT_BREAK, 1.0F, 1.0F);
     }
 
     /**
-     * Writes this entity to NBT, unless it has been removed or it is a passenger. Also writes this entity's passengers,
-     * and the entity type ID (so the produced NBT is sufficient to recreate the entity).
-     * To always write the entity, use {@link #writeWithoutTypeId}.
-     *  
-     * @return True if the entity was written (and the passed compound should be saved); false if the entity was not
-     * written.
+     * Either write this entity to the NBT tag given and return true, or return false without doing anything. If this
+     * returns false the entity is not saved on disk. Riding entities return false here as they are saved with their
+     * mount.
      */
-    public boolean writeUnlessPassenger(NBTTagCompound compound)
+    public boolean writeToNBTOptional(NBTTagCompound compound)
     {
         return false;
     }
 
+    /**
+     * (abstract) Protected helper method to write subclass entity data to NBT.
+     */
     public void writeEntityToNBT(NBTTagCompound compound)
     {
     }
@@ -107,7 +107,7 @@ public class EntityLeashKnot extends EntityHanging
     /**
      * (abstract) Protected helper method to read subclass entity data from NBT.
      */
-    public void readAdditional(NBTTagCompound compound)
+    public void readEntityFromNBT(NBTTagCompound compound)
     {
     }
 
@@ -134,9 +134,9 @@ public class EntityLeashKnot extends EntityHanging
 
             if (!flag)
             {
-                this.remove();
+                this.setDead();
 
-                if (player.abilities.isCreativeMode)
+                if (player.capabilities.isCreativeMode)
                 {
                     for (EntityLiving entityliving1 : list)
                     {
@@ -163,7 +163,7 @@ public class EntityLeashKnot extends EntityHanging
     public static EntityLeashKnot createKnot(World worldIn, BlockPos fence)
     {
         EntityLeashKnot entityleashknot = new EntityLeashKnot(worldIn, fence);
-        worldIn.addEntity0(entityleashknot);
+        worldIn.spawnEntity(entityleashknot);
         entityleashknot.playPlaceSound();
         return entityleashknot;
     }
@@ -188,6 +188,6 @@ public class EntityLeashKnot extends EntityHanging
 
     public void playPlaceSound()
     {
-        this.playSound(SoundEvents.ENTITY_LEASH_KNOT_PLACE, 1.0F, 1.0F);
+        this.playSound(SoundEvents.ENTITY_LEASHKNOT_PLACE, 1.0F, 1.0F);
     }
 }

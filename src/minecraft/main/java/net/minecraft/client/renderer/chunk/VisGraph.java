@@ -1,9 +1,8 @@
 package net.minecraft.client.renderer.chunk;
 
-import com.google.common.collect.Queues;
+import java.util.ArrayDeque;
 import java.util.BitSet;
 import java.util.EnumSet;
-import java.util.Queue;
 import java.util.Set;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.IntegerCache;
@@ -68,23 +67,23 @@ public class VisGraph
     private Set<EnumFacing> floodFill(int pos)
     {
         Set<EnumFacing> set = EnumSet.<EnumFacing>noneOf(EnumFacing.class);
-        Queue<Integer> queue = Queues.<Integer>newArrayDeque();
-        queue.add(IntegerCache.getInteger(pos));
+        ArrayDeque arraydeque = new ArrayDeque(384);
+        arraydeque.add(IntegerCache.getInteger(pos));
         this.bitSet.set(pos, true);
 
-        while (!queue.isEmpty())
+        while (!arraydeque.isEmpty())
         {
-            int i = ((Integer)queue.poll()).intValue();
+            int i = ((Integer)arraydeque.poll()).intValue();
             this.addEdges(i, set);
 
-            for (EnumFacing enumfacing : EnumFacing.values())
+            for (EnumFacing enumfacing : EnumFacing.VALUES)
             {
                 int j = this.getNeighborIndexAtFace(i, enumfacing);
 
                 if (j >= 0 && !this.bitSet.get(j))
                 {
                     this.bitSet.set(j, true);
-                    queue.add(IntegerCache.getInteger(j));
+                    arraydeque.add(IntegerCache.getInteger(j));
                 }
             }
         }
@@ -92,39 +91,39 @@ public class VisGraph
         return set;
     }
 
-    private void addEdges(int pos, Set<EnumFacing> setFacings)
+    private void addEdges(int pos, Set<EnumFacing> p_178610_2_)
     {
         int i = pos >> 0 & 15;
 
         if (i == 0)
         {
-            setFacings.add(EnumFacing.WEST);
+            p_178610_2_.add(EnumFacing.WEST);
         }
         else if (i == 15)
         {
-            setFacings.add(EnumFacing.EAST);
+            p_178610_2_.add(EnumFacing.EAST);
         }
 
         int j = pos >> 8 & 15;
 
         if (j == 0)
         {
-            setFacings.add(EnumFacing.DOWN);
+            p_178610_2_.add(EnumFacing.DOWN);
         }
         else if (j == 15)
         {
-            setFacings.add(EnumFacing.UP);
+            p_178610_2_.add(EnumFacing.UP);
         }
 
         int k = pos >> 4 & 15;
 
         if (k == 0)
         {
-            setFacings.add(EnumFacing.NORTH);
+            p_178610_2_.add(EnumFacing.NORTH);
         }
         else if (k == 15)
         {
-            setFacings.add(EnumFacing.SOUTH);
+            p_178610_2_.add(EnumFacing.SOUTH);
         }
     }
 

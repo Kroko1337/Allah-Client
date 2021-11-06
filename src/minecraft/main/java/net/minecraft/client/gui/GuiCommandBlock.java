@@ -16,9 +16,12 @@ import org.lwjgl.input.Keyboard;
 
 public class GuiCommandBlock extends GuiScreen implements ITabCompleter
 {
+    /** Text field containing the command block's command. */
     private GuiTextField commandTextField;
     private GuiTextField previousOutputTextField;
     private final TileEntityCommandBlock commandBlock;
+
+    /** "Done" button for the GUI. */
     private GuiButton doneBtn;
     private GuiButton cancelBtn;
     private GuiButton outputBtn;
@@ -36,11 +39,18 @@ public class GuiCommandBlock extends GuiScreen implements ITabCompleter
         this.commandBlock = commandBlockIn;
     }
 
+    /**
+     * Called from the main game loop to update the screen.
+     */
     public void updateScreen()
     {
-        this.commandTextField.tick();
+        this.commandTextField.updateCursorCounter();
     }
 
+    /**
+     * Adds the buttons (and other controls) to the screen in question. Called when the GUI is displayed and when the
+     * window resizes, the buttonList is cleared beforehand.
+     */
     public void initGui()
     {
         final CommandBlockBaseLogic commandblockbaselogic = this.commandBlock.getCommandBlockLogic();
@@ -54,7 +64,7 @@ public class GuiCommandBlock extends GuiScreen implements ITabCompleter
         this.autoExecBtn = this.addButton(new GuiButton(7, this.width / 2 + 50 + 4, 165, 100, 20, I18n.format("advMode.mode.redstoneTriggered")));
         this.commandTextField = new GuiTextField(2, this.fontRenderer, this.width / 2 - 150, 50, 300, 20);
         this.commandTextField.setMaxStringLength(32500);
-        this.commandTextField.setFocused2(true);
+        this.commandTextField.setFocused(true);
         this.previousOutputTextField = new GuiTextField(3, this.fontRenderer, this.width / 2 - 150, 135, 276, 20);
         this.previousOutputTextField.setMaxStringLength(32500);
         this.previousOutputTextField.setEnabled(false);
@@ -93,11 +103,17 @@ public class GuiCommandBlock extends GuiScreen implements ITabCompleter
         this.autoExecBtn.enabled = true;
     }
 
+    /**
+     * Called when the screen is unloaded. Used to disable keyboard repeat events
+     */
     public void onGuiClosed()
     {
         Keyboard.enableRepeatEvents(false);
     }
 
+    /**
+     * Called by the controls from the buttonList when activated. (Mouse pressed for buttons)
+     */
     protected void actionPerformed(GuiButton button) throws IOException
     {
         if (button.enabled)
@@ -150,6 +166,10 @@ public class GuiCommandBlock extends GuiScreen implements ITabCompleter
         }
     }
 
+    /**
+     * Fired when a key is typed (except F11 which toggles full screen). This is the equivalent of
+     * KeyListener.keyTyped(KeyEvent e). Args : character (character on the key), keyCode (lwjgl Keyboard key code)
+     */
     protected void keyTyped(char typedChar, int keyCode) throws IOException
     {
         this.tabCompleter.resetRequested();
@@ -179,6 +199,9 @@ public class GuiCommandBlock extends GuiScreen implements ITabCompleter
         }
     }
 
+    /**
+     * Called when the mouse is clicked. Args : mouseX, mouseY, clickedButton
+     */
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
     {
         super.mouseClicked(mouseX, mouseY, mouseButton);
@@ -186,6 +209,9 @@ public class GuiCommandBlock extends GuiScreen implements ITabCompleter
         this.previousOutputTextField.mouseClicked(mouseX, mouseY, mouseButton);
     }
 
+    /**
+     * Draws the screen and all the components in it.
+     */
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         this.drawDefaultBackground();
@@ -288,6 +314,9 @@ public class GuiCommandBlock extends GuiScreen implements ITabCompleter
         }
     }
 
+    /**
+     * Sets the list of tab completions, as long as they were previously requested.
+     */
     public void setCompletions(String... newCompletions)
     {
         this.tabCompleter.setCompletions(newCompletions);

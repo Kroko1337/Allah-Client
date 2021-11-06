@@ -21,15 +21,15 @@ public class AddBedTileEntity implements IFixableData
 
         try
         {
-            NBTTagCompound nbttagcompound = compound.getCompound("Level");
-            int j = nbttagcompound.getInt("xPos");
-            int k = nbttagcompound.getInt("zPos");
-            NBTTagList nbttaglist = nbttagcompound.getList("TileEntities", 10);
-            NBTTagList nbttaglist1 = nbttagcompound.getList("Sections", 10);
+            NBTTagCompound nbttagcompound = compound.getCompoundTag("Level");
+            int j = nbttagcompound.getInteger("xPos");
+            int k = nbttagcompound.getInteger("zPos");
+            NBTTagList nbttaglist = nbttagcompound.getTagList("TileEntities", 10);
+            NBTTagList nbttaglist1 = nbttagcompound.getTagList("Sections", 10);
 
             for (int l = 0; l < nbttaglist1.tagCount(); ++l)
             {
-                NBTTagCompound nbttagcompound1 = nbttaglist1.getCompound(l);
+                NBTTagCompound nbttagcompound1 = nbttaglist1.getCompoundTagAt(l);
                 int i1 = nbttagcompound1.getByte("Y");
                 byte[] abyte = nbttagcompound1.getByteArray("Blocks");
 
@@ -41,10 +41,10 @@ public class AddBedTileEntity implements IFixableData
                         int l1 = j1 >> 8 & 15;
                         int i2 = j1 >> 4 & 15;
                         NBTTagCompound nbttagcompound2 = new NBTTagCompound();
-                        nbttagcompound2.putString("id", "bed");
-                        nbttagcompound2.putInt("x", k1 + (j << 4));
-                        nbttagcompound2.putInt("y", l1 + (i1 << 4));
-                        nbttagcompound2.putInt("z", i2 + (k << 4));
+                        nbttagcompound2.setString("id", "bed");
+                        nbttagcompound2.setInteger("x", k1 + (j << 4));
+                        nbttagcompound2.setInteger("y", l1 + (i1 << 4));
+                        nbttagcompound2.setInteger("z", i2 + (k << 4));
                         nbttaglist.appendTag(nbttagcompound2);
                     }
                 }

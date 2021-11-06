@@ -120,6 +120,9 @@ public class ModelRabbit extends ModelBase
         renderer.rotateAngleZ = z;
     }
 
+    /**
+     * Sets the models various rotation angles then renders the model.
+     */
     public void render(Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale)
     {
         this.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale, entityIn);
@@ -169,6 +172,11 @@ public class ModelRabbit extends ModelBase
         }
     }
 
+    /**
+     * Sets the model's various rotation angles. For bipeds, par1 and par2 are used for animating the movement of arms
+     * and legs, where par1 represents the time(so that arms and legs swing back and forth) and par2 represents how
+     * "far" arms and legs can swing at most.
+     */
     public void setRotationAngles(float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scaleFactor, Entity entityIn)
     {
         float f = ageInTicks - (float)entityIn.ticksExisted;
@@ -190,6 +198,10 @@ public class ModelRabbit extends ModelBase
         this.rabbitRightArm.rotateAngleX = (this.jumpRotation * -40.0F - 11.0F) * 0.017453292F;
     }
 
+    /**
+     * Used for easily adding entity-dependent animations. The second and third float params here are the same second
+     * and third as in the setRotationAngles method.
+     */
     public void setLivingAnimations(EntityLivingBase entitylivingbaseIn, float limbSwing, float limbSwingAmount, float partialTickTime)
     {
         super.setLivingAnimations(entitylivingbaseIn, limbSwing, limbSwingAmount, partialTickTime);

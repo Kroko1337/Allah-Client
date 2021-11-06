@@ -27,11 +27,11 @@ public final class ProjectileHelper
         {
             if (raytraceresult != null)
             {
-                vec3d1 = new Vec3d(raytraceresult.hitResult.x, raytraceresult.hitResult.y, raytraceresult.hitResult.z);
+                vec3d1 = new Vec3d(raytraceresult.hitVec.x, raytraceresult.hitVec.y, raytraceresult.hitVec.z);
             }
 
             Entity entity = null;
-            List<Entity> list = world.getEntitiesWithinAABBExcludingEntity(projectile, projectile.getBoundingBox().expand(d3, d4, d5).grow(1.0D));
+            List<Entity> list = world.getEntitiesWithinAABBExcludingEntity(projectile, projectile.getEntityBoundingBox().expand(d3, d4, d5).grow(1.0D));
             double d6 = 0.0D;
 
             for (int i = 0; i < list.size(); ++i)
@@ -40,12 +40,12 @@ public final class ProjectileHelper
 
                 if (entity1.canBeCollidedWith() && (ignoreExcludedEntity || !entity1.isEntityEqual(excludedEntity)) && !entity1.noClip)
                 {
-                    AxisAlignedBB axisalignedbb = entity1.getBoundingBox().grow(0.30000001192092896D);
+                    AxisAlignedBB axisalignedbb = entity1.getEntityBoundingBox().grow(0.30000001192092896D);
                     RayTraceResult raytraceresult1 = axisalignedbb.calculateIntercept(vec3d, vec3d1);
 
                     if (raytraceresult1 != null)
                     {
-                        double d7 = vec3d.squareDistanceTo(raytraceresult1.hitResult);
+                        double d7 = vec3d.squareDistanceTo(raytraceresult1.hitVec);
 
                         if (d7 < d6 || d6 == 0.0D)
                         {

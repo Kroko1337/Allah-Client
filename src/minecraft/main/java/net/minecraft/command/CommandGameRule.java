@@ -12,21 +12,33 @@ import net.minecraft.world.GameRules;
 
 public class CommandGameRule extends CommandBase
 {
+    /**
+     * Gets the name of the command
+     */
     public String getName()
     {
         return "gamerule";
     }
 
+    /**
+     * Return the required permission level for this command.
+     */
     public int getRequiredPermissionLevel()
     {
         return 2;
     }
 
+    /**
+     * Gets the usage string for the command.
+     */
     public String getUsage(ICommandSender sender)
     {
         return "commands.gamerule.usage";
     }
 
+    /**
+     * Callback for when the command is executed
+     */
     public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
     {
         GameRules gamerules = this.getOverWorldGameRules(server);
@@ -102,6 +114,9 @@ public class CommandGameRule extends CommandBase
         }
     }
 
+    /**
+     * Get the game rules for the overworld
+     */
     private GameRules getOverWorldGameRules(MinecraftServer server)
     {
         return server.getWorld(0).getGameRules();

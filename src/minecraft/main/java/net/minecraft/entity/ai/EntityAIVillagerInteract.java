@@ -10,6 +10,7 @@ import net.minecraft.util.math.MathHelper;
 
 public class EntityAIVillagerInteract extends EntityAIWatchClosest2
 {
+    /** The delay before the villager throws an itemstack (in ticks) */
     private int interactionDelay;
     private final EntityVillager villager;
 
@@ -39,9 +40,9 @@ public class EntityAIVillagerInteract extends EntityAIWatchClosest2
     /**
      * Keep ticking a continuous task that has already been started
      */
-    public void tick()
+    public void updateTask()
     {
-        super.tick();
+        super.updateTask();
 
         if (this.interactionDelay > 0)
         {
@@ -91,7 +92,7 @@ public class EntityAIVillagerInteract extends EntityAIWatchClosest2
                         entityitem.motionZ = (double)(MathHelper.cos(f1 * 0.017453292F) * MathHelper.cos(f2 * 0.017453292F) * 0.3F);
                         entityitem.motionY = (double)(-MathHelper.sin(f2 * 0.017453292F) * 0.3F + 0.1F);
                         entityitem.setDefaultPickupDelay();
-                        this.villager.world.addEntity0(entityitem);
+                        this.villager.world.spawnEntity(entityitem);
                         break;
                     }
                 }

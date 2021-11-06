@@ -103,6 +103,10 @@ public enum EnumParticleTypes
     }
 
     @Nullable
+
+    /**
+     * Gets the relative EnumParticleTypes by id.
+     */
     public static EnumParticleTypes getParticleFromId(int particleId)
     {
         return PARTICLES.get(Integer.valueOf(particleId));

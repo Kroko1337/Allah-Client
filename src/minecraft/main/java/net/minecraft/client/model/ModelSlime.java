@@ -5,9 +5,16 @@ import net.minecraft.entity.Entity;
 
 public class ModelSlime extends ModelBase
 {
+    /** The slime's bodies, both the inside box and the outside box */
     ModelRenderer slimeBodies;
+
+    /** The slime's right eye */
     ModelRenderer slimeRightEye;
+
+    /** The slime's left eye */
     ModelRenderer slimeLeftEye;
+
+    /** The slime's mouth */
     ModelRenderer slimeMouth;
 
     public ModelSlime(int slimeBodyTexOffY)
@@ -30,6 +37,9 @@ public class ModelSlime extends ModelBase
         }
     }
 
+    /**
+     * Sets the models various rotation angles then renders the model.
+     */
     public void render(Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale)
     {
         this.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale, entityIn);

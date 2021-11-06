@@ -79,7 +79,7 @@ public class LayerEntityOnShoulder implements LayerRenderer<EntityPlayer>
             {
                 p_192864_4_ = new RenderParrot(this.renderManager);
                 p_192864_5_ = new ModelParrot();
-                p_192864_6_ = RenderParrot.PARROT_TEXTURES[p_192864_3_.getInt("Variant")];
+                p_192864_6_ = RenderParrot.PARROT_TEXTURES[p_192864_3_.getInteger("Variant")];
             }
         }
 

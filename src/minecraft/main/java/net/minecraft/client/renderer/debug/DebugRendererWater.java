@@ -55,7 +55,7 @@ public class DebugRendererWater implements DebugRenderer.IDebugRenderer
 
             if (iblockstate1.getBlock() == Blocks.WATER || iblockstate1.getBlock() == Blocks.FLOWING_WATER)
             {
-                Integer integer = (Integer)iblockstate1.get(BlockLiquid.LEVEL);
+                Integer integer = (Integer)iblockstate1.getValue(BlockLiquid.LEVEL);
                 double d1 = integer.intValue() > 7 ? 0.9D : 1.0D - 0.11D * (double)integer.intValue();
                 String s = iblockstate1.getBlock() == Blocks.FLOWING_WATER ? "f" : "s";
                 DebugRenderer.renderDebugText(s + " " + integer, (double)blockpos2.getX() + 0.5D, (double)blockpos2.getY() + d1, (double)blockpos2.getZ() + 0.5D, partialTicks, -16777216);

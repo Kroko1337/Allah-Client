@@ -17,13 +17,14 @@ import net.minecraft.world.World;
 
 public class EntityMinecartMobSpawner extends EntityMinecart
 {
+    /** Mob spawner logic for this spawner minecart. */
     private final MobSpawnerBaseLogic mobSpawnerLogic = new MobSpawnerBaseLogic()
     {
         public void broadcastEvent(int id)
         {
             EntityMinecartMobSpawner.this.world.setEntityState(EntityMinecartMobSpawner.this, (byte)id);
         }
-        public World getWorld()
+        public World getSpawnerWorld()
         {
             return EntityMinecartMobSpawner.this.world;
         }
@@ -54,9 +55,9 @@ public class EntityMinecartMobSpawner extends EntityMinecart
 
                 if (EntityList.getKey(EntityMinecartMobSpawner.class).equals(new ResourceLocation(s)))
                 {
-                    compound.putString("id", TileEntity.getKey(TileEntityMobSpawner.class).toString());
+                    compound.setString("id", TileEntity.getKey(TileEntityMobSpawner.class).toString());
                     fixer.process(FixTypes.BLOCK_ENTITY, compound, versionIn);
-                    compound.putString("id", s);
+                    compound.setString("id", s);
                 }
 
                 return compound;
@@ -64,29 +65,32 @@ public class EntityMinecartMobSpawner extends EntityMinecart
         });
     }
 
-    public EntityMinecart.Type getMinecartType()
+    public EntityMinecart.Type getType()
     {
         return EntityMinecart.Type.SPAWNER;
     }
 
     public IBlockState getDefaultDisplayTile()
     {
-        return Blocks.SPAWNER.getDefaultState();
+        return Blocks.MOB_SPAWNER.getDefaultState();
     }
 
     /**
      * (abstract) Protected helper method to read subclass entity data from NBT.
      */
-    protected void readAdditional(NBTTagCompound compound)
+    protected void readEntityFromNBT(NBTTagCompound compound)
     {
-        super.readAdditional(compound);
-        this.mobSpawnerLogic.read(compound);
+        super.readEntityFromNBT(compound);
+        this.mobSpawnerLogic.readFromNBT(compound);
     }
 
+    /**
+     * (abstract) Protected helper method to write subclass entity data to NBT.
+     */
     protected void writeEntityToNBT(NBTTagCompound compound)
     {
         super.writeEntityToNBT(compound);
-        this.mobSpawnerLogic.write(compound);
+        this.mobSpawnerLogic.writeToNBT(compound);
     }
 
     /**
@@ -100,9 +104,9 @@ public class EntityMinecartMobSpawner extends EntityMinecart
     /**
      * Called to update the entity's position/logic.
      */
-    public void tick()
+    public void onUpdate()
     {
-        super.tick();
-        this.mobSpawnerLogic.tick();
+        super.onUpdate();
+        this.mobSpawnerLogic.updateSpawner();
     }
 }

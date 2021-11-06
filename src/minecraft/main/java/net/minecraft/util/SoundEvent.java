@@ -5,17 +5,17 @@ import net.minecraft.util.registry.RegistryNamespaced;
 public class SoundEvent
 {
     public static final RegistryNamespaced<ResourceLocation, SoundEvent> REGISTRY = new RegistryNamespaced<ResourceLocation, SoundEvent>();
-    private final ResourceLocation name;
+    private final ResourceLocation soundName;
     private static int soundEventId;
 
-    public SoundEvent(ResourceLocation name)
+    public SoundEvent(ResourceLocation soundNameIn)
     {
-        this.name = name;
+        this.soundName = soundNameIn;
     }
 
-    public ResourceLocation getName()
+    public ResourceLocation getSoundName()
     {
-        return this.name;
+        return this.soundName;
     }
 
     public static void registerSounds()

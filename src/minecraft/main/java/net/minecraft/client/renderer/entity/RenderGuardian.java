@@ -59,6 +59,9 @@ public class RenderGuardian extends RenderLiving<EntityGuardian>
         return new Vec3d(d0, d1, d2);
     }
 
+    /**
+     * Renders the desired {@code T} type Entity.
+     */
     public void doRender(EntityGuardian entity, double x, double y, double z, float entityYaw, float partialTicks)
     {
         super.doRender(entity, x, y, z, entityYaw, partialTicks);
@@ -79,7 +82,7 @@ public class RenderGuardian extends RenderLiving<EntityGuardian>
             float f1 = 240.0F;
             OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240.0F, 240.0F);
             GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-            float f2 = (float)entity.world.getGameTime() + partialTicks;
+            float f2 = (float)entity.world.getTotalWorldTime() + partialTicks;
             float f3 = f2 * 0.5F % 1.0F;
             float f4 = entity.getEyeHeight();
             GlStateManager.pushMatrix();
@@ -147,7 +150,7 @@ public class RenderGuardian extends RenderLiving<EntityGuardian>
     }
 
     /**
-     * Returns the location of an entity's texture.
+     * Returns the location of an entity's texture. Doesn't seem to be called unless you call Render.bindEntityTexture.
      */
     protected ResourceLocation getEntityTexture(EntityGuardian entity)
     {

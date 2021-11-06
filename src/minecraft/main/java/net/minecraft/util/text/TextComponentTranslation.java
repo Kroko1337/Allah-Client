@@ -217,7 +217,7 @@ public class TextComponentTranslation extends TextComponentBase
     /**
      * Creates a copy of this component.  Almost a deep copy, except the style is shallow-copied.
      */
-    public TextComponentTranslation shallowCopy()
+    public TextComponentTranslation createCopy()
     {
         Object[] aobject = new Object[this.formatArgs.length];
 
@@ -225,7 +225,7 @@ public class TextComponentTranslation extends TextComponentBase
         {
             if (this.formatArgs[i] instanceof ITextComponent)
             {
-                aobject[i] = ((ITextComponent)this.formatArgs[i]).shallowCopy();
+                aobject[i] = ((ITextComponent)this.formatArgs[i]).createCopy();
             }
             else
             {
@@ -238,7 +238,7 @@ public class TextComponentTranslation extends TextComponentBase
 
         for (ITextComponent itextcomponent : this.getSiblings())
         {
-            textcomponenttranslation.appendSibling(itextcomponent.shallowCopy());
+            textcomponenttranslation.appendSibling(itextcomponent.createCopy());
         }
 
         return textcomponenttranslation;

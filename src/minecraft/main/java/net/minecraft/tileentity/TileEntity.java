@@ -26,9 +26,11 @@ public abstract class TileEntity
 
     /** the instance of the world the tile entity is in. */
     protected World world;
-    protected BlockPos pos = BlockPos.ZERO;
-    protected boolean removed;
+    protected BlockPos pos = BlockPos.ORIGIN;
+    protected boolean tileEntityInvalid;
     private int blockMetadata = -1;
+
+    /** the Block type that this TileEntity is contained within */
     protected Block blockType;
 
     private static void register(String id, Class <? extends TileEntity > clazz)
@@ -39,7 +41,7 @@ public abstract class TileEntity
     @Nullable
     public static ResourceLocation getKey(Class <? extends TileEntity > clazz)
     {
-        return REGISTRY.getKey(clazz);
+        return REGISTRY.getNameForObject(clazz);
     }
 
     /**
@@ -50,6 +52,9 @@ public abstract class TileEntity
         return this.world;
     }
 
+    /**
+     * Sets the worldObj for this tileEntity.
+     */
     public void setWorld(World worldIn)
     {
         this.world = worldIn;
@@ -63,19 +68,19 @@ public abstract class TileEntity
         return this.world != null;
     }
 
-    public void read(NBTTagCompound compound)
+    public void readFromNBT(NBTTagCompound compound)
     {
-        this.pos = new BlockPos(compound.getInt("x"), compound.getInt("y"), compound.getInt("z"));
+        this.pos = new BlockPos(compound.getInteger("x"), compound.getInteger("y"), compound.getInteger("z"));
     }
 
-    public NBTTagCompound write(NBTTagCompound compound)
+    public NBTTagCompound writeToNBT(NBTTagCompound compound)
     {
         return this.writeInternal(compound);
     }
 
     private NBTTagCompound writeInternal(NBTTagCompound compound)
     {
-        ResourceLocation resourcelocation = REGISTRY.getKey(this.getClass());
+        ResourceLocation resourcelocation = REGISTRY.getNameForObject(this.getClass());
 
         if (resourcelocation == null)
         {
@@ -83,10 +88,10 @@ public abstract class TileEntity
         }
         else
         {
-            compound.putString("id", resourcelocation.toString());
-            compound.putInt("x", this.pos.getX());
-            compound.putInt("y", this.pos.getY());
-            compound.putInt("z", this.pos.getZ());
+            compound.setString("id", resourcelocation.toString());
+            compound.setInteger("x", this.pos.getX());
+            compound.setInteger("y", this.pos.getY());
+            compound.setInteger("z", this.pos.getZ());
             return compound;
         }
     }
@@ -99,7 +104,7 @@ public abstract class TileEntity
 
         try
         {
-            Class <? extends TileEntity > oclass = (Class)REGISTRY.getOrDefault(new ResourceLocation(s));
+            Class <? extends TileEntity > oclass = (Class)REGISTRY.getObject(new ResourceLocation(s));
 
             if (oclass != null)
             {
@@ -116,7 +121,7 @@ public abstract class TileEntity
             try
             {
                 tileentity.setWorldCreate(worldIn);
-                tileentity.read(compound);
+                tileentity.readFromNBT(compound);
             }
             catch (Throwable throwable)
             {
@@ -187,6 +192,9 @@ public abstract class TileEntity
         return this.pos;
     }
 
+    /**
+     * Gets the block type at the location of this entity (client-only).
+     */
     public Block getBlockType()
     {
         if (this.blockType == null && this.world != null)
@@ -217,17 +225,17 @@ public abstract class TileEntity
         return this.writeInternal(new NBTTagCompound());
     }
 
-    public boolean isRemoved()
+    public boolean isInvalid()
     {
-        return this.removed;
+        return this.tileEntityInvalid;
     }
 
     /**
      * invalidates a tile entity
      */
-    public void remove()
+    public void invalidate()
     {
-        this.removed = true;
+        this.tileEntityInvalid = true;
     }
 
     /**
@@ -235,7 +243,7 @@ public abstract class TileEntity
      */
     public void validate()
     {
-        this.removed = false;
+        this.tileEntityInvalid = false;
     }
 
     /**
@@ -259,7 +267,7 @@ public abstract class TileEntity
         {
             public String call() throws Exception
             {
-                return TileEntity.REGISTRY.getKey(TileEntity.this.getClass()) + " // " + TileEntity.this.getClass().getCanonicalName();
+                return TileEntity.REGISTRY.getNameForObject(TileEntity.this.getClass()) + " // " + TileEntity.this.getClass().getCanonicalName();
             }
         });
 
@@ -308,20 +316,34 @@ public abstract class TileEntity
         this.pos = posIn.toImmutable();
     }
 
-    /**
-     * Checks if players can use this tile entity to access operator (permission level 2) commands either directly or
-     * indirectly, such as give or setblock. A similar method exists for entities at {@link
-     * net.minecraft.entity.Entity#ignoreItemEntityData()}.<p>For example, {@link
-     * net.minecraft.tileentity.TileEntitySign#onlyOpsCanSetNbt() signs} (player right-clicking) and {@link
-     * net.minecraft.tileentity.TileEntityCommandBlock#onlyOpsCanSetNbt() command blocks} are considered
-     * accessible.</p>@return true if this block entity offers ways for unauthorized players to use restricted commands
-     */
     public boolean onlyOpsCanSetNbt()
     {
         return false;
     }
 
     @Nullable
+
+    /**
+     * Returns a displayable component representing this thing's name. This method should be implemented slightly
+     * differently depending on the interface (for <a href="https://github.com/ModCoderPack/MCPBot-
+     * Issues/issues/14">technical reasons</a> the same method is used for both IWorldNameable and ICommandSender), but
+     * unlike {@link #getName()} this method will generally behave sanely.
+     *  
+     * <dl>
+     * <dt>{@link net.minecraft.util.INameable#getDisplayName() INameable.getDisplayName()}</dt>
+     * <dd>A normal component. Might be a translation component or a text component depending on the context. Usually
+     * implemented as:</dd>
+     * <dd><pre><code>return this.{@link net.minecraft.util.INameable#hasCustomName() hasCustomName()} ? new
+     * TextComponentString(this.{@link #getName()}) : new TextComponentTranslation(this.{@link
+     * #getName()});</code></pre></dd>
+     * <dt>{@link net.minecraft.command.ICommandSender#getDisplayName() ICommandSender.getDisplayName()} and {@link
+     * net.minecraft.entity.Entity#getDisplayName() Entity.getDisplayName()}</dt>
+     * <dd>For most entities, this returns the result of {@link #getName()}, with {@linkplain
+     * net.minecraft.scoreboard.ScorePlayerTeam#formatPlayerName scoreboard formatting} and a {@linkplain
+     * net.minecraft.entity.Entity#getHoverEvent special hover event}.</dd>
+     * <dd>For non-entity command senders, this will return the result of {@link #getName()} in a text component.</dd>
+     * </dl>
+     */
     public ITextComponent getDisplayName()
     {
         return null;

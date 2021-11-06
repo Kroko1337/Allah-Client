@@ -4,9 +4,9 @@ import net.minecraft.inventory.EntityEquipmentSlot;
 
 public class EnchantmentSweepingEdge extends Enchantment
 {
-    public EnchantmentSweepingEdge(Enchantment.Rarity rarityIn, EntityEquipmentSlot... slots)
+    public EnchantmentSweepingEdge(Enchantment.Rarity p_i47366_1_, EntityEquipmentSlot... p_i47366_2_)
     {
-        super(rarityIn, EnumEnchantmentType.WEAPON, slots);
+        super(p_i47366_1_, EnumEnchantmentType.WEAPON, p_i47366_2_);
     }
 
     /**
@@ -17,6 +17,9 @@ public class EnchantmentSweepingEdge extends Enchantment
         return 5 + (enchantmentLevel - 1) * 9;
     }
 
+    /**
+     * Returns the maximum value of enchantability nedded on the enchantment level passed.
+     */
     public int getMaxEnchantability(int enchantmentLevel)
     {
         return this.getMinEnchantability(enchantmentLevel) + 15;

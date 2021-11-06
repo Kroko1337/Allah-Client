@@ -10,7 +10,7 @@ import net.minecraft.scoreboard.ScoreObjective;
 public class SPacketScoreboardObjective implements Packet<INetHandlerPlayClient>
 {
     private String objectiveName;
-    private String displayName;
+    private String objectiveValue;
     private IScoreCriteria.EnumRenderType type;
     private int action;
 
@@ -21,7 +21,7 @@ public class SPacketScoreboardObjective implements Packet<INetHandlerPlayClient>
     public SPacketScoreboardObjective(ScoreObjective objective, int actionIn)
     {
         this.objectiveName = objective.getName();
-        this.displayName = objective.getDisplayName();
+        this.objectiveValue = objective.getDisplayName();
         this.type = objective.getCriteria().getRenderType();
         this.action = actionIn;
     }
@@ -36,7 +36,7 @@ public class SPacketScoreboardObjective implements Packet<INetHandlerPlayClient>
 
         if (this.action == 0 || this.action == 2)
         {
-            this.displayName = buf.readString(32);
+            this.objectiveValue = buf.readString(32);
             this.type = IScoreCriteria.EnumRenderType.getByName(buf.readString(16));
         }
     }
@@ -51,7 +51,7 @@ public class SPacketScoreboardObjective implements Packet<INetHandlerPlayClient>
 
         if (this.action == 0 || this.action == 2)
         {
-            buf.writeString(this.displayName);
+            buf.writeString(this.objectiveValue);
             buf.writeString(this.type.getRenderType());
         }
     }
@@ -69,9 +69,9 @@ public class SPacketScoreboardObjective implements Packet<INetHandlerPlayClient>
         return this.objectiveName;
     }
 
-    public String getDisplayName()
+    public String getObjectiveValue()
     {
-        return this.displayName;
+        return this.objectiveValue;
     }
 
     public int getAction()

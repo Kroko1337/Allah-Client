@@ -12,7 +12,9 @@ public abstract class EntityCreature extends EntityLiving
 {
     public static final UUID FLEEING_SPEED_MODIFIER_UUID = UUID.fromString("E199AD21-BA8A-4C53-8D13-6182D5C69D3A");
     public static final AttributeModifier FLEEING_SPEED_MODIFIER = (new AttributeModifier(FLEEING_SPEED_MODIFIER_UUID, "Fleeing speed bonus", 2.0D, 2)).setSaved(false);
-    private BlockPos homePosition = BlockPos.ZERO;
+    private BlockPos homePosition = BlockPos.ORIGIN;
+
+    /** If -1 there is no maximum distance */
     private float maximumHomeDistance = -1.0F;
     private final float restoreWaterCost = PathNodeType.WATER.getPriority();
 
@@ -26,9 +28,12 @@ public abstract class EntityCreature extends EntityLiving
         return 0.0F;
     }
 
+    /**
+     * Checks if the entity's current position is a valid location to spawn this entity.
+     */
     public boolean getCanSpawnHere()
     {
-        return super.getCanSpawnHere() && this.getBlockPathWeight(new BlockPos(this.posX, this.getBoundingBox().minY, this.posZ)) >= 0.0F;
+        return super.getCanSpawnHere() && this.getBlockPathWeight(new BlockPos(this.posX, this.getEntityBoundingBox().minY, this.posZ)) >= 0.0F;
     }
 
     /**
@@ -56,6 +61,9 @@ public abstract class EntityCreature extends EntityLiving
         }
     }
 
+    /**
+     * Sets home position and max distance for it
+     */
     public void setHomePosAndDistance(BlockPos pos, int distance)
     {
         this.homePosition = pos;
@@ -77,6 +85,9 @@ public abstract class EntityCreature extends EntityLiving
         this.maximumHomeDistance = -1.0F;
     }
 
+    /**
+     * Returns whether a home area is defined for this entity.
+     */
     public boolean hasHome()
     {
         return this.maximumHomeDistance != -1.0F;
@@ -110,7 +121,7 @@ public abstract class EntityCreature extends EntityLiving
             if (f > 10.0F)
             {
                 this.clearLeashed(true, true);
-                this.goalSelector.disableControlFlag(1);
+                this.tasks.disableControlFlag(1);
             }
             else if (f > 6.0F)
             {
@@ -123,7 +134,7 @@ public abstract class EntityCreature extends EntityLiving
             }
             else
             {
-                this.goalSelector.enableControlFlag(1);
+                this.tasks.enableControlFlag(1);
                 float f1 = 2.0F;
                 Vec3d vec3d = (new Vec3d(entity.posX - this.posX, entity.posY - this.posY, entity.posZ - this.posZ)).normalize().scale((double)Math.max(f - 2.0F, 0.0F));
                 this.getNavigator().tryMoveToXYZ(this.posX + vec3d.x, this.posY + vec3d.y, this.posZ + vec3d.z, this.followLeashSpeed());
@@ -136,7 +147,7 @@ public abstract class EntityCreature extends EntityLiving
         return 1.0D;
     }
 
-    protected void onLeashDistance(float distance)
+    protected void onLeashDistance(float p_142017_1_)
     {
     }
 }

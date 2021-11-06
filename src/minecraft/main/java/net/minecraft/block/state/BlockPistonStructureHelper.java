@@ -75,7 +75,7 @@ public class BlockPistonStructureHelper
         }
     }
 
-    private boolean addBlockLine(BlockPos origin, EnumFacing facingIn)
+    private boolean addBlockLine(BlockPos origin, EnumFacing p_177251_2_)
     {
         IBlockState iblockstate = this.world.getBlockState(origin);
         Block block = iblockstate.getBlock();
@@ -84,7 +84,7 @@ public class BlockPistonStructureHelper
         {
             return true;
         }
-        else if (!BlockPistonBase.canPush(iblockstate, this.world, origin, this.moveDirection, false, facingIn))
+        else if (!BlockPistonBase.canPush(iblockstate, this.world, origin, this.moveDirection, false, p_177251_2_))
         {
             return true;
         }

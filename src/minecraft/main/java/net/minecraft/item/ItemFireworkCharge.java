@@ -12,13 +12,13 @@ public class ItemFireworkCharge extends Item
 {
     public static NBTBase getExplosionTag(ItemStack stack, String key)
     {
-        if (stack.hasTag())
+        if (stack.hasTagCompound())
         {
-            NBTTagCompound nbttagcompound = stack.getTag().getCompound("Explosion");
+            NBTTagCompound nbttagcompound = stack.getTagCompound().getCompoundTag("Explosion");
 
             if (nbttagcompound != null)
             {
-                return nbttagcompound.get(key);
+                return nbttagcompound.getTag(key);
             }
         }
 
@@ -30,9 +30,9 @@ public class ItemFireworkCharge extends Item
      */
     public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn)
     {
-        if (stack.hasTag())
+        if (stack.hasTagCompound())
         {
-            NBTTagCompound nbttagcompound = stack.getTag().getCompound("Explosion");
+            NBTTagCompound nbttagcompound = stack.getTagCompound().getCompoundTag("Explosion");
 
             if (nbttagcompound != null)
             {

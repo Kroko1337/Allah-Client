@@ -52,7 +52,10 @@ public class TileEntityShulkerBox extends TileEntityLockableLoot implements ITic
         this.color = colorIn;
     }
 
-    public void tick()
+    /**
+     * Like the old updateEntity(), except more generic.
+     */
+    public void update()
     {
         this.updateAnimation();
 
@@ -105,20 +108,20 @@ public class TileEntityShulkerBox extends TileEntityLockableLoot implements ITic
         return this.animationStatus;
     }
 
-    public AxisAlignedBB getBoundingBox(IBlockState state)
+    public AxisAlignedBB getBoundingBox(IBlockState p_190584_1_)
     {
-        return this.getBoundingBox((EnumFacing)state.get(BlockShulkerBox.FACING));
+        return this.getBoundingBox((EnumFacing)p_190584_1_.getValue(BlockShulkerBox.FACING));
     }
 
-    public AxisAlignedBB getBoundingBox(EnumFacing directionIn)
+    public AxisAlignedBB getBoundingBox(EnumFacing p_190587_1_)
     {
-        return Block.FULL_BLOCK_AABB.expand((double)(0.5F * this.getProgress(1.0F) * (float)directionIn.getXOffset()), (double)(0.5F * this.getProgress(1.0F) * (float)directionIn.getYOffset()), (double)(0.5F * this.getProgress(1.0F) * (float)directionIn.getZOffset()));
+        return Block.FULL_BLOCK_AABB.expand((double)(0.5F * this.getProgress(1.0F) * (float)p_190587_1_.getXOffset()), (double)(0.5F * this.getProgress(1.0F) * (float)p_190587_1_.getYOffset()), (double)(0.5F * this.getProgress(1.0F) * (float)p_190587_1_.getZOffset()));
     }
 
-    private AxisAlignedBB getTopBoundingBox(EnumFacing directionIn)
+    private AxisAlignedBB getTopBoundingBox(EnumFacing p_190588_1_)
     {
-        EnumFacing enumfacing = directionIn.getOpposite();
-        return this.getBoundingBox(directionIn).contract((double)enumfacing.getXOffset(), (double)enumfacing.getYOffset(), (double)enumfacing.getZOffset());
+        EnumFacing enumfacing = p_190588_1_.getOpposite();
+        return this.getBoundingBox(p_190588_1_).contract((double)enumfacing.getXOffset(), (double)enumfacing.getYOffset(), (double)enumfacing.getZOffset());
     }
 
     private void moveCollidedEntities()
@@ -127,7 +130,7 @@ public class TileEntityShulkerBox extends TileEntityLockableLoot implements ITic
 
         if (iblockstate.getBlock() instanceof BlockShulkerBox)
         {
-            EnumFacing enumfacing = (EnumFacing)iblockstate.get(BlockShulkerBox.FACING);
+            EnumFacing enumfacing = (EnumFacing)iblockstate.getValue(BlockShulkerBox.FACING);
             AxisAlignedBB axisalignedbb = this.getTopBoundingBox(enumfacing).offset(this.pos);
             List<Entity> list = this.world.getEntitiesWithinAABBExcludingEntity((Entity)null, axisalignedbb);
 
@@ -142,7 +145,7 @@ public class TileEntityShulkerBox extends TileEntityLockableLoot implements ITic
                         double d0 = 0.0D;
                         double d1 = 0.0D;
                         double d2 = 0.0D;
-                        AxisAlignedBB axisalignedbb1 = entity.getBoundingBox();
+                        AxisAlignedBB axisalignedbb1 = entity.getEntityBoundingBox();
 
                         switch (enumfacing.getAxis())
                         {
@@ -279,6 +282,41 @@ public class TileEntityShulkerBox extends TileEntityLockableLoot implements ITic
         return "minecraft:shulker_box";
     }
 
+    /**
+     * Gets the name of this thing. This method has slightly different behavior depending on the interface (for <a
+     * href="https://github.com/ModCoderPack/MCPBot-Issues/issues/14">technical reasons</a> the same method is used for
+     * both IWorldNameable and ICommandSender):
+     *  
+     * <dl>
+     * <dt>{@link net.minecraft.util.INameable#getName() INameable.getName()}</dt>
+     * <dd>Returns the name of this inventory. If this {@linkplain net.minecraft.inventory#hasCustomName() has a custom
+     * name} then this <em>should</em> be a direct string; otherwise it <em>should</em> be a valid translation
+     * string.</dd>
+     * <dd>However, note that <strong>the translation string may be invalid</strong>, as is the case for {@link
+     * net.minecraft.tileentity.TileEntityBanner TileEntityBanner} (always returns nonexistent translation code
+     * <code>banner</code> without a custom name), {@link net.minecraft.block.BlockAnvil.Anvil BlockAnvil$Anvil} (always
+     * returns <code>anvil</code>), {@link net.minecraft.block.BlockWorkbench.InterfaceCraftingTable
+     * BlockWorkbench$InterfaceCraftingTable} (always returns <code>crafting_table</code>), {@link
+     * net.minecraft.inventory.InventoryCraftResult InventoryCraftResult} (always returns <code>Result</code>) and the
+     * {@link net.minecraft.entity.item.EntityMinecart EntityMinecart} family (uses the entity definition). This is not
+     * an exaustive list.</dd>
+     * <dd>In general, this method should be safe to use on tile entities that implement IInventory.</dd>
+     * <dt>{@link net.minecraft.command.ICommandSender#getName() ICommandSender.getName()} and {@link
+     * net.minecraft.entity.Entity#getName() Entity.getName()}</dt>
+     * <dd>Returns a valid, displayable name (which may be localized). For most entities, this is the translated version
+     * of its translation string (obtained via {@link net.minecraft.entity.EntityList#getEntityString
+     * EntityList.getEntityString}).</dd>
+     * <dd>If this entity has a custom name set, this will return that name.</dd>
+     * <dd>For some entities, this will attempt to translate a nonexistent translation string; see <a
+     * href="https://bugs.mojang.com/browse/MC-68446">MC-68446</a>. For {@linkplain
+     * net.minecraft.entity.player.EntityPlayer#getName() players} this returns the player's name. For {@linkplain
+     * net.minecraft.entity.passive.EntityOcelot ocelots} this may return the translation of
+     * <code>entity.Cat.name</code> if it is tamed. For {@linkplain net.minecraft.entity.item.EntityItem#getName() item
+     * entities}, this will attempt to return the name of the item in that item entity. In all cases other than players,
+     * the custom name will overrule this.</dd>
+     * <dd>For non-entity command senders, this will return some arbitrary name, such as "Rcon" or "Server".</dd>
+     * </dl>
+     */
     public String getName()
     {
         return this.hasCustomName() ? this.customName : "container.shulkerBox";
@@ -289,15 +327,15 @@ public class TileEntityShulkerBox extends TileEntityLockableLoot implements ITic
         fixer.registerWalker(FixTypes.BLOCK_ENTITY, new ItemStackDataLists(TileEntityShulkerBox.class, new String[] {"Items"}));
     }
 
-    public void read(NBTTagCompound compound)
+    public void readFromNBT(NBTTagCompound compound)
     {
-        super.read(compound);
+        super.readFromNBT(compound);
         this.loadFromNbt(compound);
     }
 
-    public NBTTagCompound write(NBTTagCompound compound)
+    public NBTTagCompound writeToNBT(NBTTagCompound compound)
     {
-        super.write(compound);
+        super.writeToNBT(compound);
         return this.saveToNbt(compound);
     }
 
@@ -305,12 +343,12 @@ public class TileEntityShulkerBox extends TileEntityLockableLoot implements ITic
     {
         this.items = NonNullList.<ItemStack>withSize(this.getSizeInventory(), ItemStack.EMPTY);
 
-        if (!this.checkLootAndRead(compound) && compound.contains("Items", 9))
+        if (!this.checkLootAndRead(compound) && compound.hasKey("Items", 9))
         {
             ItemStackHelper.loadAllItems(compound, this.items);
         }
 
-        if (compound.contains("CustomName", 8))
+        if (compound.hasKey("CustomName", 8))
         {
             this.customName = compound.getString("CustomName");
         }
@@ -325,12 +363,12 @@ public class TileEntityShulkerBox extends TileEntityLockableLoot implements ITic
 
         if (this.hasCustomName())
         {
-            compound.putString("CustomName", this.customName);
+            compound.setString("CustomName", this.customName);
         }
 
-        if (!compound.contains("Lock") && this.isLocked())
+        if (!compound.hasKey("Lock") && this.isLocked())
         {
-            this.getLockCode().write(compound);
+            this.getLockCode().toNBT(compound);
         }
 
         return compound;

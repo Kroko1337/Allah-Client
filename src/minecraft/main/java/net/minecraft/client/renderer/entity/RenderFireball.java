@@ -21,6 +21,9 @@ public class RenderFireball extends Render<EntityFireball>
         this.scale = scaleIn;
     }
 
+    /**
+     * Renders the desired {@code T} type Entity.
+     */
     public void doRender(EntityFireball entity, double x, double y, double z, float entityYaw, float partialTicks)
     {
         GlStateManager.pushMatrix();
@@ -28,7 +31,7 @@ public class RenderFireball extends Render<EntityFireball>
         GlStateManager.translate((float)x, (float)y, (float)z);
         GlStateManager.enableRescaleNormal();
         GlStateManager.scale(this.scale, this.scale, this.scale);
-        TextureAtlasSprite textureatlassprite = Minecraft.getInstance().getItemRenderer().getItemModelMesher().getParticleIcon(Items.FIRE_CHARGE);
+        TextureAtlasSprite textureatlassprite = Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getParticleIcon(Items.FIRE_CHARGE);
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder bufferbuilder = tessellator.getBuffer();
         float f = textureatlassprite.getMinU();
@@ -66,7 +69,7 @@ public class RenderFireball extends Render<EntityFireball>
     }
 
     /**
-     * Returns the location of an entity's texture.
+     * Returns the location of an entity's texture. Doesn't seem to be called unless you call Render.bindEntityTexture.
      */
     protected ResourceLocation getEntityTexture(EntityFireball entity)
     {

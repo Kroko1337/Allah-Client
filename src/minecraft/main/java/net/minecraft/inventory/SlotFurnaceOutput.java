@@ -8,6 +8,7 @@ import net.minecraft.util.math.MathHelper;
 
 public class SlotFurnaceOutput extends Slot
 {
+    /** The player that is using the GUI where this slot resides. */
     private final EntityPlayer player;
     private int removeCount;
 
@@ -88,7 +89,7 @@ public class SlotFurnaceOutput extends Slot
             {
                 int k = EntityXPOrb.getXPSplit(i);
                 i -= k;
-                this.player.world.addEntity0(new EntityXPOrb(this.player.world, this.player.posX, this.player.posY + 0.5D, this.player.posZ + 0.5D, k));
+                this.player.world.spawnEntity(new EntityXPOrb(this.player.world, this.player.posX, this.player.posY + 0.5D, this.player.posZ + 0.5D, k));
             }
         }
 

@@ -9,21 +9,33 @@ import net.minecraft.world.WorldServer;
 
 public class CommandTime extends CommandBase
 {
+    /**
+     * Gets the name of the command
+     */
     public String getName()
     {
         return "time";
     }
 
+    /**
+     * Return the required permission level for this command.
+     */
     public int getRequiredPermissionLevel()
     {
         return 2;
     }
 
+    /**
+     * Gets the usage string for the command.
+     */
     public String getUsage(ICommandSender sender)
     {
         return "commands.time.usage";
     }
 
+    /**
+     * Callback for when the command is executed
+     */
     public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
     {
         if (args.length > 1)
@@ -62,7 +74,7 @@ public class CommandTime extends CommandBase
             {
                 if ("daytime".equals(args[1]))
                 {
-                    int k = (int)(sender.getEntityWorld().getDayTime() % 24000L);
+                    int k = (int)(sender.getEntityWorld().getWorldTime() % 24000L);
                     sender.setCommandStat(CommandResultStats.Type.QUERY_RESULT, k);
                     notifyCommandListener(sender, this, "commands.time.query", new Object[] {k});
                     return;
@@ -70,7 +82,7 @@ public class CommandTime extends CommandBase
 
                 if ("day".equals(args[1]))
                 {
-                    int j = (int)(sender.getEntityWorld().getDayTime() / 24000L % 2147483647L);
+                    int j = (int)(sender.getEntityWorld().getWorldTime() / 24000L % 2147483647L);
                     sender.setCommandStat(CommandResultStats.Type.QUERY_RESULT, j);
                     notifyCommandListener(sender, this, "commands.time.query", new Object[] {j});
                     return;
@@ -78,7 +90,7 @@ public class CommandTime extends CommandBase
 
                 if ("gametime".equals(args[1]))
                 {
-                    int i = (int)(sender.getEntityWorld().getGameTime() % 2147483647L);
+                    int i = (int)(sender.getEntityWorld().getTotalWorldTime() % 2147483647L);
                     sender.setCommandStat(CommandResultStats.Type.QUERY_RESULT, i);
                     notifyCommandListener(sender, this, "commands.time.query", new Object[] {i});
                     return;
@@ -109,7 +121,7 @@ public class CommandTime extends CommandBase
     {
         for (int i = 0; i < server.worlds.length; ++i)
         {
-            server.worlds[i].setDayTime((long)time);
+            server.worlds[i].setWorldTime((long)time);
         }
     }
 
@@ -118,7 +130,7 @@ public class CommandTime extends CommandBase
         for (int i = 0; i < server.worlds.length; ++i)
         {
             WorldServer worldserver = server.worlds[i];
-            worldserver.setDayTime(worldserver.getDayTime() + (long)amount);
+            worldserver.setWorldTime(worldserver.getWorldTime() + (long)amount);
         }
     }
 }

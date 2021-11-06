@@ -57,7 +57,7 @@ public class ItemBoat extends Item
         {
             Vec3d vec3d2 = playerIn.getLook(1.0F);
             boolean flag = false;
-            List<Entity> list = worldIn.getEntitiesWithinAABBExcludingEntity(playerIn, playerIn.getBoundingBox().expand(vec3d2.x * 5.0D, vec3d2.y * 5.0D, vec3d2.z * 5.0D).grow(1.0D));
+            List<Entity> list = worldIn.getEntitiesWithinAABBExcludingEntity(playerIn, playerIn.getEntityBoundingBox().expand(vec3d2.x * 5.0D, vec3d2.y * 5.0D, vec3d2.z * 5.0D).grow(1.0D));
 
             for (int i = 0; i < list.size(); ++i)
             {
@@ -65,7 +65,7 @@ public class ItemBoat extends Item
 
                 if (entity.canBeCollidedWith())
                 {
-                    AxisAlignedBB axisalignedbb = entity.getBoundingBox().grow((double)entity.getCollisionBorderSize());
+                    AxisAlignedBB axisalignedbb = entity.getEntityBoundingBox().grow((double)entity.getCollisionBorderSize());
 
                     if (axisalignedbb.contains(vec3d))
                     {
@@ -86,11 +86,11 @@ public class ItemBoat extends Item
             {
                 Block block = worldIn.getBlockState(raytraceresult.getBlockPos()).getBlock();
                 boolean flag1 = block == Blocks.WATER || block == Blocks.FLOWING_WATER;
-                EntityBoat entityboat = new EntityBoat(worldIn, raytraceresult.hitResult.x, flag1 ? raytraceresult.hitResult.y - 0.12D : raytraceresult.hitResult.y, raytraceresult.hitResult.z);
+                EntityBoat entityboat = new EntityBoat(worldIn, raytraceresult.hitVec.x, flag1 ? raytraceresult.hitVec.y - 0.12D : raytraceresult.hitVec.y, raytraceresult.hitVec.z);
                 entityboat.setBoatType(this.type);
                 entityboat.rotationYaw = playerIn.rotationYaw;
 
-                if (!worldIn.getCollisionBoxes(entityboat, entityboat.getBoundingBox().grow(-0.1D)).isEmpty())
+                if (!worldIn.getCollisionBoxes(entityboat, entityboat.getEntityBoundingBox().grow(-0.1D)).isEmpty())
                 {
                     return new ActionResult<ItemStack>(EnumActionResult.FAIL, itemstack);
                 }
@@ -98,10 +98,10 @@ public class ItemBoat extends Item
                 {
                     if (!worldIn.isRemote)
                     {
-                        worldIn.addEntity0(entityboat);
+                        worldIn.spawnEntity(entityboat);
                     }
 
-                    if (!playerIn.abilities.isCreativeMode)
+                    if (!playerIn.capabilities.isCreativeMode)
                     {
                         itemstack.shrink(1);
                     }

@@ -14,12 +14,12 @@ public class ModelLlama extends ModelQuadruped
         super(15, p_i47226_1_);
         this.textureWidth = 128;
         this.textureHeight = 64;
-        this.headModel = new ModelRenderer(this, 0, 0);
-        this.headModel.addBox(-2.0F, -14.0F, -10.0F, 4, 4, 9, p_i47226_1_);
-        this.headModel.setRotationPoint(0.0F, 7.0F, -6.0F);
-        this.headModel.setTextureOffset(0, 14).addBox(-4.0F, -16.0F, -6.0F, 8, 18, 6, p_i47226_1_);
-        this.headModel.setTextureOffset(17, 0).addBox(-4.0F, -19.0F, -4.0F, 3, 3, 2, p_i47226_1_);
-        this.headModel.setTextureOffset(17, 0).addBox(1.0F, -19.0F, -4.0F, 3, 3, 2, p_i47226_1_);
+        this.head = new ModelRenderer(this, 0, 0);
+        this.head.addBox(-2.0F, -14.0F, -10.0F, 4, 4, 9, p_i47226_1_);
+        this.head.setRotationPoint(0.0F, 7.0F, -6.0F);
+        this.head.setTextureOffset(0, 14).addBox(-4.0F, -16.0F, -6.0F, 8, 18, 6, p_i47226_1_);
+        this.head.setTextureOffset(17, 0).addBox(-4.0F, -19.0F, -4.0F, 3, 3, 2, p_i47226_1_);
+        this.head.setTextureOffset(17, 0).addBox(1.0F, -19.0F, -4.0F, 3, 3, 2, p_i47226_1_);
         this.body = new ModelRenderer(this, 29, 0);
         this.body.addBox(-6.0F, -10.0F, -7.0F, 12, 18, 10, p_i47226_1_);
         this.body.setRotationPoint(0.0F, 5.0F, 2.0F);
@@ -33,29 +33,32 @@ public class ModelLlama extends ModelQuadruped
         this.chest2.rotateAngleY = ((float)Math.PI / 2F);
         int i = 4;
         int j = 14;
-        this.legBackRight = new ModelRenderer(this, 29, 29);
-        this.legBackRight.addBox(-2.0F, 0.0F, -2.0F, 4, 14, 4, p_i47226_1_);
-        this.legBackRight.setRotationPoint(-2.5F, 10.0F, 6.0F);
-        this.legBackLeft = new ModelRenderer(this, 29, 29);
-        this.legBackLeft.addBox(-2.0F, 0.0F, -2.0F, 4, 14, 4, p_i47226_1_);
-        this.legBackLeft.setRotationPoint(2.5F, 10.0F, 6.0F);
-        this.legFrontRight = new ModelRenderer(this, 29, 29);
-        this.legFrontRight.addBox(-2.0F, 0.0F, -2.0F, 4, 14, 4, p_i47226_1_);
-        this.legFrontRight.setRotationPoint(-2.5F, 10.0F, -4.0F);
-        this.legFrontLeft = new ModelRenderer(this, 29, 29);
-        this.legFrontLeft.addBox(-2.0F, 0.0F, -2.0F, 4, 14, 4, p_i47226_1_);
-        this.legFrontLeft.setRotationPoint(2.5F, 10.0F, -4.0F);
-        --this.legBackRight.rotationPointX;
-        ++this.legBackLeft.rotationPointX;
-        this.legBackRight.rotationPointZ += 0.0F;
-        this.legBackLeft.rotationPointZ += 0.0F;
-        --this.legFrontRight.rotationPointX;
-        ++this.legFrontLeft.rotationPointX;
-        --this.legFrontRight.rotationPointZ;
-        --this.legFrontLeft.rotationPointZ;
+        this.leg1 = new ModelRenderer(this, 29, 29);
+        this.leg1.addBox(-2.0F, 0.0F, -2.0F, 4, 14, 4, p_i47226_1_);
+        this.leg1.setRotationPoint(-2.5F, 10.0F, 6.0F);
+        this.leg2 = new ModelRenderer(this, 29, 29);
+        this.leg2.addBox(-2.0F, 0.0F, -2.0F, 4, 14, 4, p_i47226_1_);
+        this.leg2.setRotationPoint(2.5F, 10.0F, 6.0F);
+        this.leg3 = new ModelRenderer(this, 29, 29);
+        this.leg3.addBox(-2.0F, 0.0F, -2.0F, 4, 14, 4, p_i47226_1_);
+        this.leg3.setRotationPoint(-2.5F, 10.0F, -4.0F);
+        this.leg4 = new ModelRenderer(this, 29, 29);
+        this.leg4.addBox(-2.0F, 0.0F, -2.0F, 4, 14, 4, p_i47226_1_);
+        this.leg4.setRotationPoint(2.5F, 10.0F, -4.0F);
+        --this.leg1.rotationPointX;
+        ++this.leg2.rotationPointX;
+        this.leg1.rotationPointZ += 0.0F;
+        this.leg2.rotationPointZ += 0.0F;
+        --this.leg3.rotationPointX;
+        ++this.leg4.rotationPointX;
+        --this.leg3.rotationPointZ;
+        --this.leg4.rotationPointZ;
         this.childZOffset += 2.0F;
     }
 
+    /**
+     * Sets the models various rotation angles then renders the model.
+     */
     public void render(Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale)
     {
         AbstractChestHorse abstractchesthorse = (AbstractChestHorse)entityIn;
@@ -72,7 +75,7 @@ public class ModelLlama extends ModelQuadruped
             float f1 = 0.7F;
             GlStateManager.scale(0.71428573F, 0.64935064F, 0.7936508F);
             GlStateManager.translate(0.0F, 21.0F * scale, 0.22F);
-            this.headModel.render(scale);
+            this.head.render(scale);
             GlStateManager.popMatrix();
             GlStateManager.pushMatrix();
             float f2 = 1.1F;
@@ -83,20 +86,20 @@ public class ModelLlama extends ModelQuadruped
             GlStateManager.pushMatrix();
             GlStateManager.scale(0.45454544F, 0.41322312F, 0.45454544F);
             GlStateManager.translate(0.0F, 33.0F * scale, 0.0F);
-            this.legBackRight.render(scale);
-            this.legBackLeft.render(scale);
-            this.legFrontRight.render(scale);
-            this.legFrontLeft.render(scale);
+            this.leg1.render(scale);
+            this.leg2.render(scale);
+            this.leg3.render(scale);
+            this.leg4.render(scale);
             GlStateManager.popMatrix();
         }
         else
         {
-            this.headModel.render(scale);
+            this.head.render(scale);
             this.body.render(scale);
-            this.legBackRight.render(scale);
-            this.legBackLeft.render(scale);
-            this.legFrontRight.render(scale);
-            this.legFrontLeft.render(scale);
+            this.leg1.render(scale);
+            this.leg2.render(scale);
+            this.leg3.render(scale);
+            this.leg4.render(scale);
         }
 
         if (flag)

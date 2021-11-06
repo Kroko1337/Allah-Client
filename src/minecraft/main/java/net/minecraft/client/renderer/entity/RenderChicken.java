@@ -9,13 +9,13 @@ public class RenderChicken extends RenderLiving<EntityChicken>
 {
     private static final ResourceLocation CHICKEN_TEXTURES = new ResourceLocation("textures/entity/chicken.png");
 
-    public RenderChicken(RenderManager renderManagerIn)
+    public RenderChicken(RenderManager p_i47211_1_)
     {
-        super(renderManagerIn, new ModelChicken(), 0.3F);
+        super(p_i47211_1_, new ModelChicken(), 0.3F);
     }
 
     /**
-     * Returns the location of an entity's texture.
+     * Returns the location of an entity's texture. Doesn't seem to be called unless you call Render.bindEntityTexture.
      */
     protected ResourceLocation getEntityTexture(EntityChicken entity)
     {

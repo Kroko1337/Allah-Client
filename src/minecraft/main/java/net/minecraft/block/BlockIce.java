@@ -28,6 +28,10 @@ public class BlockIce extends BlockBreakable
         this.setCreativeTab(CreativeTabs.BUILDING_BLOCKS);
     }
 
+    /**
+     * Gets the render layer this block will render on. SOLID for solid blocks, CUTOUT or CUTOUT_MIPPED for on-off
+     * transparency (glass, reeds), TRANSLUCENT for fully blended transparency (stained glass)
+     */
     public BlockRenderLayer getRenderLayer()
     {
         return BlockRenderLayer.TRANSLUCENT;
@@ -48,7 +52,7 @@ public class BlockIce extends BlockBreakable
         }
         else
         {
-            if (worldIn.dimension.doesWaterVaporize())
+            if (worldIn.provider.doesWaterVaporize())
             {
                 worldIn.setBlockToAir(pos);
                 return;
@@ -65,6 +69,9 @@ public class BlockIce extends BlockBreakable
         }
     }
 
+    /**
+     * Returns the quantity of items to drop on block destruction.
+     */
     public int quantityDropped(Random random)
     {
         return 0;
@@ -80,7 +87,7 @@ public class BlockIce extends BlockBreakable
 
     protected void turnIntoWater(World worldIn, BlockPos pos)
     {
-        if (worldIn.dimension.doesWaterVaporize())
+        if (worldIn.provider.doesWaterVaporize())
         {
             worldIn.setBlockToAir(pos);
         }

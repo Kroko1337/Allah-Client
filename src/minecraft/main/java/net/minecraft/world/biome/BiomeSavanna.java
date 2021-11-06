@@ -20,7 +20,7 @@ public class BiomeSavanna extends Biome
         this.spawnableCreatureList.add(new Biome.SpawnListEntry(EntityHorse.class, 1, 2, 6));
         this.spawnableCreatureList.add(new Biome.SpawnListEntry(EntityDonkey.class, 1, 1, 1));
 
-        if (this.getDepth() > 1.1F)
+        if (this.getBaseHeight() > 1.1F)
         {
             this.spawnableCreatureList.add(new Biome.SpawnListEntry(EntityLlama.class, 8, 4, 4));
         }

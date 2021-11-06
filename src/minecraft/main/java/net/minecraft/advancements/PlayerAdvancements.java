@@ -48,10 +48,10 @@ public class PlayerAdvancements
     private Advancement lastSelectedTab;
     private boolean isFirstPacket = true;
 
-    public PlayerAdvancements(MinecraftServer server, File progressFileIn, EntityPlayerMP player)
+    public PlayerAdvancements(MinecraftServer server, File p_i47422_2_, EntityPlayerMP player)
     {
         this.server = server;
-        this.progressFile = progressFileIn;
+        this.progressFile = p_i47422_2_;
         this.player = player;
         this.load();
     }
@@ -127,7 +127,7 @@ public class PlayerAdvancements
             try
             {
                 String s = Files.toString(this.progressFile, StandardCharsets.UTF_8);
-                Map<ResourceLocation, AdvancementProgress> map = (Map)JsonUtils.fromJson(GSON, s, MAP_TOKEN.getType());
+                Map<ResourceLocation, AdvancementProgress> map = (Map)JsonUtils.gsonDeserialize(GSON, s, MAP_TOKEN.getType());
 
                 if (map == null)
                 {
@@ -194,64 +194,64 @@ public class PlayerAdvancements
         }
     }
 
-    public boolean grantCriterion(Advancement advancementIn, String criterionKey)
+    public boolean grantCriterion(Advancement p_192750_1_, String p_192750_2_)
     {
         boolean flag = false;
-        AdvancementProgress advancementprogress = this.getProgress(advancementIn);
+        AdvancementProgress advancementprogress = this.getProgress(p_192750_1_);
         boolean flag1 = advancementprogress.isDone();
 
-        if (advancementprogress.grantCriterion(criterionKey))
+        if (advancementprogress.grantCriterion(p_192750_2_))
         {
-            this.unregisterListeners(advancementIn);
-            this.progressChanged.add(advancementIn);
+            this.unregisterListeners(p_192750_1_);
+            this.progressChanged.add(p_192750_1_);
             flag = true;
 
             if (!flag1 && advancementprogress.isDone())
             {
-                advancementIn.getRewards().apply(this.player);
+                p_192750_1_.getRewards().apply(this.player);
 
-                if (advancementIn.getDisplay() != null && advancementIn.getDisplay().shouldAnnounceToChat() && this.player.world.getGameRules().getBoolean("announceAdvancements"))
+                if (p_192750_1_.getDisplay() != null && p_192750_1_.getDisplay().shouldAnnounceToChat() && this.player.world.getGameRules().getBoolean("announceAdvancements"))
                 {
-                    this.server.getPlayerList().sendMessage(new TextComponentTranslation("chat.type.advancement." + advancementIn.getDisplay().getFrame().getName(), new Object[] {this.player.getDisplayName(), advancementIn.getDisplayText()}));
+                    this.server.getPlayerList().sendMessage(new TextComponentTranslation("chat.type.advancement." + p_192750_1_.getDisplay().getFrame().getName(), new Object[] {this.player.getDisplayName(), p_192750_1_.getDisplayText()}));
                 }
             }
         }
 
         if (advancementprogress.isDone())
         {
-            this.ensureVisibility(advancementIn);
+            this.ensureVisibility(p_192750_1_);
         }
 
         return flag;
     }
 
-    public boolean revokeCriterion(Advancement advancementIn, String criterionKey)
+    public boolean revokeCriterion(Advancement p_192744_1_, String p_192744_2_)
     {
         boolean flag = false;
-        AdvancementProgress advancementprogress = this.getProgress(advancementIn);
+        AdvancementProgress advancementprogress = this.getProgress(p_192744_1_);
 
-        if (advancementprogress.revokeCriterion(criterionKey))
+        if (advancementprogress.revokeCriterion(p_192744_2_))
         {
-            this.registerListeners(advancementIn);
-            this.progressChanged.add(advancementIn);
+            this.registerListeners(p_192744_1_);
+            this.progressChanged.add(p_192744_1_);
             flag = true;
         }
 
         if (!advancementprogress.hasProgress())
         {
-            this.ensureVisibility(advancementIn);
+            this.ensureVisibility(p_192744_1_);
         }
 
         return flag;
     }
 
-    private void registerListeners(Advancement advancementIn)
+    private void registerListeners(Advancement p_193764_1_)
     {
-        AdvancementProgress advancementprogress = this.getProgress(advancementIn);
+        AdvancementProgress advancementprogress = this.getProgress(p_193764_1_);
 
         if (!advancementprogress.isDone())
         {
-            for (Entry<String, Criterion> entry : advancementIn.getCriteria().entrySet())
+            for (Entry<String, Criterion> entry : p_193764_1_.getCriteria().entrySet())
             {
                 CriterionProgress criterionprogress = advancementprogress.getCriterionProgress(entry.getKey());
 
@@ -265,7 +265,7 @@ public class PlayerAdvancements
 
                         if (icriteriontrigger != null)
                         {
-                            icriteriontrigger.addListener(this, new ICriterionTrigger.Listener(icriterioninstance, advancementIn, entry.getKey()));
+                            icriteriontrigger.addListener(this, new ICriterionTrigger.Listener(icriterioninstance, p_193764_1_, entry.getKey()));
                         }
                     }
                 }
@@ -273,11 +273,11 @@ public class PlayerAdvancements
         }
     }
 
-    private void unregisterListeners(Advancement advancementIn)
+    private void unregisterListeners(Advancement p_193765_1_)
     {
-        AdvancementProgress advancementprogress = this.getProgress(advancementIn);
+        AdvancementProgress advancementprogress = this.getProgress(p_193765_1_);
 
-        for (Entry<String, Criterion> entry : advancementIn.getCriteria().entrySet())
+        for (Entry<String, Criterion> entry : p_193765_1_.getCriteria().entrySet())
         {
             CriterionProgress criterionprogress = advancementprogress.getCriterionProgress(entry.getKey());
 
@@ -291,7 +291,7 @@ public class PlayerAdvancements
 
                     if (icriteriontrigger != null)
                     {
-                        icriteriontrigger.removeListener(this, new ICriterionTrigger.Listener(icriterioninstance, advancementIn, entry.getKey()));
+                        icriteriontrigger.removeListener(this, new ICriterionTrigger.Listener(icriterioninstance, p_193765_1_, entry.getKey()));
                     }
                 }
             }
@@ -369,10 +369,10 @@ public class PlayerAdvancements
         return advancementprogress;
     }
 
-    private void startProgress(Advancement advancementIn, AdvancementProgress p_192743_2_)
+    private void startProgress(Advancement p_192743_1_, AdvancementProgress p_192743_2_)
     {
-        p_192743_2_.update(advancementIn.getCriteria(), advancementIn.getRequirements());
-        this.progress.put(advancementIn, p_192743_2_);
+        p_192743_2_.update(p_192743_1_.getCriteria(), p_192743_1_.getRequirements());
+        this.progress.put(p_192743_1_, p_192743_2_);
     }
 
     private void ensureVisibility(Advancement p_192742_1_)

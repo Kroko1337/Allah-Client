@@ -17,10 +17,13 @@ public class NarratorChatListener implements IChatListener
     /**
      * Called whenever this listener receives a chat message, if this listener is registered to the given type in {@link
      * net.minecraft.client.gui.GuiIngame#chatListeners chatListeners}
+     *  
+     * @param chatTypeIn The type of chat message
+     * @param message The chat message.
      */
     public void say(ChatType chatTypeIn, ITextComponent message)
     {
-        int i = Minecraft.getInstance().gameSettings.narrator;
+        int i = Minecraft.getMinecraft().gameSettings.narrator;
 
         if (i != 0 && this.narrator.active())
         {
@@ -42,7 +45,7 @@ public class NarratorChatListener implements IChatListener
     {
         this.narrator.clear();
         this.narrator.say((new TextComponentTranslation("options.narrator", new Object[0])).getUnformattedText() + " : " + (new TextComponentTranslation(GameSettings.NARRATOR_MODES[p_193641_1_], new Object[0])).getUnformattedText());
-        GuiToast guitoast = Minecraft.getInstance().getToastGui();
+        GuiToast guitoast = Minecraft.getMinecraft().getToastGui();
 
         if (this.narrator.active())
         {

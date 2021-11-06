@@ -52,6 +52,7 @@ import net.minecraft.world.World;
 
 public class Block
 {
+    /** ResourceLocation for the Air block */
     private static final ResourceLocation AIR_ID = new ResourceLocation("air");
     public static final RegistryNamespacedDefaultedByKey<ResourceLocation, Block> REGISTRY = new RegistryNamespacedDefaultedByKey<ResourceLocation, Block>(AIR_ID);
     public static final ObjectIntIdentityMap<IBlockState> BLOCK_STATE_IDS = new ObjectIntIdentityMap<IBlockState>();
@@ -60,11 +61,17 @@ public class Block
     public static final AxisAlignedBB NULL_AABB = null;
     private CreativeTabs displayOnCreativeTab;
     protected boolean fullBlock;
+
+    /** How much light is subtracted for going through this block */
     protected int lightOpacity;
     protected boolean translucent;
 
     /** Amount of light emitted */
     protected int lightValue;
+
+    /**
+     * Flag if block should use the brightest neighbor light value as its own
+     */
     protected boolean useNeighborBrightness;
 
     /** Indicates how many hits it takes to break a block. */
@@ -78,26 +85,35 @@ public class Block
      * Flags whether or not this block is of a type that needs random ticking. Ref-counted by ExtendedBlockStorage in
      * order to broadly cull a chunk from the random chunk update list for efficiency's sake.
      */
-    protected boolean ticksRandomly;
+    protected boolean needsRandomTick;
+
+    /** true if the Block contains a Tile Entity */
     protected boolean hasTileEntity;
-    protected SoundType soundType;
+
+    /** Sound of stepping on the block */
+    protected SoundType blockSoundType;
     public float blockParticleGravity;
     protected final Material material;
-    protected final MapColor materialColor;
+
+    /** The Block's MapColor */
+    protected final MapColor blockMapColor;
 
     /**
      * Determines how much velocity is maintained while moving on top of this block
      */
     public float slipperiness;
-    protected final BlockStateContainer stateContainer;
+    protected final BlockStateContainer blockState;
     private IBlockState defaultBlockState;
     private String translationKey;
 
     public static int getIdFromBlock(Block blockIn)
     {
-        return REGISTRY.getId(blockIn);
+        return REGISTRY.getIDForObject(blockIn);
     }
 
+    /**
+     * Get a unique ID for the given BlockState, containing both BlockID and metadata
+     */
     public static int getStateId(IBlockState state)
     {
         Block block = state.getBlock();
@@ -109,6 +125,9 @@ public class Block
         return REGISTRY.getObjectById(id);
     }
 
+    /**
+     * Get a BlockState by it's ID (see getStateId)
+     */
     public static IBlockState getStateById(int id)
     {
         int i = id & 4095;
@@ -128,7 +147,7 @@ public class Block
 
         if (REGISTRY.containsKey(resourcelocation))
         {
-            return REGISTRY.getOrDefault(resourcelocation);
+            return REGISTRY.getObject(resourcelocation);
         }
         else
         {
@@ -144,30 +163,55 @@ public class Block
     }
 
     @Deprecated
+
+    /**
+     * Determines if the block is solid enough on the top side to support other blocks, like redstone components.
+     * @deprecated prefer calling {@link IBlockState#isTopSolid()} wherever possible
+     */
     public boolean isTopSolid(IBlockState state)
     {
         return state.getMaterial().isOpaque() && state.isFullCube();
     }
 
     @Deprecated
+
+    /**
+     * @return true if the state occupies all of its 1x1x1 cube
+     * @deprecated prefer calling {@link IBlockState#isFullBlock()}
+     */
     public boolean isFullBlock(IBlockState state)
     {
         return this.fullBlock;
     }
 
     @Deprecated
+
+    /**
+     * @return true if the passed entity is allowed to spawn on this block.
+     * @deprecated prefer calling {@link IBlockState#canEntitySpawn(Entity)}
+     */
     public boolean canEntitySpawn(IBlockState state, Entity entityIn)
     {
         return true;
     }
 
     @Deprecated
+
+    /**
+     * Get how much light is subtracted for going through this block
+     * @deprecated prefer calling {@link IBlockState#getLightOpacity()}
+     */
     public int getLightOpacity(IBlockState state)
     {
         return this.lightOpacity;
     }
 
     @Deprecated
+
+    /**
+     * Used in the renderer to apply ambient occlusion
+     * @deprecated prefer calling {@link IBlockState#isTranslucent()}
+     */
     public boolean isTranslucent(IBlockState state)
     {
         return this.translucent;
@@ -185,6 +229,12 @@ public class Block
     }
 
     @Deprecated
+
+    /**
+     * Should block use the brightest neighbor light value as its own
+     * @deprecated call via {@link IBlockState#useNeighborBrightness()} whenever possible. Implementing/overriding is
+     * fine.
+     */
     public boolean getUseNeighborBrightness(IBlockState state)
     {
         return this.useNeighborBrightness;
@@ -208,17 +258,24 @@ public class Block
      * @deprecated call via {@link IBlockState#getMapColor(IBlockAccess,BlockPos)} whenever possible.
      * Implementing/overriding is fine.
      */
-    public MapColor getMaterialColor(IBlockState state, IBlockAccess worldIn, BlockPos pos)
+    public MapColor getMapColor(IBlockState state, IBlockAccess worldIn, BlockPos pos)
     {
-        return this.materialColor;
+        return this.blockMapColor;
     }
 
     @Deprecated
+
+    /**
+     * Convert the given metadata into a BlockState for this Block
+     */
     public IBlockState getStateFromMeta(int meta)
     {
         return this.getDefaultState();
     }
 
+    /**
+     * Convert the BlockState into the correct metadata value
+     */
     public int getMetaFromState(IBlockState state)
     {
         if (state.getPropertyKeys().isEmpty())
@@ -232,6 +289,11 @@ public class Block
     }
 
     @Deprecated
+
+    /**
+     * Get the actual Block state of this Block at the given position. This applies properties not visible in the
+     * metadata, such as fence connections.
+     */
     public IBlockState getActualState(IBlockState state, IBlockAccess worldIn, BlockPos pos)
     {
         return state;
@@ -245,7 +307,7 @@ public class Block
      * @deprecated call via {@link IBlockState#withRotation(Rotation)} whenever possible. Implementing/overriding is
      * fine.
      */
-    public IBlockState rotate(IBlockState state, Rotation rot)
+    public IBlockState withRotation(IBlockState state, Rotation rot)
     {
         return state;
     }
@@ -257,7 +319,7 @@ public class Block
      * blockstate.
      * @deprecated call via {@link IBlockState#withMirror(Mirror)} whenever possible. Implementing/overriding is fine.
      */
-    public IBlockState mirror(IBlockState state, Mirror mirrorIn)
+    public IBlockState withMirror(IBlockState state, Mirror mirrorIn)
     {
         return state;
     }
@@ -265,13 +327,13 @@ public class Block
     public Block(Material blockMaterialIn, MapColor blockMapColorIn)
     {
         this.enableStats = true;
-        this.soundType = SoundType.STONE;
+        this.blockSoundType = SoundType.STONE;
         this.blockParticleGravity = 1.0F;
         this.slipperiness = 0.6F;
         this.material = blockMaterialIn;
-        this.materialColor = blockMapColorIn;
-        this.stateContainer = this.createBlockState();
-        this.setDefaultState(this.stateContainer.getBaseState());
+        this.blockMapColor = blockMapColorIn;
+        this.blockState = this.createBlockState();
+        this.setDefaultState(this.blockState.getBaseState());
         this.fullBlock = this.getDefaultState().isOpaqueCube();
         this.lightOpacity = this.fullBlock ? 255 : 0;
         this.translucent = !blockMaterialIn.blocksLight();
@@ -279,27 +341,39 @@ public class Block
 
     protected Block(Material materialIn)
     {
-        this(materialIn, materialIn.getColor());
+        this(materialIn, materialIn.getMaterialMapColor());
     }
 
+    /**
+     * Sets the footstep sound for the block. Returns the object for convenience in constructing.
+     */
     protected Block setSoundType(SoundType sound)
     {
-        this.soundType = sound;
+        this.blockSoundType = sound;
         return this;
     }
 
+    /**
+     * Sets how much light is blocked going through this block. Returns the object for convenience in constructing.
+     */
     protected Block setLightOpacity(int opacity)
     {
         this.lightOpacity = opacity;
         return this;
     }
 
+    /**
+     * Sets the light value that the block emits. Returns resulting block instance for constructing convenience.
+     */
     protected Block setLightLevel(float value)
     {
         this.lightValue = (int)(15.0F * value);
         return this;
     }
 
+    /**
+     * Sets the the blocks resistance to explosions. Returns the object for convenience in constructing.
+     */
     protected Block setResistance(float resistance)
     {
         this.blockResistance = resistance * 3.0F;
@@ -317,35 +391,62 @@ public class Block
     }
 
     @Deprecated
+
+    /**
+     * Indicate if a material is a normal solid opaque cube
+     * @deprecated call via {@link IBlockState#isBlockNormalCube()} whenever possible. Implementing/overriding is fine.
+     */
     public boolean isBlockNormalCube(IBlockState state)
     {
         return state.getMaterial().blocksMovement() && state.isFullCube();
     }
 
     @Deprecated
+
+    /**
+     * Used for nearly all game logic (non-rendering) purposes. Use Forge-provided isNormalCube(IBlockAccess, BlockPos)
+     * instead.
+     * @deprecated call via {@link IBlockState#isNormalCube()} whenever possible. Implementing/overriding is fine.
+     */
     public boolean isNormalCube(IBlockState state)
     {
         return state.getMaterial().isOpaque() && state.isFullCube() && !state.canProvidePower();
     }
 
     @Deprecated
+
+    /**
+     * @deprecated call via {@link IBlockState#causesSuffocation()} whenever possible. Implementing/overriding is fine.
+     */
     public boolean causesSuffocation(IBlockState state)
     {
         return this.material.blocksMovement() && this.getDefaultState().isFullCube();
     }
 
     @Deprecated
+
+    /**
+     * @deprecated call via {@link IBlockState#isFullCube()} whenever possible. Implementing/overriding is fine.
+     */
     public boolean isFullCube(IBlockState state)
     {
         return true;
     }
 
     @Deprecated
+
+    /**
+     * @deprecated call via {@link IBlockState#hasCustomBreakingProgress()} whenever possible. Implementing/overriding
+     * is fine.
+     */
     public boolean hasCustomBreakingProgress(IBlockState state)
     {
         return false;
     }
 
+    /**
+     * Determines if an entity can path through this block
+     */
     public boolean isPassable(IBlockAccess worldIn, BlockPos pos)
     {
         return !this.material.blocksMovement();
@@ -363,11 +464,17 @@ public class Block
         return EnumBlockRenderType.MODEL;
     }
 
+    /**
+     * Whether this Block can be replaced directly by other blocks (true for e.g. tall grass)
+     */
     public boolean isReplaceable(IBlockAccess worldIn, BlockPos pos)
     {
         return false;
     }
 
+    /**
+     * Sets how many hits it takes to break a block.
+     */
     protected Block setHardness(float hardness)
     {
         this.blockHardness = hardness;
@@ -397,9 +504,12 @@ public class Block
         return this.blockHardness;
     }
 
+    /**
+     * Sets whether this block type will receive random update ticks
+     */
     protected Block setTickRandomly(boolean shouldTick)
     {
-        this.ticksRandomly = shouldTick;
+        this.needsRandomTick = shouldTick;
         return this;
     }
 
@@ -407,9 +517,9 @@ public class Block
      * Returns whether or not this block is of a type that needs random ticking. Called for ref-counting purposes by
      * ExtendedBlockStorage in order to broadly cull a chunk from the random chunk update list for efficiency's sake.
      */
-    public boolean ticksRandomly()
+    public boolean getTickRandomly()
     {
-        return this.ticksRandomly;
+        return this.needsRandomTick;
     }
 
     public boolean hasTileEntity()
@@ -418,12 +528,22 @@ public class Block
     }
 
     @Deprecated
+
+    /**
+     * @deprecated call via {@link IBlockState#getBoundingBox(IBlockAccess,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
     {
         return FULL_BLOCK_AABB;
     }
 
     @Deprecated
+
+    /**
+     * @deprecated call via {@link IBlockState#getPackedLightmapCoords(IBlockAccess,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public int getPackedLightmapCoords(IBlockState state, IBlockAccess source, BlockPos pos)
     {
         int i = source.getCombinedLight(pos, state.getLightValue());
@@ -443,7 +563,8 @@ public class Block
     @Deprecated
 
     /**
-     * ""
+     * @deprecated call via {@link IBlockState#shouldSideBeRendered(IBlockAccess,BlockPos,EnumFacing)} whenever
+     * possible. Implementing/overriding is fine.
      */
     public boolean shouldSideBeRendered(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side)
     {
@@ -502,12 +623,30 @@ public class Block
     }
 
     @Deprecated
+
+    /**
+     * Get the geometry of the queried face at the given position and state. This is used to decide whether things like
+     * buttons are allowed to be placed on the face, or how glass panes connect to the face, among other things.
+     * <p>
+     * Common values are {@code SOLID}, which is the default, and {@code UNDEFINED}, which represents something that
+     * does not fit the other descriptions and will generally cause other things not to connect to the face.
+
+     * @return an approximation of the form of the given face
+     * @deprecated call via {@link IBlockState#getBlockFaceShape(IBlockAccess,BlockPos,EnumFacing)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public BlockFaceShape getBlockFaceShape(IBlockAccess worldIn, IBlockState state, BlockPos pos, EnumFacing face)
     {
         return BlockFaceShape.SOLID;
     }
 
     @Deprecated
+
+    /**
+     * Return an AABB (in world coords!) that should be highlighted when the player is targeting this Block
+     * @deprecated call via {@link IBlockState#getSelectedBoundingBox(World,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public AxisAlignedBB getSelectedBoundingBox(IBlockState state, World worldIn, BlockPos pos)
     {
         return state.getBoundingBox(worldIn, pos).offset(pos);
@@ -519,6 +658,10 @@ public class Block
         addCollisionBoxToList(pos, entityBox, collidingBoxes, state.getCollisionBoundingBox(worldIn, pos));
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#addCollisionBoxToList(World,BlockPos,AxisAlignedBB,List,Entity,boolean)}
+     * whenever possible. Implementing/overriding is fine.
+     */
     protected static void addCollisionBoxToList(BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, @Nullable AxisAlignedBB blockBox)
     {
         if (blockBox != NULL_AABB)
@@ -534,12 +677,22 @@ public class Block
 
     @Deprecated
     @Nullable
+
+    /**
+     * @deprecated call via {@link IBlockState#getCollisionBoundingBox(IBlockAccess,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public AxisAlignedBB getCollisionBoundingBox(IBlockState blockState, IBlockAccess worldIn, BlockPos pos)
     {
         return blockState.getBoundingBox(worldIn, pos);
     }
 
     @Deprecated
+
+    /**
+     * Used to determine ambient occlusion and culling when rebuilding chunks for render
+     * @deprecated call via {@link IBlockState#isOpaqueCube()} whenever possible. Implementing/overriding is fine.
+     */
     public boolean isOpaqueCube(IBlockState state)
     {
         return true;
@@ -550,11 +703,18 @@ public class Block
         return this.isCollidable();
     }
 
+    /**
+     * Returns if this block is collidable. Only used by fire, although stairs return that of the block that the stair
+     * is made of (though nobody's going to make fire stairs, right?)
+     */
     public boolean isCollidable()
     {
         return true;
     }
 
+    /**
+     * Called randomly when setTickRandomly is set to true (used by e.g. crops to grow, etc.)
+     */
     public void randomTick(World worldIn, BlockPos pos, IBlockState state, Random random)
     {
         this.updateTick(worldIn, pos, state, random);
@@ -569,7 +729,7 @@ public class Block
      * this method is unrelated to {@link randomTick} and {@link #needsRandomTick}, and will always be called regardless
      * of whether the block can receive random update ticks
      */
-    public void animateTick(IBlockState stateIn, World worldIn, BlockPos pos, Random rand)
+    public void randomDisplayTick(IBlockState stateIn, World worldIn, BlockPos pos, Random rand)
     {
     }
 
@@ -581,6 +741,12 @@ public class Block
     }
 
     @Deprecated
+
+    /**
+     * Called when a neighboring block was changed and marks that this state should perform any checks during a neighbor
+     * change. Cases may include when redstone power is updated, cactus blocks popping off due to a neighboring solid
+     * block, etc.
+     */
     public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos)
     {
     }
@@ -593,19 +759,31 @@ public class Block
         return 10;
     }
 
+    /**
+     * Called after the block is set in the Chunk data, but before the Tile Entity is set
+     */
     public void onBlockAdded(World worldIn, BlockPos pos, IBlockState state)
     {
     }
 
+    /**
+     * Called serverside after this block is replaced with another in Chunk, but before the Tile Entity is updated
+     */
     public void breakBlock(World worldIn, BlockPos pos, IBlockState state)
     {
     }
 
+    /**
+     * Returns the quantity of items to drop on block destruction.
+     */
     public int quantityDropped(Random random)
     {
         return 1;
     }
 
+    /**
+     * Get the Item that this Block should drop when harvested.
+     */
     public Item getItemDropped(IBlockState state, Random rand, int fortune)
     {
         return Item.getItemFromBlock(this);
@@ -632,11 +810,17 @@ public class Block
         }
     }
 
+    /**
+     * Spawn this Block's drops into the World as EntityItems
+     */
     public final void dropBlockAsItem(World worldIn, BlockPos pos, IBlockState state, int fortune)
     {
         this.dropBlockAsItemWithChance(worldIn, pos, state, 1.0F, fortune);
     }
 
+    /**
+     * Spawns this Block's drops into the World as EntityItems.
+     */
     public void dropBlockAsItemWithChance(World worldIn, BlockPos pos, IBlockState state, float chance, int fortune)
     {
         if (!worldIn.isRemote)
@@ -659,7 +843,7 @@ public class Block
     }
 
     /**
-     * Spawns the given stack into the World at the given position, respecting the doTileDrops gamerule
+     * Spawns the given ItemStack as an EntityItem into the World at the given position
      */
     public static void spawnAsEntity(World worldIn, BlockPos pos, ItemStack stack)
     {
@@ -671,7 +855,7 @@ public class Block
             double d2 = (double)(worldIn.rand.nextFloat() * 0.5F) + 0.25D;
             EntityItem entityitem = new EntityItem(worldIn, (double)pos.getX() + d0, (double)pos.getY() + d1, (double)pos.getZ() + d2, stack);
             entityitem.setDefaultPickupDelay();
-            worldIn.addEntity0(entityitem);
+            worldIn.spawnEntity(entityitem);
         }
     }
 
@@ -686,11 +870,15 @@ public class Block
             {
                 int i = EntityXPOrb.getXPSplit(amount);
                 amount -= i;
-                worldIn.addEntity0(new EntityXPOrb(worldIn, (double)pos.getX() + 0.5D, (double)pos.getY() + 0.5D, (double)pos.getZ() + 0.5D, i));
+                worldIn.spawnEntity(new EntityXPOrb(worldIn, (double)pos.getX() + 0.5D, (double)pos.getY() + 0.5D, (double)pos.getZ() + 0.5D, i));
             }
         }
     }
 
+    /**
+     * Gets the metadata of the item this Block can drop. This method is called when the block gets destroyed. It
+     * returns the metadata of the dropped item based on the old metadata of the block.
+     */
     public int damageDropped(IBlockState state)
     {
         return 0;
@@ -706,6 +894,12 @@ public class Block
 
     @Deprecated
     @Nullable
+
+    /**
+     * Ray traces through the blocks collision from start vector to end vector returning a ray trace hit.
+     * @deprecated call via {@link IBlockState#collisionRayTrace(World,BlockPos,Vec3d,Vec3d)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public RayTraceResult collisionRayTrace(IBlockState blockState, World worldIn, BlockPos pos, Vec3d start, Vec3d end)
     {
         return this.rayTrace(pos, start, end, blockState.getBoundingBox(worldIn, pos));
@@ -717,7 +911,7 @@ public class Block
         Vec3d vec3d = start.subtract((double)pos.getX(), (double)pos.getY(), (double)pos.getZ());
         Vec3d vec3d1 = end.subtract((double)pos.getX(), (double)pos.getY(), (double)pos.getZ());
         RayTraceResult raytraceresult = boundingBox.calculateIntercept(vec3d, vec3d1);
-        return raytraceresult == null ? null : new RayTraceResult(raytraceresult.hitResult.add((double)pos.getX(), (double)pos.getY(), (double)pos.getZ()), raytraceresult.sideHit, pos);
+        return raytraceresult == null ? null : new RayTraceResult(raytraceresult.hitVec.add((double)pos.getX(), (double)pos.getY(), (double)pos.getZ()), raytraceresult.sideHit, pos);
     }
 
     /**
@@ -727,21 +921,34 @@ public class Block
     {
     }
 
+    /**
+     * Gets the render layer this block will render on. SOLID for solid blocks, CUTOUT or CUTOUT_MIPPED for on-off
+     * transparency (glass, reeds), TRANSLUCENT for fully blended transparency (stained glass)
+     */
     public BlockRenderLayer getRenderLayer()
     {
         return BlockRenderLayer.SOLID;
     }
 
+    /**
+     * Check whether this Block can be placed at pos, while aiming at the specified side of an adjacent block
+     */
     public boolean canPlaceBlockOnSide(World worldIn, BlockPos pos, EnumFacing side)
     {
         return this.canPlaceBlockAt(worldIn, pos);
     }
 
+    /**
+     * Checks if this block can be placed exactly at the given position.
+     */
     public boolean canPlaceBlockAt(World worldIn, BlockPos pos)
     {
         return worldIn.getBlockState(pos).getBlock().material.isReplaceable();
     }
 
+    /**
+     * Called when the block is right clicked by a player.
+     */
     public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
         return false;
@@ -754,6 +961,10 @@ public class Block
     {
     }
 
+    /**
+     * Called by ItemBlocks just before a block is actually set in the world, to allow for adjustments to the
+     * IBlockstate
+     */
     public IBlockState getStateForPlacement(World worldIn, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer)
     {
         return this.getStateFromMeta(meta);
@@ -790,6 +1001,9 @@ public class Block
         return false;
     }
 
+    /**
+     * Called When an Entity Collided with the Block
+     */
     public void onEntityCollision(World worldIn, BlockPos pos, IBlockState state, Entity entityIn)
     {
     }
@@ -844,6 +1058,9 @@ public class Block
         return new ItemStack(item, 1, i);
     }
 
+    /**
+     * Get the quantity dropped based on the given fortune level
+     */
     public int quantityDroppedWithBonus(int fortune, Random random)
     {
         return this.quantityDropped(random);
@@ -870,6 +1087,9 @@ public class Block
         return this;
     }
 
+    /**
+     * Gets the localized name of this block. Used for the statistics page.
+     */
     public String getLocalizedName()
     {
         return I18n.translateToLocal(this.getTranslationKey() + ".name");
@@ -897,6 +1117,9 @@ public class Block
         return false;
     }
 
+    /**
+     * Return the state of blocks statistics flags - if the block is counted for mined and placed.
+     */
     public boolean getEnableStats()
     {
         return this.enableStats;
@@ -919,6 +1142,11 @@ public class Block
     }
 
     @Deprecated
+
+    /**
+     * @deprecated call via {@link IBlockState#getAmbientOcclusionLightValue()} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public float getAmbientOcclusionLightValue(IBlockState state)
     {
         return state.isBlockNormalCube() ? 0.2F : 1.0F;
@@ -949,11 +1177,14 @@ public class Block
     /**
      * returns a list of blocks with the same ID, but different meta (eg: wood returns 4 blocks)
      */
-    public void fillItemGroup(CreativeTabs group, NonNullList<ItemStack> items)
+    public void getSubBlocks(CreativeTabs itemIn, NonNullList<ItemStack> items)
     {
         items.add(new ItemStack(this));
     }
 
+    /**
+     * Returns the CreativeTab to display the given block on.
+     */
     public CreativeTabs getCreativeTab()
     {
         return this.displayOnCreativeTab;
@@ -1037,9 +1268,9 @@ public class Block
         return new BlockStateContainer(this, new IProperty[0]);
     }
 
-    public BlockStateContainer getStateContainer()
+    public BlockStateContainer getBlockState()
     {
-        return this.stateContainer;
+        return this.blockState;
     }
 
     protected final void setDefaultState(IBlockState state)
@@ -1086,12 +1317,12 @@ public class Block
 
     public SoundType getSoundType()
     {
-        return this.soundType;
+        return this.blockSoundType;
     }
 
     public String toString()
     {
-        return "Block{" + REGISTRY.getKey(this) + "}";
+        return "Block{" + REGISTRY.getNameForObject(this) + "}";
     }
 
     public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn)
@@ -1138,7 +1369,7 @@ public class Block
         registerBlock(32, "deadbush", (new BlockDeadBush()).setHardness(0.0F).setSoundType(SoundType.PLANT).setTranslationKey("deadbush"));
         registerBlock(33, "piston", (new BlockPistonBase(false)).setTranslationKey("pistonBase"));
         registerBlock(34, "piston_head", (new BlockPistonExtension()).setTranslationKey("pistonBase"));
-        registerBlock(35, "wool", (new BlockColored(Material.WOOL)).setHardness(0.8F).setSoundType(SoundType.CLOTH).setTranslationKey("cloth"));
+        registerBlock(35, "wool", (new BlockColored(Material.CLOTH)).setHardness(0.8F).setSoundType(SoundType.CLOTH).setTranslationKey("cloth"));
         registerBlock(36, "piston_extension", new BlockPistonMoving());
         registerBlock(37, "yellow_flower", (new BlockYellowFlower()).setHardness(0.0F).setSoundType(SoundType.PLANT).setTranslationKey("flower1"));
         registerBlock(38, "red_flower", (new BlockRedFlower()).setHardness(0.0F).setSoundType(SoundType.PLANT).setTranslationKey("flower2"));
@@ -1329,7 +1560,7 @@ public class Block
         registerBlock(211, "chain_command_block", (new BlockCommandBlock(MapColor.GREEN)).setBlockUnbreakable().setResistance(6000000.0F).setTranslationKey("chainCommandBlock"));
         registerBlock(212, "frosted_ice", (new BlockFrostedIce()).setHardness(0.5F).setLightOpacity(3).setSoundType(SoundType.GLASS).setTranslationKey("frostedIce"));
         registerBlock(213, "magma", (new BlockMagma()).setHardness(0.5F).setSoundType(SoundType.STONE).setTranslationKey("magma"));
-        registerBlock(214, "nether_wart_block", (new Block(Material.ORGANIC, MapColor.RED)).setCreativeTab(CreativeTabs.BUILDING_BLOCKS).setHardness(1.0F).setSoundType(SoundType.WOOD).setTranslationKey("netherWartBlock"));
+        registerBlock(214, "nether_wart_block", (new Block(Material.GRASS, MapColor.RED)).setCreativeTab(CreativeTabs.BUILDING_BLOCKS).setHardness(1.0F).setSoundType(SoundType.WOOD).setTranslationKey("netherWartBlock"));
         registerBlock(215, "red_nether_brick", (new BlockNetherBrick()).setHardness(2.0F).setResistance(10.0F).setSoundType(SoundType.STONE).setTranslationKey("redNetherBrick").setCreativeTab(CreativeTabs.BUILDING_BLOCKS));
         registerBlock(216, "bone_block", (new BlockBone()).setTranslationKey("boneBlock"));
         registerBlock(217, "structure_void", (new BlockStructureVoid()).setTranslationKey("structureVoid"));
@@ -1395,7 +1626,7 @@ public class Block
             }
         }
 
-        Set<Block> set = Sets.newHashSet(REGISTRY.getOrDefault(new ResourceLocation("tripwire")));
+        Set<Block> set = Sets.newHashSet(REGISTRY.getObject(new ResourceLocation("tripwire")));
 
         for (Block block16 : REGISTRY)
         {
@@ -1403,18 +1634,18 @@ public class Block
             {
                 for (int i = 0; i < 15; ++i)
                 {
-                    int j = REGISTRY.getId(block16) << 4 | i;
+                    int j = REGISTRY.getIDForObject(block16) << 4 | i;
                     BLOCK_STATE_IDS.put(block16.getStateFromMeta(i), j);
                 }
             }
             else
             {
-                UnmodifiableIterator unmodifiableiterator = block16.getStateContainer().getValidStates().iterator();
+                UnmodifiableIterator unmodifiableiterator = block16.getBlockState().getValidStates().iterator();
 
                 while (unmodifiableiterator.hasNext())
                 {
                     IBlockState iblockstate = (IBlockState)unmodifiableiterator.next();
-                    int k = REGISTRY.getId(block16) << 4 | block16.getMetaFromState(iblockstate);
+                    int k = REGISTRY.getIDForObject(block16) << 4 | block16.getMetaFromState(iblockstate);
                     BLOCK_STATE_IDS.put(iblockstate, k);
                 }
             }

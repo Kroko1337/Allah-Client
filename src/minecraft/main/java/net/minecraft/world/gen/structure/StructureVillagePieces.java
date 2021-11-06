@@ -59,15 +59,15 @@ public class StructureVillagePieces
     public static List<StructureVillagePieces.PieceWeight> getStructureVillageWeightedPieceList(Random random, int size)
     {
         List<StructureVillagePieces.PieceWeight> list = Lists.<StructureVillagePieces.PieceWeight>newArrayList();
-        list.add(new StructureVillagePieces.PieceWeight(StructureVillagePieces.House4Garden.class, 4, MathHelper.nextInt(random, 2 + size, 4 + size * 2)));
-        list.add(new StructureVillagePieces.PieceWeight(StructureVillagePieces.Church.class, 20, MathHelper.nextInt(random, 0 + size, 1 + size)));
-        list.add(new StructureVillagePieces.PieceWeight(StructureVillagePieces.House1.class, 20, MathHelper.nextInt(random, 0 + size, 2 + size)));
-        list.add(new StructureVillagePieces.PieceWeight(StructureVillagePieces.WoodHut.class, 3, MathHelper.nextInt(random, 2 + size, 5 + size * 3)));
-        list.add(new StructureVillagePieces.PieceWeight(StructureVillagePieces.Hall.class, 15, MathHelper.nextInt(random, 0 + size, 2 + size)));
-        list.add(new StructureVillagePieces.PieceWeight(StructureVillagePieces.Field1.class, 3, MathHelper.nextInt(random, 1 + size, 4 + size)));
-        list.add(new StructureVillagePieces.PieceWeight(StructureVillagePieces.Field2.class, 3, MathHelper.nextInt(random, 2 + size, 4 + size * 2)));
-        list.add(new StructureVillagePieces.PieceWeight(StructureVillagePieces.House2.class, 15, MathHelper.nextInt(random, 0, 1 + size)));
-        list.add(new StructureVillagePieces.PieceWeight(StructureVillagePieces.House3.class, 8, MathHelper.nextInt(random, 0 + size, 3 + size * 2)));
+        list.add(new StructureVillagePieces.PieceWeight(StructureVillagePieces.House4Garden.class, 4, MathHelper.getInt(random, 2 + size, 4 + size * 2)));
+        list.add(new StructureVillagePieces.PieceWeight(StructureVillagePieces.Church.class, 20, MathHelper.getInt(random, 0 + size, 1 + size)));
+        list.add(new StructureVillagePieces.PieceWeight(StructureVillagePieces.House1.class, 20, MathHelper.getInt(random, 0 + size, 2 + size)));
+        list.add(new StructureVillagePieces.PieceWeight(StructureVillagePieces.WoodHut.class, 3, MathHelper.getInt(random, 2 + size, 5 + size * 3)));
+        list.add(new StructureVillagePieces.PieceWeight(StructureVillagePieces.Hall.class, 15, MathHelper.getInt(random, 0 + size, 2 + size)));
+        list.add(new StructureVillagePieces.PieceWeight(StructureVillagePieces.Field1.class, 3, MathHelper.getInt(random, 1 + size, 4 + size)));
+        list.add(new StructureVillagePieces.PieceWeight(StructureVillagePieces.Field2.class, 3, MathHelper.getInt(random, 2 + size, 4 + size * 2)));
+        list.add(new StructureVillagePieces.PieceWeight(StructureVillagePieces.House2.class, 15, MathHelper.getInt(random, 0, 1 + size)));
+        list.add(new StructureVillagePieces.PieceWeight(StructureVillagePieces.House3.class, 8, MathHelper.getInt(random, 0 + size, 3 + size * 2)));
         Iterator<StructureVillagePieces.PieceWeight> iterator = list.iterator();
 
         while (iterator.hasNext())
@@ -406,19 +406,19 @@ public class StructureVillagePieces
         protected void writeStructureToNBT(NBTTagCompound tagCompound)
         {
             super.writeStructureToNBT(tagCompound);
-            tagCompound.putInt("CA", Block.REGISTRY.getId(this.cropTypeA));
-            tagCompound.putInt("CB", Block.REGISTRY.getId(this.cropTypeB));
-            tagCompound.putInt("CC", Block.REGISTRY.getId(this.cropTypeC));
-            tagCompound.putInt("CD", Block.REGISTRY.getId(this.cropTypeD));
+            tagCompound.setInteger("CA", Block.REGISTRY.getIDForObject(this.cropTypeA));
+            tagCompound.setInteger("CB", Block.REGISTRY.getIDForObject(this.cropTypeB));
+            tagCompound.setInteger("CC", Block.REGISTRY.getIDForObject(this.cropTypeC));
+            tagCompound.setInteger("CD", Block.REGISTRY.getIDForObject(this.cropTypeD));
         }
 
-        protected void readAdditional(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
+        protected void readStructureFromNBT(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
         {
-            super.readAdditional(tagCompound, p_143011_2_);
-            this.cropTypeA = Block.getBlockById(tagCompound.getInt("CA"));
-            this.cropTypeB = Block.getBlockById(tagCompound.getInt("CB"));
-            this.cropTypeC = Block.getBlockById(tagCompound.getInt("CC"));
-            this.cropTypeD = Block.getBlockById(tagCompound.getInt("CD"));
+            super.readStructureFromNBT(tagCompound, p_143011_2_);
+            this.cropTypeA = Block.getBlockById(tagCompound.getInteger("CA"));
+            this.cropTypeB = Block.getBlockById(tagCompound.getInteger("CB"));
+            this.cropTypeC = Block.getBlockById(tagCompound.getInteger("CC"));
+            this.cropTypeD = Block.getBlockById(tagCompound.getInteger("CD"));
 
             if (!(this.cropTypeA instanceof BlockCrops))
             {
@@ -499,20 +499,20 @@ public class StructureVillagePieces
             {
                 int j = ((BlockCrops)this.cropTypeA).getMaxAge();
                 int k = j / 3;
-                this.setBlockState(worldIn, this.cropTypeA.getStateFromMeta(MathHelper.nextInt(randomIn, k, j)), 1, 1, i, structureBoundingBoxIn);
-                this.setBlockState(worldIn, this.cropTypeA.getStateFromMeta(MathHelper.nextInt(randomIn, k, j)), 2, 1, i, structureBoundingBoxIn);
+                this.setBlockState(worldIn, this.cropTypeA.getStateFromMeta(MathHelper.getInt(randomIn, k, j)), 1, 1, i, structureBoundingBoxIn);
+                this.setBlockState(worldIn, this.cropTypeA.getStateFromMeta(MathHelper.getInt(randomIn, k, j)), 2, 1, i, structureBoundingBoxIn);
                 int l = ((BlockCrops)this.cropTypeB).getMaxAge();
                 int i1 = l / 3;
-                this.setBlockState(worldIn, this.cropTypeB.getStateFromMeta(MathHelper.nextInt(randomIn, i1, l)), 4, 1, i, structureBoundingBoxIn);
-                this.setBlockState(worldIn, this.cropTypeB.getStateFromMeta(MathHelper.nextInt(randomIn, i1, l)), 5, 1, i, structureBoundingBoxIn);
+                this.setBlockState(worldIn, this.cropTypeB.getStateFromMeta(MathHelper.getInt(randomIn, i1, l)), 4, 1, i, structureBoundingBoxIn);
+                this.setBlockState(worldIn, this.cropTypeB.getStateFromMeta(MathHelper.getInt(randomIn, i1, l)), 5, 1, i, structureBoundingBoxIn);
                 int j1 = ((BlockCrops)this.cropTypeC).getMaxAge();
                 int k1 = j1 / 3;
-                this.setBlockState(worldIn, this.cropTypeC.getStateFromMeta(MathHelper.nextInt(randomIn, k1, j1)), 7, 1, i, structureBoundingBoxIn);
-                this.setBlockState(worldIn, this.cropTypeC.getStateFromMeta(MathHelper.nextInt(randomIn, k1, j1)), 8, 1, i, structureBoundingBoxIn);
+                this.setBlockState(worldIn, this.cropTypeC.getStateFromMeta(MathHelper.getInt(randomIn, k1, j1)), 7, 1, i, structureBoundingBoxIn);
+                this.setBlockState(worldIn, this.cropTypeC.getStateFromMeta(MathHelper.getInt(randomIn, k1, j1)), 8, 1, i, structureBoundingBoxIn);
                 int l1 = ((BlockCrops)this.cropTypeD).getMaxAge();
                 int i2 = l1 / 3;
-                this.setBlockState(worldIn, this.cropTypeD.getStateFromMeta(MathHelper.nextInt(randomIn, i2, l1)), 10, 1, i, structureBoundingBoxIn);
-                this.setBlockState(worldIn, this.cropTypeD.getStateFromMeta(MathHelper.nextInt(randomIn, i2, l1)), 11, 1, i, structureBoundingBoxIn);
+                this.setBlockState(worldIn, this.cropTypeD.getStateFromMeta(MathHelper.getInt(randomIn, i2, l1)), 10, 1, i, structureBoundingBoxIn);
+                this.setBlockState(worldIn, this.cropTypeD.getStateFromMeta(MathHelper.getInt(randomIn, i2, l1)), 11, 1, i, structureBoundingBoxIn);
             }
 
             for (int j2 = 0; j2 < 9; ++j2)
@@ -549,15 +549,15 @@ public class StructureVillagePieces
         protected void writeStructureToNBT(NBTTagCompound tagCompound)
         {
             super.writeStructureToNBT(tagCompound);
-            tagCompound.putInt("CA", Block.REGISTRY.getId(this.cropTypeA));
-            tagCompound.putInt("CB", Block.REGISTRY.getId(this.cropTypeB));
+            tagCompound.setInteger("CA", Block.REGISTRY.getIDForObject(this.cropTypeA));
+            tagCompound.setInteger("CB", Block.REGISTRY.getIDForObject(this.cropTypeB));
         }
 
-        protected void readAdditional(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
+        protected void readStructureFromNBT(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
         {
-            super.readAdditional(tagCompound, p_143011_2_);
-            this.cropTypeA = Block.getBlockById(tagCompound.getInt("CA"));
-            this.cropTypeB = Block.getBlockById(tagCompound.getInt("CB"));
+            super.readStructureFromNBT(tagCompound, p_143011_2_);
+            this.cropTypeA = Block.getBlockById(tagCompound.getInteger("CA"));
+            this.cropTypeB = Block.getBlockById(tagCompound.getInteger("CB"));
         }
 
         private Block getRandomCropType(Random rand)
@@ -614,12 +614,12 @@ public class StructureVillagePieces
             {
                 int j = ((BlockCrops)this.cropTypeA).getMaxAge();
                 int k = j / 3;
-                this.setBlockState(worldIn, this.cropTypeA.getStateFromMeta(MathHelper.nextInt(randomIn, k, j)), 1, 1, i, structureBoundingBoxIn);
-                this.setBlockState(worldIn, this.cropTypeA.getStateFromMeta(MathHelper.nextInt(randomIn, k, j)), 2, 1, i, structureBoundingBoxIn);
+                this.setBlockState(worldIn, this.cropTypeA.getStateFromMeta(MathHelper.getInt(randomIn, k, j)), 1, 1, i, structureBoundingBoxIn);
+                this.setBlockState(worldIn, this.cropTypeA.getStateFromMeta(MathHelper.getInt(randomIn, k, j)), 2, 1, i, structureBoundingBoxIn);
                 int l = ((BlockCrops)this.cropTypeB).getMaxAge();
                 int i1 = l / 3;
-                this.setBlockState(worldIn, this.cropTypeB.getStateFromMeta(MathHelper.nextInt(randomIn, i1, l)), 4, 1, i, structureBoundingBoxIn);
-                this.setBlockState(worldIn, this.cropTypeB.getStateFromMeta(MathHelper.nextInt(randomIn, i1, l)), 5, 1, i, structureBoundingBoxIn);
+                this.setBlockState(worldIn, this.cropTypeB.getStateFromMeta(MathHelper.getInt(randomIn, i1, l)), 4, 1, i, structureBoundingBoxIn);
+                this.setBlockState(worldIn, this.cropTypeB.getStateFromMeta(MathHelper.getInt(randomIn, i1, l)), 5, 1, i, structureBoundingBoxIn);
             }
 
             for (int j1 = 0; j1 < 9; ++j1)
@@ -923,12 +923,12 @@ public class StructureVillagePieces
         protected void writeStructureToNBT(NBTTagCompound tagCompound)
         {
             super.writeStructureToNBT(tagCompound);
-            tagCompound.putBoolean("Chest", this.hasMadeChest);
+            tagCompound.setBoolean("Chest", this.hasMadeChest);
         }
 
-        protected void readAdditional(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
+        protected void readStructureFromNBT(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
         {
-            super.readAdditional(tagCompound, p_143011_2_);
+            super.readStructureFromNBT(tagCompound, p_143011_2_);
             this.hasMadeChest = tagCompound.getBoolean("Chest");
         }
 
@@ -1215,12 +1215,12 @@ public class StructureVillagePieces
         protected void writeStructureToNBT(NBTTagCompound tagCompound)
         {
             super.writeStructureToNBT(tagCompound);
-            tagCompound.putBoolean("Terrace", this.isRoofAccessible);
+            tagCompound.setBoolean("Terrace", this.isRoofAccessible);
         }
 
-        protected void readAdditional(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
+        protected void readStructureFromNBT(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
         {
-            super.readAdditional(tagCompound, p_143011_2_);
+            super.readStructureFromNBT(tagCompound, p_143011_2_);
             this.isRoofAccessible = tagCompound.getBoolean("Terrace");
         }
 
@@ -1354,13 +1354,13 @@ public class StructureVillagePieces
         protected void writeStructureToNBT(NBTTagCompound tagCompound)
         {
             super.writeStructureToNBT(tagCompound);
-            tagCompound.putInt("Length", this.length);
+            tagCompound.setInteger("Length", this.length);
         }
 
-        protected void readAdditional(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
+        protected void readStructureFromNBT(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
         {
-            super.readAdditional(tagCompound, p_143011_2_);
-            this.length = tagCompound.getInt("Length");
+            super.readStructureFromNBT(tagCompound, p_143011_2_);
+            this.length = tagCompound.getInteger("Length");
         }
 
         public void buildComponent(StructureComponent componentIn, List<StructureComponent> listIn, Random rand)
@@ -1438,7 +1438,7 @@ public class StructureVillagePieces
 
         public static StructureBoundingBox findPieceBox(StructureVillagePieces.Start start, List<StructureComponent> p_175848_1_, Random rand, int p_175848_3_, int p_175848_4_, int p_175848_5_, EnumFacing facing)
         {
-            for (int i = 7 * MathHelper.nextInt(rand, 3, 5); i >= 7; i -= 7)
+            for (int i = 7 * MathHelper.getInt(rand, 3, 5); i >= 7; i -= 7)
             {
                 StructureBoundingBox structureboundingbox = StructureBoundingBox.getComponentToAddBoundingBox(p_175848_3_, p_175848_4_, p_175848_5_, 0, 0, 0, 3, 3, i, facing);
 
@@ -1653,16 +1653,16 @@ public class StructureVillagePieces
 
         protected void writeStructureToNBT(NBTTagCompound tagCompound)
         {
-            tagCompound.putInt("HPos", this.averageGroundLvl);
-            tagCompound.putInt("VCount", this.villagersSpawned);
-            tagCompound.putByte("Type", (byte)this.structureType);
-            tagCompound.putBoolean("Zombie", this.isZombieInfested);
+            tagCompound.setInteger("HPos", this.averageGroundLvl);
+            tagCompound.setInteger("VCount", this.villagersSpawned);
+            tagCompound.setByte("Type", (byte)this.structureType);
+            tagCompound.setBoolean("Zombie", this.isZombieInfested);
         }
 
-        protected void readAdditional(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
+        protected void readStructureFromNBT(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
         {
-            this.averageGroundLvl = tagCompound.getInt("HPos");
-            this.villagersSpawned = tagCompound.getInt("VCount");
+            this.averageGroundLvl = tagCompound.getInteger("HPos");
+            this.villagersSpawned = tagCompound.getInteger("VCount");
             this.structureType = tagCompound.getByte("Type");
 
             if (tagCompound.getBoolean("Desert"))
@@ -1745,7 +1745,7 @@ public class StructureVillagePieces
 
                     if (structurebb.isVecInside(blockpos$mutableblockpos))
                     {
-                        i += Math.max(worldIn.getTopSolidOrLiquidBlock(blockpos$mutableblockpos).getY(), worldIn.dimension.getAverageGroundLevel() - 1);
+                        i += Math.max(worldIn.getTopSolidOrLiquidBlock(blockpos$mutableblockpos).getY(), worldIn.provider.getAverageGroundLevel() - 1);
                         ++j;
                     }
                 }
@@ -1790,7 +1790,7 @@ public class StructureVillagePieces
                         entityzombievillager.onInitialSpawn(worldIn.getDifficultyForLocation(new BlockPos(entityzombievillager)), (IEntityLivingData)null);
                         entityzombievillager.setProfession(this.chooseProfession(i, 0));
                         entityzombievillager.enablePersistence();
-                        worldIn.addEntity0(entityzombievillager);
+                        worldIn.spawnEntity(entityzombievillager);
                     }
                     else
                     {
@@ -1798,7 +1798,7 @@ public class StructureVillagePieces
                         entityvillager.setLocationAndAngles((double)j + 0.5D, (double)k, (double)l + 0.5D, 0.0F, 0.0F);
                         entityvillager.setProfession(this.chooseProfession(i, worldIn.rand.nextInt(6)));
                         entityvillager.finalizeMobSpawn(worldIn.getDifficultyForLocation(new BlockPos(entityvillager)), (IEntityLivingData)null, false);
-                        worldIn.addEntity0(entityvillager);
+                        worldIn.spawnEntity(entityvillager);
                     }
                 }
             }
@@ -1830,12 +1830,12 @@ public class StructureVillagePieces
 
                 if (blockstateIn.getBlock() == Blocks.OAK_STAIRS)
                 {
-                    return Blocks.SANDSTONE_STAIRS.getDefaultState().withProperty(BlockStairs.FACING, blockstateIn.get(BlockStairs.FACING));
+                    return Blocks.SANDSTONE_STAIRS.getDefaultState().withProperty(BlockStairs.FACING, blockstateIn.getValue(BlockStairs.FACING));
                 }
 
                 if (blockstateIn.getBlock() == Blocks.STONE_STAIRS)
                 {
-                    return Blocks.SANDSTONE_STAIRS.getDefaultState().withProperty(BlockStairs.FACING, blockstateIn.get(BlockStairs.FACING));
+                    return Blocks.SANDSTONE_STAIRS.getDefaultState().withProperty(BlockStairs.FACING, blockstateIn.getValue(BlockStairs.FACING));
                 }
 
                 if (blockstateIn.getBlock() == Blocks.GRAVEL)
@@ -1847,7 +1847,7 @@ public class StructureVillagePieces
             {
                 if (blockstateIn.getBlock() == Blocks.LOG || blockstateIn.getBlock() == Blocks.LOG2)
                 {
-                    return Blocks.LOG.getDefaultState().withProperty(BlockOldLog.VARIANT, BlockPlanks.EnumType.SPRUCE).withProperty(BlockLog.LOG_AXIS, blockstateIn.get(BlockLog.LOG_AXIS));
+                    return Blocks.LOG.getDefaultState().withProperty(BlockOldLog.VARIANT, BlockPlanks.EnumType.SPRUCE).withProperty(BlockLog.LOG_AXIS, blockstateIn.getValue(BlockLog.LOG_AXIS));
                 }
 
                 if (blockstateIn.getBlock() == Blocks.PLANKS)
@@ -1857,7 +1857,7 @@ public class StructureVillagePieces
 
                 if (blockstateIn.getBlock() == Blocks.OAK_STAIRS)
                 {
-                    return Blocks.SPRUCE_STAIRS.getDefaultState().withProperty(BlockStairs.FACING, blockstateIn.get(BlockStairs.FACING));
+                    return Blocks.SPRUCE_STAIRS.getDefaultState().withProperty(BlockStairs.FACING, blockstateIn.getValue(BlockStairs.FACING));
                 }
 
                 if (blockstateIn.getBlock() == Blocks.OAK_FENCE)
@@ -1869,7 +1869,7 @@ public class StructureVillagePieces
             {
                 if (blockstateIn.getBlock() == Blocks.LOG || blockstateIn.getBlock() == Blocks.LOG2)
                 {
-                    return Blocks.LOG2.getDefaultState().withProperty(BlockNewLog.VARIANT, BlockPlanks.EnumType.ACACIA).withProperty(BlockLog.LOG_AXIS, blockstateIn.get(BlockLog.LOG_AXIS));
+                    return Blocks.LOG2.getDefaultState().withProperty(BlockNewLog.VARIANT, BlockPlanks.EnumType.ACACIA).withProperty(BlockLog.LOG_AXIS, blockstateIn.getValue(BlockLog.LOG_AXIS));
                 }
 
                 if (blockstateIn.getBlock() == Blocks.PLANKS)
@@ -1879,7 +1879,7 @@ public class StructureVillagePieces
 
                 if (blockstateIn.getBlock() == Blocks.OAK_STAIRS)
                 {
-                    return Blocks.ACACIA_STAIRS.getDefaultState().withProperty(BlockStairs.FACING, blockstateIn.get(BlockStairs.FACING));
+                    return Blocks.ACACIA_STAIRS.getDefaultState().withProperty(BlockStairs.FACING, blockstateIn.getValue(BlockStairs.FACING));
                 }
 
                 if (blockstateIn.getBlock() == Blocks.COBBLESTONE)
@@ -2036,14 +2036,14 @@ public class StructureVillagePieces
         protected void writeStructureToNBT(NBTTagCompound tagCompound)
         {
             super.writeStructureToNBT(tagCompound);
-            tagCompound.putInt("T", this.tablePosition);
-            tagCompound.putBoolean("C", this.isTallHouse);
+            tagCompound.setInteger("T", this.tablePosition);
+            tagCompound.setBoolean("C", this.isTallHouse);
         }
 
-        protected void readAdditional(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
+        protected void readStructureFromNBT(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
         {
-            super.readAdditional(tagCompound, p_143011_2_);
-            this.tablePosition = tagCompound.getInt("T");
+            super.readStructureFromNBT(tagCompound, p_143011_2_);
+            this.tablePosition = tagCompound.getInteger("T");
             this.isTallHouse = tagCompound.getBoolean("C");
         }
 

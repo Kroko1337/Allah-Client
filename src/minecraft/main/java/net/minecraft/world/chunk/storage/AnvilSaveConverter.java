@@ -36,6 +36,9 @@ public class AnvilSaveConverter extends SaveFormatOld
         super(dir, dataFixerIn);
     }
 
+    /**
+     * Returns the name of the save format.
+     */
     public String getName()
     {
         return "Anvil";
@@ -89,6 +92,9 @@ public class AnvilSaveConverter extends SaveFormatOld
         RegionFileCache.clearRegionFileReferences();
     }
 
+    /**
+     * Returns back a loader for the specified save directory
+     */
     public ISaveHandler getSaveLoader(String saveName, boolean storePlayerdata)
     {
         return new AnvilSaveHandler(this.savesDirectory, saveName, storePlayerdata, this.dataFixer);
@@ -139,7 +145,7 @@ public class AnvilSaveConverter extends SaveFormatOld
         WorldInfo worldinfo = this.getWorldInfo(filename);
         BiomeProvider biomeprovider;
 
-        if (worldinfo != null && worldinfo.getGenerator() == WorldType.FLAT)
+        if (worldinfo != null && worldinfo.getTerrainType() == WorldType.FLAT)
         {
             biomeprovider = new BiomeProviderSingle(Biomes.PLAINS);
         }
@@ -149,13 +155,13 @@ public class AnvilSaveConverter extends SaveFormatOld
         }
 
         this.convertFile(new File(file1, "region"), list, biomeprovider, 0, i, progressCallback);
-        this.convertFile(new File(file2, "region"), list1, new BiomeProviderSingle(Biomes.NETHER), list.size(), i, progressCallback);
-        this.convertFile(new File(file3, "region"), list2, new BiomeProviderSingle(Biomes.THE_END), list.size() + list1.size(), i, progressCallback);
+        this.convertFile(new File(file2, "region"), list1, new BiomeProviderSingle(Biomes.HELL), list.size(), i, progressCallback);
+        this.convertFile(new File(file3, "region"), list2, new BiomeProviderSingle(Biomes.SKY), list.size() + list1.size(), i, progressCallback);
         worldinfo.setSaveVersion(19133);
 
-        if (worldinfo.getGenerator() == WorldType.DEFAULT_1_1)
+        if (worldinfo.getTerrainType() == WorldType.DEFAULT_1_1)
         {
-            worldinfo.setGenerator(WorldType.DEFAULT);
+            worldinfo.setTerrainType(WorldType.DEFAULT);
         }
 
         this.createFile(filename);
@@ -164,6 +170,9 @@ public class AnvilSaveConverter extends SaveFormatOld
         return true;
     }
 
+    /**
+     * par: filename for the level.dat_mcr backup
+     */
     private void createFile(String filename)
     {
         File file1 = new File(this.savesDirectory, filename);
@@ -203,6 +212,9 @@ public class AnvilSaveConverter extends SaveFormatOld
         }
     }
 
+    /**
+     * copies a 32x32 chunk set from par2File to par1File, via AnvilConverterData
+     */
     private void convertChunks(File baseFolder, File p_75811_2_, BiomeProvider biomeSource, int p_75811_4_, int p_75811_5_, IProgressUpdate progressCallback)
     {
         try
@@ -227,7 +239,7 @@ public class AnvilSaveConverter extends SaveFormatOld
                         {
                             NBTTagCompound nbttagcompound = CompressedStreamTools.read(datainputstream);
                             datainputstream.close();
-                            NBTTagCompound nbttagcompound1 = nbttagcompound.getCompound("Level");
+                            NBTTagCompound nbttagcompound1 = nbttagcompound.getCompoundTag("Level");
                             ChunkLoader.AnvilConverterData chunkloader$anvilconverterdata = ChunkLoader.load(nbttagcompound1);
                             NBTTagCompound nbttagcompound2 = new NBTTagCompound();
                             NBTTagCompound nbttagcompound3 = new NBTTagCompound();
@@ -258,6 +270,9 @@ public class AnvilSaveConverter extends SaveFormatOld
         }
     }
 
+    /**
+     * filters the files in the par1 directory, and adds them to the par2 collections
+     */
     private void addRegionFilesToCollection(File worldDir, Collection<File> collection)
     {
         File file1 = new File(worldDir, "region");

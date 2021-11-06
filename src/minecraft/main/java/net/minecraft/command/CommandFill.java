@@ -18,21 +18,33 @@ import net.minecraft.world.World;
 
 public class CommandFill extends CommandBase
 {
+    /**
+     * Gets the name of the command
+     */
     public String getName()
     {
         return "fill";
     }
 
+    /**
+     * Return the required permission level for this command.
+     */
     public int getRequiredPermissionLevel()
     {
         return 2;
     }
 
+    /**
+     * Gets the usage string for the command.
+     */
     public String getUsage(ICommandSender sender)
     {
         return "commands.fill.usage";
     }
 
+    /**
+     * Callback for when the command is executed
+     */
     public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
     {
         if (args.length < 7)
@@ -163,10 +175,10 @@ public class CommandFill extends CommandBase
 
                                     if (tileentity != null)
                                     {
-                                        nbttagcompound.putInt("x", blockpos4.getX());
-                                        nbttagcompound.putInt("y", blockpos4.getY());
-                                        nbttagcompound.putInt("z", blockpos4.getZ());
-                                        tileentity.read(nbttagcompound);
+                                        nbttagcompound.setInteger("x", blockpos4.getX());
+                                        nbttagcompound.setInteger("y", blockpos4.getY());
+                                        nbttagcompound.setInteger("z", blockpos4.getZ());
+                                        tileentity.readFromNBT(nbttagcompound);
                                     }
                                 }
                             }
@@ -209,7 +221,7 @@ public class CommandFill extends CommandBase
         }
         else if (args.length == 7)
         {
-            return getListOfStringsMatchingLastWord(args, Block.REGISTRY.keySet());
+            return getListOfStringsMatchingLastWord(args, Block.REGISTRY.getKeys());
         }
         else if (args.length == 9)
         {
@@ -217,7 +229,7 @@ public class CommandFill extends CommandBase
         }
         else
         {
-            return args.length == 10 && "replace".equals(args[8]) ? getListOfStringsMatchingLastWord(args, Block.REGISTRY.keySet()) : Collections.emptyList();
+            return args.length == 10 && "replace".equals(args[8]) ? getListOfStringsMatchingLastWord(args, Block.REGISTRY.getKeys()) : Collections.emptyList();
         }
     }
 }

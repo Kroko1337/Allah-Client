@@ -44,6 +44,10 @@ public class GuiRecipeBook extends Gui implements IRecipeUpdateListener
     private final GhostRecipe ghostRecipe = new GhostRecipe();
     private final List<GuiButtonRecipeTab> recipeTabs = Lists.newArrayList(new GuiButtonRecipeTab(0, CreativeTabs.SEARCH), new GuiButtonRecipeTab(0, CreativeTabs.TOOLS), new GuiButtonRecipeTab(0, CreativeTabs.BUILDING_BLOCKS), new GuiButtonRecipeTab(0, CreativeTabs.MISC), new GuiButtonRecipeTab(0, CreativeTabs.REDSTONE));
     private GuiButtonRecipeTab currentTab;
+
+    /**
+     * This button toggles between showing all recipes and showing only craftable recipes
+     */
     private GuiButtonToggle toggleRecipesBtn;
     private InventoryCrafting craftingSlots;
     private Minecraft mc;
@@ -406,7 +410,7 @@ public class GuiRecipeBook extends Gui implements IRecipeUpdateListener
             {
                 if (GameSettings.isKeyDown(this.mc.gameSettings.keyBindChat) && !this.searchBar.isFocused())
                 {
-                    this.searchBar.setFocused2(true);
+                    this.searchBar.setFocused(true);
                 }
                 else if (this.searchBar.textboxKeyTyped(typedChar, keycode))
                 {
@@ -433,6 +437,8 @@ public class GuiRecipeBook extends Gui implements IRecipeUpdateListener
 
     /**
      * "Check if we should activate the pirate speak easter egg"
+     *  
+     * @param text 'if equal to "excitedze", activate the easter egg'
      */
     private void pirateRecipe(String text)
     {

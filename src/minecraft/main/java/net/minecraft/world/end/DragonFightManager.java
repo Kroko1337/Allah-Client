@@ -73,7 +73,7 @@ public class DragonFightManager
     {
         this.world = worldIn;
 
-        if (compound.contains("DragonKilled", 99))
+        if (compound.hasKey("DragonKilled", 99))
         {
             if (compound.hasUniqueId("DragonUUID"))
             {
@@ -88,9 +88,9 @@ public class DragonFightManager
                 this.respawnState = DragonSpawnManager.START;
             }
 
-            if (compound.contains("ExitPortalLocation", 10))
+            if (compound.hasKey("ExitPortalLocation", 10))
             {
-                this.exitPortalLocation = NBTUtil.readBlockPos(compound.getCompound("ExitPortalLocation"));
+                this.exitPortalLocation = NBTUtil.getPosFromTag(compound.getCompoundTag("ExitPortalLocation"));
             }
         }
         else
@@ -99,13 +99,13 @@ public class DragonFightManager
             this.previouslyKilled = true;
         }
 
-        if (compound.contains("Gateways", 9))
+        if (compound.hasKey("Gateways", 9))
         {
-            NBTTagList nbttaglist = compound.getList("Gateways", 3);
+            NBTTagList nbttaglist = compound.getTagList("Gateways", 3);
 
             for (int i = 0; i < nbttaglist.tagCount(); ++i)
             {
-                this.gateways.add(Integer.valueOf(nbttaglist.getInt(i)));
+                this.gateways.add(Integer.valueOf(nbttaglist.getIntAt(i)));
             }
         }
         else
@@ -117,21 +117,21 @@ public class DragonFightManager
         this.portalPattern = FactoryBlockPattern.start().aisle("       ", "       ", "       ", "   #   ", "       ", "       ", "       ").aisle("       ", "       ", "       ", "   #   ", "       ", "       ", "       ").aisle("       ", "       ", "       ", "   #   ", "       ", "       ", "       ").aisle("  ###  ", " #   # ", "#     #", "#  #  #", "#     #", " #   # ", "  ###  ").aisle("       ", "  ###  ", " ##### ", " ##### ", " ##### ", "  ###  ", "       ").where('#', BlockWorldState.hasState(BlockMatcher.forBlock(Blocks.BEDROCK))).build();
     }
 
-    public NBTTagCompound write()
+    public NBTTagCompound getCompound()
     {
         NBTTagCompound nbttagcompound = new NBTTagCompound();
 
         if (this.dragonUniqueId != null)
         {
-            nbttagcompound.putUniqueId("DragonUUID", this.dragonUniqueId);
+            nbttagcompound.setUniqueId("DragonUUID", this.dragonUniqueId);
         }
 
-        nbttagcompound.putBoolean("DragonKilled", this.dragonKilled);
-        nbttagcompound.putBoolean("PreviouslyKilled", this.previouslyKilled);
+        nbttagcompound.setBoolean("DragonKilled", this.dragonKilled);
+        nbttagcompound.setBoolean("PreviouslyKilled", this.previouslyKilled);
 
         if (this.exitPortalLocation != null)
         {
-            nbttagcompound.setTag("ExitPortalLocation", NBTUtil.writeBlockPos(this.exitPortalLocation));
+            nbttagcompound.setTag("ExitPortalLocation", NBTUtil.createPosTag(this.exitPortalLocation));
         }
 
         NBTTagList nbttaglist = new NBTTagList();
@@ -194,7 +194,7 @@ public class DragonFightManager
                     if (!flag)
                     {
                         LOGGER.info("But we didn't have a portal, let's remove it.");
-                        entitydragon.remove();
+                        entitydragon.setDead();
                         this.dragonUniqueId = null;
                     }
                 }
@@ -210,7 +210,7 @@ public class DragonFightManager
                 if (this.crystals == null)
                 {
                     this.respawnState = null;
-                    this.tryRespawnDragon();
+                    this.respawnDragon();
                 }
 
                 this.respawnState.process(this.world, this, this.crystals, this.respawnStateTicks++, this.exitPortalLocation);
@@ -442,11 +442,11 @@ public class DragonFightManager
 
     private EntityDragon createNewDragon()
     {
-        this.world.getChunkAt(new BlockPos(0, 128, 0));
+        this.world.getChunk(new BlockPos(0, 128, 0));
         EntityDragon entitydragon = new EntityDragon(this.world);
         entitydragon.getPhaseManager().setPhase(PhaseList.HOLDING_PATTERN);
         entitydragon.setLocationAndAngles(0.0D, 128.0D, 0.0D, this.world.rand.nextFloat() * 360.0F, 0.0F);
-        this.world.addEntity0(entitydragon);
+        this.world.spawnEntity(entitydragon);
         this.dragonUniqueId = entitydragon.getUniqueID();
         return entitydragon;
     }
@@ -497,7 +497,7 @@ public class DragonFightManager
         return this.previouslyKilled;
     }
 
-    public void tryRespawnDragon()
+    public void respawnDragon()
     {
         if (this.dragonKilled && this.respawnState == null)
         {
@@ -577,7 +577,7 @@ public class DragonFightManager
         {
             for (EntityEnderCrystal entityendercrystal : this.world.getEntitiesWithinAABB(EntityEnderCrystal.class, worldgenspikes$endspike.getTopBoundingBox()))
             {
-                entityendercrystal.setInvulnerable(false);
+                entityendercrystal.setEntityInvulnerable(false);
                 entityendercrystal.setBeamTarget((BlockPos)null);
             }
         }

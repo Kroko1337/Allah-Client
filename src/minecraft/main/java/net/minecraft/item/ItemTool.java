@@ -16,8 +16,14 @@ public class ItemTool extends Item
 {
     private final Set<Block> effectiveBlocks;
     protected float efficiency;
+
+    /**
+     * Total combined attack damage of this item (tool damage + material damage)
+     */
     protected float attackDamage;
     protected float attackSpeed;
+
+    /** The material this tool is made from. */
     protected Item.ToolMaterial toolMaterial;
 
     protected ItemTool(float attackDamageIn, float attackSpeedIn, Item.ToolMaterial materialIn, Set<Block> effectiveBlocksIn)
@@ -66,6 +72,9 @@ public class ItemTool extends Item
         return true;
     }
 
+    /**
+     * Returns True is the item is renderer in full 3D when hold.
+     */
     public boolean isFull3D()
     {
         return true;
@@ -79,6 +88,9 @@ public class ItemTool extends Item
         return this.toolMaterial.getEnchantability();
     }
 
+    /**
+     * Return the name for this tool's material.
+     */
     public String getToolMaterialName()
     {
         return this.toolMaterial.toString();
@@ -86,15 +98,18 @@ public class ItemTool extends Item
 
     /**
      * Return whether this item is repairable in an anvil.
+     *  
+     * @param toRepair the {@code ItemStack} being repaired
+     * @param repair the {@code ItemStack} being used to perform the repair
      */
     public boolean getIsRepairable(ItemStack toRepair, ItemStack repair)
     {
         return this.toolMaterial.getRepairItem() == repair.getItem() ? true : super.getIsRepairable(toRepair, repair);
     }
 
-    public Multimap<String, AttributeModifier> getAttributeModifiers(EntityEquipmentSlot equipmentSlot)
+    public Multimap<String, AttributeModifier> getItemAttributeModifiers(EntityEquipmentSlot equipmentSlot)
     {
-        Multimap<String, AttributeModifier> multimap = super.getAttributeModifiers(equipmentSlot);
+        Multimap<String, AttributeModifier> multimap = super.getItemAttributeModifiers(equipmentSlot);
 
         if (equipmentSlot == EntityEquipmentSlot.MAINHAND)
         {

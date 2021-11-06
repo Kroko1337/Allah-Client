@@ -14,13 +14,13 @@ public class ItemIntIDToString implements IFixableData
 
     public NBTTagCompound fixTagCompound(NBTTagCompound compound)
     {
-        if (compound.contains("id", 99))
+        if (compound.hasKey("id", 99))
         {
             short short1 = compound.getShort("id");
 
             if (short1 > 0 && short1 < ID_MAP.length && ID_MAP[short1] != null)
             {
-                compound.putString("id", ID_MAP[short1]);
+                compound.setString("id", ID_MAP[short1]);
             }
         }
 

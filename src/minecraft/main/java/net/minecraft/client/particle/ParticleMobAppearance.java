@@ -25,17 +25,21 @@ public class ParticleMobAppearance extends Particle
         this.motionY = 0.0D;
         this.motionZ = 0.0D;
         this.particleGravity = 0.0F;
-        this.maxAge = 30;
+        this.particleMaxAge = 30;
     }
 
+    /**
+     * Retrieve what effect layer (what texture) the particle should be rendered with. 0 for the particle sprite sheet,
+     * 1 for the main Texture atlas, and 3 for a custom texture
+     */
     public int getFXLayer()
     {
         return 3;
     }
 
-    public void tick()
+    public void onUpdate()
     {
-        super.tick();
+        super.onUpdate();
 
         if (this.entity == null)
         {
@@ -45,14 +49,17 @@ public class ParticleMobAppearance extends Particle
         }
     }
 
+    /**
+     * Renders the particle
+     */
     public void renderParticle(BufferBuilder buffer, Entity entityIn, float partialTicks, float rotationX, float rotationZ, float rotationYZ, float rotationXY, float rotationXZ)
     {
         if (this.entity != null)
         {
-            RenderManager rendermanager = Minecraft.getInstance().getRenderManager();
+            RenderManager rendermanager = Minecraft.getMinecraft().getRenderManager();
             rendermanager.setRenderPosition(Particle.interpPosX, Particle.interpPosY, Particle.interpPosZ);
             float f = 0.42553192F;
-            float f1 = ((float)this.age + partialTicks) / (float)this.maxAge;
+            float f1 = ((float)this.particleAge + partialTicks) / (float)this.particleMaxAge;
             GlStateManager.depthMask(true);
             GlStateManager.enableBlend();
             GlStateManager.enableDepth();

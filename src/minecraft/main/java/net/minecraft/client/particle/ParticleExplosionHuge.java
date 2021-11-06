@@ -8,6 +8,8 @@ import net.minecraft.world.World;
 public class ParticleExplosionHuge extends Particle
 {
     private int timeSinceStart;
+
+    /** the maximum time for the explosion */
     private final int maximumTime = 8;
 
     protected ParticleExplosionHuge(World worldIn, double xCoordIn, double yCoordIn, double zCoordIn, double p_i1214_8_, double p_i1214_10_, double p_i1214_12_)
@@ -15,11 +17,14 @@ public class ParticleExplosionHuge extends Particle
         super(worldIn, xCoordIn, yCoordIn, zCoordIn, 0.0D, 0.0D, 0.0D);
     }
 
+    /**
+     * Renders the particle
+     */
     public void renderParticle(BufferBuilder buffer, Entity entityIn, float partialTicks, float rotationX, float rotationZ, float rotationYZ, float rotationXY, float rotationXZ)
     {
     }
 
-    public void tick()
+    public void onUpdate()
     {
         for (int i = 0; i < 6; ++i)
         {
@@ -37,6 +42,10 @@ public class ParticleExplosionHuge extends Particle
         }
     }
 
+    /**
+     * Retrieve what effect layer (what texture) the particle should be rendered with. 0 for the particle sprite sheet,
+     * 1 for the main Texture atlas, and 3 for a custom texture
+     */
     public int getFXLayer()
     {
         return 1;

@@ -16,6 +16,9 @@ public class RenderDragonFireball extends Render<EntityDragonFireball>
         super(renderManagerIn);
     }
 
+    /**
+     * Renders the desired {@code T} type Entity.
+     */
     public void doRender(EntityDragonFireball entity, double x, double y, double z, float entityYaw, float partialTicks)
     {
         GlStateManager.pushMatrix();
@@ -56,7 +59,7 @@ public class RenderDragonFireball extends Render<EntityDragonFireball>
     }
 
     /**
-     * Returns the location of an entity's texture.
+     * Returns the location of an entity's texture. Doesn't seem to be called unless you call Render.bindEntityTexture.
      */
     protected ResourceLocation getEntityTexture(EntityDragonFireball entity)
     {

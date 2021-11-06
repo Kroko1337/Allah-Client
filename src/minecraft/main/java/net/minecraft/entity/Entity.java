@@ -91,52 +91,151 @@ public abstract class Entity implements ICommandSender
     private static double renderDistanceWeight = 1.0D;
     private static int nextEntityID;
     private int entityId;
+
+    /**
+     * Blocks entities from spawning when they do their AABB check to make sure the spot is clear of entities that can
+     * prevent spawning.
+     */
     public boolean preventEntitySpawning;
-    private final List<Entity> passengers;
+    private final List<Entity> riddenByEntities;
     protected int rideCooldown;
     private Entity ridingEntity;
+
+    /**
+     * If true, forces the World to spawn the entity and send it to clients even if the Chunk it is located in has not
+     * yet been loaded.
+     */
     public boolean forceSpawn;
+
+    /** Reference to the World object. */
     public World world;
     public double prevPosX;
     public double prevPosY;
     public double prevPosZ;
+
+    /** X position of this entity, located at the center of its bounding box. */
     public double posX;
+
+    /**
+     * Y position of this entity, located at the bottom of its bounding box (its feet)
+     */
     public double posY;
+
+    /** Z position of this entity, located at the center of its bounding box. */
     public double posZ;
+
+    /** Entity motion X */
     public double motionX;
+
+    /** Entity motion Y */
     public double motionY;
+
+    /** Entity motion Z */
     public double motionZ;
+
+    /** Entity rotation Yaw */
     public float rotationYaw;
+
+    /** Entity rotation Pitch */
     public float rotationPitch;
     public float prevRotationYaw;
     public float prevRotationPitch;
+
+    /** Axis aligned bounding box. */
     private AxisAlignedBB boundingBox;
     public boolean onGround;
+
+    /**
+     * True if after a move this entity has collided with something on X- or Z-axis
+     */
     public boolean collidedHorizontally;
+
+    /**
+     * True if after a move this entity has collided with something on Y-axis
+     */
     public boolean collidedVertically;
+
+    /**
+     * True if after a move this entity has collided with something either vertically or horizontally
+     */
     public boolean collided;
+
+    /**
+     * If true, an {@link SPacketEntityVelocity} will be sent updating this entity's velocity.
+     */
     public boolean velocityChanged;
     protected boolean isInWeb;
     private boolean isOutsideBorder;
-    public boolean removed;
+
+    /**
+     * gets set by setEntityDead, so this must be the flag whether an Entity is dead (inactive may be better term)
+     */
+    public boolean isDead;
+
+    /** How wide this entity is considered to be */
     public float width;
+
+    /** How high this entity is considered to be */
     public float height;
+
+    /** The previous ticks distance walked multiplied by 0.6 */
     public float prevDistanceWalkedModified;
+
+    /** The distance walked multiplied by 0.6 */
     public float distanceWalkedModified;
     public float distanceWalkedOnStepModified;
     public float fallDistance;
+
+    /**
+     * The distance that has to be exceeded in order to triger a new step sound and an onEntityWalking event on a block
+     */
     private int nextStepDistance;
     private float nextFlap;
+
+    /**
+     * The entity's X coordinate at the previous tick, used to calculate position during rendering routines
+     */
     public double lastTickPosX;
+
+    /**
+     * The entity's Y coordinate at the previous tick, used to calculate position during rendering routines
+     */
     public double lastTickPosY;
+
+    /**
+     * The entity's Z coordinate at the previous tick, used to calculate position during rendering routines
+     */
     public double lastTickPosZ;
+
+    /**
+     * How high this entity can step up when running into a block to try to get over it (currently make note the entity
+     * will always step up this amount and not just the amount needed)
+     */
     public float stepHeight;
+
+    /**
+     * Whether this entity won't clip with collision or not (make note it won't disable gravity)
+     */
     public boolean noClip;
+
+    /**
+     * Reduces the velocity applied by entity collisions by the specified percent.
+     */
     public float entityCollisionReduction;
     protected Random rand;
+
+    /** How many ticks has this entity had ran since being alive */
     public int ticksExisted;
     private int fire;
+
+    /**
+     * Whether this entity is currently inside of water (if it handles water movement that is)
+     */
     protected boolean inWater;
+
+    /**
+     * Remaining time an entity will be "immune" to further damage after being hurt.
+     */
     public int hurtResistantTime;
     protected boolean firstUpdate;
     protected boolean isImmuneToFire;
@@ -147,6 +246,8 @@ public abstract class Entity implements ICommandSender
     private static final DataParameter<Boolean> CUSTOM_NAME_VISIBLE = EntityDataManager.<Boolean>createKey(Entity.class, DataSerializers.BOOLEAN);
     private static final DataParameter<Boolean> SILENT = EntityDataManager.<Boolean>createKey(Entity.class, DataSerializers.BOOLEAN);
     private static final DataParameter<Boolean> NO_GRAVITY = EntityDataManager.<Boolean>createKey(Entity.class, DataSerializers.BOOLEAN);
+
+    /** Has this entity been added to the chunk its within */
     public boolean addedToChunk;
     public int chunkCoordX;
     public int chunkCoordY;
@@ -154,11 +255,20 @@ public abstract class Entity implements ICommandSender
     public long serverPosX;
     public long serverPosY;
     public long serverPosZ;
+
+    /**
+     * Render entity even if it is outside the camera frustum. Only true in EntityFish for now. Used in RenderGlobal:
+     * render if ignoreFrustumCheck or in frustum.
+     */
     public boolean ignoreFrustumCheck;
     public boolean isAirBorne;
     public int timeUntilPortal;
+
+    /** Whether the entity is inside a Portal */
     protected boolean inPortal;
     protected int portalCounter;
+
+    /** Which dimension the player is in (-1 = the Nether, 0 = normal world) */
     public int dimension;
 
     /** The position of the last portal the entity was in */
@@ -176,6 +286,8 @@ public abstract class Entity implements ICommandSender
     private boolean invulnerable;
     protected UUID entityUniqueID;
     protected String cachedUniqueIdString;
+
+    /** The command result statistics for this Entity. */
     private final CommandResultStats cmdResultStats;
     protected boolean glowing;
     private final Set<String> tags;
@@ -186,7 +298,7 @@ public abstract class Entity implements ICommandSender
     public Entity(World worldIn)
     {
         this.entityId = nextEntityID++;
-        this.passengers = Lists.<Entity>newArrayList();
+        this.riddenByEntities = Lists.<Entity>newArrayList();
         this.boundingBox = ZERO_AABB;
         this.width = 0.6F;
         this.height = 1.8F;
@@ -205,7 +317,7 @@ public abstract class Entity implements ICommandSender
 
         if (worldIn != null)
         {
-            this.dimension = worldIn.dimension.getType().getId();
+            this.dimension = worldIn.provider.getDimensionType().getId();
         }
 
         this.dataManager = new EntityDataManager(this);
@@ -215,7 +327,7 @@ public abstract class Entity implements ICommandSender
         this.dataManager.register(CUSTOM_NAME, "");
         this.dataManager.register(SILENT, Boolean.valueOf(false));
         this.dataManager.register(NO_GRAVITY, Boolean.valueOf(false));
-        this.registerData();
+        this.entityInit();
     }
 
     public int getEntityId()
@@ -256,10 +368,10 @@ public abstract class Entity implements ICommandSender
      */
     public void onKillCommand()
     {
-        this.remove();
+        this.setDead();
     }
 
-    protected abstract void registerData();
+    protected abstract void entityInit();
 
     public EntityDataManager getDataManager()
     {
@@ -295,7 +407,7 @@ public abstract class Entity implements ICommandSender
             {
                 this.setPosition(this.posX, this.posY, this.posZ);
 
-                if (this.world.getCollisionBoxes(this, this.getBoundingBox()).isEmpty())
+                if (this.world.getCollisionBoxes(this, this.getEntityBoundingBox()).isEmpty())
                 {
                     break;
                 }
@@ -311,17 +423,23 @@ public abstract class Entity implements ICommandSender
     }
 
     /**
-     * Queues the entity for removal from the world on the next tick.
+     * Will get destroyed next tick.
      */
-    public void remove()
+    public void setDead()
     {
-        this.removed = true;
+        this.isDead = true;
     }
 
+    /**
+     * Sets whether this entity should drop its items when setDead() is called. This applies to container minecarts.
+     */
     public void setDropItemsWhenDead(boolean dropWhenDead)
     {
     }
 
+    /**
+     * Sets the width and height of the entity.
+     */
     protected void setSize(float width, float height)
     {
         if (width != this.width || height != this.height)
@@ -333,12 +451,12 @@ public abstract class Entity implements ICommandSender
             if (this.width < f)
             {
                 double d0 = (double)width / 2.0D;
-                this.setBoundingBox(new AxisAlignedBB(this.posX - d0, this.posY, this.posZ - d0, this.posX + d0, this.posY + (double)this.height, this.posZ + d0));
+                this.setEntityBoundingBox(new AxisAlignedBB(this.posX - d0, this.posY, this.posZ - d0, this.posX + d0, this.posY + (double)this.height, this.posZ + d0));
                 return;
             }
 
-            AxisAlignedBB axisalignedbb = this.getBoundingBox();
-            this.setBoundingBox(new AxisAlignedBB(axisalignedbb.minX, axisalignedbb.minY, axisalignedbb.minZ, axisalignedbb.minX + (double)this.width, axisalignedbb.minY + (double)this.height, axisalignedbb.minZ + (double)this.width));
+            AxisAlignedBB axisalignedbb = this.getEntityBoundingBox();
+            this.setEntityBoundingBox(new AxisAlignedBB(axisalignedbb.minX, axisalignedbb.minY, axisalignedbb.minZ, axisalignedbb.minX + (double)this.width, axisalignedbb.minY + (double)this.height, axisalignedbb.minZ + (double)this.width));
 
             if (this.width > f && !this.firstUpdate && !this.world.isRemote)
             {
@@ -366,9 +484,13 @@ public abstract class Entity implements ICommandSender
         this.posZ = z;
         float f = this.width / 2.0F;
         float f1 = this.height;
-        this.setBoundingBox(new AxisAlignedBB(x - (double)f, y, z - (double)f, x + (double)f, y + (double)f1, z + (double)f));
+        this.setEntityBoundingBox(new AxisAlignedBB(x - (double)f, y, z - (double)f, x + (double)f, y + (double)f1, z + (double)f));
     }
 
+    /**
+     * Adds 15% to the entity's yaw and subtracts 15% from the pitch. Clamps pitch from -90 to 90. Both arguments in
+     * degrees.
+     */
     public void turn(float yaw, float pitch)
     {
         float f = this.rotationPitch;
@@ -388,26 +510,26 @@ public abstract class Entity implements ICommandSender
     /**
      * Called to update the entity's position/logic.
      */
-    public void tick()
+    public void onUpdate()
     {
         if (!this.world.isRemote)
         {
             this.setFlag(6, this.isGlowing());
         }
 
-        this.baseTick();
+        this.onEntityUpdate();
     }
 
     /**
      * Gets called every tick from main Entity class
      */
-    public void baseTick()
+    public void onEntityUpdate()
     {
         this.world.profiler.startSection("entityBaseTick");
 
-        if (this.isPassenger() && this.getRidingEntity().removed)
+        if (this.isRiding() && this.getRidingEntity().isDead)
         {
-            this.stopRiding();
+            this.dismountRidingEntity();
         }
 
         if (this.rideCooldown > 0)
@@ -428,11 +550,11 @@ public abstract class Entity implements ICommandSender
 
             if (this.inPortal)
             {
-                MinecraftServer minecraftserver = this.world.getServer();
+                MinecraftServer minecraftserver = this.world.getMinecraftServer();
 
                 if (minecraftserver.getAllowNether())
                 {
-                    if (!this.isPassenger())
+                    if (!this.isRiding())
                     {
                         int i = this.getMaxInPortalTime();
 
@@ -442,7 +564,7 @@ public abstract class Entity implements ICommandSender
                             this.timeUntilPortal = this.getPortalCooldown();
                             int j;
 
-                            if (this.world.dimension.getType().getId() == -1)
+                            if (this.world.provider.getDimensionType().getId() == -1)
                             {
                                 j = 0;
                             }
@@ -586,7 +708,7 @@ public abstract class Entity implements ICommandSender
      */
     protected void outOfWorld()
     {
-        this.remove();
+        this.setDead();
     }
 
     /**
@@ -594,7 +716,7 @@ public abstract class Entity implements ICommandSender
      */
     public boolean isOffsetPositionInLiquid(double x, double y, double z)
     {
-        AxisAlignedBB axisalignedbb = this.getBoundingBox().offset(x, y, z);
+        AxisAlignedBB axisalignedbb = this.getEntityBoundingBox().offset(x, y, z);
         return this.isLiquidPresentInAABB(axisalignedbb);
     }
 
@@ -606,18 +728,21 @@ public abstract class Entity implements ICommandSender
         return this.world.getCollisionBoxes(this, bb).isEmpty() && !this.world.containsAnyLiquid(bb);
     }
 
+    /**
+     * Tries to move the entity towards the specified location.
+     */
     public void move(MoverType type, double x, double y, double z)
     {
         if (this.noClip)
         {
-            this.setBoundingBox(this.getBoundingBox().offset(x, y, z));
+            this.setEntityBoundingBox(this.getEntityBoundingBox().offset(x, y, z));
             this.resetPositionToBB();
         }
         else
         {
             if (type == MoverType.PISTON)
             {
-                long i = this.world.getGameTime();
+                long i = this.world.getTotalWorldTime();
 
                 if (i != this.pistonDeltasGameTime)
                 {
@@ -690,7 +815,7 @@ public abstract class Entity implements ICommandSender
 
             if ((type == MoverType.SELF || type == MoverType.PLAYER) && this.onGround && this.isSneaking() && this instanceof EntityPlayer)
             {
-                for (double d5 = 0.05D; x != 0.0D && this.world.getCollisionBoxes(this, this.getBoundingBox().offset(x, (double)(-this.stepHeight), 0.0D)).isEmpty(); d2 = x)
+                for (double d5 = 0.05D; x != 0.0D && this.world.getCollisionBoxes(this, this.getEntityBoundingBox().offset(x, (double)(-this.stepHeight), 0.0D)).isEmpty(); d2 = x)
                 {
                     if (x < 0.05D && x >= -0.05D)
                     {
@@ -706,7 +831,7 @@ public abstract class Entity implements ICommandSender
                     }
                 }
 
-                for (; z != 0.0D && this.world.getCollisionBoxes(this, this.getBoundingBox().offset(0.0D, (double)(-this.stepHeight), z)).isEmpty(); d4 = z)
+                for (; z != 0.0D && this.world.getCollisionBoxes(this, this.getEntityBoundingBox().offset(0.0D, (double)(-this.stepHeight), z)).isEmpty(); d4 = z)
                 {
                     if (z < 0.05D && z >= -0.05D)
                     {
@@ -722,7 +847,7 @@ public abstract class Entity implements ICommandSender
                     }
                 }
 
-                for (; x != 0.0D && z != 0.0D && this.world.getCollisionBoxes(this, this.getBoundingBox().offset(x, (double)(-this.stepHeight), z)).isEmpty(); d4 = z)
+                for (; x != 0.0D && z != 0.0D && this.world.getCollisionBoxes(this, this.getEntityBoundingBox().offset(x, (double)(-this.stepHeight), z)).isEmpty(); d4 = z)
                 {
                     if (x < 0.05D && x >= -0.05D)
                     {
@@ -754,8 +879,8 @@ public abstract class Entity implements ICommandSender
                 }
             }
 
-            List<AxisAlignedBB> list1 = this.world.getCollisionBoxes(this, this.getBoundingBox().expand(x, y, z));
-            AxisAlignedBB axisalignedbb = this.getBoundingBox();
+            List<AxisAlignedBB> list1 = this.world.getCollisionBoxes(this, this.getEntityBoundingBox().expand(x, y, z));
+            AxisAlignedBB axisalignedbb = this.getEntityBoundingBox();
 
             if (y != 0.0D)
             {
@@ -763,10 +888,10 @@ public abstract class Entity implements ICommandSender
 
                 for (int l = list1.size(); k < l; ++k)
                 {
-                    y = ((AxisAlignedBB)list1.get(k)).calculateYOffset(this.getBoundingBox(), y);
+                    y = ((AxisAlignedBB)list1.get(k)).calculateYOffset(this.getEntityBoundingBox(), y);
                 }
 
-                this.setBoundingBox(this.getBoundingBox().offset(0.0D, y, 0.0D));
+                this.setEntityBoundingBox(this.getEntityBoundingBox().offset(0.0D, y, 0.0D));
             }
 
             if (x != 0.0D)
@@ -775,12 +900,12 @@ public abstract class Entity implements ICommandSender
 
                 for (int l5 = list1.size(); j5 < l5; ++j5)
                 {
-                    x = ((AxisAlignedBB)list1.get(j5)).calculateXOffset(this.getBoundingBox(), x);
+                    x = ((AxisAlignedBB)list1.get(j5)).calculateXOffset(this.getEntityBoundingBox(), x);
                 }
 
                 if (x != 0.0D)
                 {
-                    this.setBoundingBox(this.getBoundingBox().offset(x, 0.0D, 0.0D));
+                    this.setEntityBoundingBox(this.getEntityBoundingBox().offset(x, 0.0D, 0.0D));
                 }
             }
 
@@ -790,12 +915,12 @@ public abstract class Entity implements ICommandSender
 
                 for (int i6 = list1.size(); k5 < i6; ++k5)
                 {
-                    z = ((AxisAlignedBB)list1.get(k5)).calculateZOffset(this.getBoundingBox(), z);
+                    z = ((AxisAlignedBB)list1.get(k5)).calculateZOffset(this.getEntityBoundingBox(), z);
                 }
 
                 if (z != 0.0D)
                 {
-                    this.setBoundingBox(this.getBoundingBox().offset(0.0D, 0.0D, z));
+                    this.setEntityBoundingBox(this.getEntityBoundingBox().offset(0.0D, 0.0D, z));
                 }
             }
 
@@ -806,11 +931,11 @@ public abstract class Entity implements ICommandSender
                 double d14 = x;
                 double d6 = y;
                 double d7 = z;
-                AxisAlignedBB axisalignedbb1 = this.getBoundingBox();
-                this.setBoundingBox(axisalignedbb);
+                AxisAlignedBB axisalignedbb1 = this.getEntityBoundingBox();
+                this.setEntityBoundingBox(axisalignedbb);
                 y = (double)this.stepHeight;
-                List<AxisAlignedBB> list = this.world.getCollisionBoxes(this, this.getBoundingBox().expand(d2, y, d4));
-                AxisAlignedBB axisalignedbb2 = this.getBoundingBox();
+                List<AxisAlignedBB> list = this.world.getCollisionBoxes(this, this.getEntityBoundingBox().expand(d2, y, d4));
+                AxisAlignedBB axisalignedbb2 = this.getEntityBoundingBox();
                 AxisAlignedBB axisalignedbb3 = axisalignedbb2.expand(d2, 0.0D, d4);
                 double d8 = y;
                 int j1 = 0;
@@ -839,7 +964,7 @@ public abstract class Entity implements ICommandSender
                 }
 
                 axisalignedbb2 = axisalignedbb2.offset(0.0D, 0.0D, d19);
-                AxisAlignedBB axisalignedbb4 = this.getBoundingBox();
+                AxisAlignedBB axisalignedbb4 = this.getEntityBoundingBox();
                 double d20 = y;
                 int l2 = 0;
 
@@ -875,31 +1000,31 @@ public abstract class Entity implements ICommandSender
                     x = d18;
                     z = d19;
                     y = -d8;
-                    this.setBoundingBox(axisalignedbb2);
+                    this.setEntityBoundingBox(axisalignedbb2);
                 }
                 else
                 {
                     x = d21;
                     z = d22;
                     y = -d20;
-                    this.setBoundingBox(axisalignedbb4);
+                    this.setEntityBoundingBox(axisalignedbb4);
                 }
 
                 int j4 = 0;
 
                 for (int k4 = list.size(); j4 < k4; ++j4)
                 {
-                    y = ((AxisAlignedBB)list.get(j4)).calculateYOffset(this.getBoundingBox(), y);
+                    y = ((AxisAlignedBB)list.get(j4)).calculateYOffset(this.getEntityBoundingBox(), y);
                 }
 
-                this.setBoundingBox(this.getBoundingBox().offset(0.0D, y, 0.0D));
+                this.setEntityBoundingBox(this.getEntityBoundingBox().offset(0.0D, y, 0.0D));
 
                 if (d14 * d14 + d7 * d7 >= x * x + z * z)
                 {
                     x = d14;
                     y = d6;
                     z = d7;
-                    this.setBoundingBox(axisalignedbb1);
+                    this.setEntityBoundingBox(axisalignedbb1);
                 }
             }
 
@@ -948,7 +1073,7 @@ public abstract class Entity implements ICommandSender
                 block.onLanded(this.world, this);
             }
 
-            if (this.canTriggerWalking() && (!this.onGround || !this.isSneaking() || !(this instanceof EntityPlayer)) && !this.isPassenger())
+            if (this.canTriggerWalking() && (!this.onGround || !this.isSneaking() || !(this instanceof EntityPlayer)) && !this.isRiding())
             {
                 double d15 = this.posX - d10;
                 double d16 = this.posY - d11;
@@ -1003,13 +1128,13 @@ public abstract class Entity implements ICommandSender
             {
                 CrashReport crashreport = CrashReport.makeCrashReport(throwable, "Checking entity block collision");
                 CrashReportCategory crashreportcategory = crashreport.makeCategory("Entity being checked for collision");
-                this.fillCrashReport(crashreportcategory);
+                this.addEntityCrashInfo(crashreportcategory);
                 throw new ReportedException(crashreport);
             }
 
             boolean flag1 = this.isWet();
 
-            if (this.world.isFlammableWithin(this.getBoundingBox().shrink(0.001D)))
+            if (this.world.isFlammableWithin(this.getEntityBoundingBox().shrink(0.001D)))
             {
                 this.dealFireDamage(1);
 
@@ -1043,7 +1168,7 @@ public abstract class Entity implements ICommandSender
      */
     public void resetPositionToBB()
     {
-        AxisAlignedBB axisalignedbb = this.getBoundingBox();
+        AxisAlignedBB axisalignedbb = this.getEntityBoundingBox();
         this.posX = (axisalignedbb.minX + axisalignedbb.maxX) / 2.0D;
         this.posY = axisalignedbb.minY;
         this.posZ = (axisalignedbb.minZ + axisalignedbb.maxZ) / 2.0D;
@@ -1061,7 +1186,7 @@ public abstract class Entity implements ICommandSender
 
     protected void doBlockCollisions()
     {
-        AxisAlignedBB axisalignedbb = this.getBoundingBox();
+        AxisAlignedBB axisalignedbb = this.getEntityBoundingBox();
         BlockPos.PooledMutableBlockPos blockpos$pooledmutableblockpos = BlockPos.PooledMutableBlockPos.retain(axisalignedbb.minX + 0.001D, axisalignedbb.minY + 0.001D, axisalignedbb.minZ + 0.001D);
         BlockPos.PooledMutableBlockPos blockpos$pooledmutableblockpos1 = BlockPos.PooledMutableBlockPos.retain(axisalignedbb.maxX - 0.001D, axisalignedbb.maxY - 0.001D, axisalignedbb.maxZ - 0.001D);
         BlockPos.PooledMutableBlockPos blockpos$pooledmutableblockpos2 = BlockPos.PooledMutableBlockPos.retain();
@@ -1118,7 +1243,7 @@ public abstract class Entity implements ICommandSender
         }
     }
 
-    protected float playFlySound(float volume)
+    protected float playFlySound(float p_191954_1_)
     {
         return 0.0F;
     }
@@ -1162,6 +1287,10 @@ public abstract class Entity implements ICommandSender
         this.dataManager.set(NO_GRAVITY, Boolean.valueOf(noGravity));
     }
 
+    /**
+     * returns if this entity triggers Block.onEntityWalking on the blocks they walk on. used for spiders and wolves to
+     * prevent them from trampling crops
+     */
     protected boolean canTriggerWalking()
     {
         return true;
@@ -1263,7 +1392,7 @@ public abstract class Entity implements ICommandSender
 
     public boolean isOverWater()
     {
-        return this.world.handleMaterialAcceleration(this.getBoundingBox().grow(0.0D, -20.0D, 0.0D).shrink(0.001D), Material.WATER, this);
+        return this.world.handleMaterialAcceleration(this.getEntityBoundingBox().grow(0.0D, -20.0D, 0.0D).shrink(0.001D), Material.WATER, this);
     }
 
     /**
@@ -1275,7 +1404,7 @@ public abstract class Entity implements ICommandSender
         {
             this.inWater = false;
         }
-        else if (this.world.handleMaterialAcceleration(this.getBoundingBox().grow(0.0D, -0.4000000059604645D, 0.0D).shrink(0.001D), Material.WATER, this))
+        else if (this.world.handleMaterialAcceleration(this.getEntityBoundingBox().grow(0.0D, -0.4000000059604645D, 0.0D).shrink(0.001D), Material.WATER, this))
         {
             if (!this.inWater && !this.firstUpdate)
             {
@@ -1310,7 +1439,7 @@ public abstract class Entity implements ICommandSender
         }
 
         this.playSound(this.getSplashSound(), f1, 1.0F + (this.rand.nextFloat() - this.rand.nextFloat()) * 0.4F);
-        float f2 = (float)MathHelper.floor(this.getBoundingBox().minY);
+        float f2 = (float)MathHelper.floor(this.getEntityBoundingBox().minY);
 
         for (int i = 0; (float)i < 1.0F + this.width * 20.0F; ++i)
         {
@@ -1348,10 +1477,13 @@ public abstract class Entity implements ICommandSender
 
         if (iblockstate.getRenderType() != EnumBlockRenderType.INVISIBLE)
         {
-            this.world.spawnParticle(EnumParticleTypes.BLOCK_CRACK, this.posX + ((double)this.rand.nextFloat() - 0.5D) * (double)this.width, this.getBoundingBox().minY + 0.1D, this.posZ + ((double)this.rand.nextFloat() - 0.5D) * (double)this.width, -this.motionX * 4.0D, 1.5D, -this.motionZ * 4.0D, Block.getStateId(iblockstate));
+            this.world.spawnParticle(EnumParticleTypes.BLOCK_CRACK, this.posX + ((double)this.rand.nextFloat() - 0.5D) * (double)this.width, this.getEntityBoundingBox().minY + 0.1D, this.posZ + ((double)this.rand.nextFloat() - 0.5D) * (double)this.width, -this.motionX * 4.0D, 1.5D, -this.motionZ * 4.0D, Block.getStateId(iblockstate));
         }
     }
 
+    /**
+     * Checks if the current block the entity is within of the specified material type
+     */
     public boolean isInsideOfMaterial(Material materialIn)
     {
         if (this.getRidingEntity() instanceof EntityBoat)
@@ -1380,7 +1512,7 @@ public abstract class Entity implements ICommandSender
 
     public boolean isInLava()
     {
-        return this.world.isMaterialInBB(this.getBoundingBox().grow(-0.10000000149011612D, -0.4000000059604645D, -0.10000000149011612D), Material.LAVA);
+        return this.world.isMaterialInBB(this.getEntityBoundingBox().grow(-0.10000000149011612D, -0.4000000059604645D, -0.10000000149011612D), Material.LAVA);
     }
 
     public void moveRelative(float strafe, float up, float forward, float friction)
@@ -1537,6 +1669,9 @@ public abstract class Entity implements ICommandSender
         return pos.distanceSqToCenter(this.posX, this.posY, this.posZ);
     }
 
+    /**
+     * Gets the distance to the position.
+     */
     public double getDistance(double x, double y, double z)
     {
         double d0 = this.posX - x;
@@ -1633,7 +1768,7 @@ public abstract class Entity implements ICommandSender
      */
     public boolean attackEntityFrom(DamageSource source, float amount)
     {
-        if (this.isInvulnerableTo(source))
+        if (this.isEntityInvulnerable(source))
         {
             return false;
         }
@@ -1673,7 +1808,7 @@ public abstract class Entity implements ICommandSender
         return new Vec3d((double)(f1 * f2), (double)f3, (double)(f * f2));
     }
 
-    public Vec3d getEyePosition(float partialTicks)
+    public Vec3d getPositionEyes(float partialTicks)
     {
         if (partialTicks == 1.0F)
         {
@@ -1691,7 +1826,7 @@ public abstract class Entity implements ICommandSender
     @Nullable
     public RayTraceResult rayTrace(double blockReachDistance, float partialTicks)
     {
-        Vec3d vec3d = this.getEyePosition(partialTicks);
+        Vec3d vec3d = this.getPositionEyes(partialTicks);
         Vec3d vec3d1 = this.getLook(partialTicks);
         Vec3d vec3d2 = vec3d.add(vec3d1.x * blockReachDistance, vec3d1.y * blockReachDistance, vec3d1.z * blockReachDistance);
         return this.world.rayTraceBlocks(vec3d, vec3d2, false, false, true);
@@ -1735,7 +1870,7 @@ public abstract class Entity implements ICommandSender
      */
     public boolean isInRangeToRenderDist(double distance)
     {
-        double d0 = this.getBoundingBox().getAverageEdgeLength();
+        double d0 = this.getEntityBoundingBox().getAverageEdgeLength();
 
         if (Double.isNaN(d0))
         {
@@ -1747,22 +1882,19 @@ public abstract class Entity implements ICommandSender
     }
 
     /**
-     * Writes this entity to NBT, unless it has been removed. Also writes this entity's passengers, and the entity type
-     * ID (so the produced NBT is sufficient to recreate the entity).
-     *  
-     * Generally, {@link #writeUnlessPassenger} or {@link #writeWithoutTypeId} should be used instead of this method.
-     *  
-     * @return True if the entity was written (and the passed compound should be saved); false if the entity was not
-     * written.
+     * Attempts to write this Entity to the given NBTTagCompound. Returns false if the entity is dead or its string
+     * representation is null. In this event, the given NBTTagCompound is not modified.
+
+     * Similar to writeToNBTOptional, but does not check whether this Entity is a passenger of another.
      */
-    public boolean writeUnlessRemoved(NBTTagCompound compound)
+    public boolean writeToNBTAtomically(NBTTagCompound compound)
     {
         String s = this.getEntityString();
 
-        if (!this.removed && s != null)
+        if (!this.isDead && s != null)
         {
-            compound.putString("id", s);
-            this.writeWithoutTypeId(compound);
+            compound.setString("id", s);
+            this.writeToNBT(compound);
             return true;
         }
         else
@@ -1772,21 +1904,18 @@ public abstract class Entity implements ICommandSender
     }
 
     /**
-     * Writes this entity to NBT, unless it has been removed or it is a passenger. Also writes this entity's passengers,
-     * and the entity type ID (so the produced NBT is sufficient to recreate the entity).
-     * To always write the entity, use {@link #writeWithoutTypeId}.
-     *  
-     * @return True if the entity was written (and the passed compound should be saved); false if the entity was not
-     * written.
+     * Either write this entity to the NBT tag given and return true, or return false without doing anything. If this
+     * returns false the entity is not saved on disk. Riding entities return false here as they are saved with their
+     * mount.
      */
-    public boolean writeUnlessPassenger(NBTTagCompound compound)
+    public boolean writeToNBTOptional(NBTTagCompound compound)
     {
         String s = this.getEntityString();
 
-        if (!this.removed && s != null && !this.isPassenger())
+        if (!this.isDead && s != null && !this.isRiding())
         {
-            compound.putString("id", s);
-            this.writeWithoutTypeId(compound);
+            compound.setString("id", s);
+            this.writeToNBT(compound);
             return true;
         }
         else
@@ -1801,13 +1930,13 @@ public abstract class Entity implements ICommandSender
         {
             public NBTTagCompound process(IDataFixer fixer, NBTTagCompound compound, int versionIn)
             {
-                if (compound.contains("Passengers", 9))
+                if (compound.hasKey("Passengers", 9))
                 {
-                    NBTTagList nbttaglist = compound.getList("Passengers", 10);
+                    NBTTagList nbttaglist = compound.getTagList("Passengers", 10);
 
                     for (int i = 0; i < nbttaglist.tagCount(); ++i)
                     {
-                        nbttaglist.set(i, fixer.process(FixTypes.ENTITY, nbttaglist.getCompound(i), versionIn));
+                        nbttaglist.set(i, fixer.process(FixTypes.ENTITY, nbttaglist.getCompoundTagAt(i), versionIn));
                     }
                 }
 
@@ -1816,52 +1945,47 @@ public abstract class Entity implements ICommandSender
         });
     }
 
-    /**
-     * Writes this entity, including passengers, to NBT, regardless as to whether or not it is removed or a passenger.
-     * Does <b>not</b> include the entity's type ID, so the NBT is insufficient to recreate the entity using {@link
-     *}. Use {@link #writeUnlessPassenger} for that purpose.
-     */
-    public NBTTagCompound writeWithoutTypeId(NBTTagCompound compound)
+    public NBTTagCompound writeToNBT(NBTTagCompound compound)
     {
         try
         {
             compound.setTag("Pos", this.newDoubleNBTList(this.posX, this.posY, this.posZ));
             compound.setTag("Motion", this.newDoubleNBTList(this.motionX, this.motionY, this.motionZ));
             compound.setTag("Rotation", this.newFloatNBTList(this.rotationYaw, this.rotationPitch));
-            compound.putFloat("FallDistance", this.fallDistance);
-            compound.putShort("Fire", (short)this.fire);
-            compound.putShort("Air", (short)this.getAir());
-            compound.putBoolean("OnGround", this.onGround);
-            compound.putInt("Dimension", this.dimension);
-            compound.putBoolean("Invulnerable", this.invulnerable);
-            compound.putInt("PortalCooldown", this.timeUntilPortal);
-            compound.putUniqueId("UUID", this.getUniqueID());
+            compound.setFloat("FallDistance", this.fallDistance);
+            compound.setShort("Fire", (short)this.fire);
+            compound.setShort("Air", (short)this.getAir());
+            compound.setBoolean("OnGround", this.onGround);
+            compound.setInteger("Dimension", this.dimension);
+            compound.setBoolean("Invulnerable", this.invulnerable);
+            compound.setInteger("PortalCooldown", this.timeUntilPortal);
+            compound.setUniqueId("UUID", this.getUniqueID());
 
             if (this.hasCustomName())
             {
-                compound.putString("CustomName", this.getCustomNameTag());
+                compound.setString("CustomName", this.getCustomNameTag());
             }
 
-            if (this.isCustomNameVisible())
+            if (this.getAlwaysRenderNameTag())
             {
-                compound.putBoolean("CustomNameVisible", this.isCustomNameVisible());
+                compound.setBoolean("CustomNameVisible", this.getAlwaysRenderNameTag());
             }
 
             this.cmdResultStats.writeStatsToNBT(compound);
 
             if (this.isSilent())
             {
-                compound.putBoolean("Silent", this.isSilent());
+                compound.setBoolean("Silent", this.isSilent());
             }
 
             if (this.hasNoGravity())
             {
-                compound.putBoolean("NoGravity", this.hasNoGravity());
+                compound.setBoolean("NoGravity", this.hasNoGravity());
             }
 
             if (this.glowing)
             {
-                compound.putBoolean("Glowing", this.glowing);
+                compound.setBoolean("Glowing", this.glowing);
             }
 
             if (!this.tags.isEmpty())
@@ -1886,7 +2010,7 @@ public abstract class Entity implements ICommandSender
                 {
                     NBTTagCompound nbttagcompound = new NBTTagCompound();
 
-                    if (entity.writeUnlessRemoved(nbttagcompound))
+                    if (entity.writeToNBTAtomically(nbttagcompound))
                     {
                         nbttaglist1.appendTag(nbttagcompound);
                     }
@@ -1904,7 +2028,7 @@ public abstract class Entity implements ICommandSender
         {
             CrashReport crashreport = CrashReport.makeCrashReport(throwable, "Saving entity NBT");
             CrashReportCategory crashreportcategory = crashreport.makeCategory("Entity being saved");
-            this.fillCrashReport(crashreportcategory);
+            this.addEntityCrashInfo(crashreportcategory);
             throw new ReportedException(crashreport);
         }
     }
@@ -1912,16 +2036,16 @@ public abstract class Entity implements ICommandSender
     /**
      * Reads the entity from NBT (calls an abstract helper method to read specialized data)
      */
-    public void read(NBTTagCompound compound)
+    public void readFromNBT(NBTTagCompound compound)
     {
         try
         {
-            NBTTagList nbttaglist = compound.getList("Pos", 6);
-            NBTTagList nbttaglist2 = compound.getList("Motion", 6);
-            NBTTagList nbttaglist3 = compound.getList("Rotation", 5);
-            this.motionX = nbttaglist2.getDouble(0);
-            this.motionY = nbttaglist2.getDouble(1);
-            this.motionZ = nbttaglist2.getDouble(2);
+            NBTTagList nbttaglist = compound.getTagList("Pos", 6);
+            NBTTagList nbttaglist2 = compound.getTagList("Motion", 6);
+            NBTTagList nbttaglist3 = compound.getTagList("Rotation", 5);
+            this.motionX = nbttaglist2.getDoubleAt(0);
+            this.motionY = nbttaglist2.getDoubleAt(1);
+            this.motionZ = nbttaglist2.getDoubleAt(2);
 
             if (Math.abs(this.motionX) > 10.0D)
             {
@@ -1938,17 +2062,17 @@ public abstract class Entity implements ICommandSender
                 this.motionZ = 0.0D;
             }
 
-            this.posX = nbttaglist.getDouble(0);
-            this.posY = nbttaglist.getDouble(1);
-            this.posZ = nbttaglist.getDouble(2);
+            this.posX = nbttaglist.getDoubleAt(0);
+            this.posY = nbttaglist.getDoubleAt(1);
+            this.posZ = nbttaglist.getDoubleAt(2);
             this.lastTickPosX = this.posX;
             this.lastTickPosY = this.posY;
             this.lastTickPosZ = this.posZ;
             this.prevPosX = this.posX;
             this.prevPosY = this.posY;
             this.prevPosZ = this.posZ;
-            this.rotationYaw = nbttaglist3.getFloat(0);
-            this.rotationPitch = nbttaglist3.getFloat(1);
+            this.rotationYaw = nbttaglist3.getFloatAt(0);
+            this.rotationPitch = nbttaglist3.getFloatAt(1);
             this.prevRotationYaw = this.rotationYaw;
             this.prevRotationPitch = this.rotationPitch;
             this.setRotationYawHead(this.rotationYaw);
@@ -1958,13 +2082,13 @@ public abstract class Entity implements ICommandSender
             this.setAir(compound.getShort("Air"));
             this.onGround = compound.getBoolean("OnGround");
 
-            if (compound.contains("Dimension"))
+            if (compound.hasKey("Dimension"))
             {
-                this.dimension = compound.getInt("Dimension");
+                this.dimension = compound.getInteger("Dimension");
             }
 
             this.invulnerable = compound.getBoolean("Invulnerable");
-            this.timeUntilPortal = compound.getInt("PortalCooldown");
+            this.timeUntilPortal = compound.getInteger("PortalCooldown");
 
             if (compound.hasUniqueId("UUID"))
             {
@@ -1975,30 +2099,30 @@ public abstract class Entity implements ICommandSender
             this.setPosition(this.posX, this.posY, this.posZ);
             this.setRotation(this.rotationYaw, this.rotationPitch);
 
-            if (compound.contains("CustomName", 8))
+            if (compound.hasKey("CustomName", 8))
             {
                 this.setCustomNameTag(compound.getString("CustomName"));
             }
 
-            this.setCustomNameVisible(compound.getBoolean("CustomNameVisible"));
+            this.setAlwaysRenderNameTag(compound.getBoolean("CustomNameVisible"));
             this.cmdResultStats.readStatsFromNBT(compound);
             this.setSilent(compound.getBoolean("Silent"));
             this.setNoGravity(compound.getBoolean("NoGravity"));
             this.setGlowing(compound.getBoolean("Glowing"));
 
-            if (compound.contains("Tags", 9))
+            if (compound.hasKey("Tags", 9))
             {
                 this.tags.clear();
-                NBTTagList nbttaglist1 = compound.getList("Tags", 8);
+                NBTTagList nbttaglist1 = compound.getTagList("Tags", 8);
                 int i = Math.min(nbttaglist1.tagCount(), 1024);
 
                 for (int j = 0; j < i; ++j)
                 {
-                    this.tags.add(nbttaglist1.getString(j));
+                    this.tags.add(nbttaglist1.getStringTagAt(j));
                 }
             }
 
-            this.readAdditional(compound);
+            this.readEntityFromNBT(compound);
 
             if (this.shouldSetPosAfterLoading())
             {
@@ -2009,7 +2133,7 @@ public abstract class Entity implements ICommandSender
         {
             CrashReport crashreport = CrashReport.makeCrashReport(throwable, "Loading entity NBT");
             CrashReportCategory crashreportcategory = crashreport.makeCategory("Entity being loaded");
-            this.fillCrashReport(crashreportcategory);
+            this.addEntityCrashInfo(crashreportcategory);
             throw new ReportedException(crashreport);
         }
     }
@@ -2033,8 +2157,11 @@ public abstract class Entity implements ICommandSender
     /**
      * (abstract) Protected helper method to read subclass entity data from NBT.
      */
-    protected abstract void readAdditional(NBTTagCompound compound);
+    protected abstract void readEntityFromNBT(NBTTagCompound compound);
 
+    /**
+     * (abstract) Protected helper method to write subclass entity data to NBT.
+     */
     protected abstract void writeEntityToNBT(NBTTagCompound compound);
 
     /**
@@ -2094,17 +2221,17 @@ public abstract class Entity implements ICommandSender
         {
             EntityItem entityitem = new EntityItem(this.world, this.posX, this.posY + (double)offsetY, this.posZ, stack);
             entityitem.setDefaultPickupDelay();
-            this.world.addEntity0(entityitem);
+            this.world.spawnEntity(entityitem);
             return entityitem;
         }
     }
 
     /**
-     * Returns true if the entity has not been {@link #removed}.
+     * Checks whether target entity is alive.
      */
-    public boolean isAlive()
+    public boolean isEntityAlive()
     {
-        return !this.removed;
+        return !this.isDead;
     }
 
     /**
@@ -2166,18 +2293,18 @@ public abstract class Entity implements ICommandSender
     {
         Entity entity = this.getRidingEntity();
 
-        if (this.isPassenger() && entity.removed)
+        if (this.isRiding() && entity.isDead)
         {
-            this.stopRiding();
+            this.dismountRidingEntity();
         }
         else
         {
             this.motionX = 0.0D;
             this.motionY = 0.0D;
             this.motionZ = 0.0D;
-            this.tick();
+            this.onUpdate();
 
-            if (this.isPassenger())
+            if (this.isRiding())
             {
                 entity.updatePassenger(this);
             }
@@ -2232,9 +2359,9 @@ public abstract class Entity implements ICommandSender
 
         if (force || this.canBeRidden(entityIn) && entityIn.canFitPassenger(this))
         {
-            if (this.isPassenger())
+            if (this.isRiding())
             {
-                this.stopRiding();
+                this.dismountRidingEntity();
             }
 
             this.ridingEntity = entityIn;
@@ -2257,16 +2384,16 @@ public abstract class Entity implements ICommandSender
      */
     public void removePassengers()
     {
-        for (int i = this.passengers.size() - 1; i >= 0; --i)
+        for (int i = this.riddenByEntities.size() - 1; i >= 0; --i)
         {
-            ((Entity)this.passengers.get(i)).stopRiding();
+            ((Entity)this.riddenByEntities.get(i)).dismountRidingEntity();
         }
     }
 
     /**
      * Dismounts this entity from the entity it is riding.
      */
-    public void stopRiding()
+    public void dismountRidingEntity()
     {
         if (this.ridingEntity != null)
         {
@@ -2286,11 +2413,11 @@ public abstract class Entity implements ICommandSender
         {
             if (!this.world.isRemote && passenger instanceof EntityPlayer && !(this.getControllingPassenger() instanceof EntityPlayer))
             {
-                this.passengers.add(0, passenger);
+                this.riddenByEntities.add(0, passenger);
             }
             else
             {
-                this.passengers.add(passenger);
+                this.riddenByEntities.add(passenger);
             }
         }
     }
@@ -2303,7 +2430,7 @@ public abstract class Entity implements ICommandSender
         }
         else
         {
-            this.passengers.remove(passenger);
+            this.riddenByEntities.remove(passenger);
             passenger.rideCooldown = 60;
         }
     }
@@ -2363,7 +2490,7 @@ public abstract class Entity implements ICommandSender
             if (!this.world.isRemote && !pos.equals(this.lastPortalPos))
             {
                 this.lastPortalPos = new BlockPos(pos);
-                BlockPattern.PatternHelper blockpattern$patternhelper = Blocks.NETHER_PORTAL.createPatternHelper(this.world, this.lastPortalPos);
+                BlockPattern.PatternHelper blockpattern$patternhelper = Blocks.PORTAL.createPatternHelper(this.world, this.lastPortalPos);
                 double d0 = blockpattern$patternhelper.getForwards().getAxis() == EnumFacing.Axis.X ? (double)blockpattern$patternhelper.getFrontTopLeft().getZ() : (double)blockpattern$patternhelper.getFrontTopLeft().getX();
                 double d1 = blockpattern$patternhelper.getForwards().getAxis() == EnumFacing.Axis.X ? this.posZ : this.posX;
                 d1 = Math.abs(MathHelper.pct(d1 - (double)(blockpattern$patternhelper.getForwards().rotateY().getAxisDirection() == EnumFacing.AxisDirection.NEGATIVE ? 1 : 0), d0, d0 - (double)blockpattern$patternhelper.getWidth()));
@@ -2436,7 +2563,7 @@ public abstract class Entity implements ICommandSender
         return !this.isImmuneToFire && (this.fire > 0 || flag && this.getFlag(0));
     }
 
-    public boolean isPassenger()
+    public boolean isRiding()
     {
         return this.getRidingEntity() != null;
     }
@@ -2449,11 +2576,17 @@ public abstract class Entity implements ICommandSender
         return !this.getPassengers().isEmpty();
     }
 
+    /**
+     * Returns if this entity is sneaking.
+     */
     public boolean isSneaking()
     {
         return this.getFlag(1);
     }
 
+    /**
+     * Sets the sneaking flag.
+     */
     public void setSneaking(boolean sneaking)
     {
         this.setFlag(1, sneaking);
@@ -2542,7 +2675,7 @@ public abstract class Entity implements ICommandSender
 
     /**
      * Returns true if the flag is active for the entity. Known flags: 0: burning; 1: sneaking; 2: unused; 3: sprinting;
-     * 4: swimming; 5: invisible; 6: glowing; 7: elytra flying
+     * 4: unused; 5: invisible; 6: glowing; 7: elytra flying
      */
     protected boolean getFlag(int flag)
     {
@@ -2604,7 +2737,7 @@ public abstract class Entity implements ICommandSender
         double d1 = y - (double)blockpos.getY();
         double d2 = z - (double)blockpos.getZ();
 
-        if (!this.world.collidesWithAnyBlock(this.getBoundingBox()))
+        if (!this.world.collidesWithAnyBlock(this.getEntityBoundingBox()))
         {
             return false;
         }
@@ -2669,12 +2802,50 @@ public abstract class Entity implements ICommandSender
         }
     }
 
+    /**
+     * Sets the Entity inside a web block.
+     */
     public void setInWeb()
     {
         this.isInWeb = true;
         this.fallDistance = 0.0F;
     }
 
+    /**
+     * Gets the name of this thing. This method has slightly different behavior depending on the interface (for <a
+     * href="https://github.com/ModCoderPack/MCPBot-Issues/issues/14">technical reasons</a> the same method is used for
+     * both IWorldNameable and ICommandSender):
+     *  
+     * <dl>
+     * <dt>{@link net.minecraft.util.INameable#getName() INameable.getName()}</dt>
+     * <dd>Returns the name of this inventory. If this {@linkplain net.minecraft.inventory#hasCustomName() has a custom
+     * name} then this <em>should</em> be a direct string; otherwise it <em>should</em> be a valid translation
+     * string.</dd>
+     * <dd>However, note that <strong>the translation string may be invalid</strong>, as is the case for {@link
+     * net.minecraft.tileentity.TileEntityBanner TileEntityBanner} (always returns nonexistent translation code
+     * <code>banner</code> without a custom name), {@link net.minecraft.block.BlockAnvil.Anvil BlockAnvil$Anvil} (always
+     * returns <code>anvil</code>), {@link net.minecraft.block.BlockWorkbench.InterfaceCraftingTable
+     * BlockWorkbench$InterfaceCraftingTable} (always returns <code>crafting_table</code>), {@link
+     * net.minecraft.inventory.InventoryCraftResult InventoryCraftResult} (always returns <code>Result</code>) and the
+     * {@link net.minecraft.entity.item.EntityMinecart EntityMinecart} family (uses the entity definition). This is not
+     * an exaustive list.</dd>
+     * <dd>In general, this method should be safe to use on tile entities that implement IInventory.</dd>
+     * <dt>{@link net.minecraft.command.ICommandSender#getName() ICommandSender.getName()} and {@link
+     * net.minecraft.entity.Entity#getName() Entity.getName()}</dt>
+     * <dd>Returns a valid, displayable name (which may be localized). For most entities, this is the translated version
+     * of its translation string (obtained via {@link net.minecraft.entity.EntityList#getEntityString
+     * EntityList.getEntityString}).</dd>
+     * <dd>If this entity has a custom name set, this will return that name.</dd>
+     * <dd>For some entities, this will attempt to translate a nonexistent translation string; see <a
+     * href="https://bugs.mojang.com/browse/MC-68446">MC-68446</a>. For {@linkplain
+     * net.minecraft.entity.player.EntityPlayer#getName() players} this returns the player's name. For {@linkplain
+     * net.minecraft.entity.passive.EntityOcelot ocelots} this may return the translation of
+     * <code>entity.Cat.name</code> if it is tamed. For {@linkplain net.minecraft.entity.item.EntityItem#getName() item
+     * entities}, this will attempt to return the name of the item in that item entity. In all cases other than players,
+     * the custom name will overrule this.</dd>
+     * <dd>For non-entity command senders, this will return some arbitrary name, such as "Rcon" or "Server".</dd>
+     * </dl>
+     */
     public String getName()
     {
         if (this.hasCustomName())
@@ -2695,6 +2866,13 @@ public abstract class Entity implements ICommandSender
     }
 
     @Nullable
+
+    /**
+     * Return all subparts of this entity. These parts are not saved in the chunk and do not tick, but are detected by
+     * getEntitiesInAABB and are put in the entity ID map. Vanilla makes the assumption that the entities in this array
+     * have consecutive entity ID's after their owner ID, so you must construct all parts in the constructor of the
+     * parent.
+     */
     public Entity[] getParts()
     {
         return null;
@@ -2751,12 +2929,12 @@ public abstract class Entity implements ICommandSender
     /**
      * Returns whether this Entity is invulnerable to the given DamageSource.
      */
-    public boolean isInvulnerableTo(DamageSource source)
+    public boolean isEntityInvulnerable(DamageSource source)
     {
         return this.invulnerable && source != DamageSource.OUT_OF_WORLD && !source.isCreativePlayer();
     }
 
-    public boolean isInvulnerable()
+    public boolean getIsInvulnerable()
     {
         return this.invulnerable;
     }
@@ -2764,7 +2942,7 @@ public abstract class Entity implements ICommandSender
     /**
      * Sets whether this Entity is invulnerable.
      */
-    public void setInvulnerable(boolean isInvulnerable)
+    public void setEntityInvulnerable(boolean isInvulnerable)
     {
         this.invulnerable = isInvulnerable;
     }
@@ -2782,9 +2960,9 @@ public abstract class Entity implements ICommandSender
      */
     private void copyDataFromOld(Entity entityIn)
     {
-        NBTTagCompound nbttagcompound = entityIn.writeWithoutTypeId(new NBTTagCompound());
-        nbttagcompound.remove("Dimension");
-        this.read(nbttagcompound);
+        NBTTagCompound nbttagcompound = entityIn.writeToNBT(new NBTTagCompound());
+        nbttagcompound.removeTag("Dimension");
+        this.readFromNBT(nbttagcompound);
         this.timeUntilPortal = entityIn.timeUntilPortal;
         this.lastPortalPos = entityIn.lastPortalPos;
         this.lastPortalVec = entityIn.lastPortalVec;
@@ -2794,7 +2972,7 @@ public abstract class Entity implements ICommandSender
     @Nullable
     public Entity changeDimension(int dimensionIn)
     {
-        if (!this.world.isRemote && !this.removed)
+        if (!this.world.isRemote && !this.isDead)
         {
             this.world.profiler.startSection("changeDimension");
             MinecraftServer minecraftserver = this.getServer();
@@ -2810,7 +2988,7 @@ public abstract class Entity implements ICommandSender
             }
 
             this.world.removeEntity(this);
-            this.removed = false;
+            this.isDead = false;
             this.world.profiler.startSection("reposition");
             BlockPos blockpos;
 
@@ -2864,12 +3042,12 @@ public abstract class Entity implements ICommandSender
 
                 boolean flag = entity.forceSpawn;
                 entity.forceSpawn = true;
-                worldserver1.addEntity0(entity);
+                worldserver1.spawnEntity(entity);
                 entity.forceSpawn = flag;
                 worldserver1.updateEntityWithOptionalForce(entity, false);
             }
 
-            this.removed = true;
+            this.isDead = true;
             this.world.profiler.endSection();
             worldserver.resetUpdateEntityTick();
             worldserver1.resetUpdateEntityTick();
@@ -2929,7 +3107,7 @@ public abstract class Entity implements ICommandSender
         return false;
     }
 
-    public void fillCrashReport(CrashReportCategory category)
+    public void addEntityCrashInfo(CrashReportCategory category)
     {
         category.addDetail("Entity Type", new ICrashReportDetail<String>()
         {
@@ -2938,7 +3116,7 @@ public abstract class Entity implements ICommandSender
                 return EntityList.getKey(Entity.this) + " (" + Entity.this.getClass().getCanonicalName() + ")";
             }
         });
-        category.addDetail("Entity ID", Integer.valueOf(this.entityId));
+        category.addCrashSection("Entity ID", Integer.valueOf(this.entityId));
         category.addDetail("Entity Name", new ICrashReportDetail<String>()
         {
             public String call() throws Exception
@@ -2946,9 +3124,9 @@ public abstract class Entity implements ICommandSender
                 return Entity.this.getName();
             }
         });
-        category.addDetail("Entity's Exact location", String.format("%.2f, %.2f, %.2f", this.posX, this.posY, this.posZ));
-        category.addDetail("Entity's Block location", CrashReportCategory.getCoordinateInfo(MathHelper.floor(this.posX), MathHelper.floor(this.posY), MathHelper.floor(this.posZ)));
-        category.addDetail("Entity's Momentum", String.format("%.2f, %.2f, %.2f", this.motionX, this.motionY, this.motionZ));
+        category.addCrashSection("Entity's Exact location", String.format("%.2f, %.2f, %.2f", this.posX, this.posY, this.posZ));
+        category.addCrashSection("Entity's Block location", CrashReportCategory.getCoordinateInfo(MathHelper.floor(this.posX), MathHelper.floor(this.posY), MathHelper.floor(this.posZ)));
+        category.addCrashSection("Entity's Momentum", String.format("%.2f, %.2f, %.2f", this.motionX, this.motionY, this.motionZ));
         category.addDetail("Entity's Passengers", new ICrashReportDetail<String>()
         {
             public String call() throws Exception
@@ -3007,6 +3185,27 @@ public abstract class Entity implements ICommandSender
         renderDistanceWeight = renderDistWeight;
     }
 
+    /**
+     * Returns a displayable component representing this thing's name. This method should be implemented slightly
+     * differently depending on the interface (for <a href="https://github.com/ModCoderPack/MCPBot-
+     * Issues/issues/14">technical reasons</a> the same method is used for both IWorldNameable and ICommandSender), but
+     * unlike {@link #getName()} this method will generally behave sanely.
+     *  
+     * <dl>
+     * <dt>{@link net.minecraft.util.INameable#getDisplayName() INameable.getDisplayName()}</dt>
+     * <dd>A normal component. Might be a translation component or a text component depending on the context. Usually
+     * implemented as:</dd>
+     * <dd><pre><code>return this.{@link net.minecraft.util.INameable#hasCustomName() hasCustomName()} ? new
+     * TextComponentString(this.{@link #getName()}) : new TextComponentTranslation(this.{@link
+     * #getName()});</code></pre></dd>
+     * <dt>{@link net.minecraft.command.ICommandSender#getDisplayName() ICommandSender.getDisplayName()} and {@link
+     * net.minecraft.entity.Entity#getDisplayName() Entity.getDisplayName()}</dt>
+     * <dd>For most entities, this returns the result of {@link #getName()}, with {@linkplain
+     * net.minecraft.scoreboard.ScorePlayerTeam#formatPlayerName scoreboard formatting} and a {@linkplain
+     * net.minecraft.entity.Entity#getHoverEvent special hover event}.</dd>
+     * <dd>For non-entity command senders, this will return the result of {@link #getName()} in a text component.</dd>
+     * </dl>
+     */
     public ITextComponent getDisplayName()
     {
         TextComponentString textcomponentstring = new TextComponentString(ScorePlayerTeam.formatPlayerName(this.getTeam(), this.getName()));
@@ -3015,27 +3214,47 @@ public abstract class Entity implements ICommandSender
         return textcomponentstring;
     }
 
+    /**
+     * Sets the custom name tag for this entity
+     */
     public void setCustomNameTag(String name)
     {
         this.dataManager.set(CUSTOM_NAME, name);
     }
 
+    /**
+     * Gets the custom name assigned to this entity. If no custom name has been assigned, returns an empty string.
+     */
     public String getCustomNameTag()
     {
         return (String)this.dataManager.get(CUSTOM_NAME);
     }
 
+    /**
+     * Checks if this thing has a custom name. This method has slightly different behavior depending on the interface
+     * (for <a href="https://github.com/ModCoderPack/MCPBot-Issues/issues/14">technical reasons</a> the same method is
+     * used for both IWorldNameable and Entity):
+     *  
+     * <dl>
+     * <dt>{@link net.minecraft.util.INameable#hasCustomName() INameable.hasCustomName()}</dt>
+     * <dd>If true, then {@link #getName()} probably returns a preformatted name; otherwise, it probably returns a
+     * translation string. However, exact behavior varies.</dd>
+     * <dt>{@link net.minecraft.entity.Entity#hasCustomName() Entity.hasCustomName()}</dt>
+     * <dd>If true, then {@link net.minecraft.entity.Entity#getCustomNameTag() Entity.getCustomNameTag()} will return a
+     * non-empty string, which will be used by {@link #getName()}.</dd>
+     * </dl>
+     */
     public boolean hasCustomName()
     {
         return !((String)this.dataManager.get(CUSTOM_NAME)).isEmpty();
     }
 
-    public void setCustomNameVisible(boolean alwaysRenderNameTag)
+    public void setAlwaysRenderNameTag(boolean alwaysRenderNameTag)
     {
         this.dataManager.set(CUSTOM_NAME_VISIBLE, Boolean.valueOf(alwaysRenderNameTag));
     }
 
-    public boolean isCustomNameVisible()
+    public boolean getAlwaysRenderNameTag()
     {
         return ((Boolean)this.dataManager.get(CUSTOM_NAME_VISIBLE)).booleanValue();
     }
@@ -3052,7 +3271,7 @@ public abstract class Entity implements ICommandSender
 
     public boolean getAlwaysRenderNameTagForRender()
     {
-        return this.isCustomNameVisible();
+        return this.getAlwaysRenderNameTag();
     }
 
     public void notifyDataManagerChange(DataParameter<?> key)
@@ -3080,14 +3299,14 @@ public abstract class Entity implements ICommandSender
     {
         NBTTagCompound nbttagcompound = new NBTTagCompound();
         ResourceLocation resourcelocation = EntityList.getKey(this);
-        nbttagcompound.putString("id", this.getCachedUniqueIdString());
+        nbttagcompound.setString("id", this.getCachedUniqueIdString());
 
         if (resourcelocation != null)
         {
-            nbttagcompound.putString("type", resourcelocation.toString());
+            nbttagcompound.setString("type", resourcelocation.toString());
         }
 
-        nbttagcompound.putString("name", this.getName());
+        nbttagcompound.setString("name", this.getName());
         return new HoverEvent(HoverEvent.Action.SHOW_ENTITY, new TextComponentString(nbttagcompound.toString()));
     }
 
@@ -3096,7 +3315,7 @@ public abstract class Entity implements ICommandSender
         return true;
     }
 
-    public AxisAlignedBB getBoundingBox()
+    public AxisAlignedBB getEntityBoundingBox()
     {
         return this.boundingBox;
     }
@@ -3107,10 +3326,10 @@ public abstract class Entity implements ICommandSender
      */
     public AxisAlignedBB getRenderBoundingBox()
     {
-        return this.getBoundingBox();
+        return this.getEntityBoundingBox();
     }
 
-    public void setBoundingBox(AxisAlignedBB bb)
+    public void setEntityBoundingBox(AxisAlignedBB bb)
     {
         this.boundingBox = bb;
     }
@@ -3142,6 +3361,9 @@ public abstract class Entity implements ICommandSender
     {
     }
 
+    /**
+     * Returns {@code true} if the CommandSender is allowed to execute the command, {@code false} if not
+     */
     public boolean canUseCommand(int permLevel, String commandName)
     {
         return true;
@@ -3174,11 +3396,17 @@ public abstract class Entity implements ICommandSender
         return this.world;
     }
 
+    /**
+     * Returns the entity associated with the command sender. MAY BE NULL!
+     */
     public Entity getCommandSenderEntity()
     {
         return this;
     }
 
+    /**
+     * Returns true if the command sender should be sent feedback about executed commands
+     */
     public boolean sendCommandFeedback()
     {
         return false;
@@ -3188,7 +3416,7 @@ public abstract class Entity implements ICommandSender
     {
         if (this.world != null && !this.world.isRemote)
         {
-            this.cmdResultStats.setCommandStatForSender(this.world.getServer(), this, type, amount);
+            this.cmdResultStats.setCommandStatForSender(this.world.getMinecraftServer(), this, type, amount);
         }
     }
 
@@ -3199,7 +3427,7 @@ public abstract class Entity implements ICommandSender
      */
     public MinecraftServer getServer()
     {
-        return this.world.getServer();
+        return this.world.getMinecraftServer();
     }
 
     public CommandResultStats getCommandStats()
@@ -3207,6 +3435,9 @@ public abstract class Entity implements ICommandSender
         return this.cmdResultStats;
     }
 
+    /**
+     * Set the CommandResultStats from the entity
+     */
     public void setCommandStats(Entity entityIn)
     {
         this.cmdResultStats.addAllStats(entityIn.getCommandStats());
@@ -3294,15 +3525,6 @@ public abstract class Entity implements ICommandSender
         }
     }
 
-    /**
-     * Checks if players can use this entity to access operator (permission level 2) commands either directly or
-     * indirectly, such as give or setblock. A similar method exists for entities at {@link
-     * net.minecraft.tileentity.TileEntity#onlyOpsCanSetNbt()}.<p>For example, {@link
-     * net.minecraft.entity.item.EntityMinecartCommandBlock#ignoreItemEntityData() command block minecarts} and {@link
-     * net.minecraft.entity.item.EntityMinecartMobSpawner#ignoreItemEntityData() mob spawner minecarts} (spawning
-     * command block minecarts or drops) are considered accessible.</p>@return true if this entity offers ways for
-     * unauthorized players to use restricted commands
-     */
     public boolean ignoreItemEntityData()
     {
         return false;
@@ -3328,7 +3550,7 @@ public abstract class Entity implements ICommandSender
 
     public List<Entity> getPassengers()
     {
-        return (List<Entity>)(this.passengers.isEmpty() ? Collections.emptyList() : Lists.newArrayList(this.passengers));
+        return (List<Entity>)(this.riddenByEntities.isEmpty() ? Collections.emptyList() : Lists.newArrayList(this.riddenByEntities));
     }
 
     public boolean isPassenger(Entity entityIn)
@@ -3375,7 +3597,7 @@ public abstract class Entity implements ICommandSender
     {
         Entity entity;
 
-        for (entity = this; entity.isPassenger(); entity = entity.getRidingEntity())
+        for (entity = this; entity.isRiding(); entity = entity.getRidingEntity())
         {
             ;
         }

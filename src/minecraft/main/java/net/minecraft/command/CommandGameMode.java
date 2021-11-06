@@ -13,21 +13,33 @@ import net.minecraft.world.WorldSettings;
 
 public class CommandGameMode extends CommandBase
 {
+    /**
+     * Gets the name of the command
+     */
     public String getName()
     {
         return "gamemode";
     }
 
+    /**
+     * Return the required permission level for this command.
+     */
     public int getRequiredPermissionLevel()
     {
         return 2;
     }
 
+    /**
+     * Gets the usage string for the command.
+     */
     public String getUsage(ICommandSender sender)
     {
         return "commands.gamemode.usage";
     }
 
+    /**
+     * Callback for when the command is executed
+     */
     public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
     {
         if (args.length <= 0)
@@ -57,6 +69,9 @@ public class CommandGameMode extends CommandBase
         }
     }
 
+    /**
+     * Gets the Game Mode specified in the command.
+     */
     protected GameType getGameModeFromCommand(ICommandSender sender, String gameModeString) throws CommandException, NumberInvalidException
     {
         GameType gametype = GameType.parseGameTypeWithDefault(gameModeString, GameType.NOT_SET);
@@ -75,6 +90,9 @@ public class CommandGameMode extends CommandBase
         }
     }
 
+    /**
+     * Return whether the specified command parameter index is a username parameter.
+     */
     public boolean isUsernameIndex(String[] args, int index)
     {
         return index == 1;

@@ -13,6 +13,7 @@ import net.minecraft.world.World;
 
 public class ShapelessRecipes implements IRecipe
 {
+    /** Is the ItemStack that you get when craft the recipe. */
     private final ItemStack recipeOutput;
     private final NonNullList<Ingredient> recipeItems;
     private final String group;

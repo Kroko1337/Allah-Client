@@ -55,7 +55,7 @@ public class PlayerChunkMapEntry
         {
             if (this.players.isEmpty())
             {
-                this.lastUpdateInhabitedTime = this.playerChunkMap.getWorldServer().getGameTime();
+                this.lastUpdateInhabitedTime = this.playerChunkMap.getWorldServer().getTotalWorldTime();
             }
 
             this.players.add(player);
@@ -85,6 +85,10 @@ public class PlayerChunkMapEntry
         }
     }
 
+    /**
+     * Provide the chunk at the player's location. Can fail, returning false, if the player is a spectator floating
+     * outside of any pre-existing chunks, and the server is not configured to allow chunk generation for spectators.
+     */
     public boolean providePlayerChunk(boolean canGenerate)
     {
         if (this.chunk != null)
@@ -137,6 +141,10 @@ public class PlayerChunkMapEntry
         }
     }
 
+    /**
+     * Fully resyncs this chunk's blocks, tile entities, and entity attachments (passengers and leashes) to all tracking
+     * players
+     */
     public void sendToPlayer(EntityPlayerMP player)
     {
         if (this.sentToPlayers)
@@ -148,7 +156,7 @@ public class PlayerChunkMapEntry
 
     public void updateChunkInhabitedTime()
     {
-        long i = this.playerChunkMap.getWorldServer().getGameTime();
+        long i = this.playerChunkMap.getWorldServer().getTotalWorldTime();
 
         if (this.chunk != null)
         {

@@ -20,6 +20,8 @@ public class EntityEnderCrystal extends Entity
 {
     private static final DataParameter<Optional<BlockPos>> BEAM_TARGET = EntityDataManager.<Optional<BlockPos>>createKey(EntityEnderCrystal.class, DataSerializers.OPTIONAL_BLOCK_POS);
     private static final DataParameter<Boolean> SHOW_BOTTOM = EntityDataManager.<Boolean>createKey(EntityEnderCrystal.class, DataSerializers.BOOLEAN);
+
+    /** Used to create the rotation animation when rendering the crystal. */
     public int innerRotation;
 
     public EntityEnderCrystal(World worldIn)
@@ -36,12 +38,16 @@ public class EntityEnderCrystal extends Entity
         this.setPosition(x, y, z);
     }
 
+    /**
+     * returns if this entity triggers Block.onEntityWalking on the blocks they walk on. used for spiders and wolves to
+     * prevent them from trampling crops
+     */
     protected boolean canTriggerWalking()
     {
         return false;
     }
 
-    protected void registerData()
+    protected void entityInit()
     {
         this.getDataManager().register(BEAM_TARGET, Optional.absent());
         this.getDataManager().register(SHOW_BOTTOM, Boolean.valueOf(true));
@@ -50,7 +56,7 @@ public class EntityEnderCrystal extends Entity
     /**
      * Called to update the entity's position/logic.
      */
-    public void tick()
+    public void onUpdate()
     {
         this.prevPosX = this.posX;
         this.prevPosY = this.posY;
@@ -61,34 +67,37 @@ public class EntityEnderCrystal extends Entity
         {
             BlockPos blockpos = new BlockPos(this);
 
-            if (this.world.dimension instanceof WorldProviderEnd && this.world.getBlockState(blockpos).getBlock() != Blocks.FIRE)
+            if (this.world.provider instanceof WorldProviderEnd && this.world.getBlockState(blockpos).getBlock() != Blocks.FIRE)
             {
                 this.world.setBlockState(blockpos, Blocks.FIRE.getDefaultState());
             }
         }
     }
 
+    /**
+     * (abstract) Protected helper method to write subclass entity data to NBT.
+     */
     protected void writeEntityToNBT(NBTTagCompound compound)
     {
         if (this.getBeamTarget() != null)
         {
-            compound.setTag("BeamTarget", NBTUtil.writeBlockPos(this.getBeamTarget()));
+            compound.setTag("BeamTarget", NBTUtil.createPosTag(this.getBeamTarget()));
         }
 
-        compound.putBoolean("ShowBottom", this.shouldShowBottom());
+        compound.setBoolean("ShowBottom", this.shouldShowBottom());
     }
 
     /**
      * (abstract) Protected helper method to read subclass entity data from NBT.
      */
-    protected void readAdditional(NBTTagCompound compound)
+    protected void readEntityFromNBT(NBTTagCompound compound)
     {
-        if (compound.contains("BeamTarget", 10))
+        if (compound.hasKey("BeamTarget", 10))
         {
-            this.setBeamTarget(NBTUtil.readBlockPos(compound.getCompound("BeamTarget")));
+            this.setBeamTarget(NBTUtil.getPosFromTag(compound.getCompoundTag("BeamTarget")));
         }
 
-        if (compound.contains("ShowBottom", 1))
+        if (compound.hasKey("ShowBottom", 1))
         {
             this.setShowBottom(compound.getBoolean("ShowBottom"));
         }
@@ -107,7 +116,7 @@ public class EntityEnderCrystal extends Entity
      */
     public boolean attackEntityFrom(DamageSource source, float amount)
     {
-        if (this.isInvulnerableTo(source))
+        if (this.isEntityInvulnerable(source))
         {
             return false;
         }
@@ -117,9 +126,9 @@ public class EntityEnderCrystal extends Entity
         }
         else
         {
-            if (!this.removed && !this.world.isRemote)
+            if (!this.isDead && !this.world.isRemote)
             {
-                this.remove();
+                this.setDead();
 
                 if (!this.world.isRemote)
                 {
@@ -147,9 +156,9 @@ public class EntityEnderCrystal extends Entity
 
     private void onCrystalDestroyed(DamageSource source)
     {
-        if (this.world.dimension instanceof WorldProviderEnd)
+        if (this.world.provider instanceof WorldProviderEnd)
         {
-            WorldProviderEnd worldproviderend = (WorldProviderEnd)this.world.dimension;
+            WorldProviderEnd worldproviderend = (WorldProviderEnd)this.world.provider;
             DragonFightManager dragonfightmanager = worldproviderend.getDragonFightManager();
 
             if (dragonfightmanager != null)

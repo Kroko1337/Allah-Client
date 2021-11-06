@@ -11,15 +11,15 @@ public class ParticleTotem extends ParticleSimpleAnimated
         this.motionY = p_i47220_10_;
         this.motionZ = p_i47220_12_;
         this.particleScale *= 0.75F;
-        this.maxAge = 60 + this.rand.nextInt(12);
+        this.particleMaxAge = 60 + this.rand.nextInt(12);
 
         if (this.rand.nextInt(4) == 0)
         {
-            this.setColor(0.6F + this.rand.nextFloat() * 0.2F, 0.6F + this.rand.nextFloat() * 0.3F, this.rand.nextFloat() * 0.2F);
+            this.setRBGColorF(0.6F + this.rand.nextFloat() * 0.2F, 0.6F + this.rand.nextFloat() * 0.3F, this.rand.nextFloat() * 0.2F);
         }
         else
         {
-            this.setColor(0.1F + this.rand.nextFloat() * 0.2F, 0.4F + this.rand.nextFloat() * 0.3F, this.rand.nextFloat() * 0.2F);
+            this.setRBGColorF(0.1F + this.rand.nextFloat() * 0.2F, 0.4F + this.rand.nextFloat() * 0.3F, this.rand.nextFloat() * 0.2F);
         }
 
         this.setBaseAirFriction(0.6F);

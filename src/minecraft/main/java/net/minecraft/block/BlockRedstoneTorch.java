@@ -35,7 +35,7 @@ public class BlockRedstoneTorch extends BlockTorch
 
         if (turnOff)
         {
-            list.add(new BlockRedstoneTorch.Toggle(pos, worldIn.getGameTime()));
+            list.add(new BlockRedstoneTorch.Toggle(pos, worldIn.getTotalWorldTime()));
         }
 
         int i = 0;
@@ -73,6 +73,9 @@ public class BlockRedstoneTorch extends BlockTorch
         return 2;
     }
 
+    /**
+     * Called after the block is set in the Chunk data, but before the Tile Entity is set
+     */
     public void onBlockAdded(World worldIn, BlockPos pos, IBlockState state)
     {
         if (this.isOn)
@@ -84,6 +87,9 @@ public class BlockRedstoneTorch extends BlockTorch
         }
     }
 
+    /**
+     * Called serverside after this block is replaced with another in Chunk, but before the Tile Entity is updated
+     */
     public void breakBlock(World worldIn, BlockPos pos, IBlockState state)
     {
         if (this.isOn)
@@ -101,15 +107,18 @@ public class BlockRedstoneTorch extends BlockTorch
      */
     public int getWeakPower(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side)
     {
-        return this.isOn && blockState.get(FACING) != side ? 15 : 0;
+        return this.isOn && blockState.getValue(FACING) != side ? 15 : 0;
     }
 
     private boolean shouldBeOff(World worldIn, BlockPos pos, IBlockState state)
     {
-        EnumFacing enumfacing = ((EnumFacing)state.get(FACING)).getOpposite();
+        EnumFacing enumfacing = ((EnumFacing)state.getValue(FACING)).getOpposite();
         return worldIn.isSidePowered(pos.offset(enumfacing), enumfacing);
     }
 
+    /**
+     * Called randomly when setTickRandomly is set to true (used by e.g. crops to grow, etc.)
+     */
     public void randomTick(World worldIn, BlockPos pos, IBlockState state, Random random)
     {
     }
@@ -119,7 +128,7 @@ public class BlockRedstoneTorch extends BlockTorch
         boolean flag = this.shouldBeOff(worldIn, pos, state);
         List<BlockRedstoneTorch.Toggle> list = (List)toggles.get(worldIn);
 
-        while (list != null && !list.isEmpty() && worldIn.getGameTime() - (list.get(0)).time > 60L)
+        while (list != null && !list.isEmpty() && worldIn.getTotalWorldTime() - (list.get(0)).time > 60L)
         {
             list.remove(0);
         }
@@ -128,7 +137,7 @@ public class BlockRedstoneTorch extends BlockTorch
         {
             if (flag)
             {
-                worldIn.setBlockState(pos, Blocks.UNLIT_REDSTONE_TORCH.getDefaultState().withProperty(FACING, state.get(FACING)), 3);
+                worldIn.setBlockState(pos, Blocks.UNLIT_REDSTONE_TORCH.getDefaultState().withProperty(FACING, state.getValue(FACING)), 3);
 
                 if (this.isBurnedOut(worldIn, pos, true))
                 {
@@ -148,10 +157,15 @@ public class BlockRedstoneTorch extends BlockTorch
         }
         else if (!flag && !this.isBurnedOut(worldIn, pos, false))
         {
-            worldIn.setBlockState(pos, Blocks.REDSTONE_TORCH.getDefaultState().withProperty(FACING, state.get(FACING)), 3);
+            worldIn.setBlockState(pos, Blocks.REDSTONE_TORCH.getDefaultState().withProperty(FACING, state.getValue(FACING)), 3);
         }
     }
 
+    /**
+     * Called when a neighboring block was changed and marks that this state should perform any checks during a neighbor
+     * change. Cases may include when redstone power is updated, cactus blocks popping off due to a neighboring solid
+     * block, etc.
+     */
     public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos)
     {
         if (!this.onNeighborChangeInternal(worldIn, pos, state))
@@ -172,6 +186,9 @@ public class BlockRedstoneTorch extends BlockTorch
         return side == EnumFacing.DOWN ? blockState.getWeakPower(blockAccess, pos, side) : 0;
     }
 
+    /**
+     * Get the Item that this Block should drop when harvested.
+     */
     public Item getItemDropped(IBlockState state, Random rand, int fortune)
     {
         return Item.getItemFromBlock(Blocks.REDSTONE_TORCH);
@@ -191,14 +208,14 @@ public class BlockRedstoneTorch extends BlockTorch
      * this method is unrelated to {@link randomTick} and {@link #needsRandomTick}, and will always be called regardless
      * of whether the block can receive random update ticks
      */
-    public void animateTick(IBlockState stateIn, World worldIn, BlockPos pos, Random rand)
+    public void randomDisplayTick(IBlockState stateIn, World worldIn, BlockPos pos, Random rand)
     {
         if (this.isOn)
         {
             double d0 = (double)pos.getX() + 0.5D + (rand.nextDouble() - 0.5D) * 0.2D;
             double d1 = (double)pos.getY() + 0.7D + (rand.nextDouble() - 0.5D) * 0.2D;
             double d2 = (double)pos.getZ() + 0.5D + (rand.nextDouble() - 0.5D) * 0.2D;
-            EnumFacing enumfacing = (EnumFacing)stateIn.get(FACING);
+            EnumFacing enumfacing = (EnumFacing)stateIn.getValue(FACING);
 
             if (enumfacing.getAxis().isHorizontal())
             {

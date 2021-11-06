@@ -9,8 +9,8 @@ import net.minecraft.network.play.INetHandlerPlayClient;
 
 public class SPacketPlaceGhostRecipe implements Packet<INetHandlerPlayClient>
 {
-    private int windowId;
-    private IRecipe recipe;
+    private int field_194314_a;
+    private IRecipe field_194315_b;
 
     public SPacketPlaceGhostRecipe()
     {
@@ -18,18 +18,18 @@ public class SPacketPlaceGhostRecipe implements Packet<INetHandlerPlayClient>
 
     public SPacketPlaceGhostRecipe(int p_i47615_1_, IRecipe p_i47615_2_)
     {
-        this.windowId = p_i47615_1_;
-        this.recipe = p_i47615_2_;
+        this.field_194314_a = p_i47615_1_;
+        this.field_194315_b = p_i47615_2_;
     }
 
     public IRecipe func_194311_a()
     {
-        return this.recipe;
+        return this.field_194315_b;
     }
 
-    public int getWindowId()
+    public int func_194313_b()
     {
-        return this.windowId;
+        return this.field_194314_a;
     }
 
     /**
@@ -37,8 +37,8 @@ public class SPacketPlaceGhostRecipe implements Packet<INetHandlerPlayClient>
      */
     public void readPacketData(PacketBuffer buf) throws IOException
     {
-        this.windowId = buf.readByte();
-        this.recipe = CraftingManager.getRecipeById(buf.readVarInt());
+        this.field_194314_a = buf.readByte();
+        this.field_194315_b = CraftingManager.getRecipeById(buf.readVarInt());
     }
 
     /**
@@ -46,8 +46,8 @@ public class SPacketPlaceGhostRecipe implements Packet<INetHandlerPlayClient>
      */
     public void writePacketData(PacketBuffer buf) throws IOException
     {
-        buf.writeByte(this.windowId);
-        buf.writeVarInt(CraftingManager.getIDForRecipe(this.recipe));
+        buf.writeByte(this.field_194314_a);
+        buf.writeVarInt(CraftingManager.getIDForRecipe(this.field_194315_b));
     }
 
     /**
@@ -55,6 +55,6 @@ public class SPacketPlaceGhostRecipe implements Packet<INetHandlerPlayClient>
      */
     public void processPacket(INetHandlerPlayClient handler)
     {
-        handler.handlePlaceGhostRecipe(this);
+        handler.func_194307_a(this);
     }
 }

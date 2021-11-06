@@ -26,8 +26,7 @@ public class EntityAIFleeSun extends EntityAIBase
     }
 
     /**
-     * Returns whether execution should begin. You can also read and cache any state necessary for execution in this
-     * method as well.
+     * Returns whether the EntityAIBase should begin execution.
      */
     public boolean shouldExecute()
     {
@@ -39,7 +38,7 @@ public class EntityAIFleeSun extends EntityAIBase
         {
             return false;
         }
-        else if (!this.world.canSeeSky(new BlockPos(this.creature.posX, this.creature.getBoundingBox().minY, this.creature.posZ)))
+        else if (!this.world.canSeeSky(new BlockPos(this.creature.posX, this.creature.getEntityBoundingBox().minY, this.creature.posZ)))
         {
             return false;
         }
@@ -85,7 +84,7 @@ public class EntityAIFleeSun extends EntityAIBase
     private Vec3d findPossibleShelter()
     {
         Random random = this.creature.getRNG();
-        BlockPos blockpos = new BlockPos(this.creature.posX, this.creature.getBoundingBox().minY, this.creature.posZ);
+        BlockPos blockpos = new BlockPos(this.creature.posX, this.creature.getEntityBoundingBox().minY, this.creature.posZ);
 
         for (int i = 0; i < 10; ++i)
         {

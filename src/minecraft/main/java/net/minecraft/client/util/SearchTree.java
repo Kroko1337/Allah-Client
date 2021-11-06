@@ -44,6 +44,11 @@ public class SearchTree<T> implements ISearchTree<T>
         this.byId.generate();
     }
 
+    /**
+     * Adds the given item to the search tree.
+     *  
+     * @param element The element to add
+     */
     public void add(T element)
     {
         this.numericContents.put(element, this.contents.size());
@@ -54,6 +59,8 @@ public class SearchTree<T> implements ISearchTree<T>
     /**
      * Directly puts the given item into {@link #byId} and {@link #byName}, applying {@link #nameFunc} and {@link
      * idFunc}.
+     *  
+     * @param element The element to add
      */
     private void index(T element)
     {

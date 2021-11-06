@@ -36,11 +36,17 @@ public class GuiEnchantment extends GuiContainer
      * The ModelBook instance used for rendering the book on the Enchantment table
      */
     private static final ModelBook MODEL_BOOK = new ModelBook();
+
+    /** The player inventory currently bound to this GuiEnchantment instance. */
     private final InventoryPlayer playerInventory;
 
     /** A Random instance for use with the enchantment gui */
     private final Random random = new Random();
-    private final ContainerEnchantment containerc;
+
+    /**
+     * The same reference as {@link GuiContainer#inventorySlots}, downcasted to {@link ContainerEnchantment}.
+     */
+    private final ContainerEnchantment container;
     public int ticks;
     public float flip;
     public float oFlip;
@@ -55,7 +61,7 @@ public class GuiEnchantment extends GuiContainer
     {
         super(new ContainerEnchantment(inventory, worldIn));
         this.playerInventory = inventory;
-        this.containerc = (ContainerEnchantment)this.container;
+        this.container = (ContainerEnchantment)this.inventorySlots;
         this.nameable = nameable;
     }
 
@@ -68,12 +74,18 @@ public class GuiEnchantment extends GuiContainer
         this.fontRenderer.drawString(this.playerInventory.getDisplayName().getUnformattedText(), 8, this.ySize - 96 + 2, 4210752);
     }
 
+    /**
+     * Called from the main game loop to update the screen.
+     */
     public void updateScreen()
     {
         super.updateScreen();
         this.tickBook();
     }
 
+    /**
+     * Called when the mouse is clicked. Args : mouseX, mouseY, clickedButton
+     */
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
     {
         super.mouseClicked(mouseX, mouseY, mouseButton);
@@ -161,8 +173,8 @@ public class GuiEnchantment extends GuiContainer
         GlStateManager.popMatrix();
         RenderHelper.disableStandardItemLighting();
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-        EnchantmentNameParts.getInstance().reseedRandomGenerator((long)this.containerc.xpSeed);
-        int k = this.containerc.getLapisAmount();
+        EnchantmentNameParts.getInstance().reseedRandomGenerator((long)this.container.xpSeed);
+        int k = this.container.getLapisAmount();
 
         for (int l = 0; l < 3; ++l)
         {
@@ -170,7 +182,7 @@ public class GuiEnchantment extends GuiContainer
             int j1 = i1 + 20;
             this.zLevel = 0.0F;
             this.mc.getTextureManager().bindTexture(ENCHANTMENT_TABLE_GUI_TEXTURE);
-            int k1 = this.containerc.enchantLevels[l];
+            int k1 = this.container.enchantLevels[l];
             GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 
             if (k1 == 0)
@@ -185,7 +197,7 @@ public class GuiEnchantment extends GuiContainer
                 FontRenderer fontrenderer = this.mc.standardGalacticFontRenderer;
                 int i2 = 6839882;
 
-                if ((k < l + 1 || this.mc.player.experienceLevel < k1) && !this.mc.player.abilities.isCreativeMode)
+                if ((k < l + 1 || this.mc.player.experienceLevel < k1) && !this.mc.player.capabilities.isCreativeMode)
                 {
                     this.drawTexturedModalRect(i1, j + 14 + 19 * l, 0, 185, 108, 19);
                     this.drawTexturedModalRect(i1 + 1, j + 15 + 19 * l, 16 * l, 239, 16, 16);
@@ -218,20 +230,23 @@ public class GuiEnchantment extends GuiContainer
         }
     }
 
+    /**
+     * Draws the screen and all the components in it.
+     */
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         partialTicks = this.mc.getTickLength();
         this.drawDefaultBackground();
         super.drawScreen(mouseX, mouseY, partialTicks);
         this.renderHoveredToolTip(mouseX, mouseY);
-        boolean flag = this.mc.player.abilities.isCreativeMode;
-        int i = this.containerc.getLapisAmount();
+        boolean flag = this.mc.player.capabilities.isCreativeMode;
+        int i = this.container.getLapisAmount();
 
         for (int j = 0; j < 3; ++j)
         {
-            int k = this.containerc.enchantLevels[j];
-            Enchantment enchantment = Enchantment.getEnchantmentByID(this.containerc.enchantClue[j]);
-            int l = this.containerc.worldClue[j];
+            int k = this.container.enchantLevels[j];
+            Enchantment enchantment = Enchantment.getEnchantmentByID(this.container.enchantClue[j]);
+            int l = this.container.worldClue[j];
             int i1 = j + 1;
 
             if (this.isPointInRegion(60, 14 + 19 * j, 108, 17, mouseX, mouseY) && k > 0 && l >= 0 && enchantment != null)
@@ -245,7 +260,7 @@ public class GuiEnchantment extends GuiContainer
 
                     if (this.mc.player.experienceLevel < k)
                     {
-                        list.add(TextFormatting.RED + I18n.format("container.enchant.level.requirement", this.containerc.enchantLevels[j]));
+                        list.add(TextFormatting.RED + I18n.format("container.enchant.level.requirement", this.container.enchantLevels[j]));
                     }
                     else
                     {
@@ -284,7 +299,7 @@ public class GuiEnchantment extends GuiContainer
 
     public void tickBook()
     {
-        ItemStack itemstack = this.container.getSlot(0).getStack();
+        ItemStack itemstack = this.inventorySlots.getSlot(0).getStack();
 
         if (!ItemStack.areItemStacksEqual(itemstack, this.last))
         {
@@ -308,7 +323,7 @@ public class GuiEnchantment extends GuiContainer
 
         for (int i = 0; i < 3; ++i)
         {
-            if (this.containerc.enchantLevels[i] != 0)
+            if (this.container.enchantLevels[i] != 0)
             {
                 flag = true;
             }

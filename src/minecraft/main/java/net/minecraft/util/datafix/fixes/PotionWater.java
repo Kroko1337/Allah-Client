@@ -16,14 +16,14 @@ public class PotionWater implements IFixableData
 
         if ("minecraft:potion".equals(s) || "minecraft:splash_potion".equals(s) || "minecraft:lingering_potion".equals(s) || "minecraft:tipped_arrow".equals(s))
         {
-            NBTTagCompound nbttagcompound = compound.getCompound("tag");
+            NBTTagCompound nbttagcompound = compound.getCompoundTag("tag");
 
-            if (!nbttagcompound.contains("Potion", 8))
+            if (!nbttagcompound.hasKey("Potion", 8))
             {
-                nbttagcompound.putString("Potion", "minecraft:water");
+                nbttagcompound.setString("Potion", "minecraft:water");
             }
 
-            if (!compound.contains("tag", 10))
+            if (!compound.hasKey("tag", 10))
             {
                 compound.setTag("tag", nbttagcompound);
             }

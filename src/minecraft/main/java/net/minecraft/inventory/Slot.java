@@ -6,10 +6,19 @@ import net.minecraft.item.ItemStack;
 
 public class Slot
 {
+    /** The index of the slot in the inventory. */
     private final int slotIndex;
+
+    /** The inventory we want to extract a slot from. */
     public final IInventory inventory;
+
+    /** the id of the slot(also the index in the inventory arraylist) */
     public int slotNumber;
+
+    /** display position of the inventory slot on the screen x axis */
     public int xPos;
+
+    /** display position of the inventory slot on the screen y axis */
     public int yPos;
 
     public Slot(IInventory inventoryIn, int index, int xPosition, int yPosition)
@@ -23,13 +32,13 @@ public class Slot
     /**
      * if par2 has more items than par1, onCrafting(item,countIncrease) is called
      */
-    public void onSlotChange(ItemStack oldStackIn, ItemStack newStackIn)
+    public void onSlotChange(ItemStack p_75220_1_, ItemStack p_75220_2_)
     {
-        int i = newStackIn.getCount() - oldStackIn.getCount();
+        int i = p_75220_2_.getCount() - p_75220_1_.getCount();
 
         if (i > 0)
         {
-            this.onCrafting(newStackIn, i);
+            this.onCrafting(p_75220_2_, i);
         }
     }
 
@@ -41,7 +50,7 @@ public class Slot
     {
     }
 
-    protected void onSwapCraft(int numItemsCrafted)
+    protected void onSwapCraft(int p_190900_1_)
     {
     }
 
@@ -128,6 +137,9 @@ public class Slot
         return this.inventory.decrStackSize(this.slotIndex, amount);
     }
 
+    /**
+     * returns true if the slot exists in the given inventory and location
+     */
     public boolean isHere(IInventory inv, int slotIn)
     {
         return inv == this.inventory && slotIn == this.slotIndex;

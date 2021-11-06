@@ -34,17 +34,17 @@ public interface IBlockProperties
 
     boolean useNeighborBrightness();
 
-    MapColor getMaterialColor(IBlockAccess worldIn, BlockPos pos);
+    MapColor getMapColor(IBlockAccess p_185909_1_, BlockPos p_185909_2_);
 
     /**
      * Returns the blockstate with the given rotation. If inapplicable, returns itself.
      */
-    IBlockState rotate(Rotation rot);
+    IBlockState withRotation(Rotation rot);
 
     /**
      * Returns the blockstate mirrored in the given way. If inapplicable, returns itself.
      */
-    IBlockState mirror(Mirror mirrorIn);
+    IBlockState withMirror(Mirror mirrorIn);
 
     boolean isFullCube();
 
@@ -93,6 +93,9 @@ public interface IBlockProperties
 
     RayTraceResult collisionRayTrace(World worldIn, BlockPos pos, Vec3d start, Vec3d end);
 
+    /**
+     * Determines if the block is solid enough on the top side to support other blocks, like redstone components.
+     */
     boolean isTopSolid();
 
     Vec3d getOffset(IBlockAccess access, BlockPos pos);

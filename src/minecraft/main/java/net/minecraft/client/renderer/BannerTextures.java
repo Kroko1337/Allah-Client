@@ -14,7 +14,10 @@ import net.minecraft.util.ResourceLocation;
 
 public class BannerTextures
 {
+    /** An array of all the banner patterns that are being currently rendered */
     public static final BannerTextures.Cache BANNER_DESIGNS = new BannerTextures.Cache("B", new ResourceLocation("textures/entity/banner_base.png"), "textures/entity/banner/");
+
+    /** An array of all the shield patterns that are being currently rendered */
     public static final BannerTextures.Cache SHIELD_DESIGNS = new BannerTextures.Cache("S", new ResourceLocation("textures/entity/shield_base.png"), "textures/entity/shield/");
     public static final ResourceLocation SHIELD_BASE_TEXTURE = new ResourceLocation("textures/entity/shield_base_nopattern.png");
     public static final ResourceLocation BANNER_BASE_TEXTURE = new ResourceLocation("textures/entity/banner/base.png");
@@ -61,7 +64,7 @@ public class BannerTextures
 
                     bannertextures$cacheentry = new BannerTextures.CacheEntry();
                     bannertextures$cacheentry.textureLocation = new ResourceLocation(id);
-                    Minecraft.getInstance().getTextureManager().loadTexture(bannertextures$cacheentry.textureLocation, new LayeredColorMaskTexture(this.cacheResourceLocation, list, colorList));
+                    Minecraft.getMinecraft().getTextureManager().loadTexture(bannertextures$cacheentry.textureLocation, new LayeredColorMaskTexture(this.cacheResourceLocation, list, colorList));
                     this.cacheMap.put(id, bannertextures$cacheentry);
                 }
 
@@ -82,7 +85,7 @@ public class BannerTextures
 
                 if (i - bannertextures$cacheentry.lastUseMillis > 5000L)
                 {
-                    Minecraft.getInstance().getTextureManager().deleteTexture(bannertextures$cacheentry.textureLocation);
+                    Minecraft.getMinecraft().getTextureManager().deleteTexture(bannertextures$cacheentry.textureLocation);
                     iterator.remove();
                     return true;
                 }

@@ -29,12 +29,12 @@ public class BlockOldLeaf extends BlockLeaves
 
     public BlockOldLeaf()
     {
-        this.setDefaultState(this.stateContainer.getBaseState().withProperty(VARIANT, BlockPlanks.EnumType.OAK).withProperty(CHECK_DECAY, Boolean.valueOf(true)).withProperty(DECAYABLE, Boolean.valueOf(true)));
+        this.setDefaultState(this.blockState.getBaseState().withProperty(VARIANT, BlockPlanks.EnumType.OAK).withProperty(CHECK_DECAY, Boolean.valueOf(true)).withProperty(DECAYABLE, Boolean.valueOf(true)));
     }
 
     protected void dropApple(World worldIn, BlockPos pos, IBlockState state, int chance)
     {
-        if (state.get(VARIANT) == BlockPlanks.EnumType.OAK && worldIn.rand.nextInt(chance) == 0)
+        if (state.getValue(VARIANT) == BlockPlanks.EnumType.OAK && worldIn.rand.nextInt(chance) == 0)
         {
             spawnAsEntity(worldIn, pos, new ItemStack(Items.APPLE));
         }
@@ -42,13 +42,13 @@ public class BlockOldLeaf extends BlockLeaves
 
     protected int getSaplingDropChance(IBlockState state)
     {
-        return state.get(VARIANT) == BlockPlanks.EnumType.JUNGLE ? 40 : super.getSaplingDropChance(state);
+        return state.getValue(VARIANT) == BlockPlanks.EnumType.JUNGLE ? 40 : super.getSaplingDropChance(state);
     }
 
     /**
      * returns a list of blocks with the same ID, but different meta (eg: wood returns 4 blocks)
      */
-    public void fillItemGroup(CreativeTabs group, NonNullList<ItemStack> items)
+    public void getSubBlocks(CreativeTabs itemIn, NonNullList<ItemStack> items)
     {
         items.add(new ItemStack(this, 1, BlockPlanks.EnumType.OAK.getMetadata()));
         items.add(new ItemStack(this, 1, BlockPlanks.EnumType.SPRUCE.getMetadata()));
@@ -58,25 +58,31 @@ public class BlockOldLeaf extends BlockLeaves
 
     protected ItemStack getSilkTouchDrop(IBlockState state)
     {
-        return new ItemStack(Item.getItemFromBlock(this), 1, ((BlockPlanks.EnumType)state.get(VARIANT)).getMetadata());
+        return new ItemStack(Item.getItemFromBlock(this), 1, ((BlockPlanks.EnumType)state.getValue(VARIANT)).getMetadata());
     }
 
+    /**
+     * Convert the given metadata into a BlockState for this Block
+     */
     public IBlockState getStateFromMeta(int meta)
     {
         return this.getDefaultState().withProperty(VARIANT, this.getWoodType(meta)).withProperty(DECAYABLE, Boolean.valueOf((meta & 4) == 0)).withProperty(CHECK_DECAY, Boolean.valueOf((meta & 8) > 0));
     }
 
+    /**
+     * Convert the BlockState into the correct metadata value
+     */
     public int getMetaFromState(IBlockState state)
     {
         int i = 0;
-        i = i | ((BlockPlanks.EnumType)state.get(VARIANT)).getMetadata();
+        i = i | ((BlockPlanks.EnumType)state.getValue(VARIANT)).getMetadata();
 
-        if (!((Boolean)state.get(DECAYABLE)).booleanValue())
+        if (!((Boolean)state.getValue(DECAYABLE)).booleanValue())
         {
             i |= 4;
         }
 
-        if (((Boolean)state.get(CHECK_DECAY)).booleanValue())
+        if (((Boolean)state.getValue(CHECK_DECAY)).booleanValue())
         {
             i |= 8;
         }
@@ -94,9 +100,13 @@ public class BlockOldLeaf extends BlockLeaves
         return new BlockStateContainer(this, new IProperty[] {VARIANT, CHECK_DECAY, DECAYABLE});
     }
 
+    /**
+     * Gets the metadata of the item this Block can drop. This method is called when the block gets destroyed. It
+     * returns the metadata of the dropped item based on the old metadata of the block.
+     */
     public int damageDropped(IBlockState state)
     {
-        return ((BlockPlanks.EnumType)state.get(VARIANT)).getMetadata();
+        return ((BlockPlanks.EnumType)state.getValue(VARIANT)).getMetadata();
     }
 
     /**
@@ -108,7 +118,7 @@ public class BlockOldLeaf extends BlockLeaves
         if (!worldIn.isRemote && stack.getItem() == Items.SHEARS)
         {
             player.addStat(StatList.getBlockStats(this));
-            spawnAsEntity(worldIn, pos, new ItemStack(Item.getItemFromBlock(this), 1, ((BlockPlanks.EnumType)state.get(VARIANT)).getMetadata()));
+            spawnAsEntity(worldIn, pos, new ItemStack(Item.getItemFromBlock(this), 1, ((BlockPlanks.EnumType)state.getValue(VARIANT)).getMetadata()));
         }
         else
         {

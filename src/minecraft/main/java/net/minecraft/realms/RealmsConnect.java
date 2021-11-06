@@ -42,14 +42,14 @@ public class RealmsConnect
                         return;
                     }
 
-                    RealmsConnect.this.connection = NetworkManager.createNetworkManagerAndConnect(inetaddress, p_connect_2_, Minecraft.getInstance().gameSettings.isUsingNativeTransport());
+                    RealmsConnect.this.connection = NetworkManager.createNetworkManagerAndConnect(inetaddress, p_connect_2_, Minecraft.getMinecraft().gameSettings.isUsingNativeTransport());
 
                     if (RealmsConnect.this.aborted)
                     {
                         return;
                     }
 
-                    RealmsConnect.this.connection.setNetHandler(new NetHandlerLoginClient(RealmsConnect.this.connection, Minecraft.getInstance(), RealmsConnect.this.onlineScreen.getProxy()));
+                    RealmsConnect.this.connection.setNetHandler(new NetHandlerLoginClient(RealmsConnect.this.connection, Minecraft.getMinecraft(), RealmsConnect.this.onlineScreen.getProxy()));
 
                     if (RealmsConnect.this.aborted)
                     {
@@ -63,7 +63,7 @@ public class RealmsConnect
                         return;
                     }
 
-                    RealmsConnect.this.connection.sendPacket(new CPacketLoginStart(Minecraft.getInstance().getSession().getProfile()));
+                    RealmsConnect.this.connection.sendPacket(new CPacketLoginStart(Minecraft.getMinecraft().getSession().getProfile()));
                 }
                 catch (UnknownHostException unknownhostexception)
                 {
@@ -118,7 +118,7 @@ public class RealmsConnect
         {
             if (this.connection.isChannelOpen())
             {
-                this.connection.tick();
+                this.connection.processReceivedPackets();
             }
             else
             {

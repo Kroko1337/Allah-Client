@@ -17,7 +17,7 @@ import net.minecraft.util.text.TextComponentString;
 
 public class SignStrictJSON implements IFixableData
 {
-    public static final Gson GSON = (new GsonBuilder()).registerTypeAdapter(ITextComponent.class, new JsonDeserializer<ITextComponent>()
+    public static final Gson GSON_INSTANCE = (new GsonBuilder()).registerTypeAdapter(ITextComponent.class, new JsonDeserializer<ITextComponent>()
     {
         public ITextComponent deserialize(JsonElement p_deserialize_1_, Type p_deserialize_2_, JsonDeserializationContext p_deserialize_3_) throws JsonParseException
         {
@@ -82,7 +82,7 @@ public class SignStrictJSON implements IFixableData
             {
                 try
                 {
-                    itextcomponent = (ITextComponent)JsonUtils.fromJson(GSON, s, ITextComponent.class, true);
+                    itextcomponent = (ITextComponent)JsonUtils.gsonDeserialize(GSON_INSTANCE, s, ITextComponent.class, true);
 
                     if (itextcomponent == null)
                     {
@@ -98,7 +98,7 @@ public class SignStrictJSON implements IFixableData
                 {
                     try
                     {
-                        itextcomponent = ITextComponent.Serializer.fromJson(s);
+                        itextcomponent = ITextComponent.Serializer.jsonToComponent(s);
                     }
                     catch (JsonParseException var7)
                     {
@@ -133,6 +133,6 @@ public class SignStrictJSON implements IFixableData
             itextcomponent = new TextComponentString("");
         }
 
-        compound.putString(key, ITextComponent.Serializer.toJson(itextcomponent));
+        compound.setString(key, ITextComponent.Serializer.componentToJson(itextcomponent));
     }
 }

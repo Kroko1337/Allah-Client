@@ -22,6 +22,9 @@ public interface ISaveHandler
      */
     void checkSessionLock() throws MinecraftException;
 
+    /**
+     * initializes and returns the chunk loader for the specified world provider
+     */
     IChunkLoader getChunkLoader(WorldProvider provider);
 
     /**
@@ -36,6 +39,9 @@ public interface ISaveHandler
 
     IPlayerFileData getPlayerNBTManager();
 
+    /**
+     * Called to flush all changes to disk, waiting for them to complete.
+     */
     void flush();
 
     /**
@@ -43,6 +49,9 @@ public interface ISaveHandler
      */
     File getWorldDirectory();
 
+    /**
+     * Gets the file location of the given map
+     */
     File getMapFileFromName(String mapName);
 
     TemplateManager getStructureTemplateManager();

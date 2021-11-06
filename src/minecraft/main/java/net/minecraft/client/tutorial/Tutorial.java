@@ -69,6 +69,8 @@ public class Tutorial
 
     /**
      * Called when the player pick up an ItemStack
+     *  
+     * @param stack The ItemStack
      */
     public void handleSetSlot(ItemStack stack)
     {
@@ -100,13 +102,13 @@ public class Tutorial
         this.tutorialStep = this.minecraft.gameSettings.tutorialStep.create(this);
     }
 
-    public void tick()
+    public void update()
     {
         if (this.tutorialStep != null)
         {
             if (this.minecraft.world != null)
             {
-                this.tutorialStep.tick();
+                this.tutorialStep.update();
             }
             else
             {

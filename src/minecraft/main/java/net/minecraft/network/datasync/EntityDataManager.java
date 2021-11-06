@@ -23,6 +23,8 @@ public class EntityDataManager
 {
     private static final Logger LOGGER = LogManager.getLogger();
     private static final Map < Class <? extends Entity > , Integer > NEXT_ID_MAP = Maps. < Class <? extends Entity > , Integer > newHashMap();
+
+    /** The entity that this data manager is for. */
     private final Entity entity;
     private final Map < Integer, EntityDataManager.DataEntry<? >> entries = Maps. < Integer, EntityDataManager.DataEntry<? >> newHashMap();
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
@@ -133,7 +135,7 @@ public class EntityDataManager
         {
             CrashReport crashreport = CrashReport.makeCrashReport(throwable, "Getting synched entity data");
             CrashReportCategory crashreportcategory = crashreport.makeCategory("Synched entity data");
-            crashreportcategory.addDetail("Data ID", key);
+            crashreportcategory.addCrashSection("Data ID", key);
             throw new ReportedException(crashreport);
         }
 

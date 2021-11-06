@@ -26,10 +26,20 @@ import net.minecraft.util.math.BlockPos;
 public class TileEntityChest extends TileEntityLockableLoot implements ITickable
 {
     private NonNullList<ItemStack> chestContents = NonNullList.<ItemStack>withSize(27, ItemStack.EMPTY);
+
+    /** Determines if the check for adjacent chests has taken place. */
     public boolean adjacentChestChecked;
+
+    /** Contains the chest tile located adjacent to this one (if any) */
     public TileEntityChest adjacentChestZNeg;
+
+    /** Contains the chest tile located adjacent to this one (if any) */
     public TileEntityChest adjacentChestXPos;
+
+    /** Contains the chest tile located adjacent to this one (if any) */
     public TileEntityChest adjacentChestXNeg;
+
+    /** Contains the chest tile located adjacent to this one (if any) */
     public TileEntityChest adjacentChestZPos;
 
     /** The current angle of the lid (between 0 and 1) */
@@ -41,11 +51,7 @@ public class TileEntityChest extends TileEntityLockableLoot implements ITickable
     /** The number of players currently using this chest */
     public int numPlayersUsing;
 
-    /**
-     * A counter that is incremented once each tick. Used to determine when to recompute ; this is done every 200 ticks
-     * (but staggered between different chests). However, the new value isn't actually sent to clients when it is
-     * changed.
-     */
+    /** Server sync counter (once per 20 ticks) */
     private int ticksSinceSync;
     private BlockChest.Type cachedChestType;
 
@@ -79,6 +85,41 @@ public class TileEntityChest extends TileEntityLockableLoot implements ITickable
         return true;
     }
 
+    /**
+     * Gets the name of this thing. This method has slightly different behavior depending on the interface (for <a
+     * href="https://github.com/ModCoderPack/MCPBot-Issues/issues/14">technical reasons</a> the same method is used for
+     * both IWorldNameable and ICommandSender):
+     *  
+     * <dl>
+     * <dt>{@link net.minecraft.util.INameable#getName() INameable.getName()}</dt>
+     * <dd>Returns the name of this inventory. If this {@linkplain net.minecraft.inventory#hasCustomName() has a custom
+     * name} then this <em>should</em> be a direct string; otherwise it <em>should</em> be a valid translation
+     * string.</dd>
+     * <dd>However, note that <strong>the translation string may be invalid</strong>, as is the case for {@link
+     * net.minecraft.tileentity.TileEntityBanner TileEntityBanner} (always returns nonexistent translation code
+     * <code>banner</code> without a custom name), {@link net.minecraft.block.BlockAnvil.Anvil BlockAnvil$Anvil} (always
+     * returns <code>anvil</code>), {@link net.minecraft.block.BlockWorkbench.InterfaceCraftingTable
+     * BlockWorkbench$InterfaceCraftingTable} (always returns <code>crafting_table</code>), {@link
+     * net.minecraft.inventory.InventoryCraftResult InventoryCraftResult} (always returns <code>Result</code>) and the
+     * {@link net.minecraft.entity.item.EntityMinecart EntityMinecart} family (uses the entity definition). This is not
+     * an exaustive list.</dd>
+     * <dd>In general, this method should be safe to use on tile entities that implement IInventory.</dd>
+     * <dt>{@link net.minecraft.command.ICommandSender#getName() ICommandSender.getName()} and {@link
+     * net.minecraft.entity.Entity#getName() Entity.getName()}</dt>
+     * <dd>Returns a valid, displayable name (which may be localized). For most entities, this is the translated version
+     * of its translation string (obtained via {@link net.minecraft.entity.EntityList#getEntityString
+     * EntityList.getEntityString}).</dd>
+     * <dd>If this entity has a custom name set, this will return that name.</dd>
+     * <dd>For some entities, this will attempt to translate a nonexistent translation string; see <a
+     * href="https://bugs.mojang.com/browse/MC-68446">MC-68446</a>. For {@linkplain
+     * net.minecraft.entity.player.EntityPlayer#getName() players} this returns the player's name. For {@linkplain
+     * net.minecraft.entity.passive.EntityOcelot ocelots} this may return the translation of
+     * <code>entity.Cat.name</code> if it is tamed. For {@linkplain net.minecraft.entity.item.EntityItem#getName() item
+     * entities}, this will attempt to return the name of the item in that item entity. In all cases other than players,
+     * the custom name will overrule this.</dd>
+     * <dd>For non-entity command senders, this will return some arbitrary name, such as "Rcon" or "Server".</dd>
+     * </dl>
+     */
     public String getName()
     {
         return this.hasCustomName() ? this.customName : "container.chest";
@@ -89,9 +130,9 @@ public class TileEntityChest extends TileEntityLockableLoot implements ITickable
         fixer.registerWalker(FixTypes.BLOCK_ENTITY, new ItemStackDataLists(TileEntityChest.class, new String[] {"Items"}));
     }
 
-    public void read(NBTTagCompound compound)
+    public void readFromNBT(NBTTagCompound compound)
     {
-        super.read(compound);
+        super.readFromNBT(compound);
         this.chestContents = NonNullList.<ItemStack>withSize(this.getSizeInventory(), ItemStack.EMPTY);
 
         if (!this.checkLootAndRead(compound))
@@ -99,15 +140,15 @@ public class TileEntityChest extends TileEntityLockableLoot implements ITickable
             ItemStackHelper.loadAllItems(compound, this.chestContents);
         }
 
-        if (compound.contains("CustomName", 8))
+        if (compound.hasKey("CustomName", 8))
         {
             this.customName = compound.getString("CustomName");
         }
     }
 
-    public NBTTagCompound write(NBTTagCompound compound)
+    public NBTTagCompound writeToNBT(NBTTagCompound compound)
     {
-        super.write(compound);
+        super.writeToNBT(compound);
 
         if (!this.checkLootAndWrite(compound))
         {
@@ -116,7 +157,7 @@ public class TileEntityChest extends TileEntityLockableLoot implements ITickable
 
         if (this.hasCustomName())
         {
-            compound.putString("CustomName", this.customName);
+            compound.setString("CustomName", this.customName);
         }
 
         return compound;
@@ -139,7 +180,7 @@ public class TileEntityChest extends TileEntityLockableLoot implements ITickable
     @SuppressWarnings("incomplete-switch")
     private void setNeighbor(TileEntityChest chestTe, EnumFacing side)
     {
-        if (chestTe.isRemoved())
+        if (chestTe.isInvalid())
         {
             this.adjacentChestChecked = false;
         }
@@ -180,6 +221,9 @@ public class TileEntityChest extends TileEntityLockableLoot implements ITickable
         }
     }
 
+    /**
+     * Performs the check for adjacent chests to determine if this chest is double or not.
+     */
     public void checkForAdjacentChests()
     {
         if (!this.adjacentChestChecked)
@@ -225,7 +269,10 @@ public class TileEntityChest extends TileEntityLockableLoot implements ITickable
         }
     }
 
-    public void tick()
+    /**
+     * Like the old updateEntity(), except more generic.
+     */
+    public void update()
     {
         this.checkForAdjacentChests();
         int i = this.pos.getX();
@@ -373,9 +420,9 @@ public class TileEntityChest extends TileEntityLockableLoot implements ITickable
     /**
      * invalidates a tile entity
      */
-    public void remove()
+    public void invalidate()
     {
-        super.remove();
+        super.invalidate();
         this.updateContainingBlockInfo();
         this.checkForAdjacentChests();
     }

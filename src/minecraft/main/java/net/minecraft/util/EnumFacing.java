@@ -36,10 +36,12 @@ public enum EnumFacing implements IStringSerializable
 
     /** Normalized Vector that points in the direction of this Facing */
     private final Vec3i directionVec;
-    private static final EnumFacing[] BY_INDEX = new EnumFacing[6];
+
+    /** All facings in D-U-N-S-W-E order */
+    public static final EnumFacing[] VALUES = new EnumFacing[6];
 
     /** All Facings with horizontal axis in order S-W-N-E */
-    private static final EnumFacing[] BY_HORIZONTAL_INDEX = new EnumFacing[4];
+    private static final EnumFacing[] HORIZONTALS = new EnumFacing[4];
     private static final Map<String, EnumFacing> NAME_LOOKUP = Maps.<String, EnumFacing>newHashMap();
 
     private EnumFacing(int indexIn, int oppositeIn, int horizontalIndexIn, String nameIn, EnumFacing.AxisDirection axisDirectionIn, EnumFacing.Axis axisIn, Vec3i directionVecIn)
@@ -82,9 +84,13 @@ public enum EnumFacing implements IStringSerializable
      */
     public EnumFacing getOpposite()
     {
-        return byIndex(this.opposite);
+        return VALUES[this.opposite];
     }
 
+    /**
+     * Rotate this Facing around the given axis clockwise. If this facing cannot be rotated around the given axis,
+     * returns this facing without rotating.
+     */
     public EnumFacing rotateAround(EnumFacing.Axis axis)
     {
         switch (axis)
@@ -142,6 +148,9 @@ public enum EnumFacing implements IStringSerializable
         }
     }
 
+    /**
+     * Rotate this Facing around the X axis (NORTH => DOWN => SOUTH => UP => NORTH)
+     */
     private EnumFacing rotateX()
     {
         switch (this)
@@ -165,6 +174,9 @@ public enum EnumFacing implements IStringSerializable
         }
     }
 
+    /**
+     * Rotate this Facing around the Z axis (EAST => DOWN => WEST => UP => EAST)
+     */
     private EnumFacing rotateZ()
     {
         switch (this)
@@ -264,7 +276,7 @@ public enum EnumFacing implements IStringSerializable
      */
     public static EnumFacing byIndex(int index)
     {
-        return BY_INDEX[MathHelper.abs(index % BY_INDEX.length)];
+        return VALUES[MathHelper.abs(index % VALUES.length)];
     }
 
     /**
@@ -273,7 +285,7 @@ public enum EnumFacing implements IStringSerializable
      */
     public static EnumFacing byHorizontalIndex(int horizontalIndexIn)
     {
-        return BY_HORIZONTAL_INDEX[MathHelper.abs(horizontalIndexIn % BY_HORIZONTAL_INDEX.length)];
+        return HORIZONTALS[MathHelper.abs(horizontalIndexIn % HORIZONTALS.length)];
     }
 
     /**
@@ -374,11 +386,11 @@ public enum EnumFacing implements IStringSerializable
     static {
         for (EnumFacing enumfacing : values())
         {
-            BY_INDEX[enumfacing.index] = enumfacing;
+            VALUES[enumfacing.index] = enumfacing;
 
             if (enumfacing.getAxis().isHorizontal())
             {
-                BY_HORIZONTAL_INDEX[enumfacing.horizontalIndex] = enumfacing;
+                HORIZONTALS[enumfacing.horizontalIndex] = enumfacing;
             }
 
             NAME_LOOKUP.put(enumfacing.getName2().toLowerCase(Locale.ROOT), enumfacing);

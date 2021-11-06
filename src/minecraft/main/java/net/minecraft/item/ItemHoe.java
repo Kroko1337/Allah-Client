@@ -35,6 +35,10 @@ public class ItemHoe extends Item
     }
 
     @SuppressWarnings("incomplete-switch")
+
+    /**
+     * Called when a Block is right-clicked with this Item
+     */
     public EnumActionResult onItemUse(EntityPlayer player, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
         ItemStack itemstack = player.getHeldItem(hand);
@@ -58,7 +62,7 @@ public class ItemHoe extends Item
 
                 if (block == Blocks.DIRT)
                 {
-                    switch ((BlockDirt.DirtType)iblockstate.get(BlockDirt.VARIANT))
+                    switch ((BlockDirt.DirtType)iblockstate.getValue(BlockDirt.VARIANT))
                     {
                         case DIRT:
                             this.setBlock(itemstack, player, worldIn, pos, Blocks.FARMLAND.getDefaultState());
@@ -96,19 +100,26 @@ public class ItemHoe extends Item
         }
     }
 
+    /**
+     * Returns True is the item is renderer in full 3D when hold.
+     */
     public boolean isFull3D()
     {
         return true;
     }
 
+    /**
+     * Returns the name of the material this tool is made from as it is declared in EnumToolMaterial (meaning diamond
+     * would return "EMERALD")
+     */
     public String getMaterialName()
     {
         return this.toolMaterial.toString();
     }
 
-    public Multimap<String, AttributeModifier> getAttributeModifiers(EntityEquipmentSlot equipmentSlot)
+    public Multimap<String, AttributeModifier> getItemAttributeModifiers(EntityEquipmentSlot equipmentSlot)
     {
-        Multimap<String, AttributeModifier> multimap = super.getAttributeModifiers(equipmentSlot);
+        Multimap<String, AttributeModifier> multimap = super.getItemAttributeModifiers(equipmentSlot);
 
         if (equipmentSlot == EntityEquipmentSlot.MAINHAND)
         {

@@ -25,7 +25,7 @@ public abstract class BlockSlab extends Block
 
     public BlockSlab(Material materialIn)
     {
-        this(materialIn, materialIn.getColor());
+        this(materialIn, materialIn.getMaterialMapColor());
     }
 
     public BlockSlab(Material p_i47249_1_, MapColor p_i47249_2_)
@@ -40,6 +40,10 @@ public abstract class BlockSlab extends Block
         return false;
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#getBoundingBox(IBlockAccess,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
     {
         if (this.isDouble())
@@ -48,36 +52,59 @@ public abstract class BlockSlab extends Block
         }
         else
         {
-            return state.get(HALF) == BlockSlab.EnumBlockHalf.TOP ? AABB_TOP_HALF : AABB_BOTTOM_HALF;
+            return state.getValue(HALF) == BlockSlab.EnumBlockHalf.TOP ? AABB_TOP_HALF : AABB_BOTTOM_HALF;
         }
     }
 
+    /**
+     * Determines if the block is solid enough on the top side to support other blocks, like redstone components.
+     * @deprecated prefer calling {@link IBlockState#isTopSolid()} wherever possible
+     */
     public boolean isTopSolid(IBlockState state)
     {
-        return ((BlockSlab)state.getBlock()).isDouble() || state.get(HALF) == BlockSlab.EnumBlockHalf.TOP;
+        return ((BlockSlab)state.getBlock()).isDouble() || state.getValue(HALF) == BlockSlab.EnumBlockHalf.TOP;
     }
 
+    /**
+     * Get the geometry of the queried face at the given position and state. This is used to decide whether things like
+     * buttons are allowed to be placed on the face, or how glass panes connect to the face, among other things.
+     * <p>
+     * Common values are {@code SOLID}, which is the default, and {@code UNDEFINED}, which represents something that
+     * does not fit the other descriptions and will generally cause other things not to connect to the face.
+
+     * @return an approximation of the form of the given face
+     * @deprecated call via {@link IBlockState#getBlockFaceShape(IBlockAccess,BlockPos,EnumFacing)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public BlockFaceShape getBlockFaceShape(IBlockAccess worldIn, IBlockState state, BlockPos pos, EnumFacing face)
     {
         if (((BlockSlab)state.getBlock()).isDouble())
         {
             return BlockFaceShape.SOLID;
         }
-        else if (face == EnumFacing.UP && state.get(HALF) == BlockSlab.EnumBlockHalf.TOP)
+        else if (face == EnumFacing.UP && state.getValue(HALF) == BlockSlab.EnumBlockHalf.TOP)
         {
             return BlockFaceShape.SOLID;
         }
         else
         {
-            return face == EnumFacing.DOWN && state.get(HALF) == BlockSlab.EnumBlockHalf.BOTTOM ? BlockFaceShape.SOLID : BlockFaceShape.UNDEFINED;
+            return face == EnumFacing.DOWN && state.getValue(HALF) == BlockSlab.EnumBlockHalf.BOTTOM ? BlockFaceShape.SOLID : BlockFaceShape.UNDEFINED;
         }
     }
 
+    /**
+     * Used to determine ambient occlusion and culling when rebuilding chunks for render
+     * @deprecated call via {@link IBlockState#isOpaqueCube()} whenever possible. Implementing/overriding is fine.
+     */
     public boolean isOpaqueCube(IBlockState state)
     {
         return this.isDouble();
     }
 
+    /**
+     * Called by ItemBlocks just before a block is actually set in the world, to allow for adjustments to the
+     * IBlockstate
+     */
     public IBlockState getStateForPlacement(World worldIn, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer)
     {
         IBlockState iblockstate = super.getStateForPlacement(worldIn, pos, facing, hitX, hitY, hitZ, meta, placer).withProperty(HALF, BlockSlab.EnumBlockHalf.BOTTOM);
@@ -92,18 +119,25 @@ public abstract class BlockSlab extends Block
         }
     }
 
+    /**
+     * Returns the quantity of items to drop on block destruction.
+     */
     public int quantityDropped(Random random)
     {
         return this.isDouble() ? 2 : 1;
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#isFullCube()} whenever possible. Implementing/overriding is fine.
+     */
     public boolean isFullCube(IBlockState state)
     {
         return this.isDouble();
     }
 
     /**
-     * ""
+     * @deprecated call via {@link IBlockState#shouldSideBeRendered(IBlockAccess,BlockPos,EnumFacing)} whenever
+     * possible. Implementing/overriding is fine.
      */
     public boolean shouldSideBeRendered(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side)
     {
@@ -118,8 +152,8 @@ public abstract class BlockSlab extends Block
         else
         {
             IBlockState iblockstate = blockAccess.getBlockState(pos.offset(side));
-            boolean flag = isHalfSlab(iblockstate) && iblockstate.get(HALF) == BlockSlab.EnumBlockHalf.TOP;
-            boolean flag1 = isHalfSlab(blockState) && blockState.get(HALF) == BlockSlab.EnumBlockHalf.TOP;
+            boolean flag = isHalfSlab(iblockstate) && iblockstate.getValue(HALF) == BlockSlab.EnumBlockHalf.TOP;
+            boolean flag1 = isHalfSlab(blockState) && blockState.getValue(HALF) == BlockSlab.EnumBlockHalf.TOP;
 
             if (flag1)
             {
@@ -157,6 +191,9 @@ public abstract class BlockSlab extends Block
         return block == Blocks.STONE_SLAB || block == Blocks.WOODEN_SLAB || block == Blocks.STONE_SLAB2 || block == Blocks.PURPUR_SLAB;
     }
 
+    /**
+     * Returns the slab block name with the type associated with it
+     */
     public abstract String getTranslationKey(int meta);
 
     public abstract boolean isDouble();

@@ -30,7 +30,7 @@ public class PunchTreeStep implements ITutorialStep
         this.tutorial = tutorial;
     }
 
-    public void tick()
+    public void update()
     {
         ++this.timeWaiting;
 
@@ -82,6 +82,11 @@ public class PunchTreeStep implements ITutorialStep
 
     /**
      * Called when a player hits block to destroy it.
+     *  
+     * @param worldIn The world the player is in
+     * @param pos The block position
+     * @param state The block state
+     * @param diggingStage The amount of digging, 1.0 means the block is totally digged, -1.0 means the player stopped
      */
     public void onHitBlock(WorldClient worldIn, BlockPos pos, IBlockState state, float diggingStage)
     {
@@ -111,6 +116,8 @@ public class PunchTreeStep implements ITutorialStep
 
     /**
      * Called when the player pick up an ItemStack
+     *  
+     * @param stack The ItemStack
      */
     public void handleSetSlot(ItemStack stack)
     {

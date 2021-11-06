@@ -12,6 +12,10 @@ public class EntityAIMoveTowardsTarget extends EntityAIBase
     private double movePosY;
     private double movePosZ;
     private final double speed;
+
+    /**
+     * If the distance to the target entity is further than this, this AI task will not run.
+     */
     private final float maxTargetDistance;
 
     public EntityAIMoveTowardsTarget(EntityCreature creature, double speedIn, float targetMaxDistance)
@@ -23,8 +27,7 @@ public class EntityAIMoveTowardsTarget extends EntityAIBase
     }
 
     /**
-     * Returns whether execution should begin. You can also read and cache any state necessary for execution in this
-     * method as well.
+     * Returns whether the EntityAIBase should begin execution.
      */
     public boolean shouldExecute()
     {
@@ -61,7 +64,7 @@ public class EntityAIMoveTowardsTarget extends EntityAIBase
      */
     public boolean shouldContinueExecuting()
     {
-        return !this.creature.getNavigator().noPath() && this.targetEntity.isAlive() && this.targetEntity.getDistanceSq(this.creature) < (double)(this.maxTargetDistance * this.maxTargetDistance);
+        return !this.creature.getNavigator().noPath() && this.targetEntity.isEntityAlive() && this.targetEntity.getDistanceSq(this.creature) < (double)(this.maxTargetDistance * this.maxTargetDistance);
     }
 
     /**

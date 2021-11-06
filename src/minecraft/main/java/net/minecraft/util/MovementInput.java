@@ -4,6 +4,9 @@ import net.minecraft.util.math.Vec2f;
 
 public class MovementInput
 {
+    /**
+     * The speed at which the player is strafing. Postive numbers to the left and negative to the right.
+     */
     public float moveStrafe;
     public float moveForward;
     public boolean forwardKeyDown;

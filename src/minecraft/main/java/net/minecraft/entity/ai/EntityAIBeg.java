@@ -24,8 +24,7 @@ public class EntityAIBeg extends EntityAIBase
     }
 
     /**
-     * Returns whether execution should begin. You can also read and cache any state necessary for execution in this
-     * method as well.
+     * Returns whether the EntityAIBase should begin execution.
      */
     public boolean shouldExecute()
     {
@@ -38,7 +37,7 @@ public class EntityAIBeg extends EntityAIBase
      */
     public boolean shouldContinueExecuting()
     {
-        if (!this.player.isAlive())
+        if (!this.player.isEntityAlive())
         {
             return false;
         }
@@ -73,9 +72,9 @@ public class EntityAIBeg extends EntityAIBase
     /**
      * Keep ticking a continuous task that has already been started
      */
-    public void tick()
+    public void updateTask()
     {
-        this.wolf.getLookController().setLookPosition(this.player.posX, this.player.posY + (double)this.player.getEyeHeight(), this.player.posZ, 10.0F, (float)this.wolf.getVerticalFaceSpeed());
+        this.wolf.getLookHelper().setLookPosition(this.player.posX, this.player.posY + (double)this.player.getEyeHeight(), this.player.posZ, 10.0F, (float)this.wolf.getVerticalFaceSpeed());
         --this.timeoutCounter;
     }
 

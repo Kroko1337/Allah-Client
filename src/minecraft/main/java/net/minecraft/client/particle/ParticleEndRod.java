@@ -11,7 +11,7 @@ public class ParticleEndRod extends ParticleSimpleAnimated
         this.motionY = p_i46580_10_;
         this.motionZ = p_i46580_12_;
         this.particleScale *= 0.75F;
-        this.maxAge = 60 + this.rand.nextInt(12);
+        this.particleMaxAge = 60 + this.rand.nextInt(12);
         this.setColorFade(15916745);
     }
 

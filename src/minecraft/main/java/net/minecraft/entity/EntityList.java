@@ -111,28 +111,56 @@ public class EntityList
     private static final List<String> OLD_NAMES = Lists.<String>newArrayList();
 
     @Nullable
+
+    /**
+     * Gets the {@link ResourceLocation} that identifies the given entity's type.
+     */
     public static ResourceLocation getKey(Entity entityIn)
     {
         return getKey(entityIn.getClass());
     }
 
     @Nullable
+
+    /**
+     * Gets the {@link ResourceLocation} that identifies the given entity's type.
+     *  
+     * @return The resource location, or null if the {@link #REGISTRY} does not contain a mapping for that class.
+     */
     public static ResourceLocation getKey(Class <? extends Entity > entityIn)
     {
-        return REGISTRY.getKey(entityIn);
+        return REGISTRY.getNameForObject(entityIn);
     }
 
     @Nullable
+
+    /**
+     * Gets the original name for the entity, used in versions prior to 1.11. This name is also used for translation
+     * strings.
+     *  
+     * @return The entity's original name, or null if the given entity's type is not known.
+     */
     public static String getEntityString(Entity entityIn)
     {
-        int i = REGISTRY.getId(entityIn.getClass());
+        int i = REGISTRY.getIDForObject(entityIn.getClass());
         return i == -1 ? null : (String)OLD_NAMES.get(i);
     }
 
     @Nullable
+
+    /**
+     * Gets the original name for the given entity type, used in versions prior to 1.11. Note that even entities added
+     * after 1.11 have old names as returned by this method.
+     * <p>
+     * This name is also used for translation strings; translate <code>"entity.$oldid.name"</code> (with
+     * <var>$oldid</var> being the result of this method) to get those names. Note that the name is upper-case in most
+     * situations.
+     *  
+     * @return The original entity name, or null if there is no known entity for that type.
+     */
     public static String getTranslationName(@Nullable ResourceLocation entityType)
     {
-        int i = REGISTRY.getId(REGISTRY.getOrDefault(entityType));
+        int i = REGISTRY.getIDForObject(REGISTRY.getObject(entityType));
         return i == -1 ? null : (String)OLD_NAMES.get(i);
     }
 
@@ -145,10 +173,16 @@ public class EntityList
     @Nullable
     public static Class <? extends Entity > getClassFromName(String p_192839_0_)
     {
-        return (Class)REGISTRY.getOrDefault(new ResourceLocation(p_192839_0_));
+        return (Class)REGISTRY.getObject(new ResourceLocation(p_192839_0_));
     }
 
     @Nullable
+
+    /**
+     * Creates a new entity of the given type in the given world.
+     *  
+     * @return The newly created entity, or null if creation failed
+     */
     public static Entity newEntity(@Nullable Class <? extends Entity > clazz, World worldIn)
     {
         if (clazz == null)
@@ -170,18 +204,38 @@ public class EntityList
     }
 
     @Nullable
+
+    /**
+     * Creates a new entity with the given numeric networked entity type ID in the given world.
+     *  
+     * @return The newly created entity, or null if creation failed
+     */
     public static Entity createEntityByID(int entityID, World worldIn)
     {
         return newEntity(getClassFromID(entityID), worldIn);
     }
 
     @Nullable
+
+    /**
+     * Creates a new entity of the given type in the given world.
+     *  
+     * @return The newly created entity, or null if creation failed
+     */
     public static Entity createEntityByIDFromName(ResourceLocation name, World worldIn)
     {
-        return newEntity(REGISTRY.getOrDefault(name), worldIn);
+        return newEntity(REGISTRY.getObject(name), worldIn);
     }
 
     @Nullable
+
+    /**
+     * Creates a new entity from the given NBT data in the given world.
+     * <p>
+     * If the entity fails to create, null will be returned and a warning will be logged.
+     *  
+     * @return The newly created entity, or null
+     */
     public static Entity createEntityFromNBT(NBTTagCompound nbt, World worldIn)
     {
         ResourceLocation resourcelocation = new ResourceLocation(nbt.getString("id"));
@@ -193,7 +247,7 @@ public class EntityList
         }
         else
         {
-            entity.read(nbt);
+            entity.readFromNBT(nbt);
         }
 
         return entity;
@@ -204,6 +258,12 @@ public class EntityList
         return KNOWN_TYPES;
     }
 
+    /**
+     * Checks if the given entity type matches the type of that entity, correctly handling behavior of players and
+     * lightning bolts.
+     *  
+     * @return true if the type matches
+     */
     public static boolean isMatchingName(Entity entityIn, ResourceLocation entityName)
     {
         ResourceLocation resourcelocation = getKey(entityIn.getClass());
@@ -222,6 +282,12 @@ public class EntityList
         }
     }
 
+    /**
+     * Checks if the given resource location matches a registered entity type, correctly handling behavior of players
+     * and lightning bols.
+     *  
+     * @return true if the type is an entity.
+     */
     public static boolean isRegistered(ResourceLocation entityName)
     {
         return PLAYER.equals(entityName) || getEntityNameList().contains(entityName);

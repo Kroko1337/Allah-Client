@@ -29,7 +29,7 @@ public class ParticlePortal extends Particle
         this.particleRed = f * 0.9F;
         this.particleGreen = f * 0.3F;
         this.particleBlue = f;
-        this.maxAge = (int)(Math.random() * 10.0D) + 40;
+        this.particleMaxAge = (int)(Math.random() * 10.0D) + 40;
         this.setParticleTextureIndex((int)(Math.random() * 8.0D));
     }
 
@@ -39,9 +39,12 @@ public class ParticlePortal extends Particle
         this.resetPositionToBB();
     }
 
+    /**
+     * Renders the particle
+     */
     public void renderParticle(BufferBuilder buffer, Entity entityIn, float partialTicks, float rotationX, float rotationZ, float rotationYZ, float rotationXY, float rotationXZ)
     {
-        float f = ((float)this.age + partialTicks) / (float)this.maxAge;
+        float f = ((float)this.particleAge + partialTicks) / (float)this.particleMaxAge;
         f = 1.0F - f;
         f = f * f;
         f = 1.0F - f;
@@ -52,7 +55,7 @@ public class ParticlePortal extends Particle
     public int getBrightnessForRender(float partialTick)
     {
         int i = super.getBrightnessForRender(partialTick);
-        float f = (float)this.age / (float)this.maxAge;
+        float f = (float)this.particleAge / (float)this.particleMaxAge;
         f = f * f;
         f = f * f;
         int j = i & 255;
@@ -67,19 +70,19 @@ public class ParticlePortal extends Particle
         return j | k << 16;
     }
 
-    public void tick()
+    public void onUpdate()
     {
         this.prevPosX = this.posX;
         this.prevPosY = this.posY;
         this.prevPosZ = this.posZ;
-        float f = (float)this.age / (float)this.maxAge;
+        float f = (float)this.particleAge / (float)this.particleMaxAge;
         float f1 = -f + f * f * 2.0F;
         float f2 = 1.0F - f1;
         this.posX = this.portalPosX + this.motionX * (double)f2;
         this.posY = this.portalPosY + this.motionY * (double)f2 + (double)(1.0F - f);
         this.posZ = this.portalPosZ + this.motionZ * (double)f2;
 
-        if (this.age++ >= this.maxAge)
+        if (this.particleAge++ >= this.particleMaxAge)
         {
             this.setExpired();
         }

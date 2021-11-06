@@ -40,6 +40,8 @@ import net.minecraft.world.storage.loot.LootTableList;
 public class EntityIronGolem extends EntityGolem
 {
     protected static final DataParameter<Byte> PLAYER_CREATED = EntityDataManager.<Byte>createKey(EntityIronGolem.class, DataSerializers.BYTE);
+
+    /** deincrements, and a distance-to-home check is done at 0 */
     private int homeCheckTimer;
     @Nullable
     Village village;
@@ -52,19 +54,19 @@ public class EntityIronGolem extends EntityGolem
         this.setSize(1.4F, 2.7F);
     }
 
-    protected void registerGoals()
+    protected void initEntityAI()
     {
-        this.goalSelector.addGoal(1, new EntityAIAttackMelee(this, 1.0D, true));
-        this.goalSelector.addGoal(2, new EntityAIMoveTowardsTarget(this, 0.9D, 32.0F));
-        this.goalSelector.addGoal(3, new EntityAIMoveThroughVillage(this, 0.6D, true));
-        this.goalSelector.addGoal(4, new EntityAIMoveTowardsRestriction(this, 1.0D));
-        this.goalSelector.addGoal(5, new EntityAILookAtVillager(this));
-        this.goalSelector.addGoal(6, new EntityAIWanderAvoidWater(this, 0.6D));
-        this.goalSelector.addGoal(7, new EntityAIWatchClosest(this, EntityPlayer.class, 6.0F));
-        this.goalSelector.addGoal(8, new EntityAILookIdle(this));
-        this.targetSelector.addGoal(1, new EntityAIDefendVillage(this));
-        this.targetSelector.addGoal(2, new EntityAIHurtByTarget(this, false, new Class[0]));
-        this.targetSelector.addGoal(3, new EntityAINearestAttackableTarget(this, EntityLiving.class, 10, false, true, new Predicate<EntityLiving>()
+        this.tasks.addTask(1, new EntityAIAttackMelee(this, 1.0D, true));
+        this.tasks.addTask(2, new EntityAIMoveTowardsTarget(this, 0.9D, 32.0F));
+        this.tasks.addTask(3, new EntityAIMoveThroughVillage(this, 0.6D, true));
+        this.tasks.addTask(4, new EntityAIMoveTowardsRestriction(this, 1.0D));
+        this.tasks.addTask(5, new EntityAILookAtVillager(this));
+        this.tasks.addTask(6, new EntityAIWanderAvoidWater(this, 0.6D));
+        this.tasks.addTask(7, new EntityAIWatchClosest(this, EntityPlayer.class, 6.0F));
+        this.tasks.addTask(8, new EntityAILookIdle(this));
+        this.targetTasks.addTask(1, new EntityAIDefendVillage(this));
+        this.targetTasks.addTask(2, new EntityAIHurtByTarget(this, false, new Class[0]));
+        this.targetTasks.addTask(3, new EntityAINearestAttackableTarget(this, EntityLiving.class, 10, false, true, new Predicate<EntityLiving>()
         {
             public boolean apply(@Nullable EntityLiving p_apply_1_)
             {
@@ -73,9 +75,9 @@ public class EntityIronGolem extends EntityGolem
         }));
     }
 
-    protected void registerData()
+    protected void entityInit()
     {
-        super.registerData();
+        super.entityInit();
         this.dataManager.register(PLAYER_CREATED, Byte.valueOf((byte)0));
     }
 
@@ -100,12 +102,12 @@ public class EntityIronGolem extends EntityGolem
         super.updateAITasks();
     }
 
-    protected void registerAttributes()
+    protected void applyEntityAttributes()
     {
-        super.registerAttributes();
-        this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(100.0D);
-        this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.25D);
-        this.getAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).setBaseValue(1.0D);
+        super.applyEntityAttributes();
+        this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(100.0D);
+        this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.25D);
+        this.getEntityAttribute(SharedMonsterAttributes.KNOCKBACK_RESISTANCE).setBaseValue(1.0D);
     }
 
     /**
@@ -130,9 +132,9 @@ public class EntityIronGolem extends EntityGolem
      * Called frequently so the entity can update its state every tick as required. For example, zombies and skeletons
      * use this to react to sunlight and start to burn.
      */
-    public void livingTick()
+    public void onLivingUpdate()
     {
-        super.livingTick();
+        super.onLivingUpdate();
 
         if (this.attackTimer > 0)
         {
@@ -153,11 +155,14 @@ public class EntityIronGolem extends EntityGolem
 
             if (iblockstate.getMaterial() != Material.AIR)
             {
-                this.world.spawnParticle(EnumParticleTypes.BLOCK_CRACK, this.posX + ((double)this.rand.nextFloat() - 0.5D) * (double)this.width, this.getBoundingBox().minY + 0.1D, this.posZ + ((double)this.rand.nextFloat() - 0.5D) * (double)this.width, 4.0D * ((double)this.rand.nextFloat() - 0.5D), 0.5D, ((double)this.rand.nextFloat() - 0.5D) * 4.0D, Block.getStateId(iblockstate));
+                this.world.spawnParticle(EnumParticleTypes.BLOCK_CRACK, this.posX + ((double)this.rand.nextFloat() - 0.5D) * (double)this.width, this.getEntityBoundingBox().minY + 0.1D, this.posZ + ((double)this.rand.nextFloat() - 0.5D) * (double)this.width, 4.0D * ((double)this.rand.nextFloat() - 0.5D), 0.5D, ((double)this.rand.nextFloat() - 0.5D) * 4.0D, Block.getStateId(iblockstate));
             }
         }
     }
 
+    /**
+     * Returns true if this entity can attack entities of the specified class.
+     */
     public boolean canAttackClass(Class <? extends EntityLivingBase > cls)
     {
         if (this.isPlayerCreated() && EntityPlayer.class.isAssignableFrom(cls))
@@ -175,18 +180,21 @@ public class EntityIronGolem extends EntityGolem
         EntityLiving.registerFixesMob(fixer, EntityIronGolem.class);
     }
 
+    /**
+     * (abstract) Protected helper method to write subclass entity data to NBT.
+     */
     public void writeEntityToNBT(NBTTagCompound compound)
     {
         super.writeEntityToNBT(compound);
-        compound.putBoolean("PlayerCreated", this.isPlayerCreated());
+        compound.setBoolean("PlayerCreated", this.isPlayerCreated());
     }
 
     /**
      * (abstract) Protected helper method to read subclass entity data from NBT.
      */
-    public void readAdditional(NBTTagCompound compound)
+    public void readEntityFromNBT(NBTTagCompound compound)
     {
-        super.readAdditional(compound);
+        super.readEntityFromNBT(compound);
         this.setPlayerCreated(compound.getBoolean("PlayerCreated"));
     }
 
@@ -202,7 +210,7 @@ public class EntityIronGolem extends EntityGolem
             this.applyEnchantments(this, entityIn);
         }
 
-        this.playSound(SoundEvents.ENTITY_IRON_GOLEM_ATTACK, 1.0F, 1.0F);
+        this.playSound(SoundEvents.ENTITY_IRONGOLEM_ATTACK, 1.0F, 1.0F);
         return flag;
     }
 
@@ -214,7 +222,7 @@ public class EntityIronGolem extends EntityGolem
         if (id == 4)
         {
             this.attackTimer = 10;
-            this.playSound(SoundEvents.ENTITY_IRON_GOLEM_ATTACK, 1.0F, 1.0F);
+            this.playSound(SoundEvents.ENTITY_IRONGOLEM_ATTACK, 1.0F, 1.0F);
         }
         else if (id == 11)
         {
@@ -240,9 +248,9 @@ public class EntityIronGolem extends EntityGolem
         return this.attackTimer;
     }
 
-    public void setHoldingRose(boolean holdingRose)
+    public void setHoldingRose(boolean p_70851_1_)
     {
-        if (holdingRose)
+        if (p_70851_1_)
         {
             this.holdRoseTick = 400;
             this.world.setEntityState(this, (byte)11);
@@ -256,17 +264,17 @@ public class EntityIronGolem extends EntityGolem
 
     protected SoundEvent getHurtSound(DamageSource damageSourceIn)
     {
-        return SoundEvents.ENTITY_IRON_GOLEM_HURT;
+        return SoundEvents.ENTITY_IRONGOLEM_HURT;
     }
 
     protected SoundEvent getDeathSound()
     {
-        return SoundEvents.ENTITY_IRON_GOLEM_DEATH;
+        return SoundEvents.ENTITY_IRONGOLEM_DEATH;
     }
 
     protected void playStepSound(BlockPos pos, Block blockIn)
     {
-        this.playSound(SoundEvents.ENTITY_IRON_GOLEM_STEP, 1.0F, 1.0F);
+        this.playSound(SoundEvents.ENTITY_IRONGOLEM_STEP, 1.0F, 1.0F);
     }
 
     @Nullable

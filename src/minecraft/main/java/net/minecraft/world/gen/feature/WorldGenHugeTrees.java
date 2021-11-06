@@ -10,8 +10,13 @@ import net.minecraft.world.World;
 
 public abstract class WorldGenHugeTrees extends WorldGenAbstractTree
 {
+    /** The base height of the tree */
     protected final int baseHeight;
+
+    /** Sets the metadata for the wood blocks used */
     protected final IBlockState woodMetadata;
+
+    /** Sets the metadata for the leaves used in huge trees */
     protected final IBlockState leavesMetadata;
     protected int extraRandomHeight;
 
@@ -24,6 +29,9 @@ public abstract class WorldGenHugeTrees extends WorldGenAbstractTree
         this.leavesMetadata = leavesMetadataIn;
     }
 
+    /**
+     * calculates the height based on this trees base height and its extra random height
+     */
     protected int getHeight(Random rand)
     {
         int i = rand.nextInt(3) + this.baseHeight;
@@ -78,6 +86,10 @@ public abstract class WorldGenHugeTrees extends WorldGenAbstractTree
         }
     }
 
+    /**
+     * returns whether or not there is dirt underneath the block where the tree will be grown.
+     * It also generates dirt around the block in a 2x2 square if there is dirt underneath the blockpos.
+     */
     private boolean ensureDirtsUnderneath(BlockPos pos, World worldIn)
     {
         BlockPos blockpos = pos.down();
@@ -97,11 +109,18 @@ public abstract class WorldGenHugeTrees extends WorldGenAbstractTree
         }
     }
 
+    /**
+     * returns whether or not a tree can grow at a specific position.
+     * If it can, it generates surrounding dirt underneath.
+     */
     protected boolean ensureGrowable(World worldIn, Random rand, BlockPos treePos, int height)
     {
         return this.isSpaceAt(worldIn, treePos, height) && this.ensureDirtsUnderneath(treePos, worldIn);
     }
 
+    /**
+     * grow leaves in a circle with the outsides being within the circle
+     */
     protected void growLeavesLayerStrict(World worldIn, BlockPos layerCenter, int width)
     {
         int i = width * width;
@@ -127,6 +146,9 @@ public abstract class WorldGenHugeTrees extends WorldGenAbstractTree
         }
     }
 
+    /**
+     * grow leaves in a circle
+     */
     protected void growLeavesLayer(World worldIn, BlockPos layerCenter, int width)
     {
         int i = width * width;

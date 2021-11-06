@@ -87,6 +87,9 @@ public class SimpleReloadableResourceManager implements IReloadableResourceManag
         this.setResourceDomains.clear();
     }
 
+    /**
+     * Releases all current resource packs, loads the given list, then triggers all listeners
+     */
     public void reloadResources(List<IResourcePack> resourcesPacksList)
     {
         this.clearResources();
@@ -106,6 +109,10 @@ public class SimpleReloadableResourceManager implements IReloadableResourceManag
         this.notifyReloadListeners();
     }
 
+    /**
+     * Registers a listener to be invoked every time the resource manager reloads. NOTE: The listener is immediately
+     * invoked once when it is registered.
+     */
     public void registerReloadListener(IResourceManagerReloadListener reloadListener)
     {
         this.reloadListeners.add(reloadListener);

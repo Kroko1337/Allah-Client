@@ -58,14 +58,14 @@ public class TileEntityItemStackRenderer
         }
         else if (item == Items.SHIELD)
         {
-            if (itemStackIn.getChildTag("BlockEntityTag") != null)
+            if (itemStackIn.getSubCompound("BlockEntityTag") != null)
             {
                 this.banner.setItemValues(itemStackIn, true);
-                Minecraft.getInstance().getTextureManager().bindTexture(BannerTextures.SHIELD_DESIGNS.getResourceLocation(this.banner.getPatternResourceLocation(), this.banner.getPatternList(), this.banner.getColorList()));
+                Minecraft.getMinecraft().getTextureManager().bindTexture(BannerTextures.SHIELD_DESIGNS.getResourceLocation(this.banner.getPatternResourceLocation(), this.banner.getPatternList(), this.banner.getColorList()));
             }
             else
             {
-                Minecraft.getInstance().getTextureManager().bindTexture(BannerTextures.SHIELD_BASE_TEXTURE);
+                Minecraft.getMinecraft().getTextureManager().bindTexture(BannerTextures.SHIELD_BASE_TEXTURE);
             }
 
             GlStateManager.pushMatrix();
@@ -77,19 +77,19 @@ public class TileEntityItemStackRenderer
         {
             GameProfile gameprofile = null;
 
-            if (itemStackIn.hasTag())
+            if (itemStackIn.hasTagCompound())
             {
-                NBTTagCompound nbttagcompound = itemStackIn.getTag();
+                NBTTagCompound nbttagcompound = itemStackIn.getTagCompound();
 
-                if (nbttagcompound.contains("SkullOwner", 10))
+                if (nbttagcompound.hasKey("SkullOwner", 10))
                 {
-                    gameprofile = NBTUtil.readGameProfile(nbttagcompound.getCompound("SkullOwner"));
+                    gameprofile = NBTUtil.readGameProfileFromNBT(nbttagcompound.getCompoundTag("SkullOwner"));
                 }
-                else if (nbttagcompound.contains("SkullOwner", 8) && !StringUtils.isBlank(nbttagcompound.getString("SkullOwner")))
+                else if (nbttagcompound.hasKey("SkullOwner", 8) && !StringUtils.isBlank(nbttagcompound.getString("SkullOwner")))
                 {
                     GameProfile gameprofile1 = new GameProfile((UUID)null, nbttagcompound.getString("SkullOwner"));
                     gameprofile = TileEntitySkull.updateGameProfile(gameprofile1);
-                    nbttagcompound.remove("SkullOwner");
+                    nbttagcompound.removeTag("SkullOwner");
                     nbttagcompound.setTag("SkullOwner", NBTUtil.writeGameProfile(new NBTTagCompound(), gameprofile));
                 }
             }

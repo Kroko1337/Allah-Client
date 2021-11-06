@@ -23,19 +23,19 @@ public class ItemEnderPearl extends Item
     {
         ItemStack itemstack = playerIn.getHeldItem(handIn);
 
-        if (!playerIn.abilities.isCreativeMode)
+        if (!playerIn.capabilities.isCreativeMode)
         {
             itemstack.shrink(1);
         }
 
-        worldIn.playSound((EntityPlayer)null, playerIn.posX, playerIn.posY, playerIn.posZ, SoundEvents.ENTITY_ENDER_PEARL_THROW, SoundCategory.NEUTRAL, 0.5F, 0.4F / (random.nextFloat() * 0.4F + 0.8F));
+        worldIn.playSound((EntityPlayer)null, playerIn.posX, playerIn.posY, playerIn.posZ, SoundEvents.ENTITY_ENDERPEARL_THROW, SoundCategory.NEUTRAL, 0.5F, 0.4F / (itemRand.nextFloat() * 0.4F + 0.8F));
         playerIn.getCooldownTracker().setCooldown(this, 20);
 
         if (!worldIn.isRemote)
         {
             EntityEnderPearl entityenderpearl = new EntityEnderPearl(worldIn, playerIn);
             entityenderpearl.shoot(playerIn, playerIn.rotationPitch, playerIn.rotationYaw, 0.0F, 1.5F, 1.0F);
-            worldIn.addEntity0(entityenderpearl);
+            worldIn.spawnEntity(entityenderpearl);
         }
 
         playerIn.addStat(StatList.getObjectUseStats(this));

@@ -19,10 +19,10 @@ public class RenderEntityItem extends Render<EntityItem>
     private final RenderItem itemRenderer;
     private final Random random = new Random();
 
-    public RenderEntityItem(RenderManager renderManagerIn, RenderItem itemRendererIn)
+    public RenderEntityItem(RenderManager renderManagerIn, RenderItem p_i46167_2_)
     {
         super(renderManagerIn);
-        this.itemRenderer = itemRendererIn;
+        this.itemRenderer = p_i46167_2_;
         this.shadowSize = 0.15F;
         this.shadowOpaque = 0.75F;
     }
@@ -80,6 +80,9 @@ public class RenderEntityItem extends Render<EntityItem>
         return i;
     }
 
+    /**
+     * Renders the desired {@code T} type Entity.
+     */
     public void doRender(EntityItem entity, double x, double y, double z, float entityYaw, float partialTicks)
     {
         ItemStack itemstack = entity.getItem();
@@ -89,7 +92,7 @@ public class RenderEntityItem extends Render<EntityItem>
 
         if (this.bindEntityTexture(entity))
         {
-            this.renderManager.textureManager.getTexture(this.getEntityTexture(entity)).setBlurMipmap(false, false);
+            this.renderManager.renderEngine.getTexture(this.getEntityTexture(entity)).setBlurMipmap(false, false);
             flag = true;
         }
 
@@ -169,14 +172,14 @@ public class RenderEntityItem extends Render<EntityItem>
 
         if (flag)
         {
-            this.renderManager.textureManager.getTexture(this.getEntityTexture(entity)).restoreLastBlurMipmap();
+            this.renderManager.renderEngine.getTexture(this.getEntityTexture(entity)).restoreLastBlurMipmap();
         }
 
         super.doRender(entity, x, y, z, entityYaw, partialTicks);
     }
 
     /**
-     * Returns the location of an entity's texture.
+     * Returns the location of an entity's texture. Doesn't seem to be called unless you call Render.bindEntityTexture.
      */
     protected ResourceLocation getEntityTexture(EntityItem entity)
     {

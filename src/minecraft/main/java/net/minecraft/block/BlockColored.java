@@ -20,19 +20,23 @@ public class BlockColored extends Block
     public BlockColored(Material materialIn)
     {
         super(materialIn);
-        this.setDefaultState(this.stateContainer.getBaseState().withProperty(COLOR, EnumDyeColor.WHITE));
+        this.setDefaultState(this.blockState.getBaseState().withProperty(COLOR, EnumDyeColor.WHITE));
         this.setCreativeTab(CreativeTabs.BUILDING_BLOCKS);
     }
 
+    /**
+     * Gets the metadata of the item this Block can drop. This method is called when the block gets destroyed. It
+     * returns the metadata of the dropped item based on the old metadata of the block.
+     */
     public int damageDropped(IBlockState state)
     {
-        return ((EnumDyeColor)state.get(COLOR)).getMetadata();
+        return ((EnumDyeColor)state.getValue(COLOR)).getMetadata();
     }
 
     /**
      * returns a list of blocks with the same ID, but different meta (eg: wood returns 4 blocks)
      */
-    public void fillItemGroup(CreativeTabs group, NonNullList<ItemStack> items)
+    public void getSubBlocks(CreativeTabs itemIn, NonNullList<ItemStack> items)
     {
         for (EnumDyeColor enumdyecolor : EnumDyeColor.values())
         {
@@ -45,19 +49,25 @@ public class BlockColored extends Block
      * @deprecated call via {@link IBlockState#getMapColor(IBlockAccess,BlockPos)} whenever possible.
      * Implementing/overriding is fine.
      */
-    public MapColor getMaterialColor(IBlockState state, IBlockAccess worldIn, BlockPos pos)
+    public MapColor getMapColor(IBlockState state, IBlockAccess worldIn, BlockPos pos)
     {
-        return MapColor.getBlockColor((EnumDyeColor)state.get(COLOR));
+        return MapColor.getBlockColor((EnumDyeColor)state.getValue(COLOR));
     }
 
+    /**
+     * Convert the given metadata into a BlockState for this Block
+     */
     public IBlockState getStateFromMeta(int meta)
     {
         return this.getDefaultState().withProperty(COLOR, EnumDyeColor.byMetadata(meta));
     }
 
+    /**
+     * Convert the BlockState into the correct metadata value
+     */
     public int getMetaFromState(IBlockState state)
     {
-        return ((EnumDyeColor)state.get(COLOR)).getMetadata();
+        return ((EnumDyeColor)state.getValue(COLOR)).getMetadata();
     }
 
     protected BlockStateContainer createBlockState()

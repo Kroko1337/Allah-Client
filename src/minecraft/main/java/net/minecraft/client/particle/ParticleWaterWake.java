@@ -15,14 +15,14 @@ public class ParticleWaterWake extends Particle
         this.particleBlue = 1.0F;
         this.setParticleTextureIndex(19);
         this.setSize(0.01F, 0.01F);
-        this.maxAge = (int)(8.0D / (Math.random() * 0.8D + 0.2D));
+        this.particleMaxAge = (int)(8.0D / (Math.random() * 0.8D + 0.2D));
         this.particleGravity = 0.0F;
         this.motionX = p_i45073_8_;
         this.motionY = p_i45073_10_;
         this.motionZ = p_i45073_12_;
     }
 
-    public void tick()
+    public void onUpdate()
     {
         this.prevPosX = this.posX;
         this.prevPosY = this.posY;
@@ -32,12 +32,12 @@ public class ParticleWaterWake extends Particle
         this.motionX *= 0.9800000190734863D;
         this.motionY *= 0.9800000190734863D;
         this.motionZ *= 0.9800000190734863D;
-        int i = 60 - this.maxAge;
+        int i = 60 - this.particleMaxAge;
         float f = (float)i * 0.001F;
         this.setSize(f, f);
         this.setParticleTextureIndex(19 + i % 4);
 
-        if (this.maxAge-- <= 0)
+        if (this.particleMaxAge-- <= 0)
         {
             this.setExpired();
         }

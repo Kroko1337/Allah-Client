@@ -33,7 +33,7 @@ public class RenderTntMinecart extends RenderMinecart<EntityMinecartTNT>
 
         if (i > -1 && i / 5 % 2 == 0)
         {
-            BlockRendererDispatcher blockrendererdispatcher = Minecraft.getInstance().getBlockRendererDispatcher();
+            BlockRendererDispatcher blockrendererdispatcher = Minecraft.getMinecraft().getBlockRendererDispatcher();
             GlStateManager.disableTexture2D();
             GlStateManager.disableLighting();
             GlStateManager.enableBlend();

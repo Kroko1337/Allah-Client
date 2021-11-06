@@ -27,7 +27,7 @@ public class TeleportToTeam implements ISpectatorMenuView, ISpectatorMenuObject
 
     public TeleportToTeam()
     {
-        Minecraft minecraft = Minecraft.getInstance();
+        Minecraft minecraft = Minecraft.getMinecraft();
 
         for (ScorePlayerTeam scoreplayerteam : minecraft.world.getScoreboard().getTeams())
         {
@@ -57,7 +57,7 @@ public class TeleportToTeam implements ISpectatorMenuView, ISpectatorMenuObject
 
     public void renderIcon(float brightness, int alpha)
     {
-        Minecraft.getInstance().getTextureManager().bindTexture(GuiSpectator.SPECTATOR_WIDGETS);
+        Minecraft.getMinecraft().getTextureManager().bindTexture(GuiSpectator.SPECTATOR_WIDGETS);
         Gui.drawModalRectWithCustomSizedTexture(0, 0, 16.0F, 0.0F, 16, 16, 256.0F, 256.0F);
     }
 
@@ -87,7 +87,7 @@ public class TeleportToTeam implements ISpectatorMenuView, ISpectatorMenuObject
 
             for (String s : teamIn.getMembershipCollection())
             {
-                NetworkPlayerInfo networkplayerinfo = Minecraft.getInstance().getConnection().getPlayerInfo(s);
+                NetworkPlayerInfo networkplayerinfo = Minecraft.getMinecraft().getConnection().getPlayerInfo(s);
 
                 if (networkplayerinfo != null)
                 {
@@ -124,7 +124,7 @@ public class TeleportToTeam implements ISpectatorMenuView, ISpectatorMenuObject
 
             if (s.length() >= 2)
             {
-                i = Minecraft.getInstance().fontRenderer.getColorCode(s.charAt(1));
+                i = Minecraft.getMinecraft().fontRenderer.getColorCode(s.charAt(1));
             }
 
             if (i >= 0)
@@ -135,7 +135,7 @@ public class TeleportToTeam implements ISpectatorMenuView, ISpectatorMenuObject
                 Gui.drawRect(1, 1, 15, 15, MathHelper.rgb(f * brightness, f1 * brightness, f2 * brightness) | alpha << 24);
             }
 
-            Minecraft.getInstance().getTextureManager().bindTexture(this.location);
+            Minecraft.getMinecraft().getTextureManager().bindTexture(this.location);
             GlStateManager.color(brightness, brightness, brightness, (float)alpha / 255.0F);
             Gui.drawScaledCustomSizeModalRect(2, 2, 8.0F, 8.0F, 8, 8, 12, 12, 64.0F, 64.0F);
             Gui.drawScaledCustomSizeModalRect(2, 2, 40.0F, 8.0F, 8, 8, 12, 12, 64.0F, 64.0F);

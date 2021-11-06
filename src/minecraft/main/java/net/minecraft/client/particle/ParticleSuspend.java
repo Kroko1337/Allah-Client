@@ -18,10 +18,10 @@ public class ParticleSuspend extends Particle
         this.motionX = xSpeedIn * 0.0D;
         this.motionY = ySpeedIn * 0.0D;
         this.motionZ = zSpeedIn * 0.0D;
-        this.maxAge = (int)(16.0D / (Math.random() * 0.8D + 0.2D));
+        this.particleMaxAge = (int)(16.0D / (Math.random() * 0.8D + 0.2D));
     }
 
-    public void tick()
+    public void onUpdate()
     {
         this.prevPosX = this.posX;
         this.prevPosY = this.posY;
@@ -33,7 +33,7 @@ public class ParticleSuspend extends Particle
             this.setExpired();
         }
 
-        if (this.maxAge-- <= 0)
+        if (this.particleMaxAge-- <= 0)
         {
             this.setExpired();
         }

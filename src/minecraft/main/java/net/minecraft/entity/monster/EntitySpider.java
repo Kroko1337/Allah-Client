@@ -51,17 +51,17 @@ public class EntitySpider extends EntityMob
         EntityLiving.registerFixesMob(fixer, EntitySpider.class);
     }
 
-    protected void registerGoals()
+    protected void initEntityAI()
     {
-        this.goalSelector.addGoal(1, new EntityAISwimming(this));
-        this.goalSelector.addGoal(3, new EntityAILeapAtTarget(this, 0.4F));
-        this.goalSelector.addGoal(4, new EntitySpider.AISpiderAttack(this));
-        this.goalSelector.addGoal(5, new EntityAIWanderAvoidWater(this, 0.8D));
-        this.goalSelector.addGoal(6, new EntityAIWatchClosest(this, EntityPlayer.class, 8.0F));
-        this.goalSelector.addGoal(6, new EntityAILookIdle(this));
-        this.targetSelector.addGoal(1, new EntityAIHurtByTarget(this, false, new Class[0]));
-        this.targetSelector.addGoal(2, new EntitySpider.AISpiderTarget(this, EntityPlayer.class));
-        this.targetSelector.addGoal(3, new EntitySpider.AISpiderTarget(this, EntityIronGolem.class));
+        this.tasks.addTask(1, new EntityAISwimming(this));
+        this.tasks.addTask(3, new EntityAILeapAtTarget(this, 0.4F));
+        this.tasks.addTask(4, new EntitySpider.AISpiderAttack(this));
+        this.tasks.addTask(5, new EntityAIWanderAvoidWater(this, 0.8D));
+        this.tasks.addTask(6, new EntityAIWatchClosest(this, EntityPlayer.class, 8.0F));
+        this.tasks.addTask(6, new EntityAILookIdle(this));
+        this.targetTasks.addTask(1, new EntityAIHurtByTarget(this, false, new Class[0]));
+        this.targetTasks.addTask(2, new EntitySpider.AISpiderTarget(this, EntityPlayer.class));
+        this.targetTasks.addTask(3, new EntitySpider.AISpiderTarget(this, EntityIronGolem.class));
     }
 
     /**
@@ -80,18 +80,18 @@ public class EntitySpider extends EntityMob
         return new PathNavigateClimber(this, worldIn);
     }
 
-    protected void registerData()
+    protected void entityInit()
     {
-        super.registerData();
+        super.entityInit();
         this.dataManager.register(CLIMBING, Byte.valueOf((byte)0));
     }
 
     /**
      * Called to update the entity's position/logic.
      */
-    public void tick()
+    public void onUpdate()
     {
-        super.tick();
+        super.onUpdate();
 
         if (!this.world.isRemote)
         {
@@ -99,11 +99,11 @@ public class EntitySpider extends EntityMob
         }
     }
 
-    protected void registerAttributes()
+    protected void applyEntityAttributes()
     {
-        super.registerAttributes();
-        this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(16.0D);
-        this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.30000001192092896D);
+        super.applyEntityAttributes();
+        this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(16.0D);
+        this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.30000001192092896D);
     }
 
     protected SoundEvent getAmbientSound()
@@ -141,10 +141,16 @@ public class EntitySpider extends EntityMob
         return this.isBesideClimbableBlock();
     }
 
+    /**
+     * Sets the Entity inside a web block.
+     */
     public void setInWeb()
     {
     }
 
+    /**
+     * Get this Entity's EnumCreatureAttribute
+     */
     public EnumCreatureAttribute getCreatureAttribute()
     {
         return EnumCreatureAttribute.ARTHROPOD;
@@ -185,6 +191,21 @@ public class EntitySpider extends EntityMob
     }
 
     @Nullable
+
+    /**
+     * Called only once on an entity when first time spawned, via egg, mob spawner, natural spawning etc, but not called
+     * when entity is reloaded from nbt. Mainly used for initializing attributes and inventory.
+     *  
+     * The livingdata parameter is used to pass data between all instances during a pack spawn. It will be null on the
+     * first call. Subclasses may check if it's null, and then create a new one and return it if so, initializing all
+     * entities in the pack with the contained data.
+     *  
+     * @return The IEntityLivingData to pass to this method for other instances of this entity class within the same
+     * pack
+     *  
+     * @param difficulty The current local difficulty
+     * @param livingdata Shared spawn data. Will usually be null. (See return value for more information)
+     */
     public IEntityLivingData onInitialSpawn(DifficultyInstance difficulty, @Nullable IEntityLivingData livingdata)
     {
         livingdata = super.onInitialSpawn(difficulty, livingdata);
@@ -194,7 +215,7 @@ public class EntitySpider extends EntityMob
             EntitySkeleton entityskeleton = new EntitySkeleton(this.world);
             entityskeleton.setLocationAndAngles(this.posX, this.posY, this.posZ, this.rotationYaw, 0.0F);
             entityskeleton.onInitialSpawn(difficulty, (IEntityLivingData)null);
-            this.world.addEntity0(entityskeleton);
+            this.world.spawnEntity(entityskeleton);
             entityskeleton.startRiding(this);
         }
 
@@ -263,7 +284,7 @@ public class EntitySpider extends EntityMob
 
         public boolean shouldExecute()
         {
-            float f = this.goalOwner.getBrightness();
+            float f = this.taskOwner.getBrightness();
             return f >= 0.5F ? false : super.shouldExecute();
         }
     }

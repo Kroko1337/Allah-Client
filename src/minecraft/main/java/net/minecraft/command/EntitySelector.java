@@ -40,6 +40,9 @@ import net.minecraft.world.World;
 
 public class EntitySelector
 {
+    /**
+     * This matches the at-tokens introduced for command blocks, including their arguments, if any.
+     */
     private static final Pattern TOKEN_PATTERN = Pattern.compile("^@([pares])(?:\\[([^ ]*)\\])?$");
     private static final Splitter COMMA_SPLITTER = Splitter.on(',').omitEmptyStrings();
     private static final Splitter EQUAL_SPLITTER = Splitter.on('=').limit(2);
@@ -80,6 +83,10 @@ public class EntitySelector
     }
 
     @Nullable
+
+    /**
+     * Returns the one player that matches the given at-token.  Returns null if more than one player matches.
+     */
     public static EntityPlayerMP matchOnePlayer(ICommandSender sender, String token) throws CommandException
     {
         return (EntityPlayerMP)matchOneEntity(sender, token, EntityPlayerMP.class);
@@ -167,7 +174,7 @@ public class EntitySelector
                                     int k = getInt(map, ARGUMENT_DELTA_Z, 0);
                                     AxisAlignedBB axisalignedbb = getAABB(blockpos, i, j, k);
 
-                                    if (!axisalignedbb.intersects(entity.getBoundingBox()))
+                                    if (!axisalignedbb.intersects(entity.getEntityBoundingBox()))
                                     {
                                         return Collections.<T>emptyList();
                                     }
@@ -660,7 +667,7 @@ public class EntitySelector
                 {
                     public boolean apply(@Nullable Entity p_apply_1_)
                     {
-                        return p_apply_1_ != null && axisalignedbb.intersects(p_apply_1_.getBoundingBox());
+                        return p_apply_1_ != null && axisalignedbb.intersects(p_apply_1_.getEntityBoundingBox());
                     }
                 };
                 list.addAll(worldIn.getPlayers(entityClass, Predicates.and(predicate1, predicate2)));
@@ -784,6 +791,9 @@ public class EntitySelector
         return map;
     }
 
+    /**
+     * Returns whether the given pattern can match more than one player.
+     */
     public static boolean matchesMultiplePlayers(String selectorStr) throws CommandException
     {
         Matcher matcher = TOKEN_PATTERN.matcher(selectorStr);
@@ -801,6 +811,9 @@ public class EntitySelector
         }
     }
 
+    /**
+     * Returns whether the given string represents a selector.
+     */
     public static boolean isSelector(String selectorStr)
     {
         return TOKEN_PATTERN.matcher(selectorStr).matches();

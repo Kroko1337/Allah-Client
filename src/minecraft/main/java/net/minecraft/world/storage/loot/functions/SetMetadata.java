@@ -26,7 +26,7 @@ public class SetMetadata extends LootFunction
 
     public ItemStack apply(ItemStack stack, Random rand, LootContext context)
     {
-        if (stack.isDamageable())
+        if (stack.isItemStackDamageable())
         {
             LOGGER.warn("Couldn't set data of loot item {}", (Object)stack);
         }

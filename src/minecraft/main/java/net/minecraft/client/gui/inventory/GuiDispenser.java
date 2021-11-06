@@ -9,7 +9,11 @@ import net.minecraft.util.ResourceLocation;
 public class GuiDispenser extends GuiContainer
 {
     private static final ResourceLocation DISPENSER_GUI_TEXTURES = new ResourceLocation("textures/gui/container/dispenser.png");
+
+    /** The player inventory bound to this GUI. */
     private final InventoryPlayer playerInventory;
+
+    /** The inventory contained within the corresponding Dispenser. */
     public IInventory dispenserInventory;
 
     public GuiDispenser(InventoryPlayer playerInv, IInventory dispenserInv)
@@ -19,6 +23,9 @@ public class GuiDispenser extends GuiContainer
         this.dispenserInventory = dispenserInv;
     }
 
+    /**
+     * Draws the screen and all the components in it.
+     */
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         this.drawDefaultBackground();

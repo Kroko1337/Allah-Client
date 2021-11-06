@@ -45,7 +45,7 @@ public class ModelBlock
 
     public static ModelBlock deserialize(Reader readerIn)
     {
-        return (ModelBlock)JsonUtils.fromJson(SERIALIZER, readerIn, ModelBlock.class, false);
+        return (ModelBlock)JsonUtils.gsonDeserialize(SERIALIZER, readerIn, ModelBlock.class, false);
     }
 
     public static ModelBlock deserialize(String jsonString)
@@ -97,7 +97,7 @@ public class ModelBlock
         }
     }
 
-    public Collection<ResourceLocation> getDependencies()
+    public Collection<ResourceLocation> getOverrideLocations()
     {
         Set<ResourceLocation> set = Sets.<ResourceLocation>newHashSet();
 
@@ -116,7 +116,7 @@ public class ModelBlock
 
     public ItemOverrideList createOverrides()
     {
-        return this.overrides.isEmpty() ? ItemOverrideList.EMPTY : new ItemOverrideList(this.overrides);
+        return this.overrides.isEmpty() ? ItemOverrideList.NONE : new ItemOverrideList(this.overrides);
     }
 
     public boolean isTexturePresent(String textureName)

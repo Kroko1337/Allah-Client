@@ -12,8 +12,8 @@ public class ChunkLoader
 {
     public static ChunkLoader.AnvilConverterData load(NBTTagCompound nbt)
     {
-        int i = nbt.getInt("xPos");
-        int j = nbt.getInt("zPos");
+        int i = nbt.getInteger("xPos");
+        int j = nbt.getInteger("zPos");
         ChunkLoader.AnvilConverterData chunkloader$anvilconverterdata = new ChunkLoader.AnvilConverterData(i, j);
         chunkloader$anvilconverterdata.blocks = nbt.getByteArray("Blocks");
         chunkloader$anvilconverterdata.data = new NibbleArrayReader(nbt.getByteArray("Data"), 7);
@@ -21,9 +21,9 @@ public class ChunkLoader
         chunkloader$anvilconverterdata.blockLight = new NibbleArrayReader(nbt.getByteArray("BlockLight"), 7);
         chunkloader$anvilconverterdata.heightmap = nbt.getByteArray("HeightMap");
         chunkloader$anvilconverterdata.terrainPopulated = nbt.getBoolean("TerrainPopulated");
-        chunkloader$anvilconverterdata.entities = nbt.getList("Entities", 10);
-        chunkloader$anvilconverterdata.tileEntities = nbt.getList("TileEntities", 10);
-        chunkloader$anvilconverterdata.tileTicks = nbt.getList("TileTicks", 10);
+        chunkloader$anvilconverterdata.entities = nbt.getTagList("Entities", 10);
+        chunkloader$anvilconverterdata.tileEntities = nbt.getTagList("TileEntities", 10);
+        chunkloader$anvilconverterdata.tileTicks = nbt.getTagList("TileTicks", 10);
 
         try
         {
@@ -31,7 +31,7 @@ public class ChunkLoader
         }
         catch (ClassCastException var5)
         {
-            chunkloader$anvilconverterdata.lastUpdated = (long)nbt.getInt("LastUpdate");
+            chunkloader$anvilconverterdata.lastUpdated = (long)nbt.getInteger("LastUpdate");
         }
 
         return chunkloader$anvilconverterdata;
@@ -39,9 +39,9 @@ public class ChunkLoader
 
     public static void convertToAnvilFormat(ChunkLoader.AnvilConverterData converterData, NBTTagCompound compound, BiomeProvider provider)
     {
-        compound.putInt("xPos", converterData.x);
-        compound.putInt("zPos", converterData.z);
-        compound.putLong("LastUpdate", converterData.lastUpdated);
+        compound.setInteger("xPos", converterData.x);
+        compound.setInteger("zPos", converterData.z);
+        compound.setLong("LastUpdate", converterData.lastUpdated);
         int[] aint = new int[converterData.heightmap.length];
 
         for (int i = 0; i < converterData.heightmap.length; ++i)
@@ -49,8 +49,8 @@ public class ChunkLoader
             aint[i] = converterData.heightmap[i];
         }
 
-        compound.putIntArray("HeightMap", aint);
-        compound.putBoolean("TerrainPopulated", converterData.terrainPopulated);
+        compound.setIntArray("HeightMap", aint);
+        compound.setBoolean("TerrainPopulated", converterData.terrainPopulated);
         NBTTagList nbttaglist = new NBTTagList();
 
         for (int j = 0; j < 8; ++j)
@@ -99,11 +99,11 @@ public class ChunkLoader
                 }
 
                 NBTTagCompound nbttagcompound = new NBTTagCompound();
-                nbttagcompound.putByte("Y", (byte)(j & 255));
-                nbttagcompound.putByteArray("Blocks", abyte1);
-                nbttagcompound.putByteArray("Data", nibblearray.getData());
-                nbttagcompound.putByteArray("SkyLight", nibblearray1.getData());
-                nbttagcompound.putByteArray("BlockLight", nibblearray2.getData());
+                nbttagcompound.setByte("Y", (byte)(j & 255));
+                nbttagcompound.setByteArray("Blocks", abyte1);
+                nbttagcompound.setByteArray("Data", nibblearray.getData());
+                nbttagcompound.setByteArray("SkyLight", nibblearray1.getData());
+                nbttagcompound.setByteArray("BlockLight", nibblearray2.getData());
                 nbttaglist.appendTag(nbttagcompound);
             }
         }
@@ -121,7 +121,7 @@ public class ChunkLoader
             }
         }
 
-        compound.putByteArray("Biomes", abyte);
+        compound.setByteArray("Biomes", abyte);
         compound.setTag("Entities", converterData.entities);
         compound.setTag("TileEntities", converterData.tileEntities);
 

@@ -91,9 +91,9 @@ public class SoundHandler implements IResourceManagerReloadListener, ITickable
             }
         }
 
-        for (ResourceLocation resourcelocation : this.soundRegistry.keySet())
+        for (ResourceLocation resourcelocation : this.soundRegistry.getKeys())
         {
-            SoundEventAccessor soundeventaccessor = (SoundEventAccessor)this.soundRegistry.getOrDefault(resourcelocation);
+            SoundEventAccessor soundeventaccessor = (SoundEventAccessor)this.soundRegistry.getObject(resourcelocation);
 
             if (soundeventaccessor.getSubtitle() instanceof TextComponentTranslation)
             {
@@ -106,15 +106,15 @@ public class SoundHandler implements IResourceManagerReloadListener, ITickable
             }
         }
 
-        for (ResourceLocation resourcelocation1 : this.soundRegistry.keySet())
+        for (ResourceLocation resourcelocation1 : this.soundRegistry.getKeys())
         {
-            if (SoundEvent.REGISTRY.getOrDefault(resourcelocation1) == null)
+            if (SoundEvent.REGISTRY.getObject(resourcelocation1) == null)
             {
                 LOGGER.debug("Not having sound event for: {}", (Object)resourcelocation1);
             }
         }
 
-        this.sndManager.reload();
+        this.sndManager.reloadSoundSystem();
     }
 
     @Nullable
@@ -136,7 +136,7 @@ public class SoundHandler implements IResourceManagerReloadListener, ITickable
 
     private void loadSoundResource(ResourceLocation location, SoundList sounds)
     {
-        SoundEventAccessor soundeventaccessor = (SoundEventAccessor)this.soundRegistry.getOrDefault(location);
+        SoundEventAccessor soundeventaccessor = (SoundEventAccessor)this.soundRegistry.getObject(location);
         boolean flag = soundeventaccessor == null;
 
         if (flag || sounds.canReplaceExisting())
@@ -171,12 +171,12 @@ public class SoundHandler implements IResourceManagerReloadListener, ITickable
                     {
                         public int getWeight()
                         {
-                            SoundEventAccessor soundeventaccessor1 = (SoundEventAccessor)SoundHandler.this.soundRegistry.getOrDefault(resourcelocation);
+                            SoundEventAccessor soundeventaccessor1 = (SoundEventAccessor)SoundHandler.this.soundRegistry.getObject(resourcelocation);
                             return soundeventaccessor1 == null ? 0 : soundeventaccessor1.getWeight();
                         }
                         public Sound cloneEntry()
                         {
-                            SoundEventAccessor soundeventaccessor1 = (SoundEventAccessor)SoundHandler.this.soundRegistry.getOrDefault(resourcelocation);
+                            SoundEventAccessor soundeventaccessor1 = (SoundEventAccessor)SoundHandler.this.soundRegistry.getObject(resourcelocation);
 
                             if (soundeventaccessor1 == null)
                             {
@@ -233,23 +233,23 @@ public class SoundHandler implements IResourceManagerReloadListener, ITickable
     @Nullable
     public SoundEventAccessor getAccessor(ResourceLocation location)
     {
-        return (SoundEventAccessor)this.soundRegistry.getOrDefault(location);
+        return (SoundEventAccessor)this.soundRegistry.getObject(location);
     }
 
     /**
      * Play a sound
      */
-    public void play(ISound sound)
+    public void playSound(ISound sound)
     {
-        this.sndManager.play(sound);
+        this.sndManager.playSound(sound);
     }
 
     /**
      * Plays the sound in n ticks
      */
-    public void playDelayed(ISound sound, int delay)
+    public void playDelayedSound(ISound sound, int delay)
     {
-        this.sndManager.playDelayed(sound, delay);
+        this.sndManager.playDelayedSound(sound, delay);
     }
 
     public void setListener(EntityPlayer player, float p_147691_2_)
@@ -257,44 +257,47 @@ public class SoundHandler implements IResourceManagerReloadListener, ITickable
         this.sndManager.setListener(player, p_147691_2_);
     }
 
-    public void pause()
+    public void pauseSounds()
     {
-        this.sndManager.pause();
+        this.sndManager.pauseAllSounds();
     }
 
-    public void stop()
+    public void stopSounds()
     {
         this.sndManager.stopAllSounds();
     }
 
     public void unloadSounds()
     {
-        this.sndManager.unload();
+        this.sndManager.unloadSoundSystem();
     }
 
-    public void tick()
+    /**
+     * Like the old updateEntity(), except more generic.
+     */
+    public void update()
     {
         this.sndManager.updateAllSounds();
     }
 
-    public void resume()
+    public void resumeSounds()
     {
-        this.sndManager.resume();
+        this.sndManager.resumeAllSounds();
     }
 
     public void setSoundLevel(SoundCategory category, float volume)
     {
         if (category == SoundCategory.MASTER && volume <= 0.0F)
         {
-            this.stop();
+            this.stopSounds();
         }
 
         this.sndManager.setVolume(category, volume);
     }
 
-    public void stop(ISound soundIn)
+    public void stopSound(ISound soundIn)
     {
-        this.sndManager.stop(soundIn);
+        this.sndManager.stopSound(soundIn);
     }
 
     public boolean isSoundPlaying(ISound sound)

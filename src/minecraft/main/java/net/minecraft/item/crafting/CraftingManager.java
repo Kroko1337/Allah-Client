@@ -190,6 +190,9 @@ public class CraftingManager
         }
     }
 
+    /**
+     * Retrieves an ItemStack that has multiple recipes for it.
+     */
     public static ItemStack findMatchingResult(InventoryCrafting craftMatrix, World worldIn)
     {
         for (IRecipe irecipe : REGISTRY)
@@ -240,12 +243,12 @@ public class CraftingManager
     @Nullable
     public static IRecipe getRecipe(ResourceLocation name)
     {
-        return REGISTRY.getOrDefault(name);
+        return REGISTRY.getObject(name);
     }
 
     public static int getIDForRecipe(IRecipe recipe)
     {
-        return REGISTRY.getId(recipe);
+        return REGISTRY.getIDForObject(recipe);
     }
 
     @Nullable

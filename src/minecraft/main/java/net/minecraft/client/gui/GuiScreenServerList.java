@@ -17,11 +17,18 @@ public class GuiScreenServerList extends GuiScreen
         this.serverData = serverDataIn;
     }
 
+    /**
+     * Called from the main game loop to update the screen.
+     */
     public void updateScreen()
     {
-        this.ipEdit.tick();
+        this.ipEdit.updateCursorCounter();
     }
 
+    /**
+     * Adds the buttons (and other controls) to the screen in question. Called when the GUI is displayed and when the
+     * window resizes, the buttonList is cleared beforehand.
+     */
     public void initGui()
     {
         Keyboard.enableRepeatEvents(true);
@@ -30,11 +37,14 @@ public class GuiScreenServerList extends GuiScreen
         this.buttonList.add(new GuiButton(1, this.width / 2 - 100, this.height / 4 + 120 + 12, I18n.format("gui.cancel")));
         this.ipEdit = new GuiTextField(2, this.fontRenderer, this.width / 2 - 100, 116, 200, 20);
         this.ipEdit.setMaxStringLength(128);
-        this.ipEdit.setFocused2(true);
+        this.ipEdit.setFocused(true);
         this.ipEdit.setText(this.mc.gameSettings.lastServer);
         (this.buttonList.get(0)).enabled = !this.ipEdit.getText().isEmpty() && this.ipEdit.getText().split(":").length > 0;
     }
 
+    /**
+     * Called when the screen is unloaded. Used to disable keyboard repeat events
+     */
     public void onGuiClosed()
     {
         Keyboard.enableRepeatEvents(false);
@@ -42,6 +52,9 @@ public class GuiScreenServerList extends GuiScreen
         this.mc.gameSettings.saveOptions();
     }
 
+    /**
+     * Called by the controls from the buttonList when activated. (Mouse pressed for buttons)
+     */
     protected void actionPerformed(GuiButton button) throws IOException
     {
         if (button.enabled)
@@ -58,6 +71,10 @@ public class GuiScreenServerList extends GuiScreen
         }
     }
 
+    /**
+     * Fired when a key is typed (except F11 which toggles full screen). This is the equivalent of
+     * KeyListener.keyTyped(KeyEvent e). Args : character (character on the key), keyCode (lwjgl Keyboard key code)
+     */
     protected void keyTyped(char typedChar, int keyCode) throws IOException
     {
         if (this.ipEdit.textboxKeyTyped(typedChar, keyCode))
@@ -70,12 +87,18 @@ public class GuiScreenServerList extends GuiScreen
         }
     }
 
+    /**
+     * Called when the mouse is clicked. Args : mouseX, mouseY, clickedButton
+     */
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
     {
         super.mouseClicked(mouseX, mouseY, mouseButton);
         this.ipEdit.mouseClicked(mouseX, mouseY, mouseButton);
     }
 
+    /**
+     * Draws the screen and all the components in it.
+     */
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         this.drawDefaultBackground();

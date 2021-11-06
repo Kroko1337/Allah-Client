@@ -24,6 +24,11 @@ public class MapData extends WorldSavedData
     public boolean trackingPosition;
     public boolean unlimitedTracking;
     public byte scale;
+
+    /**
+     * A flattened 128x128 grid representing the contents of the map. Each byte has format ([index into MapColor.COLORS]
+     * << 4 | brightness flag)
+     */
     public byte[] colors = new byte[16384];
     public List<MapData.MapInfo> playersArrayList = Lists.<MapData.MapInfo>newArrayList();
     private final Map<EntityPlayer, MapData.MapInfo> playersHashMap = Maps.<EntityPlayer, MapData.MapInfo>newHashMap();
@@ -46,15 +51,15 @@ public class MapData extends WorldSavedData
     /**
      * reads in data from the NBTTagCompound into this MapDataBase
      */
-    public void read(NBTTagCompound nbt)
+    public void readFromNBT(NBTTagCompound nbt)
     {
         this.dimension = nbt.getByte("dimension");
-        this.xCenter = nbt.getInt("xCenter");
-        this.zCenter = nbt.getInt("zCenter");
+        this.xCenter = nbt.getInteger("xCenter");
+        this.zCenter = nbt.getInteger("zCenter");
         this.scale = nbt.getByte("scale");
         this.scale = (byte)MathHelper.clamp(this.scale, 0, 4);
 
-        if (nbt.contains("trackingPosition", 1))
+        if (nbt.hasKey("trackingPosition", 1))
         {
             this.trackingPosition = nbt.getBoolean("trackingPosition");
         }
@@ -98,17 +103,17 @@ public class MapData extends WorldSavedData
         }
     }
 
-    public NBTTagCompound write(NBTTagCompound compound)
+    public NBTTagCompound writeToNBT(NBTTagCompound compound)
     {
-        compound.putByte("dimension", this.dimension);
-        compound.putInt("xCenter", this.xCenter);
-        compound.putInt("zCenter", this.zCenter);
-        compound.putByte("scale", this.scale);
-        compound.putShort("width", (short)128);
-        compound.putShort("height", (short)128);
-        compound.putByteArray("colors", this.colors);
-        compound.putBoolean("trackingPosition", this.trackingPosition);
-        compound.putBoolean("unlimitedTracking", this.unlimitedTracking);
+        compound.setByte("dimension", this.dimension);
+        compound.setInteger("xCenter", this.xCenter);
+        compound.setInteger("zCenter", this.zCenter);
+        compound.setByte("scale", this.scale);
+        compound.setShort("width", (short)128);
+        compound.setShort("height", (short)128);
+        compound.setByteArray("colors", this.colors);
+        compound.setBoolean("trackingPosition", this.trackingPosition);
+        compound.setBoolean("unlimitedTracking", this.unlimitedTracking);
         return compound;
     }
 
@@ -133,7 +138,7 @@ public class MapData extends WorldSavedData
         {
             MapData.MapInfo mapdata$mapinfo1 = this.playersArrayList.get(i);
 
-            if (!mapdata$mapinfo1.player.removed && (mapdata$mapinfo1.player.inventory.hasItemStack(mapStack) || mapStack.isOnItemFrame()))
+            if (!mapdata$mapinfo1.player.isDead && (mapdata$mapinfo1.player.inventory.hasItemStack(mapStack) || mapStack.isOnItemFrame()))
             {
                 if (!mapStack.isOnItemFrame() && mapdata$mapinfo1.player.dimension == this.dimension && this.trackingPosition)
                 {
@@ -154,13 +159,13 @@ public class MapData extends WorldSavedData
             this.updateDecorations(MapDecoration.Type.FRAME, player.world, "frame-" + entityitemframe.getEntityId(), (double)blockpos.getX(), (double)blockpos.getZ(), (double)(entityitemframe.facingDirection.getHorizontalIndex() * 90));
         }
 
-        if (mapStack.hasTag() && mapStack.getTag().contains("Decorations", 9))
+        if (mapStack.hasTagCompound() && mapStack.getTagCompound().hasKey("Decorations", 9))
         {
-            NBTTagList nbttaglist = mapStack.getTag().getList("Decorations", 10);
+            NBTTagList nbttaglist = mapStack.getTagCompound().getTagList("Decorations", 10);
 
             for (int j = 0; j < nbttaglist.tagCount(); ++j)
             {
-                NBTTagCompound nbttagcompound = nbttaglist.getCompound(j);
+                NBTTagCompound nbttagcompound = nbttaglist.getCompoundTagAt(j);
 
                 if (!this.mapDecorations.containsKey(nbttagcompound.getString("id")))
                 {
@@ -174,9 +179,9 @@ public class MapData extends WorldSavedData
     {
         NBTTagList nbttaglist;
 
-        if (map.hasTag() && map.getTag().contains("Decorations", 9))
+        if (map.hasTagCompound() && map.getTagCompound().hasKey("Decorations", 9))
         {
-            nbttaglist = map.getTag().getList("Decorations", 10);
+            nbttaglist = map.getTagCompound().getTagList("Decorations", 10);
         }
         else
         {
@@ -185,17 +190,17 @@ public class MapData extends WorldSavedData
         }
 
         NBTTagCompound nbttagcompound = new NBTTagCompound();
-        nbttagcompound.putByte("type", type.getIcon());
-        nbttagcompound.putString("id", decorationName);
-        nbttagcompound.putDouble("x", (double)target.getX());
-        nbttagcompound.putDouble("z", (double)target.getZ());
-        nbttagcompound.putDouble("rot", 180.0D);
+        nbttagcompound.setByte("type", type.getIcon());
+        nbttagcompound.setString("id", decorationName);
+        nbttagcompound.setDouble("x", (double)target.getX());
+        nbttagcompound.setDouble("z", (double)target.getZ());
+        nbttagcompound.setDouble("rot", 180.0D);
         nbttaglist.appendTag(nbttagcompound);
 
         if (type.hasMapColor())
         {
-            NBTTagCompound nbttagcompound1 = map.getOrCreateChildTag("display");
-            nbttagcompound1.putInt("MapColor", type.getMapColor());
+            NBTTagCompound nbttagcompound1 = map.getOrCreateSubCompound("display");
+            nbttagcompound1.setInteger("MapColor", type.getMapColor());
         }
     }
 
@@ -216,7 +221,7 @@ public class MapData extends WorldSavedData
 
             if (this.dimension < 0)
             {
-                int l = (int)(worldIn.getWorldInfo().getDayTime() / 10L);
+                int l = (int)(worldIn.getWorldInfo().getWorldTime() / 10L);
                 b2 = (byte)(l * l * 34187121 + l * 121 >> 15 & 15);
             }
         }

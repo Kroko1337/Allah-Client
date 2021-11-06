@@ -38,7 +38,7 @@ public abstract class EntityAgeable extends EntityCreature
         {
             if (!this.world.isRemote)
             {
-                Class <? extends Entity > oclass = (Class)EntityList.REGISTRY.getOrDefault(ItemMonsterPlacer.getNamedIdFrom(itemstack));
+                Class <? extends Entity > oclass = (Class)EntityList.REGISTRY.getObject(ItemMonsterPlacer.getNamedIdFrom(itemstack));
 
                 if (oclass != null && this.getClass() == oclass)
                 {
@@ -48,14 +48,14 @@ public abstract class EntityAgeable extends EntityCreature
                     {
                         entityageable.setGrowingAge(-24000);
                         entityageable.setLocationAndAngles(this.posX, this.posY, this.posZ, 0.0F, 0.0F);
-                        this.world.addEntity0(entityageable);
+                        this.world.spawnEntity(entityageable);
 
                         if (itemstack.hasDisplayName())
                         {
                             entityageable.setCustomNameTag(itemstack.getDisplayName());
                         }
 
-                        if (!player.abilities.isCreativeMode)
+                        if (!player.capabilities.isCreativeMode)
                         {
                             itemstack.shrink(1);
                         }
@@ -71,6 +71,9 @@ public abstract class EntityAgeable extends EntityCreature
         }
     }
 
+    /**
+     * Checks if the given item is a spawn egg that spawns the given class of entity.
+     */
     protected boolean holdingSpawnEggOfClass(ItemStack stack, Class <? extends Entity > entityClass)
     {
         if (stack.getItem() != Items.SPAWN_EGG)
@@ -79,14 +82,14 @@ public abstract class EntityAgeable extends EntityCreature
         }
         else
         {
-            Class <? extends Entity > oclass = (Class)EntityList.REGISTRY.getOrDefault(ItemMonsterPlacer.getNamedIdFrom(stack));
+            Class <? extends Entity > oclass = (Class)EntityList.REGISTRY.getObject(ItemMonsterPlacer.getNamedIdFrom(stack));
             return oclass != null && entityClass == oclass;
         }
     }
 
-    protected void registerData()
+    protected void entityInit()
     {
-        super.registerData();
+        super.entityInit();
         this.dataManager.register(BABY, Boolean.valueOf(false));
     }
 
@@ -110,6 +113,10 @@ public abstract class EntityAgeable extends EntityCreature
     /**
      * Increases this entity's age, optionally updating {@link #forcedAge}. If the entity is an adult (if the entity's
      * age is greater than or equal to 0) then the entity's age will be set to {@link #forcedAge}.
+     *  
+     * @param growthSeconds Number of seconds to grow this entity by. The entity's age will be increased by 20 times
+     * this number (i.e. this number converted to ticks).
+     * @param updateForcedAge If true, updates {@link #forcedAge} and {@link #forcedAgeTimer}
      */
     public void ageUp(int growthSeconds, boolean updateForcedAge)
     {
@@ -166,21 +173,24 @@ public abstract class EntityAgeable extends EntityCreature
         this.setScaleForAge(this.isChild());
     }
 
+    /**
+     * (abstract) Protected helper method to write subclass entity data to NBT.
+     */
     public void writeEntityToNBT(NBTTagCompound compound)
     {
         super.writeEntityToNBT(compound);
-        compound.putInt("Age", this.getGrowingAge());
-        compound.putInt("ForcedAge", this.forcedAge);
+        compound.setInteger("Age", this.getGrowingAge());
+        compound.setInteger("ForcedAge", this.forcedAge);
     }
 
     /**
      * (abstract) Protected helper method to read subclass entity data from NBT.
      */
-    public void readAdditional(NBTTagCompound compound)
+    public void readEntityFromNBT(NBTTagCompound compound)
     {
-        super.readAdditional(compound);
-        this.setGrowingAge(compound.getInt("Age"));
-        this.forcedAge = compound.getInt("ForcedAge");
+        super.readEntityFromNBT(compound);
+        this.setGrowingAge(compound.getInteger("Age"));
+        this.forcedAge = compound.getInteger("ForcedAge");
     }
 
     public void notifyDataManagerChange(DataParameter<?> key)
@@ -197,9 +207,9 @@ public abstract class EntityAgeable extends EntityCreature
      * Called frequently so the entity can update its state every tick as required. For example, zombies and skeletons
      * use this to react to sunlight and start to burn.
      */
-    public void livingTick()
+    public void onLivingUpdate()
     {
-        super.livingTick();
+        super.onLivingUpdate();
 
         if (this.world.isRemote)
         {
@@ -251,11 +261,17 @@ public abstract class EntityAgeable extends EntityCreature
         return this.getGrowingAge() < 0;
     }
 
+    /**
+     * "Sets the scale for an ageable entity according to the boolean parameter, which says if it's a child."
+     */
     public void setScaleForAge(boolean child)
     {
         this.setScale(child ? 0.5F : 1.0F);
     }
 
+    /**
+     * Sets the width and height of the entity.
+     */
     protected final void setSize(float width, float height)
     {
         boolean flag = this.ageWidth > 0.0F;

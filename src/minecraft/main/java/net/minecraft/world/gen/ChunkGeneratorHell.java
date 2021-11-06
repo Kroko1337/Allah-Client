@@ -36,6 +36,10 @@ public class ChunkGeneratorHell implements IChunkGenerator
     private final World world;
     private final boolean generateStructures;
     private final Random rand;
+
+    /**
+     * Holds the noise used to determine whether slowsand can be generated at a location
+     */
     private double[] slowsandNoise = new double[256];
     private double[] gravelNoise = new double[256];
     private double[] depthBuffer = new double[256];
@@ -43,7 +47,13 @@ public class ChunkGeneratorHell implements IChunkGenerator
     private final NoiseGeneratorOctaves lperlinNoise1;
     private final NoiseGeneratorOctaves lperlinNoise2;
     private final NoiseGeneratorOctaves perlinNoise1;
+
+    /** Determines whether slowsand or gravel can be generated at a location */
     private final NoiseGeneratorOctaves slowsandGravelNoiseGen;
+
+    /**
+     * Determines whether something other than nettherack can be generated at a location
+     */
     private final NoiseGeneratorOctaves netherrackExculsivityNoiseGen;
     public final NoiseGeneratorOctaves scaleNoise;
     public final NoiseGeneratorOctaves depthNoise;
@@ -244,6 +254,9 @@ public class ChunkGeneratorHell implements IChunkGenerator
         }
     }
 
+    /**
+     * Generates the chunk at the specified position, from scratch
+     */
     public Chunk generateChunk(int x, int z)
     {
         this.rand.setSeed((long)x * 341873128712L + (long)z * 132897987541L);
@@ -355,6 +368,12 @@ public class ChunkGeneratorHell implements IChunkGenerator
         return p_185938_1_;
     }
 
+    /**
+     * Generate initial structures in this chunk, e.g. mineshafts, temples, lakes, and dungeons
+     *  
+     * @param x Chunk x coordinate
+     * @param z Chunk z coordinate
+     */
     public void populate(int x, int z)
     {
         BlockFalling.fallInstantly = true;
@@ -416,6 +435,9 @@ public class ChunkGeneratorHell implements IChunkGenerator
         BlockFalling.fallInstantly = false;
     }
 
+    /**
+     * Called to generate additional structures after initial worldgen, used by ocean monuments
+     */
     public boolean generateStructures(Chunk chunkIn, int x, int z)
     {
         return false;
@@ -437,7 +459,7 @@ public class ChunkGeneratorHell implements IChunkGenerator
         }
 
         Biome biome = this.world.getBiome(pos);
-        return biome.getSpawns(creatureType);
+        return biome.getSpawnableList(creatureType);
     }
 
     @Nullable
@@ -451,6 +473,11 @@ public class ChunkGeneratorHell implements IChunkGenerator
         return "Fortress".equals(structureName) && this.genNetherBridge != null ? this.genNetherBridge.isInsideStructure(pos) : false;
     }
 
+    /**
+     * Recreates data about structures intersecting given chunk (used for example by getPossibleCreatures), without
+     * placing any blocks. When called for the first time before any chunk is generated - also initializes the internal
+     * state needed by getPossibleCreatures.
+     */
     public void recreateStructures(Chunk chunkIn, int x, int z)
     {
         this.genNetherBridge.generate(this.world, x, z, (ChunkPrimer)null);

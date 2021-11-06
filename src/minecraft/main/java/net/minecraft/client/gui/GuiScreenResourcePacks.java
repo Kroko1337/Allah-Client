@@ -31,6 +31,10 @@ public class GuiScreenResourcePacks extends GuiScreen
         this.parentScreen = parentScreenIn;
     }
 
+    /**
+     * Adds the buttons (and other controls) to the screen in question. Called when the GUI is displayed and when the
+     * window resizes, the buttonList is cleared beforehand.
+     */
     public void initGui()
     {
         this.buttonList.add(new GuiOptionButton(2, this.width / 2 - 154, this.height - 48, I18n.format("resourcePack.openFolder")));
@@ -73,6 +77,9 @@ public class GuiScreenResourcePacks extends GuiScreen
         this.selectedResourcePacksList.registerScrollButtons(7, 8);
     }
 
+    /**
+     * Handles mouse input.
+     */
     public void handleMouseInput() throws IOException
     {
         super.handleMouseInput();
@@ -100,6 +107,9 @@ public class GuiScreenResourcePacks extends GuiScreen
         return this.selectedResourcePacks;
     }
 
+    /**
+     * Called by the controls from the buttonList when activated. (Mouse pressed for buttons)
+     */
     protected void actionPerformed(GuiButton button) throws IOException
     {
         if (button.enabled)
@@ -147,6 +157,9 @@ public class GuiScreenResourcePacks extends GuiScreen
         }
     }
 
+    /**
+     * Called when the mouse is clicked. Args : mouseX, mouseY, clickedButton
+     */
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
     {
         super.mouseClicked(mouseX, mouseY, mouseButton);
@@ -154,11 +167,17 @@ public class GuiScreenResourcePacks extends GuiScreen
         this.selectedResourcePacksList.mouseClicked(mouseX, mouseY, mouseButton);
     }
 
+    /**
+     * Called when a mouse button is released.
+     */
     protected void mouseReleased(int mouseX, int mouseY, int state)
     {
         super.mouseReleased(mouseX, mouseY, state);
     }
 
+    /**
+     * Draws the screen and all the components in it.
+     */
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         this.drawBackground(0);

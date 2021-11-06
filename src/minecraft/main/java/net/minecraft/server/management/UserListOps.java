@@ -29,6 +29,9 @@ public class UserListOps extends UserList<GameProfile, UserListOpsEntry>
         return astring;
     }
 
+    /**
+     * Get the OP permission level this player has
+     */
     public int getPermissionLevel(GameProfile profile)
     {
         UserListOpsEntry userlistopsentry = (UserListOpsEntry)this.getEntry(profile);
@@ -49,6 +52,9 @@ public class UserListOps extends UserList<GameProfile, UserListOpsEntry>
         return obj.getId().toString();
     }
 
+    /**
+     * Gets the GameProfile of based on the provided username.
+     */
     public GameProfile getGameProfileFromName(String username)
     {
         for (UserListOpsEntry userlistopsentry : this.getValues().values())

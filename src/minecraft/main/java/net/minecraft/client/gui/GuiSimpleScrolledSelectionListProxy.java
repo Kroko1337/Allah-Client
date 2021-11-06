@@ -14,7 +14,7 @@ public class GuiSimpleScrolledSelectionListProxy extends GuiSlot
 
     public GuiSimpleScrolledSelectionListProxy(RealmsSimpleScrolledSelectionList realmsScrolledSelectionListIn, int widthIn, int heightIn, int topIn, int bottomIn, int slotHeightIn)
     {
-        super(Minecraft.getInstance(), widthIn, heightIn, topIn, bottomIn, slotHeightIn);
+        super(Minecraft.getMinecraft(), widthIn, heightIn, topIn, bottomIn, slotHeightIn);
         this.realmsScrolledSelectionList = realmsScrolledSelectionListIn;
     }
 
@@ -23,11 +23,17 @@ public class GuiSimpleScrolledSelectionListProxy extends GuiSlot
         return this.realmsScrolledSelectionList.getItemCount();
     }
 
+    /**
+     * The element in the slot that was clicked, boolean for whether it was double clicked or not
+     */
     protected void elementClicked(int slotIndex, boolean isDoubleClick, int mouseX, int mouseY)
     {
         this.realmsScrolledSelectionList.selectItem(slotIndex, isDoubleClick, mouseX, mouseY);
     }
 
+    /**
+     * Returns true if the element passed in is currently selected
+     */
     protected boolean isSelected(int slotIndex)
     {
         return this.realmsScrolledSelectionList.isSelectedItem(slotIndex);
@@ -58,6 +64,9 @@ public class GuiSimpleScrolledSelectionListProxy extends GuiSlot
         return this.mouseX;
     }
 
+    /**
+     * Return the height of the content being scrolled
+     */
     protected int getContentHeight()
     {
         return this.realmsScrolledSelectionList.getMaxPosition();

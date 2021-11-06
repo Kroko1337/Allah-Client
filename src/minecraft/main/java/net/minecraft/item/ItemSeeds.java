@@ -14,6 +14,8 @@ import net.minecraft.world.World;
 public class ItemSeeds extends Item
 {
     private final Block crops;
+
+    /** BlockID of the block the seeds can be planted on. */
     private final Block soilBlockID;
 
     public ItemSeeds(Block crops, Block soil)
@@ -23,6 +25,9 @@ public class ItemSeeds extends Item
         this.setCreativeTab(CreativeTabs.MATERIALS);
     }
 
+    /**
+     * Called when a Block is right-clicked with this Item
+     */
     public EnumActionResult onItemUse(EntityPlayer player, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
         ItemStack itemstack = player.getHeldItem(hand);

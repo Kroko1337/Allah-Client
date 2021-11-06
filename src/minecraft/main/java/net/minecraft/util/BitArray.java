@@ -5,9 +5,21 @@ import org.apache.commons.lang3.Validate;
 
 public class BitArray
 {
+    /** The long array that is used to store the data for this BitArray. */
     private final long[] longArray;
+
+    /** Number of bits a single entry takes up */
     private final int bitsPerEntry;
+
+    /**
+     * The maximum value for a single entry. This also asks as a bitmask for a single entry.
+     * For instance, if bitsPerEntry were 5, this value would be 31 (ie, {@code 0b00011111}).
+     */
     private final long maxEntryValue;
+
+    /**
+     * Number of entries in this array (<b>not</b> the length of the long array that internally backs this array)
+     */
     private final int arraySize;
 
     public BitArray(int bitsPerEntryIn, int arraySizeIn)

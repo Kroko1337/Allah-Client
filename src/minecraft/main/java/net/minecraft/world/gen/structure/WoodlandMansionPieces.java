@@ -258,11 +258,11 @@ public class WoodlandMansionPieces
             else
             {
                 Tuple<Integer, Integer> tuple = (Tuple)list.get(this.random.nextInt(list.size()));
-                int l1 = woodlandmansionpieces$simplegrid.get(((Integer)tuple.getA()).intValue(), ((Integer)tuple.getB()).intValue());
-                woodlandmansionpieces$simplegrid.set(((Integer)tuple.getA()).intValue(), ((Integer)tuple.getB()).intValue(), l1 | 4194304);
-                EnumFacing enumfacing1 = this.get1x2RoomDirection(this.baseGrid, ((Integer)tuple.getA()).intValue(), ((Integer)tuple.getB()).intValue(), 1, l1 & 65535);
-                int i2 = ((Integer)tuple.getA()).intValue() + enumfacing1.getXOffset();
-                int i1 = ((Integer)tuple.getB()).intValue() + enumfacing1.getZOffset();
+                int l1 = woodlandmansionpieces$simplegrid.get(((Integer)tuple.getFirst()).intValue(), ((Integer)tuple.getSecond()).intValue());
+                woodlandmansionpieces$simplegrid.set(((Integer)tuple.getFirst()).intValue(), ((Integer)tuple.getSecond()).intValue(), l1 | 4194304);
+                EnumFacing enumfacing1 = this.get1x2RoomDirection(this.baseGrid, ((Integer)tuple.getFirst()).intValue(), ((Integer)tuple.getSecond()).intValue(), 1, l1 & 65535);
+                int i2 = ((Integer)tuple.getFirst()).intValue() + enumfacing1.getXOffset();
+                int i1 = ((Integer)tuple.getSecond()).intValue() + enumfacing1.getZOffset();
 
                 for (int j1 = 0; j1 < this.thirdFloorGrid.height; ++j1)
                 {
@@ -272,7 +272,7 @@ public class WoodlandMansionPieces
                         {
                             this.thirdFloorGrid.set(k1, j1, 5);
                         }
-                        else if (k1 == ((Integer)tuple.getA()).intValue() && j1 == ((Integer)tuple.getB()).intValue())
+                        else if (k1 == ((Integer)tuple.getFirst()).intValue() && j1 == ((Integer)tuple.getSecond()).intValue())
                         {
                             this.thirdFloorGrid.set(k1, j1, 3);
                         }
@@ -297,7 +297,7 @@ public class WoodlandMansionPieces
                 if (list1.isEmpty())
                 {
                     this.thirdFloorGrid.set(0, 0, this.thirdFloorGrid.width, this.thirdFloorGrid.height, 5);
-                    woodlandmansionpieces$simplegrid.set(((Integer)tuple.getA()).intValue(), ((Integer)tuple.getB()).intValue(), l1);
+                    woodlandmansionpieces$simplegrid.set(((Integer)tuple.getFirst()).intValue(), ((Integer)tuple.getSecond()).intValue(), l1);
                 }
                 else
                 {
@@ -332,8 +332,8 @@ public class WoodlandMansionPieces
 
             for (Tuple<Integer, Integer> tuple : list)
             {
-                int k = ((Integer)tuple.getA()).intValue();
-                int l = ((Integer)tuple.getB()).intValue();
+                int k = ((Integer)tuple.getFirst()).intValue();
+                int l = ((Integer)tuple.getSecond()).intValue();
 
                 if (p_191116_2_.get(k, l) == 0)
                 {
@@ -466,14 +466,14 @@ public class WoodlandMansionPieces
         protected void writeStructureToNBT(NBTTagCompound tagCompound)
         {
             super.writeStructureToNBT(tagCompound);
-            tagCompound.putString("Template", this.templateName);
-            tagCompound.putString("Rot", this.placeSettings.getRotation().name());
-            tagCompound.putString("Mi", this.placeSettings.getMirror().name());
+            tagCompound.setString("Template", this.templateName);
+            tagCompound.setString("Rot", this.placeSettings.getRotation().name());
+            tagCompound.setString("Mi", this.placeSettings.getMirror().name());
         }
 
-        protected void readAdditional(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
+        protected void readStructureFromNBT(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
         {
-            super.readAdditional(tagCompound, p_143011_2_);
+            super.readStructureFromNBT(tagCompound, p_143011_2_);
             this.templateName = tagCompound.getString("Template");
             this.rotation = Rotation.valueOf(tagCompound.getString("Rot"));
             this.mirror = Mirror.valueOf(tagCompound.getString("Mi"));
@@ -511,7 +511,7 @@ public class WoodlandMansionPieces
                 EntityEvoker entityevoker = new EntityEvoker(worldIn);
                 entityevoker.enablePersistence();
                 entityevoker.moveToBlockPosAndAngles(pos, 0.0F, 0.0F);
-                worldIn.addEntity0(entityevoker);
+                worldIn.spawnEntity(entityevoker);
                 worldIn.setBlockState(pos, Blocks.AIR.getDefaultState(), 2);
             }
             else if ("Warrior".equals(function))
@@ -520,7 +520,7 @@ public class WoodlandMansionPieces
                 entityvindicator.enablePersistence();
                 entityvindicator.moveToBlockPosAndAngles(pos, 0.0F, 0.0F);
                 entityvindicator.onInitialSpawn(worldIn.getDifficultyForLocation(new BlockPos(entityvindicator)), (IEntityLivingData)null);
-                worldIn.addEntity0(entityvindicator);
+                worldIn.spawnEntity(entityvindicator);
                 worldIn.setBlockState(pos, Blocks.AIR.getDefaultState(), 2);
             }
         }

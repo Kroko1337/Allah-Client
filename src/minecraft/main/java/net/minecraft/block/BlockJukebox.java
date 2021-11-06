@@ -36,13 +36,16 @@ public class BlockJukebox extends BlockContainer
     protected BlockJukebox()
     {
         super(Material.WOOD, MapColor.DIRT);
-        this.setDefaultState(this.stateContainer.getBaseState().withProperty(HAS_RECORD, Boolean.valueOf(false)));
+        this.setDefaultState(this.blockState.getBaseState().withProperty(HAS_RECORD, Boolean.valueOf(false)));
         this.setCreativeTab(CreativeTabs.DECORATIONS);
     }
 
+    /**
+     * Called when the block is right clicked by a player.
+     */
     public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
-        if (((Boolean)state.get(HAS_RECORD)).booleanValue())
+        if (((Boolean)state.getValue(HAS_RECORD)).booleanValue())
         {
             this.dropRecord(worldIn, pos, state);
             state = state.withProperty(HAS_RECORD, Boolean.valueOf(false));
@@ -89,18 +92,24 @@ public class BlockJukebox extends BlockContainer
                     ItemStack itemstack1 = itemstack.copy();
                     EntityItem entityitem = new EntityItem(worldIn, (double)pos.getX() + d0, (double)pos.getY() + d1, (double)pos.getZ() + d2, itemstack1);
                     entityitem.setDefaultPickupDelay();
-                    worldIn.addEntity0(entityitem);
+                    worldIn.spawnEntity(entityitem);
                 }
             }
         }
     }
 
+    /**
+     * Called serverside after this block is replaced with another in Chunk, but before the Tile Entity is updated
+     */
     public void breakBlock(World worldIn, BlockPos pos, IBlockState state)
     {
         this.dropRecord(worldIn, pos, state);
         super.breakBlock(worldIn, pos, state);
     }
 
+    /**
+     * Spawns this Block's drops into the World as EntityItems.
+     */
     public void dropBlockAsItemWithChance(World worldIn, BlockPos pos, IBlockState state, float chance, int fortune)
     {
         if (!worldIn.isRemote)
@@ -109,6 +118,9 @@ public class BlockJukebox extends BlockContainer
         }
     }
 
+    /**
+     * Returns a new instance of a block's tile entity class. Called on placing the block.
+     */
     public TileEntity createNewTileEntity(World worldIn, int meta)
     {
         return new BlockJukebox.TileEntityJukebox();
@@ -154,14 +166,20 @@ public class BlockJukebox extends BlockContainer
         return EnumBlockRenderType.MODEL;
     }
 
+    /**
+     * Convert the given metadata into a BlockState for this Block
+     */
     public IBlockState getStateFromMeta(int meta)
     {
         return this.getDefaultState().withProperty(HAS_RECORD, Boolean.valueOf(meta > 0));
     }
 
+    /**
+     * Convert the BlockState into the correct metadata value
+     */
     public int getMetaFromState(IBlockState state)
     {
-        return ((Boolean)state.get(HAS_RECORD)).booleanValue() ? 1 : 0;
+        return ((Boolean)state.getValue(HAS_RECORD)).booleanValue() ? 1 : 0;
     }
 
     protected BlockStateContainer createBlockState()
@@ -173,27 +191,27 @@ public class BlockJukebox extends BlockContainer
     {
         private ItemStack record = ItemStack.EMPTY;
 
-        public void read(NBTTagCompound compound)
+        public void readFromNBT(NBTTagCompound compound)
         {
-            super.read(compound);
+            super.readFromNBT(compound);
 
-            if (compound.contains("RecordItem", 10))
+            if (compound.hasKey("RecordItem", 10))
             {
-                this.setRecord(new ItemStack(compound.getCompound("RecordItem")));
+                this.setRecord(new ItemStack(compound.getCompoundTag("RecordItem")));
             }
-            else if (compound.getInt("Record") > 0)
+            else if (compound.getInteger("Record") > 0)
             {
-                this.setRecord(new ItemStack(Item.getItemById(compound.getInt("Record"))));
+                this.setRecord(new ItemStack(Item.getItemById(compound.getInteger("Record"))));
             }
         }
 
-        public NBTTagCompound write(NBTTagCompound compound)
+        public NBTTagCompound writeToNBT(NBTTagCompound compound)
         {
-            super.write(compound);
+            super.writeToNBT(compound);
 
             if (!this.getRecord().isEmpty())
             {
-                compound.setTag("RecordItem", this.getRecord().write(new NBTTagCompound()));
+                compound.setTag("RecordItem", this.getRecord().writeToNBT(new NBTTagCompound()));
             }
 
             return compound;

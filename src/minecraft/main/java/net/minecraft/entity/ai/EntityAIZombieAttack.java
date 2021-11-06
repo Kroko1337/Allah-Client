@@ -34,9 +34,9 @@ public class EntityAIZombieAttack extends EntityAIAttackMelee
     /**
      * Keep ticking a continuous task that has already been started
      */
-    public void tick()
+    public void updateTask()
     {
-        super.tick();
+        super.updateTask();
         ++this.raiseArmTicks;
 
         if (this.raiseArmTicks >= 5 && this.attackTick < 10)

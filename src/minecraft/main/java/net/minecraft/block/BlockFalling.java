@@ -25,11 +25,19 @@ public class BlockFalling extends Block
         super(materialIn);
     }
 
+    /**
+     * Called after the block is set in the Chunk data, but before the Tile Entity is set
+     */
     public void onBlockAdded(World worldIn, BlockPos pos, IBlockState state)
     {
         worldIn.scheduleUpdate(pos, this, this.tickRate(worldIn));
     }
 
+    /**
+     * Called when a neighboring block was changed and marks that this state should perform any checks during a neighbor
+     * change. Cases may include when redstone power is updated, cactus blocks popping off due to a neighboring solid
+     * block, etc.
+     */
     public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos)
     {
         worldIn.scheduleUpdate(pos, this, this.tickRate(worldIn));
@@ -55,7 +63,7 @@ public class BlockFalling extends Block
                 {
                     EntityFallingBlock entityfallingblock = new EntityFallingBlock(worldIn, (double)pos.getX() + 0.5D, (double)pos.getY(), (double)pos.getZ() + 0.5D, worldIn.getBlockState(pos));
                     this.onStartFalling(entityfallingblock);
-                    worldIn.addEntity0(entityfallingblock);
+                    worldIn.spawnEntity(entityfallingblock);
                 }
             }
             else
@@ -108,7 +116,7 @@ public class BlockFalling extends Block
      * this method is unrelated to {@link randomTick} and {@link #needsRandomTick}, and will always be called regardless
      * of whether the block can receive random update ticks
      */
-    public void animateTick(IBlockState stateIn, World worldIn, BlockPos pos, Random rand)
+    public void randomDisplayTick(IBlockState stateIn, World worldIn, BlockPos pos, Random rand)
     {
         if (rand.nextInt(16) == 0)
         {

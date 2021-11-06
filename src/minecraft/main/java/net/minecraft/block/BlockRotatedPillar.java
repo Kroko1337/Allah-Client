@@ -20,7 +20,7 @@ public class BlockRotatedPillar extends Block
 
     protected BlockRotatedPillar(Material materialIn)
     {
-        super(materialIn, materialIn.getColor());
+        super(materialIn, materialIn.getMaterialMapColor());
     }
 
     protected BlockRotatedPillar(Material materialIn, MapColor color)
@@ -34,13 +34,13 @@ public class BlockRotatedPillar extends Block
      * @deprecated call via {@link IBlockState#withRotation(Rotation)} whenever possible. Implementing/overriding is
      * fine.
      */
-    public IBlockState rotate(IBlockState state, Rotation rot)
+    public IBlockState withRotation(IBlockState state, Rotation rot)
     {
         switch (rot)
         {
             case COUNTERCLOCKWISE_90:
             case CLOCKWISE_90:
-                switch ((EnumFacing.Axis)state.get(AXIS))
+                switch ((EnumFacing.Axis)state.getValue(AXIS))
                 {
                     case X:
                         return state.withProperty(AXIS, EnumFacing.Axis.Z);
@@ -57,6 +57,9 @@ public class BlockRotatedPillar extends Block
         }
     }
 
+    /**
+     * Convert the given metadata into a BlockState for this Block
+     */
     public IBlockState getStateFromMeta(int meta)
     {
         EnumFacing.Axis enumfacing$axis = EnumFacing.Axis.Y;
@@ -74,10 +77,13 @@ public class BlockRotatedPillar extends Block
         return this.getDefaultState().withProperty(AXIS, enumfacing$axis);
     }
 
+    /**
+     * Convert the BlockState into the correct metadata value
+     */
     public int getMetaFromState(IBlockState state)
     {
         int i = 0;
-        EnumFacing.Axis enumfacing$axis = (EnumFacing.Axis)state.get(AXIS);
+        EnumFacing.Axis enumfacing$axis = (EnumFacing.Axis)state.getValue(AXIS);
 
         if (enumfacing$axis == EnumFacing.Axis.X)
         {
@@ -101,6 +107,10 @@ public class BlockRotatedPillar extends Block
         return new ItemStack(Item.getItemFromBlock(this));
     }
 
+    /**
+     * Called by ItemBlocks just before a block is actually set in the world, to allow for adjustments to the
+     * IBlockstate
+     */
     public IBlockState getStateForPlacement(World worldIn, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer)
     {
         return super.getStateForPlacement(worldIn, pos, facing, hitX, hitY, hitZ, meta, placer).withProperty(AXIS, facing.getAxis());

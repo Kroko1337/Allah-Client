@@ -28,8 +28,8 @@ public class BlockEndRod extends BlockDirectional
 
     protected BlockEndRod()
     {
-        super(Material.MISCELLANEOUS);
-        this.setDefaultState(this.stateContainer.getBaseState().withProperty(FACING, EnumFacing.UP));
+        super(Material.CIRCUITS);
+        this.setDefaultState(this.blockState.getBaseState().withProperty(FACING, EnumFacing.UP));
         this.setCreativeTab(CreativeTabs.DECORATIONS);
     }
 
@@ -39,9 +39,9 @@ public class BlockEndRod extends BlockDirectional
      * @deprecated call via {@link IBlockState#withRotation(Rotation)} whenever possible. Implementing/overriding is
      * fine.
      */
-    public IBlockState rotate(IBlockState state, Rotation rot)
+    public IBlockState withRotation(IBlockState state, Rotation rot)
     {
-        return state.withProperty(FACING, rot.rotate((EnumFacing)state.get(FACING)));
+        return state.withProperty(FACING, rot.rotate((EnumFacing)state.getValue(FACING)));
     }
 
     /**
@@ -49,14 +49,18 @@ public class BlockEndRod extends BlockDirectional
      * blockstate.
      * @deprecated call via {@link IBlockState#withMirror(Mirror)} whenever possible. Implementing/overriding is fine.
      */
-    public IBlockState mirror(IBlockState state, Mirror mirrorIn)
+    public IBlockState withMirror(IBlockState state, Mirror mirrorIn)
     {
-        return state.withProperty(FACING, mirrorIn.mirror((EnumFacing)state.get(FACING)));
+        return state.withProperty(FACING, mirrorIn.mirror((EnumFacing)state.getValue(FACING)));
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#getBoundingBox(IBlockAccess,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
     {
-        switch (((EnumFacing)state.get(FACING)).getAxis())
+        switch (((EnumFacing)state.getValue(FACING)).getAxis())
         {
             case X:
             default:
@@ -70,28 +74,42 @@ public class BlockEndRod extends BlockDirectional
         }
     }
 
+    /**
+     * Used to determine ambient occlusion and culling when rebuilding chunks for render
+     * @deprecated call via {@link IBlockState#isOpaqueCube()} whenever possible. Implementing/overriding is fine.
+     */
     public boolean isOpaqueCube(IBlockState state)
     {
         return false;
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#isFullCube()} whenever possible. Implementing/overriding is fine.
+     */
     public boolean isFullCube(IBlockState state)
     {
         return false;
     }
 
+    /**
+     * Checks if this block can be placed exactly at the given position.
+     */
     public boolean canPlaceBlockAt(World worldIn, BlockPos pos)
     {
         return true;
     }
 
+    /**
+     * Called by ItemBlocks just before a block is actually set in the world, to allow for adjustments to the
+     * IBlockstate
+     */
     public IBlockState getStateForPlacement(World worldIn, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer)
     {
         IBlockState iblockstate = worldIn.getBlockState(pos.offset(facing.getOpposite()));
 
         if (iblockstate.getBlock() == Blocks.END_ROD)
         {
-            EnumFacing enumfacing = (EnumFacing)iblockstate.get(FACING);
+            EnumFacing enumfacing = (EnumFacing)iblockstate.getValue(FACING);
 
             if (enumfacing == facing)
             {
@@ -107,9 +125,9 @@ public class BlockEndRod extends BlockDirectional
      * this method is unrelated to {@link randomTick} and {@link #needsRandomTick}, and will always be called regardless
      * of whether the block can receive random update ticks
      */
-    public void animateTick(IBlockState stateIn, World worldIn, BlockPos pos, Random rand)
+    public void randomDisplayTick(IBlockState stateIn, World worldIn, BlockPos pos, Random rand)
     {
-        EnumFacing enumfacing = (EnumFacing)stateIn.get(FACING);
+        EnumFacing enumfacing = (EnumFacing)stateIn.getValue(FACING);
         double d0 = (double)pos.getX() + 0.55D - (double)(rand.nextFloat() * 0.1F);
         double d1 = (double)pos.getY() + 0.55D - (double)(rand.nextFloat() * 0.1F);
         double d2 = (double)pos.getZ() + 0.55D - (double)(rand.nextFloat() * 0.1F);
@@ -121,11 +139,18 @@ public class BlockEndRod extends BlockDirectional
         }
     }
 
+    /**
+     * Gets the render layer this block will render on. SOLID for solid blocks, CUTOUT or CUTOUT_MIPPED for on-off
+     * transparency (glass, reeds), TRANSLUCENT for fully blended transparency (stained glass)
+     */
     public BlockRenderLayer getRenderLayer()
     {
         return BlockRenderLayer.CUTOUT;
     }
 
+    /**
+     * Convert the given metadata into a BlockState for this Block
+     */
     public IBlockState getStateFromMeta(int meta)
     {
         IBlockState iblockstate = this.getDefaultState();
@@ -133,9 +158,12 @@ public class BlockEndRod extends BlockDirectional
         return iblockstate;
     }
 
+    /**
+     * Convert the BlockState into the correct metadata value
+     */
     public int getMetaFromState(IBlockState state)
     {
-        return ((EnumFacing)state.get(FACING)).getIndex();
+        return ((EnumFacing)state.getValue(FACING)).getIndex();
     }
 
     protected BlockStateContainer createBlockState()
@@ -151,6 +179,17 @@ public class BlockEndRod extends BlockDirectional
         return EnumPushReaction.NORMAL;
     }
 
+    /**
+     * Get the geometry of the queried face at the given position and state. This is used to decide whether things like
+     * buttons are allowed to be placed on the face, or how glass panes connect to the face, among other things.
+     * <p>
+     * Common values are {@code SOLID}, which is the default, and {@code UNDEFINED}, which represents something that
+     * does not fit the other descriptions and will generally cause other things not to connect to the face.
+
+     * @return an approximation of the form of the given face
+     * @deprecated call via {@link IBlockState#getBlockFaceShape(IBlockAccess,BlockPos,EnumFacing)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public BlockFaceShape getBlockFaceShape(IBlockAccess worldIn, IBlockState state, BlockPos pos, EnumFacing face)
     {
         return BlockFaceShape.UNDEFINED;

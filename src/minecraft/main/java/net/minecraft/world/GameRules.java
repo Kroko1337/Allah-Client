@@ -55,12 +55,18 @@ public class GameRules
         }
     }
 
+    /**
+     * Gets the string Game Rule value.
+     */
     public String getString(String name)
     {
         GameRules.Value gamerules$value = this.rules.get(name);
         return gamerules$value != null ? gamerules$value.getString() : "";
     }
 
+    /**
+     * Gets the boolean Game Rule value.
+     */
     public boolean getBoolean(String name)
     {
         GameRules.Value gamerules$value = this.rules.get(name);
@@ -76,14 +82,14 @@ public class GameRules
     /**
      * Return the defined game rules as NBT.
      */
-    public NBTTagCompound write()
+    public NBTTagCompound writeToNBT()
     {
         NBTTagCompound nbttagcompound = new NBTTagCompound();
 
         for (String s : this.rules.keySet())
         {
             GameRules.Value gamerules$value = this.rules.get(s);
-            nbttagcompound.putString(s, gamerules$value.getString());
+            nbttagcompound.setString(s, gamerules$value.getString());
         }
 
         return nbttagcompound;
@@ -92,20 +98,26 @@ public class GameRules
     /**
      * Set defined game rules from NBT.
      */
-    public void read(NBTTagCompound nbt)
+    public void readFromNBT(NBTTagCompound nbt)
     {
-        for (String s : nbt.keySet())
+        for (String s : nbt.getKeySet())
         {
             this.setOrCreateGameRule(s, nbt.getString(s));
         }
     }
 
+    /**
+     * Return the defined game rules.
+     */
     public String[] getRules()
     {
         Set<String> set = this.rules.keySet();
         return (String[])set.toArray(new String[set.size()]);
     }
 
+    /**
+     * Return whether the specified game rule is defined.
+     */
     public boolean hasRule(String name)
     {
         return this.rules.containsKey(name);
@@ -134,6 +146,22 @@ public class GameRules
         public void setValue(String value)
         {
             this.valueString = value;
+
+            if (value != null)
+            {
+                if (value.equals("false"))
+                {
+                    this.valueBoolean = false;
+                    return;
+                }
+
+                if (value.equals("true"))
+                {
+                    this.valueBoolean = true;
+                    return;
+                }
+            }
+
             this.valueBoolean = Boolean.parseBoolean(value);
             this.valueInteger = this.valueBoolean ? 1 : 0;
 

@@ -12,9 +12,21 @@ public class EntityAIAttackMelee extends EntityAIBase
 {
     World world;
     protected EntityCreature attacker;
+
+    /**
+     * An amount of decrementing ticks that allows the entity to attack once the tick reaches 0.
+     */
     protected int attackTick;
+
+    /** The speed with which the mob will approach the target */
     double speedTowardsTarget;
+
+    /**
+     * When true, the mob will continue chasing its target, even if it can't find a path to them right now.
+     */
     boolean longMemory;
+
+    /** The PathEntity of our entity. */
     Path path;
     private int delayCounter;
     private double targetX;
@@ -32,8 +44,7 @@ public class EntityAIAttackMelee extends EntityAIBase
     }
 
     /**
-     * Returns whether execution should begin. You can also read and cache any state necessary for execution in this
-     * method as well.
+     * Returns whether the EntityAIBase should begin execution.
      */
     public boolean shouldExecute()
     {
@@ -43,13 +54,13 @@ public class EntityAIAttackMelee extends EntityAIBase
         {
             return false;
         }
-        else if (!entitylivingbase.isAlive())
+        else if (!entitylivingbase.isEntityAlive())
         {
             return false;
         }
         else
         {
-            this.path = this.attacker.getNavigator().getPathToEntity(entitylivingbase);
+            this.path = this.attacker.getNavigator().getPathToEntityLiving(entitylivingbase);
 
             if (this.path != null)
             {
@@ -57,7 +68,7 @@ public class EntityAIAttackMelee extends EntityAIBase
             }
             else
             {
-                return this.getAttackReachSqr(entitylivingbase) >= this.attacker.getDistanceSq(entitylivingbase.posX, entitylivingbase.getBoundingBox().minY, entitylivingbase.posZ);
+                return this.getAttackReachSqr(entitylivingbase) >= this.attacker.getDistanceSq(entitylivingbase.posX, entitylivingbase.getEntityBoundingBox().minY, entitylivingbase.posZ);
             }
         }
     }
@@ -73,7 +84,7 @@ public class EntityAIAttackMelee extends EntityAIBase
         {
             return false;
         }
-        else if (!entitylivingbase.isAlive())
+        else if (!entitylivingbase.isEntityAlive())
         {
             return false;
         }
@@ -118,17 +129,17 @@ public class EntityAIAttackMelee extends EntityAIBase
     /**
      * Keep ticking a continuous task that has already been started
      */
-    public void tick()
+    public void updateTask()
     {
         EntityLivingBase entitylivingbase = this.attacker.getAttackTarget();
-        this.attacker.getLookController().setLookPositionWithEntity(entitylivingbase, 30.0F, 30.0F);
-        double d0 = this.attacker.getDistanceSq(entitylivingbase.posX, entitylivingbase.getBoundingBox().minY, entitylivingbase.posZ);
+        this.attacker.getLookHelper().setLookPositionWithEntity(entitylivingbase, 30.0F, 30.0F);
+        double d0 = this.attacker.getDistanceSq(entitylivingbase.posX, entitylivingbase.getEntityBoundingBox().minY, entitylivingbase.posZ);
         --this.delayCounter;
 
         if ((this.longMemory || this.attacker.getEntitySenses().canSee(entitylivingbase)) && this.delayCounter <= 0 && (this.targetX == 0.0D && this.targetY == 0.0D && this.targetZ == 0.0D || entitylivingbase.getDistanceSq(this.targetX, this.targetY, this.targetZ) >= 1.0D || this.attacker.getRNG().nextFloat() < 0.05F))
         {
             this.targetX = entitylivingbase.posX;
-            this.targetY = entitylivingbase.getBoundingBox().minY;
+            this.targetY = entitylivingbase.getEntityBoundingBox().minY;
             this.targetZ = entitylivingbase.posZ;
             this.delayCounter = 4 + this.attacker.getRNG().nextInt(7);
 

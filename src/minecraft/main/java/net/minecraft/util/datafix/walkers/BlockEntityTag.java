@@ -25,17 +25,17 @@ public class BlockEntityTag implements IDataWalker
 
     public NBTTagCompound process(IDataFixer fixer, NBTTagCompound compound, int versionIn)
     {
-        if (!compound.contains("tag", 10))
+        if (!compound.hasKey("tag", 10))
         {
             return compound;
         }
         else
         {
-            NBTTagCompound nbttagcompound = compound.getCompound("tag");
+            NBTTagCompound nbttagcompound = compound.getCompoundTag("tag");
 
-            if (nbttagcompound.contains("BlockEntityTag", 10))
+            if (nbttagcompound.hasKey("BlockEntityTag", 10))
             {
-                NBTTagCompound nbttagcompound1 = nbttagcompound.getCompound("BlockEntityTag");
+                NBTTagCompound nbttagcompound1 = nbttagcompound.getCompoundTag("BlockEntityTag");
                 String s = compound.getString("id");
                 String s1 = getBlockEntityID(versionIn, s);
                 boolean flag;
@@ -47,15 +47,15 @@ public class BlockEntityTag implements IDataWalker
                 }
                 else
                 {
-                    flag = !nbttagcompound1.contains("id");
-                    nbttagcompound1.putString("id", s1);
+                    flag = !nbttagcompound1.hasKey("id");
+                    nbttagcompound1.setString("id", s1);
                 }
 
                 fixer.process(FixTypes.BLOCK_ENTITY, nbttagcompound1, versionIn);
 
                 if (flag)
                 {
-                    nbttagcompound1.remove("id");
+                    nbttagcompound1.removeTag("id");
                 }
             }
 

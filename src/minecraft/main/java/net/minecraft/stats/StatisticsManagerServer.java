@@ -71,9 +71,9 @@ public class StatisticsManagerServer extends StatisticsManager
     /**
      * Triggers the logging of an achievement and attempts to announce to server
      */
-    public void setValue(EntityPlayer playerIn, StatBase statIn, int p_150873_3_)
+    public void unlockAchievement(EntityPlayer playerIn, StatBase statIn, int p_150873_3_)
     {
-        super.setValue(playerIn, statIn, p_150873_3_);
+        super.unlockAchievement(playerIn, statIn, p_150873_3_);
         this.dirty.add(statIn);
     }
 
@@ -193,7 +193,7 @@ public class StatisticsManagerServer extends StatisticsManager
 
             for (StatBase statbase : this.getDirty())
             {
-                map.put(statbase, Integer.valueOf(this.getValue(statbase)));
+                map.put(statbase, Integer.valueOf(this.readStat(statbase)));
             }
         }
 

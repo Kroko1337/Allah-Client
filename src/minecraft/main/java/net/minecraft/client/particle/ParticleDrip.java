@@ -10,7 +10,10 @@ import net.minecraft.world.World;
 
 public class ParticleDrip extends Particle
 {
+    /** the material type for dropped items/blocks */
     private final Material materialType;
+
+    /** The height of the current bob */
     private int bobTimer;
 
     protected ParticleDrip(World worldIn, double xCoordIn, double yCoordIn, double zCoordIn, Material p_i1203_8_)
@@ -38,7 +41,7 @@ public class ParticleDrip extends Particle
         this.particleGravity = 0.06F;
         this.materialType = p_i1203_8_;
         this.bobTimer = 40;
-        this.maxAge = (int)(64.0D / (Math.random() * 0.8D + 0.2D));
+        this.particleMaxAge = (int)(64.0D / (Math.random() * 0.8D + 0.2D));
         this.motionX = 0.0D;
         this.motionY = 0.0D;
         this.motionZ = 0.0D;
@@ -49,7 +52,7 @@ public class ParticleDrip extends Particle
         return this.materialType == Material.WATER ? super.getBrightnessForRender(partialTick) : 257;
     }
 
-    public void tick()
+    public void onUpdate()
     {
         this.prevPosX = this.posX;
         this.prevPosY = this.posY;
@@ -87,7 +90,7 @@ public class ParticleDrip extends Particle
         this.motionY *= 0.9800000190734863D;
         this.motionZ *= 0.9800000190734863D;
 
-        if (this.maxAge-- <= 0)
+        if (this.particleMaxAge-- <= 0)
         {
             this.setExpired();
         }
@@ -118,7 +121,7 @@ public class ParticleDrip extends Particle
 
             if (iblockstate.getBlock() instanceof BlockLiquid)
             {
-                d0 = (double)BlockLiquid.getLiquidHeightPercent(((Integer)iblockstate.get(BlockLiquid.LEVEL)).intValue());
+                d0 = (double)BlockLiquid.getLiquidHeightPercent(((Integer)iblockstate.getValue(BlockLiquid.LEVEL)).intValue());
             }
 
             double d1 = (double)(MathHelper.floor(this.posY) + 1) - d0;

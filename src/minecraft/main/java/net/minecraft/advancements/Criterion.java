@@ -38,6 +38,9 @@ public class Criterion
 
      * @return the deserialized {@code Criterion}.
      * @see ICriterionTrigger#deserializeInstance(JsonObject, JsonDeserializationContext)
+     *  
+     * @param json the {@code JsonObject} to deserialize from
+     * @param context the {@code JsonDeserializationContext} to deserialize in
      */
     public static Criterion criterionFromJson(JsonObject json, JsonDeserializationContext context)
     {
@@ -89,6 +92,10 @@ public class Criterion
      * Write {@code criteria} to {@code buf}.
 
      * @see #criteriaFromNetwork(PacketBuffer)
+     *  
+     * @param criteria the criteria to write to {@code buf}. Each key-value pair consists of a {@code Criterion} and its
+     * name.
+     * @param buf the {@code PacketBuffer} to write to
      */
     public static void serializeToNetwork(Map<String, Criterion> criteria, PacketBuffer buf)
     {

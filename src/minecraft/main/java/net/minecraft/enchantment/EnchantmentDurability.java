@@ -21,6 +21,9 @@ public class EnchantmentDurability extends Enchantment
         return 5 + (enchantmentLevel - 1) * 8;
     }
 
+    /**
+     * Returns the maximum value of enchantability nedded on the enchantment level passed.
+     */
     public int getMaxEnchantability(int enchantmentLevel)
     {
         return super.getMinEnchantability(enchantmentLevel) + 50;
@@ -39,7 +42,7 @@ public class EnchantmentDurability extends Enchantment
      */
     public boolean canApply(ItemStack stack)
     {
-        return stack.isDamageable() ? true : super.canApply(stack);
+        return stack.isItemStackDamageable() ? true : super.canApply(stack);
     }
 
     /**

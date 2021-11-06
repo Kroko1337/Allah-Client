@@ -18,32 +18,32 @@ public class LayerBipedArmor extends LayerArmorBase<ModelBiped>
     }
 
     @SuppressWarnings("incomplete-switch")
-    protected void setModelSlotVisible(ModelBiped modelIn, EntityEquipmentSlot slotIn)
+    protected void setModelSlotVisible(ModelBiped p_188359_1_, EntityEquipmentSlot slotIn)
     {
-        this.setModelVisible(modelIn);
+        this.setModelVisible(p_188359_1_);
 
         switch (slotIn)
         {
             case HEAD:
-                modelIn.bipedHead.showModel = true;
-                modelIn.bipedHeadwear.showModel = true;
+                p_188359_1_.bipedHead.showModel = true;
+                p_188359_1_.bipedHeadwear.showModel = true;
                 break;
 
             case CHEST:
-                modelIn.bipedBody.showModel = true;
-                modelIn.bipedRightArm.showModel = true;
-                modelIn.bipedLeftArm.showModel = true;
+                p_188359_1_.bipedBody.showModel = true;
+                p_188359_1_.bipedRightArm.showModel = true;
+                p_188359_1_.bipedLeftArm.showModel = true;
                 break;
 
             case LEGS:
-                modelIn.bipedBody.showModel = true;
-                modelIn.bipedRightLeg.showModel = true;
-                modelIn.bipedLeftLeg.showModel = true;
+                p_188359_1_.bipedBody.showModel = true;
+                p_188359_1_.bipedRightLeg.showModel = true;
+                p_188359_1_.bipedLeftLeg.showModel = true;
                 break;
 
             case FEET:
-                modelIn.bipedRightLeg.showModel = true;
-                modelIn.bipedLeftLeg.showModel = true;
+                p_188359_1_.bipedRightLeg.showModel = true;
+                p_188359_1_.bipedLeftLeg.showModel = true;
         }
     }
 

@@ -17,7 +17,13 @@ public class EntityAIMate extends EntityAIBase
     private final Class <? extends EntityAnimal > mateClass;
     World world;
     private EntityAnimal targetMate;
+
+    /**
+     * Delay preventing a baby from spawning immediately when two mate-able animals find each other.
+     */
     int spawnBabyDelay;
+
+    /** The speed the creature moves at during mating behavior. */
     double moveSpeed;
 
     public EntityAIMate(EntityAnimal animal, double speedIn)
@@ -35,8 +41,7 @@ public class EntityAIMate extends EntityAIBase
     }
 
     /**
-     * Returns whether execution should begin. You can also read and cache any state necessary for execution in this
-     * method as well.
+     * Returns whether the EntityAIBase should begin execution.
      */
     public boolean shouldExecute()
     {
@@ -56,7 +61,7 @@ public class EntityAIMate extends EntityAIBase
      */
     public boolean shouldContinueExecuting()
     {
-        return this.targetMate.isAlive() && this.targetMate.isInLove() && this.spawnBabyDelay < 60;
+        return this.targetMate.isEntityAlive() && this.targetMate.isInLove() && this.spawnBabyDelay < 60;
     }
 
     /**
@@ -71,9 +76,9 @@ public class EntityAIMate extends EntityAIBase
     /**
      * Keep ticking a continuous task that has already been started
      */
-    public void tick()
+    public void updateTask()
     {
-        this.animal.getLookController().setLookPositionWithEntity(this.targetMate, 10.0F, (float)this.animal.getVerticalFaceSpeed());
+        this.animal.getLookHelper().setLookPositionWithEntity(this.targetMate, 10.0F, (float)this.animal.getVerticalFaceSpeed());
         this.animal.getNavigator().tryMoveToEntityLiving(this.targetMate, this.moveSpeed);
         ++this.spawnBabyDelay;
 
@@ -89,7 +94,7 @@ public class EntityAIMate extends EntityAIBase
      */
     private EntityAnimal getNearbyMate()
     {
-        List<EntityAnimal> list = this.world.<EntityAnimal>getEntitiesWithinAABB(this.mateClass, this.animal.getBoundingBox().grow(8.0D));
+        List<EntityAnimal> list = this.world.<EntityAnimal>getEntitiesWithinAABB(this.mateClass, this.animal.getEntityBoundingBox().grow(8.0D));
         double d0 = Double.MAX_VALUE;
         EntityAnimal entityanimal = null;
 
@@ -133,7 +138,7 @@ public class EntityAIMate extends EntityAIBase
             this.targetMate.resetInLove();
             entityageable.setGrowingAge(-24000);
             entityageable.setLocationAndAngles(this.animal.posX, this.animal.posY, this.animal.posZ, 0.0F, 0.0F);
-            this.world.addEntity0(entityageable);
+            this.world.spawnEntity(entityageable);
             Random random = this.animal.getRNG();
 
             for (int i = 0; i < 7; ++i)
@@ -149,7 +154,7 @@ public class EntityAIMate extends EntityAIBase
 
             if (this.world.getGameRules().getBoolean("doMobLoot"))
             {
-                this.world.addEntity0(new EntityXPOrb(this.world, this.animal.posX, this.animal.posY, this.animal.posZ, random.nextInt(7) + 1));
+                this.world.spawnEntity(new EntityXPOrb(this.world, this.animal.posX, this.animal.posY, this.animal.posZ, random.nextInt(7) + 1));
             }
         }
     }

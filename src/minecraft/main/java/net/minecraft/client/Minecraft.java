@@ -41,6 +41,10 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
+
+import god.allah.api.Registry;
+import god.allah.api.executors.Module;
+import god.allah.main.Main;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -611,6 +615,7 @@ public class Minecraft implements IThreadListener, ISnooperInfo
         GlStateManager.viewport(0, 0, this.displayWidth, this.displayHeight);
         this.effectRenderer = new ParticleManager(this.world, this.renderEngine);
         this.checkGLError("Post startup");
+        new Main().onStart();
         this.ingameGUI = new GuiIngame(this);
 
         if (this.serverName != null)
@@ -2053,6 +2058,11 @@ public class Minecraft implements IThreadListener, ISnooperInfo
         while (Keyboard.next())
         {
             int i = Keyboard.getEventKey() == 0 ? Keyboard.getEventCharacter() + 256 : Keyboard.getEventKey();
+
+            for(Module module : Registry.INSTANCE.getEntries(Module.class)) {
+                if(module.getKeyBind() == i)
+                    module.toggle();
+            }
 
             if (this.debugCrashKeyPressTime > 0L)
             {

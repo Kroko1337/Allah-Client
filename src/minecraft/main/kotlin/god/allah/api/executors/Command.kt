@@ -14,6 +14,14 @@ abstract class Command : Executor {
     }
 
     abstract fun execute(args: Array<String>) : Boolean
+
+    fun getShortestName() : String {
+        var shortest = name
+        for(alias in aliases)
+            if(alias.length < shortest.length)
+                shortest = alias
+        return shortest
+    }
 }
 
 annotation class CommandInfo(val name: String, val aliases: Array<String> = [])

@@ -1,9 +1,13 @@
 package net.minecraft.client.entity;
 
+import java.util.Arrays;
 import java.util.List;
 import javax.annotation.Nullable;
 
+import god.allah.api.Registry;
+import god.allah.api.executors.Command;
 import god.allah.events.UpdateEvent;
+import god.allah.main.Wrapper;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.ElytraSound;
@@ -371,6 +375,16 @@ public class EntityPlayerSP extends AbstractClientPlayer
      */
     public void sendChatMessage(String message)
     {
+        if(message.startsWith(Wrapper.INSTANCE.getCommandPrefix())) {
+            message = message.substring(Wrapper.INSTANCE.getCommandPrefix().length());
+            final String[] split = message.split(" ");
+            for(Command command : Registry.INSTANCE.getEntries(Command.class)) {
+                if(command.getName().equalsIgnoreCase(split[0]) || Arrays.stream(command.getAliases()).anyMatch(s -> s.equalsIgnoreCase(split[0])))
+                    if(!command.execute(Arrays.copyOfRange(split, 1, split.length)))
+                        Wrapper.INSTANCE.sendMessage("§cWrong syntax! §e§l" + Wrapper.INSTANCE.getCommandPrefix() + command.getShortestName() + " §7for help!", false, null, true);
+            }
+            return;
+        }
         this.connection.sendPacket(new CPacketChatMessage(message));
     }
 

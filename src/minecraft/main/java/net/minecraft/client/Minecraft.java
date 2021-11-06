@@ -280,7 +280,7 @@ public class Minecraft implements IThreadListener, ISnooperInfo
 
     /** Manages all search trees */
     private SearchTreeManager searchTreeManager = new SearchTreeManager();
-    private final Session session;
+    public Session session;
     private boolean isGamePaused;
 
     /**

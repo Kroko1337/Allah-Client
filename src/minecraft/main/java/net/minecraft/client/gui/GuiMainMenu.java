@@ -7,12 +7,23 @@ import java.io.BufferedReader;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.Proxy;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
+
+import com.mojang.authlib.Agent;
+import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
+import com.mojang.authlib.yggdrasil.YggdrasilUserAuthentication;
+import com.thealtening.api.TheAltening;
+import com.thealtening.api.response.Account;
+import com.thealtening.api.retriever.AsynchronousDataRetriever;
+import com.thealtening.api.retriever.BasicDataRetriever;
+import com.thealtening.auth.TheAlteningAuthentication;
+import com.thealtening.auth.service.AlteningServiceType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
@@ -28,6 +39,7 @@ import net.minecraft.src.CustomPanorama;
 import net.minecraft.src.CustomPanoramaProperties;
 import net.minecraft.src.Reflector;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.Session;
 import net.minecraft.util.StringUtils;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
@@ -346,9 +358,26 @@ public class GuiMainMenu extends GuiScreen
             this.mc.displayGuiScreen(new GuiMultiplayer(this));
         }
 
-        if (button.id == 14 && this.realmsButton.visible)
-        {
-            this.switchToRealms();
+        if (button.id == 14 && this.realmsButton.visible) {
+            //this.switchToRealms();
+            try {
+                final BasicDataRetriever basicDataRetriever = new BasicDataRetriever("api-lalc-shdk-tfjv");
+                final TheAlteningAuthentication theAlteningAuthentication = TheAlteningAuthentication.theAltening();
+                basicDataRetriever.updateKey("api-lalc-shdk-tfjv");
+                theAlteningAuthentication.updateService(AlteningServiceType.THEALTENING);
+                final AsynchronousDataRetriever asynchronousDataRetriever = basicDataRetriever.toAsync();
+                final Account account = asynchronousDataRetriever.getAccount();
+                final YggdrasilUserAuthentication service = (YggdrasilUserAuthentication) new YggdrasilAuthenticationService(Proxy.NO_PROXY, "").createUserAuthentication(Agent.MINECRAFT);
+
+
+                service.setUsername(account.getToken());
+                service.setPassword("Allahistmitdir");
+
+                service.logIn();
+                Minecraft.getMinecraft().session = new Session(service.getSelectedProfile().getName(), service.getSelectedProfile().getId().toString(), service.getAuthenticatedToken(), "LEGACY");
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
         }
 
         if (button.id == 4)

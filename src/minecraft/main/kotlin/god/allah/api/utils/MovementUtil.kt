@@ -33,8 +33,7 @@ fun blinkTo(
     yaw: Float = player.rotationYaw,
     ground: Boolean = player.onGround,
     repeat: Boolean = false,
-    onlyWhenPress: Boolean = true
-) {
+    onlyWhenPress: Boolean = true) {
     if (keyboardPressed() || !onlyWhenPress) {
         val motionX = -sin(Math.toRadians(getDirection(yaw, repeat).toDouble())) * speed
         val motionZ = cos(Math.toRadians(getDirection(yaw, repeat).toDouble())) * speed

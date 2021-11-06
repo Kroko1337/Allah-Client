@@ -44,6 +44,7 @@ import javax.imageio.ImageIO;
 
 import god.allah.api.Registry;
 import god.allah.api.executors.Module;
+import god.allah.events.GuiHandleEvent;
 import god.allah.main.Main;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -1896,6 +1897,7 @@ public class Minecraft implements IThreadListener, ISnooperInfo
 
         if (this.currentScreen != null)
         {
+            new GuiHandleEvent().onFire();
             try
             {
                 this.currentScreen.handleInput();

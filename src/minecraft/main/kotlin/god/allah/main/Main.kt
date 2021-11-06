@@ -1,5 +1,6 @@
 package god.allah.main
 
+import com.thealtening.auth.service.AlteningServiceType
 import god.allah.api.Registry
 import god.allah.api.event.EventHandler
 import god.allah.main.Wrapper.coder
@@ -16,8 +17,7 @@ class Main {
 
     fun onStart() {
         instance = this
-        Display.setTitle("$name $version | Minecraft 1.12.2 coded by ${coder[0] + " & " + coder[1]}")
-        Runtime.getRuntime().addShutdownHook(Thread { onShutdown() })
+        Display.setTitle("$name $version | Minecraft 1.12.2 | coded by ${coder[0] + " & " + coder[1]}")
         Registry.init()
         EventHandler.init()
 
@@ -29,6 +29,7 @@ class Main {
         tray.add(trayIcon)
         trayIcon.displayMessage(name, "i have depressions", TrayIcon.MessageType.WARNING)
 
+        Runtime.getRuntime().addShutdownHook(Thread { onShutdown() })
     }
 
     private fun onShutdown() {

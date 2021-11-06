@@ -12,6 +12,7 @@ import god.allah.api.setting.types.CheckBox
 import god.allah.api.setting.types.ComboBox
 import god.allah.api.setting.types.SliderSetting
 import god.allah.api.utils.getRotation
+import god.allah.api.utils.rayCastedEntity
 import god.allah.events.*
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
@@ -102,7 +103,7 @@ class KillAura : Module() {
                     }
 
                     if (rayCast.value) {
-                        target = mc.objectMouseOver.entityHit
+                        target = rayCastedEntity(range.value, yaw, pitch, 1F)
                     }
 
                     if (isValid(target))
@@ -135,7 +136,7 @@ class KillAura : Module() {
         if (entity == null) return false
         if (entity == player) return false
         if (entity !is EntityLivingBase) return false
-        if (entity.getDistance(player) > range.value) return false
+        if (entity.getDistance(player) > (if(rayCast.value) range.value + 1 else range.value)) return false
         if (entity.isDead && entity.deathTime != 0) return false
         return true
     }

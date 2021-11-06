@@ -207,6 +207,7 @@ public class GuiIngame extends Gui
             this.renderHotbar(scaledresolution, partialTicks);
         }
 
+        new Render2DEvent(scaledresolution).onFire();
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         this.mc.getTextureManager().bindTexture(ICONS);
         GlStateManager.enableBlend();
@@ -663,7 +664,6 @@ public class GuiIngame extends Gui
             RenderHelper.disableStandardItemLighting();
             GlStateManager.disableRescaleNormal();
             GlStateManager.disableBlend();
-            new Render2DEvent().onFire();
         }
     }
 

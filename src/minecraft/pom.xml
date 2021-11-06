@@ -145,27 +145,6 @@
             <artifactId>api</artifactId>
             <version>4.1.0</version>
         </dependency>
-        <!-- External libraries -->
-        <dependency>
-            <groupId>us.myles</groupId>
-            <artifactId>ViaVersion</artifactId>
-            <version>3.3.0-20w45a</version>
-        </dependency>
-        <dependency>
-            <groupId>nl.matsv</groupId>
-            <artifactId>viabackwards</artifactId>
-            <version>3.3.0-20w45a</version>
-        </dependency>
-        <dependency>
-            <groupId>de.gerrygames</groupId>
-            <artifactId>viarewind</artifactId>
-            <version>1.5.3-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>de.liquiddev</groupId>
-            <artifactId>ircclient</artifactId>
-            <version>1.0.4</version>
-        </dependency>
         <!-- lombok used for cleaner code -->
         <dependency>
             <groupId>org.projectlombok</groupId>

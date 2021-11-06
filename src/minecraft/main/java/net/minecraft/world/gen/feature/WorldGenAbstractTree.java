@@ -14,10 +14,6 @@ public abstract class WorldGenAbstractTree extends WorldGenerator
         super(notify);
     }
 
-    /**
-     * returns whether or not a tree can grow into a block
-     * For example, a tree will not grow into stone
-     */
     protected boolean canGrowInto(Block blockType)
     {
         Material material = blockType.getDefaultState().getMaterial();
@@ -28,9 +24,6 @@ public abstract class WorldGenAbstractTree extends WorldGenerator
     {
     }
 
-    /**
-     * sets dirt at a specific location if it isn't already dirt
-     */
     protected void setDirtAt(World worldIn, BlockPos pos)
     {
         if (worldIn.getBlockState(pos).getBlock() != Blocks.DIRT)

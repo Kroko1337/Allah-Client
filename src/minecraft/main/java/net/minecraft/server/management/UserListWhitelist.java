@@ -37,9 +37,6 @@ public class UserListWhitelist extends UserList<GameProfile, UserListWhitelistEn
         return obj.getId().toString();
     }
 
-    /**
-     * Get a GameProfile entry by its name
-     */
     public GameProfile getByName(String profileName)
     {
         for (UserListWhitelistEntry userlistwhitelistentry : this.getValues().values())

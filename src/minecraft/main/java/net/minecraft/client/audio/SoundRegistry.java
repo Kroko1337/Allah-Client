@@ -20,9 +20,6 @@ public class SoundRegistry extends RegistrySimple<ResourceLocation, SoundEventAc
         this.putObject(accessor.getLocation(), accessor);
     }
 
-    /**
-     * Reset the underlying sound map (Called on resource manager reload)
-     */
     public void clearMap()
     {
         this.soundRegistry.clear();

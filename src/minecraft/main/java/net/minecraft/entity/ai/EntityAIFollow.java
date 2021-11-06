@@ -44,11 +44,12 @@ public class EntityAIFollow extends EntityAIBase
     }
 
     /**
-     * Returns whether the EntityAIBase should begin execution.
+     * Returns whether execution should begin. You can also read and cache any state necessary for execution in this
+     * method as well.
      */
     public boolean shouldExecute()
     {
-        List<EntityLiving> list = this.entity.world.<EntityLiving>getEntitiesWithinAABB(EntityLiving.class, this.entity.getEntityBoundingBox().grow((double)this.areaSize), this.followPredicate);
+        List<EntityLiving> list = this.entity.world.<EntityLiving>getEntitiesWithinAABB(EntityLiving.class, this.entity.getBoundingBox().grow((double)this.areaSize), this.followPredicate);
 
         if (!list.isEmpty())
         {
@@ -70,7 +71,7 @@ public class EntityAIFollow extends EntityAIBase
      */
     public boolean shouldContinueExecuting()
     {
-        return this.followingEntity != null && !this.navigation.noPath() && this.entity.getDistanceSqToEntity(this.followingEntity) > (double)(this.stopDistance * this.stopDistance);
+        return this.followingEntity != null && !this.navigation.noPath() && this.entity.getDistanceSq(this.followingEntity) > (double)(this.stopDistance * this.stopDistance);
     }
 
     /**
@@ -89,18 +90,18 @@ public class EntityAIFollow extends EntityAIBase
     public void resetTask()
     {
         this.followingEntity = null;
-        this.navigation.clearPathEntity();
+        this.navigation.clearPath();
         this.entity.setPathPriority(PathNodeType.WATER, this.oldWaterCost);
     }
 
     /**
      * Keep ticking a continuous task that has already been started
      */
-    public void updateTask()
+    public void tick()
     {
         if (this.followingEntity != null && !this.entity.getLeashed())
         {
-            this.entity.getLookHelper().setLookPositionWithEntity(this.followingEntity, 10.0F, (float)this.entity.getVerticalFaceSpeed());
+            this.entity.getLookController().setLookPositionWithEntity(this.followingEntity, 10.0F, (float)this.entity.getVerticalFaceSpeed());
 
             if (--this.timeToRecalcPath <= 0)
             {
@@ -116,8 +117,8 @@ public class EntityAIFollow extends EntityAIBase
                 }
                 else
                 {
-                    this.navigation.clearPathEntity();
-                    EntityLookHelper entitylookhelper = this.followingEntity.getLookHelper();
+                    this.navigation.clearPath();
+                    EntityLookHelper entitylookhelper = this.followingEntity.getLookController();
 
                     if (d3 <= (double)this.stopDistance || entitylookhelper.getLookPosX() == this.entity.posX && entitylookhelper.getLookPosY() == this.entity.posY && entitylookhelper.getLookPosZ() == this.entity.posZ)
                     {

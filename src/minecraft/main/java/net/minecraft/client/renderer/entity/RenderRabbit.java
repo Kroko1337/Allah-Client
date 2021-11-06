@@ -16,13 +16,13 @@ public class RenderRabbit extends RenderLiving<EntityRabbit>
     private static final ResourceLocation TOAST = new ResourceLocation("textures/entity/rabbit/toast.png");
     private static final ResourceLocation CAERBANNOG = new ResourceLocation("textures/entity/rabbit/caerbannog.png");
 
-    public RenderRabbit(RenderManager p_i47196_1_)
+    public RenderRabbit(RenderManager renderManagerIn)
     {
-        super(p_i47196_1_, new ModelRabbit(), 0.3F);
+        super(renderManagerIn, new ModelRabbit(), 0.3F);
     }
 
     /**
-     * Returns the location of an entity's texture. Doesn't seem to be called unless you call Render.bindEntityTexture.
+     * Returns the location of an entity's texture.
      */
     protected ResourceLocation getEntityTexture(EntityRabbit entity)
     {

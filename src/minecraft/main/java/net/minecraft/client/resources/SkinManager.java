@@ -44,7 +44,7 @@ public class SkinManager
             {
                 try
                 {
-                    return Minecraft.getMinecraft().getSessionService().getTextures(p_load_1_, false);
+                    return Minecraft.getInstance().getSessionService().getTextures(p_load_1_, false);
                 }
                 catch (Throwable var3)
                 {
@@ -129,14 +129,14 @@ public class SkinManager
                     ;
                 }
 
-                if (map.isEmpty() && profile.getId().equals(Minecraft.getMinecraft().getSession().getProfile().getId()))
+                if (map.isEmpty() && profile.getId().equals(Minecraft.getInstance().getSession().getProfile().getId()))
                 {
                     profile.getProperties().clear();
-                    profile.getProperties().putAll(Minecraft.getMinecraft().getProfileProperties());
+                    profile.getProperties().putAll(Minecraft.getInstance().getProfileProperties());
                     map.putAll(SkinManager.this.sessionService.getTextures(profile, false));
                 }
 
-                Minecraft.getMinecraft().addScheduledTask(new Runnable()
+                Minecraft.getInstance().addScheduledTask(new Runnable()
                 {
                     public void run()
                     {

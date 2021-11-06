@@ -14,7 +14,7 @@ public class ZombieSplit implements IFixableData
     {
         if ("Zombie".equals(compound.getString("id")))
         {
-            int i = compound.getInteger("ZombieType");
+            int i = compound.getInt("ZombieType");
 
             switch (i)
             {
@@ -27,15 +27,15 @@ public class ZombieSplit implements IFixableData
                 case 3:
                 case 4:
                 case 5:
-                    compound.setString("id", "ZombieVillager");
-                    compound.setInteger("Profession", i - 1);
+                    compound.putString("id", "ZombieVillager");
+                    compound.putInt("Profession", i - 1);
                     break;
 
                 case 6:
-                    compound.setString("id", "Husk");
+                    compound.putString("id", "Husk");
             }
 
-            compound.removeTag("ZombieType");
+            compound.remove("ZombieType");
         }
 
         return compound;

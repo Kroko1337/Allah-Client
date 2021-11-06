@@ -5,9 +5,6 @@ import javax.annotation.Nullable;
 
 public class RegistryDefaulted<K, V> extends RegistrySimple<K, V>
 {
-    /**
-     * Default object for this registry, returned when an object is not found.
-     */
     private final V defaultObject;
 
     public RegistryDefaulted(V defaultObjectIn)
@@ -16,9 +13,9 @@ public class RegistryDefaulted<K, V> extends RegistrySimple<K, V>
     }
 
     @Nonnull
-    public V getObject(@Nullable K name)
+    public V getOrDefault(@Nullable K name)
     {
-        V v = (V)super.getObject(name);
+        V v = (V)super.getOrDefault(name);
         return (V)(v == null ? this.defaultObject : v);
     }
 }

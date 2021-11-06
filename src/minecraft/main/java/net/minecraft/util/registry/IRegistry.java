@@ -6,12 +6,9 @@ import javax.annotation.Nullable;
 public interface IRegistry<K, V> extends Iterable<V>
 {
     @Nullable
-    V getObject(K name);
+    V getOrDefault(K name);
 
-    /**
-     * Register an object on this registry.
-     */
     void putObject(K key, V value);
 
-    Set<K> getKeys();
+    Set<K> keySet();
 }

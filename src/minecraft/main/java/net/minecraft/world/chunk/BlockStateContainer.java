@@ -60,7 +60,7 @@ public class BlockStateContainer implements IBlockStatePaletteResizer
 
         for (int i = 0; i < bitarray.size(); ++i)
         {
-            IBlockState iblockstate = iblockstatepalette.getBlockState(bitarray.getAt(i));
+            IBlockState iblockstate = iblockstatepalette.get(bitarray.getAt(i));
 
             if (iblockstate != null)
             {
@@ -89,7 +89,7 @@ public class BlockStateContainer implements IBlockStatePaletteResizer
 
     protected IBlockState get(int index)
     {
-        IBlockState iblockstate = this.palette.getBlockState(this.storage.getAt(index));
+        IBlockState iblockstate = this.palette.get(this.storage.getAt(index));
         return iblockstate == null ? AIR_BLOCK_STATE : iblockstate;
     }
 

@@ -107,7 +107,7 @@ public class GuiSubtitleOverlay extends Gui implements ISoundEventListener
         }
     }
 
-    public void soundPlay(ISound soundIn, SoundEventAccessor accessor)
+    public void onPlaySound(ISound soundIn, SoundEventAccessor accessor)
     {
         if (accessor.getSubtitle() != null)
         {
@@ -119,13 +119,13 @@ public class GuiSubtitleOverlay extends Gui implements ISoundEventListener
                 {
                     if (guisubtitleoverlay$subtitle.getString().equals(s))
                     {
-                        guisubtitleoverlay$subtitle.refresh(new Vec3d((double)soundIn.getXPosF(), (double)soundIn.getYPosF(), (double)soundIn.getZPosF()));
+                        guisubtitleoverlay$subtitle.refresh(new Vec3d((double)soundIn.getX(), (double)soundIn.getY(), (double)soundIn.getZ()));
                         return;
                     }
                 }
             }
 
-            this.subtitles.add(new GuiSubtitleOverlay.Subtitle(s, new Vec3d((double)soundIn.getXPosF(), (double)soundIn.getYPosF(), (double)soundIn.getZPosF())));
+            this.subtitles.add(new GuiSubtitleOverlay.Subtitle(s, new Vec3d((double)soundIn.getX(), (double)soundIn.getY(), (double)soundIn.getZ())));
         }
     }
 

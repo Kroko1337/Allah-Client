@@ -5,14 +5,8 @@ import javax.annotation.Nullable;
 public class Vec3d
 {
     public static final Vec3d ZERO = new Vec3d(0.0D, 0.0D, 0.0D);
-
-    /** X coordinate of Vec3D */
     public final double x;
-
-    /** Y coordinate of Vec3D */
     public final double y;
-
-    /** Z coordinate of Vec3D */
     public final double z;
 
     public Vec3d(double xIn, double yIn, double zIn)
@@ -79,19 +73,19 @@ public class Vec3d
 
     public Vec3d subtract(double x, double y, double z)
     {
-        return this.addVector(-x, -y, -z);
+        return this.add(-x, -y, -z);
     }
 
     public Vec3d add(Vec3d vec)
     {
-        return this.addVector(vec.x, vec.y, vec.z);
+        return this.add(vec.x, vec.y, vec.z);
     }
 
     /**
      * Adds the specified x,y,z vector components to this vector and returns the resulting vector. Does not change this
      * vector.
      */
-    public Vec3d addVector(double x, double y, double z)
+    public Vec3d add(double x, double y, double z)
     {
         return new Vec3d(this.x + x, this.y + y, this.z + z);
     }
@@ -126,15 +120,15 @@ public class Vec3d
         return d0 * d0 + d1 * d1 + d2 * d2;
     }
 
-    public Vec3d scale(double p_186678_1_)
+    public Vec3d scale(double factor)
     {
-        return new Vec3d(this.x * p_186678_1_, this.y * p_186678_1_, this.z * p_186678_1_);
+        return new Vec3d(this.x * factor, this.y * factor, this.z * factor);
     }
 
     /**
      * Returns the length of the vector.
      */
-    public double lengthVector()
+    public double length()
     {
         return (double)MathHelper.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
     }
@@ -145,11 +139,6 @@ public class Vec3d
     }
 
     @Nullable
-
-    /**
-     * Returns a new vector with x value equal to the second parameter, along the line between this vector and the
-     * passed in vector, or null if not possible.
-     */
     public Vec3d getIntermediateWithXValue(Vec3d vec, double x)
     {
         double d0 = vec.x - this.x;
@@ -168,11 +157,6 @@ public class Vec3d
     }
 
     @Nullable
-
-    /**
-     * Returns a new vector with y value equal to the second parameter, along the line between this vector and the
-     * passed in vector, or null if not possible.
-     */
     public Vec3d getIntermediateWithYValue(Vec3d vec, double y)
     {
         double d0 = vec.x - this.x;
@@ -191,11 +175,6 @@ public class Vec3d
     }
 
     @Nullable
-
-    /**
-     * Returns a new vector with z value equal to the second parameter, along the line between this vector and the
-     * passed in vector, or null if not possible.
-     */
     public Vec3d getIntermediateWithZValue(Vec3d vec, double z)
     {
         double d0 = vec.x - this.x;
@@ -281,7 +260,7 @@ public class Vec3d
     /**
      * returns a Vec3d from given pitch and yaw degrees as Vec2f
      */
-    public static Vec3d fromPitchYawVector(Vec2f p_189984_0_)
+    public static Vec3d fromPitchYaw(Vec2f p_189984_0_)
     {
         return fromPitchYaw(p_189984_0_.x, p_189984_0_.y);
     }
@@ -289,12 +268,12 @@ public class Vec3d
     /**
      * returns a Vec3d from given pitch and yaw degrees
      */
-    public static Vec3d fromPitchYaw(float p_189986_0_, float p_189986_1_)
+    public static Vec3d fromPitchYaw(float pitch, float yaw)
     {
-        float f = MathHelper.cos(-p_189986_1_ * 0.017453292F - (float)Math.PI);
-        float f1 = MathHelper.sin(-p_189986_1_ * 0.017453292F - (float)Math.PI);
-        float f2 = -MathHelper.cos(-p_189986_0_ * 0.017453292F);
-        float f3 = MathHelper.sin(-p_189986_0_ * 0.017453292F);
+        float f = MathHelper.cos(-yaw * 0.017453292F - (float)Math.PI);
+        float f1 = MathHelper.sin(-yaw * 0.017453292F - (float)Math.PI);
+        float f2 = -MathHelper.cos(-pitch * 0.017453292F);
+        float f3 = MathHelper.sin(-pitch * 0.017453292F);
         return new Vec3d((double)(f1 * f2), (double)f3, (double)(f * f2));
     }
 }

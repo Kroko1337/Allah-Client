@@ -99,19 +99,19 @@ public class RecipeFireworks implements IRecipe
                     {
                         ItemStack itemstack3 = inv.getStackInSlot(k2);
 
-                        if (itemstack3.getItem() == Items.FIREWORK_CHARGE && itemstack3.hasTagCompound() && itemstack3.getTagCompound().hasKey("Explosion", 10))
+                        if (itemstack3.getItem() == Items.FIREWORK_CHARGE && itemstack3.hasTag() && itemstack3.getTag().contains("Explosion", 10))
                         {
-                            nbttaglist.appendTag(itemstack3.getTagCompound().getCompoundTag("Explosion"));
+                            nbttaglist.appendTag(itemstack3.getTag().getCompound("Explosion"));
                         }
                     }
 
                     nbttagcompound1.setTag("Explosions", nbttaglist);
                 }
 
-                nbttagcompound1.setByte("Flight", (byte)j);
+                nbttagcompound1.putByte("Flight", (byte)j);
                 NBTTagCompound nbttagcompound3 = new NBTTagCompound();
                 nbttagcompound3.setTag("Fireworks", nbttagcompound1);
-                this.resultItem.setTagCompound(nbttagcompound3);
+                this.resultItem.setTag(nbttagcompound3);
                 return true;
             }
             else if (j == 1 && i == 0 && l == 0 && k > 0 && j1 <= 1)
@@ -134,11 +134,11 @@ public class RecipeFireworks implements IRecipe
                         }
                         else if (itemstack2.getItem() == Items.GLOWSTONE_DUST)
                         {
-                            nbttagcompound2.setBoolean("Flicker", true);
+                            nbttagcompound2.putBoolean("Flicker", true);
                         }
                         else if (itemstack2.getItem() == Items.DIAMOND)
                         {
-                            nbttagcompound2.setBoolean("Trail", true);
+                            nbttagcompound2.putBoolean("Trail", true);
                         }
                         else if (itemstack2.getItem() == Items.FIRE_CHARGE)
                         {
@@ -166,10 +166,10 @@ public class RecipeFireworks implements IRecipe
                     aint1[l2] = ((Integer)list.get(l2)).intValue();
                 }
 
-                nbttagcompound2.setIntArray("Colors", aint1);
-                nbttagcompound2.setByte("Type", b0);
+                nbttagcompound2.putIntArray("Colors", aint1);
+                nbttagcompound2.putByte("Type", b0);
                 nbttagcompound.setTag("Explosion", nbttagcompound2);
-                this.resultItem.setTagCompound(nbttagcompound);
+                this.resultItem.setTag(nbttagcompound);
                 return true;
             }
             else if (j == 0 && i == 0 && l == 1 && k > 0 && k == i1)
@@ -201,9 +201,9 @@ public class RecipeFireworks implements IRecipe
                     aint[j2] = ((Integer)list1.get(j2)).intValue();
                 }
 
-                if (!this.resultItem.isEmpty() && this.resultItem.hasTagCompound())
+                if (!this.resultItem.isEmpty() && this.resultItem.hasTag())
                 {
-                    NBTTagCompound nbttagcompound4 = this.resultItem.getTagCompound().getCompoundTag("Explosion");
+                    NBTTagCompound nbttagcompound4 = this.resultItem.getTag().getCompound("Explosion");
 
                     if (nbttagcompound4 == null)
                     {
@@ -211,7 +211,7 @@ public class RecipeFireworks implements IRecipe
                     }
                     else
                     {
-                        nbttagcompound4.setIntArray("FadeColors", aint);
+                        nbttagcompound4.putIntArray("FadeColors", aint);
                         return true;
                     }
                 }
@@ -239,6 +239,10 @@ public class RecipeFireworks implements IRecipe
         return this.resultItem.copy();
     }
 
+    /**
+     * Get the result of this recipe, usually for display purposes (e.g. recipe book). If your recipe has more than one
+     * possible result (e.g. it's dynamic and depends on its inputs), then return an empty stack.
+     */
     public ItemStack getRecipeOutput()
     {
         return this.resultItem;
@@ -261,7 +265,11 @@ public class RecipeFireworks implements IRecipe
         return nonnulllist;
     }
 
-    public boolean isHidden()
+    /**
+     * If true, this recipe does not appear in the recipe book and does not respect recipe unlocking (and the
+     * doLimitedCrafting gamerule)
+     */
+    public boolean isDynamic()
     {
         return true;
     }

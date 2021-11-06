@@ -13,33 +13,21 @@ import net.minecraft.util.math.BlockPos;
 
 public class RecipeCommand extends CommandBase
 {
-    /**
-     * Gets the name of the command
-     */
     public String getName()
     {
         return "recipe";
     }
 
-    /**
-     * Return the required permission level for this command.
-     */
     public int getRequiredPermissionLevel()
     {
         return 2;
     }
 
-    /**
-     * Gets the usage string for the command.
-     */
     public String getUsage(ICommandSender sender)
     {
         return "commands.recipe.usage";
     }
 
-    /**
-     * Callback for when the command is executed
-     */
     public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
     {
         if (args.length < 2)
@@ -81,14 +69,14 @@ public class RecipeCommand extends CommandBase
                             throw new CommandException("commands.recipe.unknownrecipe", new Object[] {args[2]});
                         }
 
-                        if (irecipe.isHidden())
+                        if (irecipe.isDynamic())
                         {
                             throw new CommandException("commands.recipe.unsupported", new Object[] {args[2]});
                         }
 
                         List<IRecipe> list = Lists.newArrayList(irecipe);
 
-                        if (flag == entityplayermp.getRecipeBook().containsRecipe(irecipe))
+                        if (flag == entityplayermp.getRecipeBook().isUnlocked(irecipe))
                         {
                             String s = flag ? "commands.recipe.alreadyHave" : "commands.recipe.dontHave";
                             throw new CommandException(s, new Object[] {entityplayermp.getName(), irecipe.getRecipeOutput().getDisplayName()});
@@ -127,7 +115,7 @@ public class RecipeCommand extends CommandBase
         }
         else
         {
-            return args.length == 3 ? getListOfStringsMatchingLastWord(args, CraftingManager.REGISTRY.getKeys()) : Collections.emptyList();
+            return args.length == 3 ? getListOfStringsMatchingLastWord(args, CraftingManager.REGISTRY.keySet()) : Collections.emptyList();
         }
     }
 }

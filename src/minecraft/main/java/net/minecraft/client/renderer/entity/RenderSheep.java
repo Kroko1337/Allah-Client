@@ -9,14 +9,14 @@ public class RenderSheep extends RenderLiving<EntitySheep>
 {
     private static final ResourceLocation SHEARED_SHEEP_TEXTURES = new ResourceLocation("textures/entity/sheep/sheep.png");
 
-    public RenderSheep(RenderManager p_i47195_1_)
+    public RenderSheep(RenderManager renderManagerIn)
     {
-        super(p_i47195_1_, new ModelSheep2(), 0.7F);
+        super(renderManagerIn, new ModelSheep2(), 0.7F);
         this.addLayer(new LayerSheepWool(this));
     }
 
     /**
-     * Returns the location of an entity's texture. Doesn't seem to be called unless you call Render.bindEntityTexture.
+     * Returns the location of an entity's texture.
      */
     protected ResourceLocation getEntityTexture(EntitySheep entity)
     {

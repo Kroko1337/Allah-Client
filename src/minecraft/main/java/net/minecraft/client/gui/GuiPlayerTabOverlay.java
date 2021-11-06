@@ -35,7 +35,7 @@ public class GuiPlayerTabOverlay extends Gui
     private long lastTimeOpened;
 
     /** Weither or not the playerlist is currently being rendered */
-    private boolean isBeingRendered;
+    private boolean visible;
 
     public GuiPlayerTabOverlay(Minecraft mcIn, GuiIngame guiIngameIn)
     {
@@ -43,9 +43,6 @@ public class GuiPlayerTabOverlay extends Gui
         this.guiIngame = guiIngameIn;
     }
 
-    /**
-     * Returns the name that should be renderd for the player supplied
-     */
     public String getPlayerName(NetworkPlayerInfo networkPlayerInfoIn)
     {
         return networkPlayerInfoIn.getDisplayName() != null ? networkPlayerInfoIn.getDisplayName().getFormattedText() : ScorePlayerTeam.formatPlayerName(networkPlayerInfoIn.getPlayerTeam(), networkPlayerInfoIn.getGameProfile().getName());
@@ -55,20 +52,20 @@ public class GuiPlayerTabOverlay extends Gui
      * Called by GuiIngame to update the information stored in the playerlist, does not actually render the list,
      * however.
      */
-    public void updatePlayerList(boolean willBeRendered)
+    public void setVisible(boolean visible)
     {
-        if (willBeRendered && !this.isBeingRendered)
+        if (visible && !this.visible)
         {
             this.lastTimeOpened = Minecraft.getSystemTime();
         }
 
-        this.isBeingRendered = willBeRendered;
+        this.visible = visible;
     }
 
     /**
      * Renders the playerlist, its background, headers and footers.
      */
-    public void renderPlayerlist(int width, Scoreboard scoreboardIn, @Nullable ScoreObjective scoreObjectiveIn)
+    public void render(int width, Scoreboard scoreboardIn, @Nullable ScoreObjective scoreObjectiveIn)
     {
         NetHandlerPlayClient nethandlerplayclient = this.mc.player.connection;
         List<NetworkPlayerInfo> list = ENTRY_ORDERING.<NetworkPlayerInfo>sortedCopy(nethandlerplayclient.getPlayerInfoMap());
@@ -286,12 +283,12 @@ public class GuiPlayerTabOverlay extends Gui
                 if (i < info.getLastHealth())
                 {
                     info.setLastHealthTime(Minecraft.getSystemTime());
-                    info.setHealthBlinkTime((long)(this.guiIngame.getUpdateCounter() + 20));
+                    info.setHealthBlinkTime((long)(this.guiIngame.getTicks() + 20));
                 }
                 else if (i > info.getLastHealth())
                 {
                     info.setLastHealthTime(Minecraft.getSystemTime());
-                    info.setHealthBlinkTime((long)(this.guiIngame.getUpdateCounter() + 10));
+                    info.setHealthBlinkTime((long)(this.guiIngame.getTicks() + 10));
                 }
             }
 
@@ -306,7 +303,7 @@ public class GuiPlayerTabOverlay extends Gui
             info.setLastHealth(i);
             int j = MathHelper.ceil((float)Math.max(i, info.getDisplayHealth()) / 2.0F);
             int k = Math.max(MathHelper.ceil((float)(i / 2)), Math.max(MathHelper.ceil((float)(info.getDisplayHealth() / 2)), 10));
-            boolean flag = info.getHealthBlinkTime() > (long)this.guiIngame.getUpdateCounter() && (info.getHealthBlinkTime() - (long)this.guiIngame.getUpdateCounter()) / 3L % 2L == 1L;
+            boolean flag = info.getHealthBlinkTime() > (long)this.guiIngame.getTicks() && (info.getHealthBlinkTime() - (long)this.guiIngame.getTicks()) / 3L % 2L == 1L;
 
             if (j > 0)
             {

@@ -23,9 +23,6 @@ public class ItemFlintAndSteel extends Item
         this.setCreativeTab(CreativeTabs.TOOLS);
     }
 
-    /**
-     * Called when a Block is right-clicked with this Item
-     */
     public EnumActionResult onItemUse(EntityPlayer player, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
         pos = pos.offset(facing);
@@ -39,7 +36,7 @@ public class ItemFlintAndSteel extends Item
         {
             if (worldIn.getBlockState(pos).getMaterial() == Material.AIR)
             {
-                worldIn.playSound(player, pos, SoundEvents.ITEM_FLINTANDSTEEL_USE, SoundCategory.BLOCKS, 1.0F, itemRand.nextFloat() * 0.4F + 0.8F);
+                worldIn.playSound(player, pos, SoundEvents.ITEM_FLINTANDSTEEL_USE, SoundCategory.BLOCKS, 1.0F, random.nextFloat() * 0.4F + 0.8F);
                 worldIn.setBlockState(pos, Blocks.FIRE.getDefaultState(), 11);
             }
 

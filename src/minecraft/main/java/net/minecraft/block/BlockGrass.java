@@ -20,16 +20,12 @@ public class BlockGrass extends Block implements IGrowable
 
     protected BlockGrass()
     {
-        super(Material.GRASS);
-        this.setDefaultState(this.blockState.getBaseState().withProperty(SNOWY, Boolean.valueOf(false)));
+        super(Material.ORGANIC);
+        this.setDefaultState(this.stateContainer.getBaseState().withProperty(SNOWY, Boolean.valueOf(false)));
         this.setTickRandomly(true);
         this.setCreativeTab(CreativeTabs.BUILDING_BLOCKS);
     }
 
-    /**
-     * Get the actual Block state of this Block at the given position. This applies properties not visible in the
-     * metadata, such as fence connections.
-     */
     public IBlockState getActualState(IBlockState state, IBlockAccess worldIn, BlockPos pos)
     {
         Block block = worldIn.getBlockState(pos.up()).getBlock();
@@ -60,7 +56,7 @@ public class BlockGrass extends Block implements IGrowable
                         IBlockState iblockstate = worldIn.getBlockState(blockpos.up());
                         IBlockState iblockstate1 = worldIn.getBlockState(blockpos);
 
-                        if (iblockstate1.getBlock() == Blocks.DIRT && iblockstate1.getValue(BlockDirt.VARIANT) == BlockDirt.DirtType.DIRT && worldIn.getLightFromNeighbors(blockpos.up()) >= 4 && iblockstate.getLightOpacity() <= 2)
+                        if (iblockstate1.getBlock() == Blocks.DIRT && iblockstate1.get(BlockDirt.VARIANT) == BlockDirt.DirtType.DIRT && worldIn.getLightFromNeighbors(blockpos.up()) >= 4 && iblockstate.getLightOpacity() <= 2)
                         {
                             worldIn.setBlockState(blockpos, Blocks.GRASS.getDefaultState());
                         }
@@ -70,9 +66,6 @@ public class BlockGrass extends Block implements IGrowable
         }
     }
 
-    /**
-     * Get the Item that this Block should drop when harvested.
-     */
     public Item getItemDropped(IBlockState state, Random rand, int fortune)
     {
         return Blocks.DIRT.getItemDropped(Blocks.DIRT.getDefaultState().withProperty(BlockDirt.VARIANT, BlockDirt.DirtType.DIRT), rand, fortune);
@@ -104,7 +97,7 @@ public class BlockGrass extends Block implements IGrowable
             {
                 if (j >= i / 16)
                 {
-                    if (worldIn.getBlockState(blockpos1).getBlock().blockMaterial == Material.AIR)
+                    if (worldIn.getBlockState(blockpos1).getBlock().material == Material.AIR)
                     {
                         if (rand.nextInt(8) == 0)
                         {
@@ -143,14 +136,11 @@ public class BlockGrass extends Block implements IGrowable
         }
     }
 
-    public BlockRenderLayer getBlockLayer()
+    public BlockRenderLayer getRenderLayer()
     {
         return BlockRenderLayer.CUTOUT_MIPPED;
     }
 
-    /**
-     * Convert the BlockState into the correct metadata value
-     */
     public int getMetaFromState(IBlockState state)
     {
         return 0;

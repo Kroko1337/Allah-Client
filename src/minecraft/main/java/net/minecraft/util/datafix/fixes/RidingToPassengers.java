@@ -13,7 +13,7 @@ public class RidingToPassengers implements IFixableData
 
     public NBTTagCompound fixTagCompound(NBTTagCompound compound)
     {
-        while (compound.hasKey("Riding", 10))
+        while (compound.contains("Riding", 10))
         {
             NBTTagCompound nbttagcompound = this.extractVehicle(compound);
             this.addPassengerToVehicle(compound, nbttagcompound);
@@ -32,8 +32,8 @@ public class RidingToPassengers implements IFixableData
 
     protected NBTTagCompound extractVehicle(NBTTagCompound p_188220_1_)
     {
-        NBTTagCompound nbttagcompound = p_188220_1_.getCompoundTag("Riding");
-        p_188220_1_.removeTag("Riding");
+        NBTTagCompound nbttagcompound = p_188220_1_.getCompound("Riding");
+        p_188220_1_.remove("Riding");
         return nbttagcompound;
     }
 }

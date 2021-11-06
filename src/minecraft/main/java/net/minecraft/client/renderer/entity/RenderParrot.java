@@ -9,13 +9,13 @@ public class RenderParrot extends RenderLiving<EntityParrot>
 {
     public static final ResourceLocation[] PARROT_TEXTURES = new ResourceLocation[] {new ResourceLocation("textures/entity/parrot/parrot_red_blue.png"), new ResourceLocation("textures/entity/parrot/parrot_blue.png"), new ResourceLocation("textures/entity/parrot/parrot_green.png"), new ResourceLocation("textures/entity/parrot/parrot_yellow_blue.png"), new ResourceLocation("textures/entity/parrot/parrot_grey.png")};
 
-    public RenderParrot(RenderManager p_i47375_1_)
+    public RenderParrot(RenderManager renderManagerIn)
     {
-        super(p_i47375_1_, new ModelParrot(), 0.3F);
+        super(renderManagerIn, new ModelParrot(), 0.3F);
     }
 
     /**
-     * Returns the location of an entity's texture. Doesn't seem to be called unless you call Render.bindEntityTexture.
+     * Returns the location of an entity's texture.
      */
     protected ResourceLocation getEntityTexture(EntityParrot entity)
     {

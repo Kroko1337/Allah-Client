@@ -187,9 +187,6 @@ public class MapGenCavesHell extends MapGenBase
         }
     }
 
-    /**
-     * Recursively called by generate()
-     */
     protected void recursiveGenerate(World worldIn, int chunkX, int chunkZ, int originalX, int originalZ, ChunkPrimer chunkPrimerIn)
     {
         int i = this.rand.nextInt(this.rand.nextInt(this.rand.nextInt(10) + 1) + 1);

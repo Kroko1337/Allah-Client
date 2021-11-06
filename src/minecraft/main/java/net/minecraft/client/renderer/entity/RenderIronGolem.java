@@ -17,16 +17,16 @@ public class RenderIronGolem extends RenderLiving<EntityIronGolem>
     }
 
     /**
-     * Returns the location of an entity's texture. Doesn't seem to be called unless you call Render.bindEntityTexture.
+     * Returns the location of an entity's texture.
      */
     protected ResourceLocation getEntityTexture(EntityIronGolem entity)
     {
         return IRON_GOLEM_TEXTURES;
     }
 
-    protected void applyRotations(EntityIronGolem entityLiving, float p_77043_2_, float rotationYaw, float partialTicks)
+    protected void applyRotations(EntityIronGolem entityLiving, float ageInTicks, float rotationYaw, float partialTicks)
     {
-        super.applyRotations(entityLiving, p_77043_2_, rotationYaw, partialTicks);
+        super.applyRotations(entityLiving, ageInTicks, rotationYaw, partialTicks);
 
         if ((double)entityLiving.limbSwingAmount >= 0.01D)
         {

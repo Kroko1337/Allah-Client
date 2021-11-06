@@ -28,10 +28,6 @@ public class GuiScreenCustomizePresets extends GuiScreen
         this.parent = parentIn;
     }
 
-    /**
-     * Adds the buttons (and other controls) to the screen in question. Called when the GUI is displayed and when the
-     * window resizes, the buttonList is cleared beforehand.
-     */
     public void initGui()
     {
         this.buttonList.clear();
@@ -48,36 +44,23 @@ public class GuiScreenCustomizePresets extends GuiScreen
         this.updateButtonValidity();
     }
 
-    /**
-     * Handles mouse input.
-     */
     public void handleMouseInput() throws IOException
     {
         super.handleMouseInput();
         this.list.handleMouseInput();
     }
 
-    /**
-     * Called when the screen is unloaded. Used to disable keyboard repeat events
-     */
     public void onGuiClosed()
     {
         Keyboard.enableRepeatEvents(false);
     }
 
-    /**
-     * Called when the mouse is clicked. Args : mouseX, mouseY, clickedButton
-     */
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
     {
         this.export.mouseClicked(mouseX, mouseY, mouseButton);
         super.mouseClicked(mouseX, mouseY, mouseButton);
     }
 
-    /**
-     * Fired when a key is typed (except F11 which toggles full screen). This is the equivalent of
-     * KeyListener.keyTyped(KeyEvent e). Args : character (character on the key), keyCode (lwjgl Keyboard key code)
-     */
     protected void keyTyped(char typedChar, int keyCode) throws IOException
     {
         if (!this.export.textboxKeyTyped(typedChar, keyCode))
@@ -86,9 +69,6 @@ public class GuiScreenCustomizePresets extends GuiScreen
         }
     }
 
-    /**
-     * Called by the controls from the buttonList when activated. (Mouse pressed for buttons)
-     */
     protected void actionPerformed(GuiButton button) throws IOException
     {
         switch (button.id)
@@ -103,9 +83,6 @@ public class GuiScreenCustomizePresets extends GuiScreen
         }
     }
 
-    /**
-     * Draws the screen and all the components in it.
-     */
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         this.drawDefaultBackground();
@@ -117,12 +94,9 @@ public class GuiScreenCustomizePresets extends GuiScreen
         super.drawScreen(mouseX, mouseY, partialTicks);
     }
 
-    /**
-     * Called from the main game loop to update the screen.
-     */
     public void updateScreen()
     {
-        this.export.updateCursorCounter();
+        this.export.tick();
         super.updateScreen();
     }
 
@@ -226,11 +200,11 @@ public class GuiScreenCustomizePresets extends GuiScreen
             tessellator.draw();
         }
 
-        protected void drawSlot(int p_192637_1_, int p_192637_2_, int p_192637_3_, int p_192637_4_, int p_192637_5_, int p_192637_6_, float p_192637_7_)
+        protected void drawSlot(int slotIndex, int xPos, int yPos, int heightIn, int mouseXIn, int mouseYIn, float partialTicks)
         {
-            GuiScreenCustomizePresets.Info guiscreencustomizepresets$info = GuiScreenCustomizePresets.PRESETS.get(p_192637_1_);
-            this.blitIcon(p_192637_2_, p_192637_3_, guiscreencustomizepresets$info.texture);
-            GuiScreenCustomizePresets.this.fontRenderer.drawString(guiscreencustomizepresets$info.name, p_192637_2_ + 32 + 10, p_192637_3_ + 14, 16777215);
+            GuiScreenCustomizePresets.Info guiscreencustomizepresets$info = GuiScreenCustomizePresets.PRESETS.get(slotIndex);
+            this.blitIcon(xPos, yPos, guiscreencustomizepresets$info.texture);
+            GuiScreenCustomizePresets.this.fontRenderer.drawString(guiscreencustomizepresets$info.name, xPos + 32 + 10, yPos + 14, 16777215);
         }
     }
 }

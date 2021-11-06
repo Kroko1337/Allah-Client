@@ -51,17 +51,17 @@ public class EntitySpider extends EntityMob
         EntityLiving.registerFixesMob(fixer, EntitySpider.class);
     }
 
-    protected void initEntityAI()
+    protected void registerGoals()
     {
-        this.tasks.addTask(1, new EntityAISwimming(this));
-        this.tasks.addTask(3, new EntityAILeapAtTarget(this, 0.4F));
-        this.tasks.addTask(4, new EntitySpider.AISpiderAttack(this));
-        this.tasks.addTask(5, new EntityAIWanderAvoidWater(this, 0.8D));
-        this.tasks.addTask(6, new EntityAIWatchClosest(this, EntityPlayer.class, 8.0F));
-        this.tasks.addTask(6, new EntityAILookIdle(this));
-        this.targetTasks.addTask(1, new EntityAIHurtByTarget(this, false, new Class[0]));
-        this.targetTasks.addTask(2, new EntitySpider.AISpiderTarget(this, EntityPlayer.class));
-        this.targetTasks.addTask(3, new EntitySpider.AISpiderTarget(this, EntityIronGolem.class));
+        this.goalSelector.addGoal(1, new EntityAISwimming(this));
+        this.goalSelector.addGoal(3, new EntityAILeapAtTarget(this, 0.4F));
+        this.goalSelector.addGoal(4, new EntitySpider.AISpiderAttack(this));
+        this.goalSelector.addGoal(5, new EntityAIWanderAvoidWater(this, 0.8D));
+        this.goalSelector.addGoal(6, new EntityAIWatchClosest(this, EntityPlayer.class, 8.0F));
+        this.goalSelector.addGoal(6, new EntityAILookIdle(this));
+        this.targetSelector.addGoal(1, new EntityAIHurtByTarget(this, false, new Class[0]));
+        this.targetSelector.addGoal(2, new EntitySpider.AISpiderTarget(this, EntityPlayer.class));
+        this.targetSelector.addGoal(3, new EntitySpider.AISpiderTarget(this, EntityIronGolem.class));
     }
 
     /**
@@ -80,30 +80,30 @@ public class EntitySpider extends EntityMob
         return new PathNavigateClimber(this, worldIn);
     }
 
-    protected void entityInit()
+    protected void registerData()
     {
-        super.entityInit();
+        super.registerData();
         this.dataManager.register(CLIMBING, Byte.valueOf((byte)0));
     }
 
     /**
      * Called to update the entity's position/logic.
      */
-    public void onUpdate()
+    public void tick()
     {
-        super.onUpdate();
+        super.tick();
 
         if (!this.world.isRemote)
         {
-            this.setBesideClimbableBlock(this.isCollidedHorizontally);
+            this.setBesideClimbableBlock(this.collidedHorizontally);
         }
     }
 
-    protected void applyEntityAttributes()
+    protected void registerAttributes()
     {
-        super.applyEntityAttributes();
-        this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(16.0D);
-        this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.30000001192092896D);
+        super.registerAttributes();
+        this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(16.0D);
+        this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.30000001192092896D);
     }
 
     protected SoundEvent getAmbientSound()
@@ -141,16 +141,10 @@ public class EntitySpider extends EntityMob
         return this.isBesideClimbableBlock();
     }
 
-    /**
-     * Sets the Entity inside a web block.
-     */
     public void setInWeb()
     {
     }
 
-    /**
-     * Get this Entity's EnumCreatureAttribute
-     */
     public EnumCreatureAttribute getCreatureAttribute()
     {
         return EnumCreatureAttribute.ARTHROPOD;
@@ -191,11 +185,6 @@ public class EntitySpider extends EntityMob
     }
 
     @Nullable
-
-    /**
-     * Called only once on an entity when first time spawned, via egg, mob spawner, natural spawning etc, but not called
-     * when entity is reloaded from nbt. Mainly used for initializing attributes and inventory
-     */
     public IEntityLivingData onInitialSpawn(DifficultyInstance difficulty, @Nullable IEntityLivingData livingdata)
     {
         livingdata = super.onInitialSpawn(difficulty, livingdata);
@@ -205,7 +194,7 @@ public class EntitySpider extends EntityMob
             EntitySkeleton entityskeleton = new EntitySkeleton(this.world);
             entityskeleton.setLocationAndAngles(this.posX, this.posY, this.posZ, this.rotationYaw, 0.0F);
             entityskeleton.onInitialSpawn(difficulty, (IEntityLivingData)null);
-            this.world.spawnEntity(entityskeleton);
+            this.world.addEntity0(entityskeleton);
             entityskeleton.startRiding(this);
         }
 
@@ -274,7 +263,7 @@ public class EntitySpider extends EntityMob
 
         public boolean shouldExecute()
         {
-            float f = this.taskOwner.getBrightness();
+            float f = this.goalOwner.getBrightness();
             return f >= 0.5F ? false : super.shouldExecute();
         }
     }

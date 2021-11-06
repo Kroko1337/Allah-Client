@@ -15,15 +15,11 @@ import org.apache.commons.io.IOUtils;
 
 public class Locale
 {
-    /** Splits on "=" */
     private static final Splitter SPLITTER = Splitter.on('=').limit(2);
     private static final Pattern PATTERN = Pattern.compile("%(\\d+\\$)?[\\d\\.]*[df]");
     Map<String, String> properties = Maps.<String, String>newHashMap();
     private boolean unicode;
 
-    /**
-     * For each domain $D and language $L, attempts to load the resource $D:lang/$L.lang
-     */
     public synchronized void loadLocaleDataFiles(IResourceManager resourceManager, List<String> languageList)
     {
         this.properties.clear();

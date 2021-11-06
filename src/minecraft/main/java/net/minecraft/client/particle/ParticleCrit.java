@@ -30,30 +30,27 @@ public class ParticleCrit extends Particle
         this.particleScale *= 0.75F;
         this.particleScale *= p_i46285_14_;
         this.oSize = this.particleScale;
-        this.particleMaxAge = (int)(6.0D / (Math.random() * 0.8D + 0.6D));
-        this.particleMaxAge = (int)((float)this.particleMaxAge * p_i46285_14_);
+        this.maxAge = (int)(6.0D / (Math.random() * 0.8D + 0.6D));
+        this.maxAge = (int)((float)this.maxAge * p_i46285_14_);
         this.setParticleTextureIndex(65);
-        this.onUpdate();
+        this.tick();
     }
 
-    /**
-     * Renders the particle
-     */
     public void renderParticle(BufferBuilder buffer, Entity entityIn, float partialTicks, float rotationX, float rotationZ, float rotationYZ, float rotationXY, float rotationXZ)
     {
-        float f = ((float)this.particleAge + partialTicks) / (float)this.particleMaxAge * 32.0F;
+        float f = ((float)this.age + partialTicks) / (float)this.maxAge * 32.0F;
         f = MathHelper.clamp(f, 0.0F, 1.0F);
         this.particleScale = this.oSize * f;
         super.renderParticle(buffer, entityIn, partialTicks, rotationX, rotationZ, rotationYZ, rotationXY, rotationXZ);
     }
 
-    public void onUpdate()
+    public void tick()
     {
         this.prevPosX = this.posX;
         this.prevPosY = this.posY;
         this.prevPosZ = this.posZ;
 
-        if (this.particleAge++ >= this.particleMaxAge)
+        if (this.age++ >= this.maxAge)
         {
             this.setExpired();
         }
@@ -97,7 +94,7 @@ public class ParticleCrit extends Particle
         public Particle createParticle(int particleID, World worldIn, double xCoordIn, double yCoordIn, double zCoordIn, double xSpeedIn, double ySpeedIn, double zSpeedIn, int... p_178902_15_)
         {
             Particle particle = new ParticleCrit(worldIn, xCoordIn, yCoordIn, zCoordIn, xSpeedIn, ySpeedIn, zSpeedIn);
-            particle.setRBGColorF(particle.getRedColorF() * 0.3F, particle.getGreenColorF() * 0.8F, particle.getBlueColorF());
+            particle.setColor(particle.getRedColorF() * 0.3F, particle.getGreenColorF() * 0.8F, particle.getBlueColorF());
             particle.nextTextureIndexX();
             return particle;
         }

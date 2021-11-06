@@ -38,7 +38,7 @@ public class TileEntityStructure extends TileEntity
     private String author = "";
     private String metadata = "";
     private BlockPos position = new BlockPos(0, 1, 0);
-    private BlockPos size = BlockPos.ORIGIN;
+    private BlockPos size = BlockPos.ZERO;
     private Mirror mirror = Mirror.NONE;
     private Rotation rotation = Rotation.NONE;
     private TileEntityStructure.Mode mode = TileEntityStructure.Mode.DATA;
@@ -49,43 +49,43 @@ public class TileEntityStructure extends TileEntity
     private float integrity = 1.0F;
     private long seed;
 
-    public NBTTagCompound writeToNBT(NBTTagCompound compound)
+    public NBTTagCompound write(NBTTagCompound compound)
     {
-        super.writeToNBT(compound);
-        compound.setString("name", this.name);
-        compound.setString("author", this.author);
-        compound.setString("metadata", this.metadata);
-        compound.setInteger("posX", this.position.getX());
-        compound.setInteger("posY", this.position.getY());
-        compound.setInteger("posZ", this.position.getZ());
-        compound.setInteger("sizeX", this.size.getX());
-        compound.setInteger("sizeY", this.size.getY());
-        compound.setInteger("sizeZ", this.size.getZ());
-        compound.setString("rotation", this.rotation.toString());
-        compound.setString("mirror", this.mirror.toString());
-        compound.setString("mode", this.mode.toString());
-        compound.setBoolean("ignoreEntities", this.ignoreEntities);
-        compound.setBoolean("powered", this.powered);
-        compound.setBoolean("showair", this.showAir);
-        compound.setBoolean("showboundingbox", this.showBoundingBox);
-        compound.setFloat("integrity", this.integrity);
-        compound.setLong("seed", this.seed);
+        super.write(compound);
+        compound.putString("name", this.name);
+        compound.putString("author", this.author);
+        compound.putString("metadata", this.metadata);
+        compound.putInt("posX", this.position.getX());
+        compound.putInt("posY", this.position.getY());
+        compound.putInt("posZ", this.position.getZ());
+        compound.putInt("sizeX", this.size.getX());
+        compound.putInt("sizeY", this.size.getY());
+        compound.putInt("sizeZ", this.size.getZ());
+        compound.putString("rotation", this.rotation.toString());
+        compound.putString("mirror", this.mirror.toString());
+        compound.putString("mode", this.mode.toString());
+        compound.putBoolean("ignoreEntities", this.ignoreEntities);
+        compound.putBoolean("powered", this.powered);
+        compound.putBoolean("showair", this.showAir);
+        compound.putBoolean("showboundingbox", this.showBoundingBox);
+        compound.putFloat("integrity", this.integrity);
+        compound.putLong("seed", this.seed);
         return compound;
     }
 
-    public void readFromNBT(NBTTagCompound compound)
+    public void read(NBTTagCompound compound)
     {
-        super.readFromNBT(compound);
+        super.read(compound);
         this.setName(compound.getString("name"));
         this.author = compound.getString("author");
         this.metadata = compound.getString("metadata");
-        int i = MathHelper.clamp(compound.getInteger("posX"), -32, 32);
-        int j = MathHelper.clamp(compound.getInteger("posY"), -32, 32);
-        int k = MathHelper.clamp(compound.getInteger("posZ"), -32, 32);
+        int i = MathHelper.clamp(compound.getInt("posX"), -32, 32);
+        int j = MathHelper.clamp(compound.getInt("posY"), -32, 32);
+        int k = MathHelper.clamp(compound.getInt("posZ"), -32, 32);
         this.position = new BlockPos(i, j, k);
-        int l = MathHelper.clamp(compound.getInteger("sizeX"), 0, 32);
-        int i1 = MathHelper.clamp(compound.getInteger("sizeY"), 0, 32);
-        int j1 = MathHelper.clamp(compound.getInteger("sizeZ"), 0, 32);
+        int l = MathHelper.clamp(compound.getInt("sizeX"), 0, 32);
+        int i1 = MathHelper.clamp(compound.getInt("sizeY"), 0, 32);
+        int j1 = MathHelper.clamp(compound.getInt("sizeZ"), 0, 32);
         this.size = new BlockPos(l, i1, j1);
 
         try
@@ -120,7 +120,7 @@ public class TileEntityStructure extends TileEntity
         this.showAir = compound.getBoolean("showair");
         this.showBoundingBox = compound.getBoolean("showboundingbox");
 
-        if (compound.hasKey("integrity"))
+        if (compound.contains("integrity"))
         {
             this.integrity = compound.getFloat("integrity");
         }
@@ -148,14 +148,23 @@ public class TileEntityStructure extends TileEntity
     }
 
     @Nullable
+
+    /**
+     * Retrieves packet to send to the client whenever this Tile Entity is resynced via World.notifyBlockUpdate. For
+     * modded TE's, this packet comes back to you clientside in {@link #onDataPacket}
+     */
     public SPacketUpdateTileEntity getUpdatePacket()
     {
         return new SPacketUpdateTileEntity(this.pos, 7, this.getUpdateTag());
     }
 
+    /**
+     * Get an NBT compound to sync to the client with SPacketChunkData, used for initial loading of the chunk or when
+     * many blocks change at once. This compound comes back to you clientside in {@link handleUpdateTag}
+     */
     public NBTTagCompound getUpdateTag()
     {
-        return this.writeToNBT(new NBTTagCompound());
+        return this.write(new NBTTagCompound());
     }
 
     public boolean usedBy(EntityPlayer player)
@@ -168,7 +177,7 @@ public class TileEntityStructure extends TileEntity
         {
             if (player.getEntityWorld().isRemote)
             {
-                player.openEditStructure(this);
+                player.openStructureBlock(this);
             }
 
             return true;
@@ -447,23 +456,33 @@ public class TileEntityStructure extends TileEntity
         buf.writeInt(this.pos.getZ());
     }
 
+    /**
+     * Saves the template, writing it to disk.
+     *  
+     * @return true if the template was successfully saved.
+     */
     public boolean save()
     {
         return this.save(true);
     }
 
-    public boolean save(boolean p_189712_1_)
+    /**
+     * Saves the template, either updating the local version or writing it to disk.
+     *  
+     * @return true if the template was successfully saved.
+     */
+    public boolean save(boolean writeToDisk)
     {
         if (this.mode == TileEntityStructure.Mode.SAVE && !this.world.isRemote && !StringUtils.isNullOrEmpty(this.name))
         {
             BlockPos blockpos = this.getPos().add(this.position);
             WorldServer worldserver = (WorldServer)this.world;
-            MinecraftServer minecraftserver = this.world.getMinecraftServer();
+            MinecraftServer minecraftserver = this.world.getServer();
             TemplateManager templatemanager = worldserver.getStructureTemplateManager();
             Template template = templatemanager.getTemplate(minecraftserver, new ResourceLocation(this.name));
             template.takeBlocksFromWorld(this.world, blockpos, this.size, !this.ignoreEntities, Blocks.STRUCTURE_VOID);
             template.setAuthor(this.author);
-            return !p_189712_1_ || templatemanager.writeTemplate(minecraftserver, new ResourceLocation(this.name));
+            return !writeToDisk || templatemanager.writeTemplate(minecraftserver, new ResourceLocation(this.name));
         }
         else
         {
@@ -471,19 +490,30 @@ public class TileEntityStructure extends TileEntity
         }
     }
 
+    /**
+     * Loads the given template, both into this structure block and into the world, aborting if the size of the template
+     * does not match the size in this structure block.
+     *  
+     * @return true if the template was successfully added to the world.
+     */
     public boolean load()
     {
         return this.load(true);
     }
 
-    public boolean load(boolean p_189714_1_)
+    /**
+     * Loads the given template, both into this structure block and into the world.
+     *  
+     * @return true if the template was successfully added to the world.
+     */
+    public boolean load(boolean requireMatchingSize)
     {
         if (this.mode == TileEntityStructure.Mode.LOAD && !this.world.isRemote && !StringUtils.isNullOrEmpty(this.name))
         {
             BlockPos blockpos = this.getPos();
             BlockPos blockpos1 = blockpos.add(this.position);
             WorldServer worldserver = (WorldServer)this.world;
-            MinecraftServer minecraftserver = this.world.getMinecraftServer();
+            MinecraftServer minecraftserver = this.world.getServer();
             TemplateManager templatemanager = worldserver.getStructureTemplateManager();
             Template template = templatemanager.get(minecraftserver, new ResourceLocation(this.name));
 
@@ -509,7 +539,7 @@ public class TileEntityStructure extends TileEntity
                     this.world.notifyBlockUpdate(blockpos, iblockstate, iblockstate, 3);
                 }
 
-                if (p_189714_1_ && !flag)
+                if (requireMatchingSize && !flag)
                 {
                     return false;
                 }
@@ -545,7 +575,7 @@ public class TileEntityStructure extends TileEntity
         if (this.mode == TileEntityStructure.Mode.LOAD && !this.world.isRemote)
         {
             WorldServer worldserver = (WorldServer)this.world;
-            MinecraftServer minecraftserver = this.world.getMinecraftServer();
+            MinecraftServer minecraftserver = this.world.getServer();
             TemplateManager templatemanager = worldserver.getStructureTemplateManager();
             return templatemanager.get(minecraftserver, new ResourceLocation(this.name)) != null;
         }
@@ -586,13 +616,9 @@ public class TileEntityStructure extends TileEntity
     }
 
     @Nullable
-
-    /**
-     * Get the formatted ChatComponent that will be used for the sender's username in chat
-     */
     public ITextComponent getDisplayName()
     {
-        return new TextComponentTranslation("structure_block.hover." + this.mode.modeName, new Object[] {this.mode == TileEntityStructure.Mode.DATA ? this.metadata : this.name});
+        return new TextComponentTranslation("structure_block.hover." + this.mode.name, new Object[] {this.mode == TileEntityStructure.Mode.DATA ? this.metadata : this.name});
     }
 
     public static enum Mode implements IStringSerializable
@@ -603,18 +629,18 @@ public class TileEntityStructure extends TileEntity
         DATA("data", 3);
 
         private static final TileEntityStructure.Mode[] MODES = new TileEntityStructure.Mode[values().length];
-        private final String modeName;
+        private final String name;
         private final int modeId;
 
         private Mode(String modeNameIn, int modeIdIn)
         {
-            this.modeName = modeNameIn;
+            this.name = modeNameIn;
             this.modeId = modeIdIn;
         }
 
         public String getName()
         {
-            return this.modeName;
+            return this.name;
         }
 
         public int getModeId()

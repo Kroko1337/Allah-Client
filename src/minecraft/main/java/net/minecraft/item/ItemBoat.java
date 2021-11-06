@@ -26,7 +26,7 @@ public class ItemBoat extends Item
         this.type = typeIn;
         this.maxStackSize = 1;
         this.setCreativeTab(CreativeTabs.TRANSPORTATION);
-        this.setUnlocalizedName("boat." + typeIn.getName());
+        this.setTranslationKey("boat." + typeIn.getName());
     }
 
     public ActionResult<ItemStack> onItemRightClick(World worldIn, EntityPlayer playerIn, EnumHand handIn)
@@ -46,7 +46,7 @@ public class ItemBoat extends Item
         float f7 = f4 * f5;
         float f8 = f3 * f5;
         double d3 = 5.0D;
-        Vec3d vec3d1 = vec3d.addVector((double)f7 * 5.0D, (double)f6 * 5.0D, (double)f8 * 5.0D);
+        Vec3d vec3d1 = vec3d.add((double)f7 * 5.0D, (double)f6 * 5.0D, (double)f8 * 5.0D);
         RayTraceResult raytraceresult = worldIn.rayTraceBlocks(vec3d, vec3d1, true);
 
         if (raytraceresult == null)
@@ -57,7 +57,7 @@ public class ItemBoat extends Item
         {
             Vec3d vec3d2 = playerIn.getLook(1.0F);
             boolean flag = false;
-            List<Entity> list = worldIn.getEntitiesWithinAABBExcludingEntity(playerIn, playerIn.getEntityBoundingBox().expand(vec3d2.x * 5.0D, vec3d2.y * 5.0D, vec3d2.z * 5.0D).grow(1.0D));
+            List<Entity> list = worldIn.getEntitiesWithinAABBExcludingEntity(playerIn, playerIn.getBoundingBox().expand(vec3d2.x * 5.0D, vec3d2.y * 5.0D, vec3d2.z * 5.0D).grow(1.0D));
 
             for (int i = 0; i < list.size(); ++i)
             {
@@ -65,7 +65,7 @@ public class ItemBoat extends Item
 
                 if (entity.canBeCollidedWith())
                 {
-                    AxisAlignedBB axisalignedbb = entity.getEntityBoundingBox().grow((double)entity.getCollisionBorderSize());
+                    AxisAlignedBB axisalignedbb = entity.getBoundingBox().grow((double)entity.getCollisionBorderSize());
 
                     if (axisalignedbb.contains(vec3d))
                     {
@@ -86,11 +86,11 @@ public class ItemBoat extends Item
             {
                 Block block = worldIn.getBlockState(raytraceresult.getBlockPos()).getBlock();
                 boolean flag1 = block == Blocks.WATER || block == Blocks.FLOWING_WATER;
-                EntityBoat entityboat = new EntityBoat(worldIn, raytraceresult.hitVec.x, flag1 ? raytraceresult.hitVec.y - 0.12D : raytraceresult.hitVec.y, raytraceresult.hitVec.z);
+                EntityBoat entityboat = new EntityBoat(worldIn, raytraceresult.hitResult.x, flag1 ? raytraceresult.hitResult.y - 0.12D : raytraceresult.hitResult.y, raytraceresult.hitResult.z);
                 entityboat.setBoatType(this.type);
                 entityboat.rotationYaw = playerIn.rotationYaw;
 
-                if (!worldIn.getCollisionBoxes(entityboat, entityboat.getEntityBoundingBox().grow(-0.1D)).isEmpty())
+                if (!worldIn.getCollisionBoxes(entityboat, entityboat.getBoundingBox().grow(-0.1D)).isEmpty())
                 {
                     return new ActionResult<ItemStack>(EnumActionResult.FAIL, itemstack);
                 }
@@ -98,10 +98,10 @@ public class ItemBoat extends Item
                 {
                     if (!worldIn.isRemote)
                     {
-                        worldIn.spawnEntity(entityboat);
+                        worldIn.addEntity0(entityboat);
                     }
 
-                    if (!playerIn.capabilities.isCreativeMode)
+                    if (!playerIn.abilities.isCreativeMode)
                     {
                         itemstack.shrink(1);
                     }

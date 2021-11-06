@@ -10,7 +10,6 @@ import java.util.Locale;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.settings.GameSettings;
-import net.minecraft.src.Config;
 import net.minecraft.util.Util;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -35,7 +34,6 @@ import oshi.hardware.Processor;
 
 public class OpenGlHelper
 {
-    /** The logger used by {@link OpenGlHelper} in the event of an error */
     private static final Logger LOGGER = LogManager.getLogger();
     public static boolean nvidia;
     public static boolean ati;
@@ -57,17 +55,7 @@ public class OpenGlHelper
     public static int GL_VERTEX_SHADER;
     public static int GL_FRAGMENT_SHADER;
     private static boolean arbMultitexture;
-
-    /**
-     * An OpenGL constant corresponding to GL_TEXTURE0, used when setting data pertaining to auxiliary OpenGL texture
-     * units.
-     */
     public static int defaultTexUnit;
-
-    /**
-     * An OpenGL constant corresponding to GL_TEXTURE1, used when setting data pertaining to auxiliary OpenGL texture
-     * units.
-     */
     public static int lightmapTexUnit;
     public static int GL_TEXTURE2;
     private static boolean arbTextureEnvCombine;
@@ -101,15 +89,9 @@ public class OpenGlHelper
     private static boolean arbVbo;
     public static int GL_ARRAY_BUFFER;
     public static int GL_STATIC_DRAW;
-    public static float lastBrightnessX = 0.0F;
-    public static float lastBrightnessY = 0.0F;
 
-    /**
-     * Initializes the texture constants to be used when rendering lightmap values
-     */
     public static void initializeTextures()
     {
-        Config.initDisplay();
         ContextCapabilities contextcapabilities = GLContext.getCapabilities();
         arbMultitexture = contextcapabilities.GL_ARB_multitexture && !contextcapabilities.OpenGL13;
         arbTextureEnvCombine = contextcapabilities.GL_ARB_texture_env_combine && !contextcapabilities.OpenGL13;
@@ -357,9 +339,6 @@ public class OpenGlHelper
         }
     }
 
-    /**
-     * creates a shader with the given mode and returns the GL id. params: mode
-     */
     public static int glCreateShader(int type)
     {
         return arbShaders ? ARBShaderObjects.glCreateShaderObjectARB(type) : GL20.glCreateShader(type);
@@ -642,14 +621,7 @@ public class OpenGlHelper
 
     public static boolean useVbo()
     {
-        if (Config.isMultiTexture())
-        {
-            return false;
-        }
-        else
-        {
-            return vboSupported && Minecraft.getMinecraft().gameSettings.useVbo;
-        }
+        return vboSupported && Minecraft.getInstance().gameSettings.useVbo;
     }
 
     public static void glBindFramebuffer(int target, int framebufferIn)
@@ -732,9 +704,6 @@ public class OpenGlHelper
         }
     }
 
-    /**
-     * Calls the appropriate glGenFramebuffers method and returns the newly created fbo, or returns -1 if not supported.
-     */
     public static int glGenFramebuffers()
     {
         if (!framebufferSupported)
@@ -870,9 +839,6 @@ public class OpenGlHelper
         }
     }
 
-    /**
-     * Sets the current lightmap texture to the specified OpenGL constant
-     */
     public static void setActiveTexture(int texture)
     {
         if (arbMultitexture)
@@ -885,9 +851,6 @@ public class OpenGlHelper
         }
     }
 
-    /**
-     * Sets the current lightmap texture to the specified OpenGL constant
-     */
     public static void setClientActiveTexture(int texture)
     {
         if (arbMultitexture)
@@ -900,24 +863,15 @@ public class OpenGlHelper
         }
     }
 
-    /**
-     * Sets the current coordinates of the given lightmap texture
-     */
-    public static void setLightmapTextureCoords(int target, float p_77475_1_, float t)
+    public static void setLightmapTextureCoords(int target, float x, float y)
     {
         if (arbMultitexture)
         {
-            ARBMultitexture.glMultiTexCoord2fARB(target, p_77475_1_, t);
+            ARBMultitexture.glMultiTexCoord2fARB(target, x, y);
         }
         else
         {
-            GL13.glMultiTexCoord2f(target, p_77475_1_, t);
-        }
-
-        if (target == lightmapTexUnit)
-        {
-            lastBrightnessX = p_77475_1_;
-            lastBrightnessY = t;
+            GL13.glMultiTexCoord2f(target, x, y);
         }
     }
 
@@ -942,18 +896,7 @@ public class OpenGlHelper
 
     public static boolean isFramebufferEnabled()
     {
-        if (Config.isFastRender())
-        {
-            return false;
-        }
-        else if (Config.isAntialiasing())
-        {
-            return false;
-        }
-        else
-        {
-            return framebufferSupported && Minecraft.getMinecraft().gameSettings.fboEnable;
-        }
+        return framebufferSupported && Minecraft.getInstance().gameSettings.fboEnable;
     }
 
     public static String getCpu()
@@ -1030,9 +973,9 @@ public class OpenGlHelper
             Object object = oclass.getMethod("getDesktop").invoke((Object)null);
             oclass.getMethod("browse", URI.class).invoke(object, fileIn.toURI());
         }
-        catch (Throwable throwable1)
+        catch (Throwable throwable)
         {
-            LOGGER.error("Couldn't open link", throwable1);
+            LOGGER.error("Couldn't open link", throwable);
             flag = true;
         }
 

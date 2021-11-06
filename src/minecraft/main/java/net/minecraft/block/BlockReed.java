@@ -27,7 +27,7 @@ public class BlockReed extends Block
     protected BlockReed()
     {
         super(Material.PLANTS);
-        this.setDefaultState(this.blockState.getBaseState().withProperty(AGE, Integer.valueOf(0)));
+        this.setDefaultState(this.stateContainer.getBaseState().withProperty(AGE, Integer.valueOf(0)));
         this.setTickRandomly(true);
     }
 
@@ -51,7 +51,7 @@ public class BlockReed extends Block
 
                 if (i < 3)
                 {
-                    int j = ((Integer)state.getValue(AGE)).intValue();
+                    int j = ((Integer)state.get(AGE)).intValue();
 
                     if (j == 15)
                     {
@@ -97,11 +97,6 @@ public class BlockReed extends Block
         }
     }
 
-    /**
-     * Called when a neighboring block was changed and marks that this state should perform any checks during a neighbor
-     * change. Cases may include when redstone power is updated, cactus blocks popping off due to a neighboring solid
-     * block, etc.
-     */
     public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos)
     {
         this.checkForDrop(worldIn, pos, state);
@@ -132,17 +127,11 @@ public class BlockReed extends Block
         return NULL_AABB;
     }
 
-    /**
-     * Get the Item that this Block should drop when harvested.
-     */
     public Item getItemDropped(IBlockState state, Random rand, int fortune)
     {
         return Items.REEDS;
     }
 
-    /**
-     * Used to determine ambient occlusion and culling when rebuilding chunks for render
-     */
     public boolean isOpaqueCube(IBlockState state)
     {
         return false;
@@ -158,25 +147,19 @@ public class BlockReed extends Block
         return new ItemStack(Items.REEDS);
     }
 
-    public BlockRenderLayer getBlockLayer()
+    public BlockRenderLayer getRenderLayer()
     {
         return BlockRenderLayer.CUTOUT;
     }
 
-    /**
-     * Convert the given metadata into a BlockState for this Block
-     */
     public IBlockState getStateFromMeta(int meta)
     {
         return this.getDefaultState().withProperty(AGE, Integer.valueOf(meta));
     }
 
-    /**
-     * Convert the BlockState into the correct metadata value
-     */
     public int getMetaFromState(IBlockState state)
     {
-        return ((Integer)state.getValue(AGE)).intValue();
+        return ((Integer)state.get(AGE)).intValue();
     }
 
     protected BlockStateContainer createBlockState()
@@ -184,7 +167,7 @@ public class BlockReed extends Block
         return new BlockStateContainer(this, new IProperty[] {AGE});
     }
 
-    public BlockFaceShape getBlockFaceShape(IBlockAccess p_193383_1_, IBlockState p_193383_2_, BlockPos p_193383_3_, EnumFacing p_193383_4_)
+    public BlockFaceShape getBlockFaceShape(IBlockAccess worldIn, IBlockState state, BlockPos pos, EnumFacing face)
     {
         return BlockFaceShape.UNDEFINED;
     }

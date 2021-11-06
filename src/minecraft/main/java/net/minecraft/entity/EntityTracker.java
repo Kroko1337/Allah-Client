@@ -57,7 +57,7 @@ public class EntityTracker
     public EntityTracker(WorldServer theWorldIn)
     {
         this.world = theWorldIn;
-        this.maxTrackingDistanceThreshold = theWorldIn.getMinecraftServer().getPlayerList().getEntityViewDistance();
+        this.maxTrackingDistanceThreshold = theWorldIn.getServer().getPlayerList().getEntityViewDistance();
     }
 
     public static long getPositionLong(double value)
@@ -210,9 +210,6 @@ public class EntityTracker
         this.track(entityIn, trackingRange, updateFrequency, false);
     }
 
-    /**
-     * Args : Entity, trackingRange, updateFrequency, sendVelocityUpdates
-     */
     public void track(Entity entityIn, int trackingRange, final int updateFrequency, boolean sendVelocityUpdates)
     {
         try
@@ -231,7 +228,7 @@ public class EntityTracker
         {
             CrashReport crashreport = CrashReport.makeCrashReport(throwable, "Adding entity to track");
             CrashReportCategory crashreportcategory = crashreport.makeCategory("Entity To Track");
-            crashreportcategory.addCrashSection("Tracking range", trackingRange + " blocks");
+            crashreportcategory.addDetail("Tracking range", trackingRange + " blocks");
             crashreportcategory.addDetail("Update interval", new ICrashReportDetail<String>()
             {
                 public String call() throws Exception
@@ -246,8 +243,8 @@ public class EntityTracker
                     return s;
                 }
             });
-            entityIn.addEntityCrashInfo(crashreportcategory);
-            ((EntityTrackerEntry)this.trackedEntityHashTable.lookup(entityIn.getEntityId())).getTrackedEntity().addEntityCrashInfo(crashreport.makeCategory("Entity That Is Already Tracked"));
+            entityIn.fillCrashReport(crashreportcategory);
+            ((EntityTrackerEntry)this.trackedEntityHashTable.lookup(entityIn.getEntityId())).getTrackedEntity().fillCrashReport(crashreport.makeCategory("Entity That Is Already Tracked"));
 
             try
             {
@@ -357,10 +354,6 @@ public class EntityTracker
         }
     }
 
-    /**
-     * Send packets to player for every tracked entity in this chunk that is either leashed to something or someone, or
-     * has passengers
-     */
     public void sendLeashedEntitiesInChunk(EntityPlayerMP player, Chunk chunkIn)
     {
         List<Entity> list = Lists.<Entity>newArrayList();
@@ -374,7 +367,7 @@ public class EntityTracker
             {
                 entitytrackerentry.updatePlayerEntity(player);
 
-                if (entity instanceof EntityLiving && ((EntityLiving)entity).getLeashedToEntity() != null)
+                if (entity instanceof EntityLiving && ((EntityLiving)entity).getLeashHolder() != null)
                 {
                     list.add(entity);
                 }
@@ -390,7 +383,7 @@ public class EntityTracker
         {
             for (Entity entity1 : list)
             {
-                player.connection.sendPacket(new SPacketEntityAttach(entity1, ((EntityLiving)entity1).getLeashedToEntity()));
+                player.connection.sendPacket(new SPacketEntityAttach(entity1, ((EntityLiving)entity1).getLeashHolder()));
             }
         }
 
@@ -403,9 +396,9 @@ public class EntityTracker
         }
     }
 
-    public void setViewDistance(int p_187252_1_)
+    public void setViewDistance(int distance)
     {
-        this.maxTrackingDistanceThreshold = (p_187252_1_ - 1) * 16;
+        this.maxTrackingDistanceThreshold = (distance - 1) * 16;
 
         for (EntityTrackerEntry entitytrackerentry : this.entries)
         {

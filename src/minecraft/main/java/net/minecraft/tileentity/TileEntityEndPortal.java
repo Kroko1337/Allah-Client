@@ -4,8 +4,8 @@ import net.minecraft.util.EnumFacing;
 
 public class TileEntityEndPortal extends TileEntity
 {
-    public boolean shouldRenderFace(EnumFacing p_184313_1_)
+    public boolean shouldRenderFace(EnumFacing face)
     {
-        return p_184313_1_ == EnumFacing.UP;
+        return face == EnumFacing.UP;
     }
 }

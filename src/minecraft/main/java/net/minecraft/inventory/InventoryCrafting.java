@@ -11,22 +11,16 @@ import net.minecraft.util.text.TextComponentTranslation;
 public class InventoryCrafting implements IInventory
 {
     private final NonNullList<ItemStack> stackList;
-
-    /** the width of the crafting inventory */
-    private final int inventoryWidth;
-    private final int inventoryHeight;
-
-    /**
-     * Class containing the callbacks for the events on_GUIClosed and on_CraftMaxtrixChanged.
-     */
+    private final int width;
+    private final int height;
     private final Container eventHandler;
 
     public InventoryCrafting(Container eventHandlerIn, int width, int height)
     {
         this.stackList = NonNullList.<ItemStack>withSize(width * height, ItemStack.EMPTY);
         this.eventHandler = eventHandlerIn;
-        this.inventoryWidth = width;
-        this.inventoryHeight = height;
+        this.width = width;
+        this.height = height;
     }
 
     /**
@@ -58,33 +52,21 @@ public class InventoryCrafting implements IInventory
         return index >= this.getSizeInventory() ? ItemStack.EMPTY : (ItemStack)this.stackList.get(index);
     }
 
-    /**
-     * Gets the ItemStack in the slot specified.
-     */
     public ItemStack getStackInRowAndColumn(int row, int column)
     {
-        return row >= 0 && row < this.inventoryWidth && column >= 0 && column <= this.inventoryHeight ? this.getStackInSlot(row + column * this.inventoryWidth) : ItemStack.EMPTY;
+        return row >= 0 && row < this.width && column >= 0 && column <= this.height ? this.getStackInSlot(row + column * this.width) : ItemStack.EMPTY;
     }
 
-    /**
-     * Get the name of this object. For players this returns their username
-     */
     public String getName()
     {
         return "container.crafting";
     }
 
-    /**
-     * Returns true if this thing is named
-     */
     public boolean hasCustomName()
     {
         return false;
     }
 
-    /**
-     * Get the formatted ChatComponent that will be used for the sender's username in chat
-     */
     public ITextComponent getDisplayName()
     {
         return (ITextComponent)(this.hasCustomName() ? new TextComponentString(this.getName()) : new TextComponentTranslation(this.getName(), new Object[0]));
@@ -184,12 +166,12 @@ public class InventoryCrafting implements IInventory
 
     public int getHeight()
     {
-        return this.inventoryHeight;
+        return this.height;
     }
 
     public int getWidth()
     {
-        return this.inventoryWidth;
+        return this.width;
     }
 
     public void fillStackedContents(RecipeItemHelper helper)

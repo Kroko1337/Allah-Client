@@ -16,13 +16,13 @@ import net.minecraft.network.play.client.CPacketEntityAction;
 import net.minecraft.network.play.client.CPacketHeldItemChange;
 import net.minecraft.network.play.client.CPacketInput;
 import net.minecraft.network.play.client.CPacketKeepAlive;
+import net.minecraft.network.play.client.CPacketPlaceRecipe;
 import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraft.network.play.client.CPacketPlayerAbilities;
 import net.minecraft.network.play.client.CPacketPlayerDigging;
 import net.minecraft.network.play.client.CPacketPlayerTryUseItem;
 import net.minecraft.network.play.client.CPacketPlayerTryUseItemOnBlock;
 import net.minecraft.network.play.client.CPacketRecipeInfo;
-import net.minecraft.network.play.client.CPacketRecipePlacement;
 import net.minecraft.network.play.client.CPacketResourcePackStatus;
 import net.minecraft.network.play.client.CPacketSeenAdvancements;
 import net.minecraft.network.play.client.CPacketSpectate;
@@ -41,9 +41,6 @@ public interface INetHandlerPlayServer extends INetHandler
      */
     void processChatMessage(CPacketChatMessage packetIn);
 
-    /**
-     * Retrieves possible tab completions for the requested command string and sends them to the client
-     */
     void processTabComplete(CPacketTabComplete packetIn);
 
     /**
@@ -78,7 +75,7 @@ public interface INetHandlerPlayServer extends INetHandler
      */
     void processClickWindow(CPacketClickWindow packetIn);
 
-    void handleRecipePlacement(CPacketRecipePlacement p_191985_1_);
+    void processPlaceRecipe(CPacketPlaceRecipe packetIn);
 
     /**
      * Processes the client closing windows (container)
@@ -156,7 +153,7 @@ public interface INetHandlerPlayServer extends INetHandler
 
     void processConfirmTeleport(CPacketConfirmTeleport packetIn);
 
-    void handleRecipeBookUpdate(CPacketRecipeInfo p_191984_1_);
+    void handleRecipeBookUpdate(CPacketRecipeInfo packetIn);
 
-    void handleSeenAdvancements(CPacketSeenAdvancements p_194027_1_);
+    void handleSeenAdvancements(CPacketSeenAdvancements packetIn);
 }

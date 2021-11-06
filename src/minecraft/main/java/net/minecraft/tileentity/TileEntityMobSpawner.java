@@ -22,9 +22,9 @@ public class TileEntityMobSpawner extends TileEntity implements ITickable
     {
         public void broadcastEvent(int id)
         {
-            TileEntityMobSpawner.this.world.addBlockEvent(TileEntityMobSpawner.this.pos, Blocks.MOB_SPAWNER, id, 0);
+            TileEntityMobSpawner.this.world.addBlockEvent(TileEntityMobSpawner.this.pos, Blocks.SPAWNER, id, 0);
         }
-        public World getSpawnerWorld()
+        public World getWorld()
         {
             return TileEntityMobSpawner.this.world;
         }
@@ -32,14 +32,14 @@ public class TileEntityMobSpawner extends TileEntity implements ITickable
         {
             return TileEntityMobSpawner.this.pos;
         }
-        public void setNextSpawnData(WeightedSpawnerEntity p_184993_1_)
+        public void setNextSpawnData(WeightedSpawnerEntity nextSpawnData)
         {
-            super.setNextSpawnData(p_184993_1_);
+            super.setNextSpawnData(nextSpawnData);
 
-            if (this.getSpawnerWorld() != null)
+            if (this.getWorld() != null)
             {
-                IBlockState iblockstate = this.getSpawnerWorld().getBlockState(this.getSpawnerPosition());
-                this.getSpawnerWorld().notifyBlockUpdate(TileEntityMobSpawner.this.pos, iblockstate, iblockstate, 4);
+                IBlockState iblockstate = this.getWorld().getBlockState(this.getSpawnerPosition());
+                this.getWorld().notifyBlockUpdate(TileEntityMobSpawner.this.pos, iblockstate, iblockstate, 4);
             }
         }
     };
@@ -52,18 +52,18 @@ public class TileEntityMobSpawner extends TileEntity implements ITickable
             {
                 if (TileEntity.getKey(TileEntityMobSpawner.class).equals(new ResourceLocation(compound.getString("id"))))
                 {
-                    if (compound.hasKey("SpawnPotentials", 9))
+                    if (compound.contains("SpawnPotentials", 9))
                     {
-                        NBTTagList nbttaglist = compound.getTagList("SpawnPotentials", 10);
+                        NBTTagList nbttaglist = compound.getList("SpawnPotentials", 10);
 
                         for (int i = 0; i < nbttaglist.tagCount(); ++i)
                         {
-                            NBTTagCompound nbttagcompound = nbttaglist.getCompoundTagAt(i);
-                            nbttagcompound.setTag("Entity", fixer.process(FixTypes.ENTITY, nbttagcompound.getCompoundTag("Entity"), versionIn));
+                            NBTTagCompound nbttagcompound = nbttaglist.getCompound(i);
+                            nbttagcompound.setTag("Entity", fixer.process(FixTypes.ENTITY, nbttagcompound.getCompound("Entity"), versionIn));
                         }
                     }
 
-                    compound.setTag("SpawnData", fixer.process(FixTypes.ENTITY, compound.getCompoundTag("SpawnData"), versionIn));
+                    compound.setTag("SpawnData", fixer.process(FixTypes.ENTITY, compound.getCompound("SpawnData"), versionIn));
                 }
 
                 return compound;
@@ -71,45 +71,63 @@ public class TileEntityMobSpawner extends TileEntity implements ITickable
         });
     }
 
-    public void readFromNBT(NBTTagCompound compound)
+    public void read(NBTTagCompound compound)
     {
-        super.readFromNBT(compound);
-        this.spawnerLogic.readFromNBT(compound);
+        super.read(compound);
+        this.spawnerLogic.read(compound);
     }
 
-    public NBTTagCompound writeToNBT(NBTTagCompound compound)
+    public NBTTagCompound write(NBTTagCompound compound)
     {
-        super.writeToNBT(compound);
-        this.spawnerLogic.writeToNBT(compound);
+        super.write(compound);
+        this.spawnerLogic.write(compound);
         return compound;
     }
 
-    /**
-     * Like the old updateEntity(), except more generic.
-     */
-    public void update()
+    public void tick()
     {
-        this.spawnerLogic.updateSpawner();
+        this.spawnerLogic.tick();
     }
 
     @Nullable
+
+    /**
+     * Retrieves packet to send to the client whenever this Tile Entity is resynced via World.notifyBlockUpdate. For
+     * modded TE's, this packet comes back to you clientside in {@link #onDataPacket}
+     */
     public SPacketUpdateTileEntity getUpdatePacket()
     {
         return new SPacketUpdateTileEntity(this.pos, 1, this.getUpdateTag());
     }
 
+    /**
+     * Get an NBT compound to sync to the client with SPacketChunkData, used for initial loading of the chunk or when
+     * many blocks change at once. This compound comes back to you clientside in {@link handleUpdateTag}
+     */
     public NBTTagCompound getUpdateTag()
     {
-        NBTTagCompound nbttagcompound = this.writeToNBT(new NBTTagCompound());
-        nbttagcompound.removeTag("SpawnPotentials");
+        NBTTagCompound nbttagcompound = this.write(new NBTTagCompound());
+        nbttagcompound.remove("SpawnPotentials");
         return nbttagcompound;
     }
 
+    /**
+     * See {@link Block#eventReceived} for more information. This must return true serverside before it is called
+     * clientside.
+     */
     public boolean receiveClientEvent(int id, int type)
     {
         return this.spawnerLogic.setDelayToMin(id) ? true : super.receiveClientEvent(id, type);
     }
 
+    /**
+     * Checks if players can use this tile entity to access operator (permission level 2) commands either directly or
+     * indirectly, such as give or setblock. A similar method exists for entities at {@link
+     * net.minecraft.entity.Entity#ignoreItemEntityData()}.<p>For example, {@link
+     * net.minecraft.tileentity.TileEntitySign#onlyOpsCanSetNbt() signs} (player right-clicking) and {@link
+     * net.minecraft.tileentity.TileEntityCommandBlock#onlyOpsCanSetNbt() command blocks} are considered
+     * accessible.</p>@return true if this block entity offers ways for unauthorized players to use restricted commands
+     */
     public boolean onlyOpsCanSetNbt()
     {
         return true;

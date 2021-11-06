@@ -10,8 +10,6 @@ import net.minecraft.world.World;
 public class WorldGenClay extends WorldGenerator
 {
     private final Block block = Blocks.CLAY;
-
-    /** The number of blocks to generate. */
     private final int numberOfBlocks;
 
     public WorldGenClay(int p_i2011_1_)

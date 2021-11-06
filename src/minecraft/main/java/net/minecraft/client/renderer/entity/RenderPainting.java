@@ -20,9 +20,6 @@ public class RenderPainting extends Render<EntityPainting>
         super(renderManagerIn);
     }
 
-    /**
-     * Renders the desired {@code T} type Entity.
-     */
     public void doRender(EntityPainting entity, double x, double y, double z, float entityYaw, float partialTicks)
     {
         GlStateManager.pushMatrix();
@@ -54,7 +51,7 @@ public class RenderPainting extends Render<EntityPainting>
     }
 
     /**
-     * Returns the location of an entity's texture. Doesn't seem to be called unless you call Render.bindEntityTexture.
+     * Returns the location of an entity's texture.
      */
     protected ResourceLocation getEntityTexture(EntityPainting entity)
     {

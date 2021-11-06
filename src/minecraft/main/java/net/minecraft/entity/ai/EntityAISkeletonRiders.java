@@ -22,7 +22,8 @@ public class EntityAISkeletonRiders extends EntityAIBase
     }
 
     /**
-     * Returns whether the EntityAIBase should begin execution.
+     * Returns whether execution should begin. You can also read and cache any state necessary for execution in this
+     * method as well.
      */
     public boolean shouldExecute()
     {
@@ -32,7 +33,7 @@ public class EntityAISkeletonRiders extends EntityAIBase
     /**
      * Keep ticking a continuous task that has already been started
      */
-    public void updateTask()
+    public void tick()
     {
         DifficultyInstance difficultyinstance = this.horse.world.getDifficultyForLocation(new BlockPos(this.horse));
         this.horse.setTrap(false);
@@ -60,7 +61,7 @@ public class EntityAISkeletonRiders extends EntityAIBase
         entityskeletonhorse.enablePersistence();
         entityskeletonhorse.setHorseTamed(true);
         entityskeletonhorse.setGrowingAge(0);
-        entityskeletonhorse.world.spawnEntity(entityskeletonhorse);
+        entityskeletonhorse.world.addEntity0(entityskeletonhorse);
         return entityskeletonhorse;
     }
 
@@ -79,7 +80,7 @@ public class EntityAISkeletonRiders extends EntityAIBase
 
         entityskeleton.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, EnchantmentHelper.addRandomEnchantment(entityskeleton.getRNG(), entityskeleton.getHeldItemMainhand(), (int)(5.0F + p_188514_1_.getClampedAdditionalDifficulty() * (float)entityskeleton.getRNG().nextInt(18)), false));
         entityskeleton.setItemStackToSlot(EntityEquipmentSlot.HEAD, EnchantmentHelper.addRandomEnchantment(entityskeleton.getRNG(), entityskeleton.getItemStackFromSlot(EntityEquipmentSlot.HEAD), (int)(5.0F + p_188514_1_.getClampedAdditionalDifficulty() * (float)entityskeleton.getRNG().nextInt(18)), false));
-        entityskeleton.world.spawnEntity(entityskeleton);
+        entityskeleton.world.addEntity0(entityskeleton);
         return entityskeleton;
     }
 }

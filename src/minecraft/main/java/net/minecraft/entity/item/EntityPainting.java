@@ -83,19 +83,16 @@ public class EntityPainting extends EntityHanging
         this.updateFacingWithBoundingBox(facing);
     }
 
-    /**
-     * (abstract) Protected helper method to write subclass entity data to NBT.
-     */
     public void writeEntityToNBT(NBTTagCompound compound)
     {
-        compound.setString("Motive", this.art.title);
+        compound.putString("Motive", this.art.title);
         super.writeEntityToNBT(compound);
     }
 
     /**
      * (abstract) Protected helper method to read subclass entity data from NBT.
      */
-    public void readEntityFromNBT(NBTTagCompound compound)
+    public void readAdditional(NBTTagCompound compound)
     {
         String s = compound.getString("Motive");
 
@@ -112,7 +109,7 @@ public class EntityPainting extends EntityHanging
             this.art = EntityPainting.EnumArt.KEBAB;
         }
 
-        super.readEntityFromNBT(compound);
+        super.readAdditional(compound);
     }
 
     public int getWidthPixels()
@@ -138,7 +135,7 @@ public class EntityPainting extends EntityHanging
             {
                 EntityPlayer entityplayer = (EntityPlayer)brokenEntity;
 
-                if (entityplayer.capabilities.isCreativeMode)
+                if (entityplayer.abilities.isCreativeMode)
                 {
                     return;
                 }
@@ -162,7 +159,7 @@ public class EntityPainting extends EntityHanging
     }
 
     /**
-     * Set the position and rotation values directly without any clamping.
+     * Sets a target for the client to interpolate towards over the next few ticks
      */
     public void setPositionAndRotationDirect(double x, double y, double z, float yaw, float pitch, int posRotationIncrements, boolean teleport)
     {

@@ -31,7 +31,7 @@ public class PathNavigateGround extends PathNavigate
      */
     protected boolean canNavigate()
     {
-        return this.entity.onGround || this.getCanSwim() && this.isInLiquid() || this.entity.isRiding();
+        return this.entity.onGround || this.getCanSwim() && this.isInLiquid() || this.entity.isPassenger();
     }
 
     protected Vec3d getEntityPosition()
@@ -86,7 +86,7 @@ public class PathNavigateGround extends PathNavigate
     /**
      * Returns the path to the given EntityLiving. Args : entity
      */
-    public Path getPathToEntityLiving(Entity entityIn)
+    public Path getPathToEntity(Entity entityIn)
     {
         return this.getPathToPos(new BlockPos(entityIn));
     }
@@ -98,7 +98,7 @@ public class PathNavigateGround extends PathNavigate
     {
         if (this.entity.isInWater() && this.getCanSwim())
         {
-            int i = (int)this.entity.getEntityBoundingBox().minY;
+            int i = (int)this.entity.getBoundingBox().minY;
             Block block = this.world.getBlockState(new BlockPos(MathHelper.floor(this.entity.posX), i, MathHelper.floor(this.entity.posZ))).getBlock();
             int j = 0;
 
@@ -110,7 +110,7 @@ public class PathNavigateGround extends PathNavigate
 
                 if (j > 16)
                 {
-                    return (int)this.entity.getEntityBoundingBox().minY;
+                    return (int)this.entity.getBoundingBox().minY;
                 }
             }
 
@@ -118,20 +118,20 @@ public class PathNavigateGround extends PathNavigate
         }
         else
         {
-            return (int)(this.entity.getEntityBoundingBox().minY + 0.5D);
+            return (int)(this.entity.getBoundingBox().minY + 0.5D);
         }
     }
 
     /**
      * Trims path data from the end to the first sun covered block
      */
-    protected void removeSunnyPath()
+    protected void trimPath()
     {
-        super.removeSunnyPath();
+        super.trimPath();
 
         if (this.shouldAvoidSun)
         {
-            if (this.world.canSeeSky(new BlockPos(MathHelper.floor(this.entity.posX), (int)(this.entity.getEntityBoundingBox().minY + 0.5D), MathHelper.floor(this.entity.posZ))))
+            if (this.world.canSeeSky(new BlockPos(MathHelper.floor(this.entity.posX), (int)(this.entity.getBoundingBox().minY + 0.5D), MathHelper.floor(this.entity.posZ))))
             {
                 return;
             }
@@ -293,9 +293,9 @@ public class PathNavigateGround extends PathNavigate
     /**
      * Returns true if an entity does not collide with any solid blocks at the position.
      */
-    private boolean isPositionClear(int p_179692_1_, int p_179692_2_, int p_179692_3_, int p_179692_4_, int p_179692_5_, int p_179692_6_, Vec3d p_179692_7_, double p_179692_8_, double p_179692_10_)
+    private boolean isPositionClear(int x, int y, int z, int sizeX, int sizeY, int sizeZ, Vec3d p_179692_7_, double p_179692_8_, double p_179692_10_)
     {
-        for (BlockPos blockpos : BlockPos.getAllInBox(new BlockPos(p_179692_1_, p_179692_2_, p_179692_3_), new BlockPos(p_179692_1_ + p_179692_4_ - 1, p_179692_2_ + p_179692_5_ - 1, p_179692_3_ + p_179692_6_ - 1)))
+        for (BlockPos blockpos : BlockPos.getAllInBox(new BlockPos(x, y, z), new BlockPos(x + sizeX - 1, y + sizeY - 1, z + sizeZ - 1)))
         {
             double d0 = (double)blockpos.getX() + 0.5D - p_179692_7_.x;
             double d1 = (double)blockpos.getZ() + 0.5D - p_179692_7_.z;

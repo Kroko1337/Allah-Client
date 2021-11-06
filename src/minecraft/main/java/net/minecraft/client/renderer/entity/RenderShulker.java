@@ -15,9 +15,9 @@ public class RenderShulker extends RenderLiving<EntityShulker>
 {
     public static final ResourceLocation[] SHULKER_ENDERGOLEM_TEXTURE = new ResourceLocation[] {new ResourceLocation("textures/entity/shulker/shulker_white.png"), new ResourceLocation("textures/entity/shulker/shulker_orange.png"), new ResourceLocation("textures/entity/shulker/shulker_magenta.png"), new ResourceLocation("textures/entity/shulker/shulker_light_blue.png"), new ResourceLocation("textures/entity/shulker/shulker_yellow.png"), new ResourceLocation("textures/entity/shulker/shulker_lime.png"), new ResourceLocation("textures/entity/shulker/shulker_pink.png"), new ResourceLocation("textures/entity/shulker/shulker_gray.png"), new ResourceLocation("textures/entity/shulker/shulker_silver.png"), new ResourceLocation("textures/entity/shulker/shulker_cyan.png"), new ResourceLocation("textures/entity/shulker/shulker_purple.png"), new ResourceLocation("textures/entity/shulker/shulker_blue.png"), new ResourceLocation("textures/entity/shulker/shulker_brown.png"), new ResourceLocation("textures/entity/shulker/shulker_green.png"), new ResourceLocation("textures/entity/shulker/shulker_red.png"), new ResourceLocation("textures/entity/shulker/shulker_black.png")};
 
-    public RenderShulker(RenderManager p_i47194_1_)
+    public RenderShulker(RenderManager renderManagerIn)
     {
-        super(p_i47194_1_, new ModelShulker(), 0.0F);
+        super(renderManagerIn, new ModelShulker(), 0.0F);
         this.addLayer(new RenderShulker.HeadLayer());
     }
 
@@ -26,9 +26,6 @@ public class RenderShulker extends RenderLiving<EntityShulker>
         return (ModelShulker)super.getMainModel();
     }
 
-    /**
-     * Renders the desired {@code T} type Entity.
-     */
     public void doRender(EntityShulker entity, double x, double y, double z, float entityYaw, float partialTicks)
     {
         int i = entity.getClientTeleportInterp();
@@ -76,16 +73,16 @@ public class RenderShulker extends RenderLiving<EntityShulker>
     }
 
     /**
-     * Returns the location of an entity's texture. Doesn't seem to be called unless you call Render.bindEntityTexture.
+     * Returns the location of an entity's texture.
      */
     protected ResourceLocation getEntityTexture(EntityShulker entity)
     {
         return SHULKER_ENDERGOLEM_TEXTURE[entity.getColor().getMetadata()];
     }
 
-    protected void applyRotations(EntityShulker entityLiving, float p_77043_2_, float rotationYaw, float partialTicks)
+    protected void applyRotations(EntityShulker entityLiving, float ageInTicks, float rotationYaw, float partialTicks)
     {
-        super.applyRotations(entityLiving, p_77043_2_, rotationYaw, partialTicks);
+        super.applyRotations(entityLiving, ageInTicks, rotationYaw, partialTicks);
 
         switch (entityLiving.getAttachmentFacing())
         {
@@ -122,9 +119,6 @@ public class RenderShulker extends RenderLiving<EntityShulker>
         }
     }
 
-    /**
-     * Allows the render to do state modifications necessary before the model is rendered.
-     */
     protected void preRenderCallback(EntityShulker entitylivingbaseIn, float partialTickTime)
     {
         float f = 0.999F;

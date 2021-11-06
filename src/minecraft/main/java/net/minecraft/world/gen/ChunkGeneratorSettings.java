@@ -274,7 +274,7 @@ public class ChunkGeneratorSettings
             {
                 try
                 {
-                    return (ChunkGeneratorSettings.Factory)JsonUtils.gsonDeserialize(JSON_ADAPTER, p_177865_0_, ChunkGeneratorSettings.Factory.class);
+                    return (ChunkGeneratorSettings.Factory)JsonUtils.fromJson(JSON_ADAPTER, p_177865_0_, ChunkGeneratorSettings.Factory.class);
                 }
                 catch (Exception var2)
                 {
@@ -844,7 +844,7 @@ public class ChunkGeneratorSettings
 
                 if (chunkgeneratorsettings$factory.fixedBiome < 38 && chunkgeneratorsettings$factory.fixedBiome >= -1)
                 {
-                    if (chunkgeneratorsettings$factory.fixedBiome >= Biome.getIdForBiome(Biomes.HELL))
+                    if (chunkgeneratorsettings$factory.fixedBiome >= Biome.getIdForBiome(Biomes.NETHER))
                     {
                         chunkgeneratorsettings$factory.fixedBiome += 2;
                     }

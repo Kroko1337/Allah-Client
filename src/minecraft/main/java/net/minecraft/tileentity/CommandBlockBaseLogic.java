@@ -59,52 +59,52 @@ public abstract class CommandBlockBaseLogic implements ICommandSender
         return (ITextComponent)(this.lastOutput == null ? new TextComponentString("") : this.lastOutput);
     }
 
-    public NBTTagCompound writeToNBT(NBTTagCompound p_189510_1_)
+    public NBTTagCompound write(NBTTagCompound compound)
     {
-        p_189510_1_.setString("Command", this.commandStored);
-        p_189510_1_.setInteger("SuccessCount", this.successCount);
-        p_189510_1_.setString("CustomName", this.customName);
-        p_189510_1_.setBoolean("TrackOutput", this.trackOutput);
+        compound.putString("Command", this.commandStored);
+        compound.putInt("SuccessCount", this.successCount);
+        compound.putString("CustomName", this.customName);
+        compound.putBoolean("TrackOutput", this.trackOutput);
 
         if (this.lastOutput != null && this.trackOutput)
         {
-            p_189510_1_.setString("LastOutput", ITextComponent.Serializer.componentToJson(this.lastOutput));
+            compound.putString("LastOutput", ITextComponent.Serializer.toJson(this.lastOutput));
         }
 
-        p_189510_1_.setBoolean("UpdateLastExecution", this.updateLastExecution);
+        compound.putBoolean("UpdateLastExecution", this.updateLastExecution);
 
         if (this.updateLastExecution && this.lastExecution > 0L)
         {
-            p_189510_1_.setLong("LastExecution", this.lastExecution);
+            compound.putLong("LastExecution", this.lastExecution);
         }
 
-        this.resultStats.writeStatsToNBT(p_189510_1_);
-        return p_189510_1_;
+        this.resultStats.writeStatsToNBT(compound);
+        return compound;
     }
 
     /**
      * Reads NBT formatting and stored data into variables.
      */
-    public void readDataFromNBT(NBTTagCompound nbt)
+    public void read(NBTTagCompound nbt)
     {
         this.commandStored = nbt.getString("Command");
-        this.successCount = nbt.getInteger("SuccessCount");
+        this.successCount = nbt.getInt("SuccessCount");
 
-        if (nbt.hasKey("CustomName", 8))
+        if (nbt.contains("CustomName", 8))
         {
             this.customName = nbt.getString("CustomName");
         }
 
-        if (nbt.hasKey("TrackOutput", 1))
+        if (nbt.contains("TrackOutput", 1))
         {
             this.trackOutput = nbt.getBoolean("TrackOutput");
         }
 
-        if (nbt.hasKey("LastOutput", 8) && this.trackOutput)
+        if (nbt.contains("LastOutput", 8) && this.trackOutput)
         {
             try
             {
-                this.lastOutput = ITextComponent.Serializer.jsonToComponent(nbt.getString("LastOutput"));
+                this.lastOutput = ITextComponent.Serializer.fromJson(nbt.getString("LastOutput"));
             }
             catch (Throwable throwable)
             {
@@ -116,12 +116,12 @@ public abstract class CommandBlockBaseLogic implements ICommandSender
             this.lastOutput = null;
         }
 
-        if (nbt.hasKey("UpdateLastExecution"))
+        if (nbt.contains("UpdateLastExecution"))
         {
             this.updateLastExecution = nbt.getBoolean("UpdateLastExecution");
         }
 
-        if (this.updateLastExecution && nbt.hasKey("LastExecution"))
+        if (this.updateLastExecution && nbt.contains("LastExecution"))
         {
             this.lastExecution = nbt.getLong("LastExecution");
         }
@@ -133,9 +133,6 @@ public abstract class CommandBlockBaseLogic implements ICommandSender
         this.resultStats.readStatsFromNBT(nbt);
     }
 
-    /**
-     * Returns {@code true} if the CommandSender is allowed to execute the command, {@code false} if not
-     */
     public boolean canUseCommand(int permLevel, String commandName)
     {
         return permLevel <= 2;
@@ -160,7 +157,7 @@ public abstract class CommandBlockBaseLogic implements ICommandSender
 
     public boolean trigger(World worldIn)
     {
-        if (!worldIn.isRemote && worldIn.getTotalWorldTime() != this.lastExecution)
+        if (!worldIn.isRemote && worldIn.getGameTime() != this.lastExecution)
         {
             if ("Searge".equalsIgnoreCase(this.commandStored))
             {
@@ -207,7 +204,7 @@ public abstract class CommandBlockBaseLogic implements ICommandSender
 
                 if (this.updateLastExecution)
                 {
-                    this.lastExecution = worldIn.getTotalWorldTime();
+                    this.lastExecution = worldIn.getGameTime();
                 }
                 else
                 {
@@ -223,9 +220,6 @@ public abstract class CommandBlockBaseLogic implements ICommandSender
         }
     }
 
-    /**
-     * Get the name of this object. For players this returns their username
-     */
     public String getName()
     {
         return this.customName;
@@ -248,9 +242,6 @@ public abstract class CommandBlockBaseLogic implements ICommandSender
         }
     }
 
-    /**
-     * Returns true if the command sender should be sent feedback about executed commands
-     */
     public boolean sendCommandFeedback()
     {
         MinecraftServer minecraftserver = this.getServer();
@@ -264,15 +255,8 @@ public abstract class CommandBlockBaseLogic implements ICommandSender
 
     public abstract void updateCommand();
 
-    /**
-     * Currently this returns 0 for the traditional command block, and 1 for the minecart command block
-     */
     public abstract int getCommandBlockType();
 
-    /**
-     * Fills in information about the command block for the packet. X/Y/Z for the minecart version, and entityId for the
-     * traditional version
-     */
     public abstract void fillInInfo(ByteBuf buf);
 
     public void setLastOutput(@Nullable ITextComponent lastOutputMessage)
@@ -300,7 +284,7 @@ public abstract class CommandBlockBaseLogic implements ICommandSender
         {
             if (playerIn.getEntityWorld().isRemote)
             {
-                playerIn.displayGuiEditCommandCart(this);
+                playerIn.openMinecartCommandBlock(this);
             }
 
             return true;

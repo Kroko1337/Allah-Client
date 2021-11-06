@@ -20,7 +20,7 @@ public class PhaseLanding extends PhaseBase
      * Generates particle effects appropriate to the phase (or sometimes sounds).
      * Called by dragon's onLivingUpdate. Only used when worldObj.isRemote.
      */
-    public void doClientRenderEffects()
+    public void clientTick()
     {
         Vec3d vec3d = this.dragon.getHeadLookVec(1.0F).normalize();
         vec3d.rotateYaw(-((float)Math.PI / 4F));
@@ -42,7 +42,7 @@ public class PhaseLanding extends PhaseBase
      * Gives the phase a chance to update its status.
      * Called by dragon's onLivingUpdate. Only used when !worldObj.isRemote.
      */
-    public void doLocalUpdate()
+    public void serverTick()
     {
         if (this.targetLocation == null)
         {
@@ -89,7 +89,7 @@ public class PhaseLanding extends PhaseBase
         return this.targetLocation;
     }
 
-    public PhaseList<PhaseLanding> getPhaseList()
+    public PhaseList<PhaseLanding> getType()
     {
         return PhaseList.LANDING;
     }

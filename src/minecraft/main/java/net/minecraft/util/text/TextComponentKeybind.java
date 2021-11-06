@@ -37,14 +37,14 @@ public class TextComponentKeybind extends TextComponentBase
     /**
      * Creates a copy of this component.  Almost a deep copy, except the style is shallow-copied.
      */
-    public TextComponentKeybind createCopy()
+    public TextComponentKeybind shallowCopy()
     {
         TextComponentKeybind textcomponentkeybind = new TextComponentKeybind(this.keybind);
         textcomponentkeybind.setStyle(this.getStyle().createShallowCopy());
 
         for (ITextComponent itextcomponent : this.getSiblings())
         {
-            textcomponentkeybind.appendSibling(itextcomponent.createCopy());
+            textcomponentkeybind.appendSibling(itextcomponent.shallowCopy());
         }
 
         return textcomponentkeybind;

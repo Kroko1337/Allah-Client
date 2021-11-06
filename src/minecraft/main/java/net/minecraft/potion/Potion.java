@@ -24,19 +24,9 @@ public class Potion
 {
     public static final RegistryNamespaced<ResourceLocation, Potion> REGISTRY = new RegistryNamespaced<ResourceLocation, Potion>();
     private final Map<IAttribute, AttributeModifier> attributeModifierMap = Maps.<IAttribute, AttributeModifier>newHashMap();
-
-    /**
-     * This field indicated if the effect is 'bad' - negative - for the entity.
-     */
     private final boolean isBadEffect;
-
-    /** Is the color of the liquid for this potion. */
     private final int liquidColor;
-
-    /** The name of the Potion. */
     private String name = "";
-
-    /** The index for the icon displayed when the potion effect is active. */
     private int statusIconIndex = -1;
     private double effectiveness;
     private boolean beneficial;
@@ -46,7 +36,7 @@ public class Potion
     /**
      * Gets a Potion from the potion registry using a numeric Id.
      */
-    public static Potion getPotionById(int potionID)
+    public static Potion get(int potionID)
     {
         return REGISTRY.getObjectById(potionID);
     }
@@ -54,15 +44,15 @@ public class Potion
     /**
      * Gets the numeric Id associated with a potion.
      */
-    public static int getIdFromPotion(Potion potionIn)
+    public static int getId(Potion potionIn)
     {
-        return REGISTRY.getIDForObject(potionIn);
+        return REGISTRY.getId(potionIn);
     }
 
     @Nullable
     public static Potion getPotionFromResourceLocation(String location)
     {
-        return REGISTRY.getObject(new ResourceLocation(location));
+        return REGISTRY.getOrDefault(new ResourceLocation(location));
     }
 
     protected Potion(boolean isBadEffectIn, int liquidColorIn)
@@ -81,9 +71,6 @@ public class Potion
         this.liquidColor = liquidColorIn;
     }
 
-    /**
-     * Sets the index for the icon displayed in the player's inventory when the status is active.
-     */
     protected Potion setIconIndex(int p_76399_1_, int p_76399_2_)
     {
         this.statusIconIndex = p_76399_1_ + p_76399_2_ * 8;
@@ -217,9 +204,6 @@ public class Potion
         return false;
     }
 
-    /**
-     * Set the potion name.
-     */
     public Potion setPotionName(String nameIn)
     {
         this.name = nameIn;
@@ -234,25 +218,16 @@ public class Potion
         return this.name;
     }
 
-    /**
-     * Returns true if the potion has a associated status icon to display in then inventory when active.
-     */
     public boolean hasStatusIcon()
     {
         return this.statusIconIndex >= 0;
     }
 
-    /**
-     * Returns the index for the icon to display when the potion is active.
-     */
     public int getStatusIconIndex()
     {
         return this.statusIconIndex;
     }
 
-    /**
-     * This method returns true if the potion effect is bad - negative - for the entity.
-     */
     public boolean isBadEffect()
     {
         return this.isBadEffect;
@@ -285,9 +260,6 @@ public class Potion
         return this.liquidColor;
     }
 
-    /**
-     * Used by potions to register the attribute they modify.
-     */
     public Potion registerPotionAttributeModifier(IAttribute attribute, String uniqueId, double ammount, int operation)
     {
         AttributeModifier attributemodifier = new AttributeModifier(UUID.fromString(uniqueId), this.getName(), ammount, operation);
@@ -341,9 +313,6 @@ public class Potion
         return this.beneficial;
     }
 
-    /**
-     * Set that the potion is beneficial to the player. Beneficial potions are shown on the first row of the HUD
-     */
     public Potion setBeneficial()
     {
         this.beneficial = true;

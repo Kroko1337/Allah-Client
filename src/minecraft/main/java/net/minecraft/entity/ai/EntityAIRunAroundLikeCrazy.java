@@ -21,7 +21,8 @@ public class EntityAIRunAroundLikeCrazy extends EntityAIBase
     }
 
     /**
-     * Returns whether the EntityAIBase should begin execution.
+     * Returns whether execution should begin. You can also read and cache any state necessary for execution in this
+     * method as well.
      */
     public boolean shouldExecute()
     {
@@ -66,7 +67,7 @@ public class EntityAIRunAroundLikeCrazy extends EntityAIBase
     /**
      * Keep ticking a continuous task that has already been started
      */
-    public void updateTask()
+    public void tick()
     {
         if (!this.horseHost.isTame() && this.horseHost.getRNG().nextInt(50) == 0)
         {

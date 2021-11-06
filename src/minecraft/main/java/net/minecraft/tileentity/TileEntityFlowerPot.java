@@ -27,40 +27,49 @@ public class TileEntityFlowerPot extends TileEntity
     {
     }
 
-    public NBTTagCompound writeToNBT(NBTTagCompound compound)
+    public NBTTagCompound write(NBTTagCompound compound)
     {
-        super.writeToNBT(compound);
-        ResourceLocation resourcelocation = Item.REGISTRY.getNameForObject(this.flowerPotItem);
-        compound.setString("Item", resourcelocation == null ? "" : resourcelocation.toString());
-        compound.setInteger("Data", this.flowerPotData);
+        super.write(compound);
+        ResourceLocation resourcelocation = Item.REGISTRY.getKey(this.flowerPotItem);
+        compound.putString("Item", resourcelocation == null ? "" : resourcelocation.toString());
+        compound.putInt("Data", this.flowerPotData);
         return compound;
     }
 
-    public void readFromNBT(NBTTagCompound compound)
+    public void read(NBTTagCompound compound)
     {
-        super.readFromNBT(compound);
+        super.read(compound);
 
-        if (compound.hasKey("Item", 8))
+        if (compound.contains("Item", 8))
         {
             this.flowerPotItem = Item.getByNameOrId(compound.getString("Item"));
         }
         else
         {
-            this.flowerPotItem = Item.getItemById(compound.getInteger("Item"));
+            this.flowerPotItem = Item.getItemById(compound.getInt("Item"));
         }
 
-        this.flowerPotData = compound.getInteger("Data");
+        this.flowerPotData = compound.getInt("Data");
     }
 
     @Nullable
+
+    /**
+     * Retrieves packet to send to the client whenever this Tile Entity is resynced via World.notifyBlockUpdate. For
+     * modded TE's, this packet comes back to you clientside in {@link #onDataPacket}
+     */
     public SPacketUpdateTileEntity getUpdatePacket()
     {
         return new SPacketUpdateTileEntity(this.pos, 5, this.getUpdateTag());
     }
 
+    /**
+     * Get an NBT compound to sync to the client with SPacketChunkData, used for initial loading of the chunk or when
+     * many blocks change at once. This compound comes back to you clientside in {@link handleUpdateTag}
+     */
     public NBTTagCompound getUpdateTag()
     {
-        return this.writeToNBT(new NBTTagCompound());
+        return this.write(new NBTTagCompound());
     }
 
     public void setItemStack(ItemStack stack)

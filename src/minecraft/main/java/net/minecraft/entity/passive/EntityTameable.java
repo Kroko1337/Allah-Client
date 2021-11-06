@@ -24,7 +24,7 @@ public abstract class EntityTameable extends EntityAnimal implements IEntityOwna
 {
     protected static final DataParameter<Byte> TAMED = EntityDataManager.<Byte>createKey(EntityTameable.class, DataSerializers.BYTE);
     protected static final DataParameter<Optional<UUID>> OWNER_UNIQUE_ID = EntityDataManager.<Optional<UUID>>createKey(EntityTameable.class, DataSerializers.OPTIONAL_UNIQUE_ID);
-    protected EntityAISit aiSit;
+    protected EntityAISit sitGoal;
 
     public EntityTameable(World worldIn)
     {
@@ -32,41 +32,38 @@ public abstract class EntityTameable extends EntityAnimal implements IEntityOwna
         this.setupTamedAI();
     }
 
-    protected void entityInit()
+    protected void registerData()
     {
-        super.entityInit();
+        super.registerData();
         this.dataManager.register(TAMED, Byte.valueOf((byte)0));
         this.dataManager.register(OWNER_UNIQUE_ID, Optional.absent());
     }
 
-    /**
-     * (abstract) Protected helper method to write subclass entity data to NBT.
-     */
     public void writeEntityToNBT(NBTTagCompound compound)
     {
         super.writeEntityToNBT(compound);
 
         if (this.getOwnerId() == null)
         {
-            compound.setString("OwnerUUID", "");
+            compound.putString("OwnerUUID", "");
         }
         else
         {
-            compound.setString("OwnerUUID", this.getOwnerId().toString());
+            compound.putString("OwnerUUID", this.getOwnerId().toString());
         }
 
-        compound.setBoolean("Sitting", this.isSitting());
+        compound.putBoolean("Sitting", this.isSitting());
     }
 
     /**
      * (abstract) Protected helper method to read subclass entity data from NBT.
      */
-    public void readEntityFromNBT(NBTTagCompound compound)
+    public void readAdditional(NBTTagCompound compound)
     {
-        super.readEntityFromNBT(compound);
+        super.readAdditional(compound);
         String s;
 
-        if (compound.hasKey("OwnerUUID", 8))
+        if (compound.contains("OwnerUUID", 8))
         {
             s = compound.getString("OwnerUUID");
         }
@@ -89,9 +86,9 @@ public abstract class EntityTameable extends EntityAnimal implements IEntityOwna
             }
         }
 
-        if (this.aiSit != null)
+        if (this.sitGoal != null)
         {
-            this.aiSit.setSitting(compound.getBoolean("Sitting"));
+            this.sitGoal.setSitting(compound.getBoolean("Sitting"));
         }
 
         this.setSitting(compound.getBoolean("Sitting"));
@@ -232,7 +229,7 @@ public abstract class EntityTameable extends EntityAnimal implements IEntityOwna
      */
     public EntityAISit getAISit()
     {
-        return this.aiSit;
+        return this.sitGoal;
     }
 
     public boolean shouldAttackEntity(EntityLivingBase target, EntityLivingBase owner)

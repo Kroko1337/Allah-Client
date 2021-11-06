@@ -45,7 +45,7 @@ public abstract class StateMapperBase implements IStateMapper
 
     public Map<IBlockState, ModelResourceLocation> putStateModelLocations(Block blockIn)
     {
-        UnmodifiableIterator unmodifiableiterator = blockIn.getBlockState().getValidStates().iterator();
+        UnmodifiableIterator unmodifiableiterator = blockIn.getStateContainer().getValidStates().iterator();
 
         while (unmodifiableiterator.hasNext())
         {

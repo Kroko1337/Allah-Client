@@ -64,7 +64,7 @@ public class ResourcePackRepository
     private final ReentrantLock lock = new ReentrantLock();
     private ListenableFuture<Object> downloadingPacks;
     private List<ResourcePackRepository.Entry> repositoryEntriesAll = Lists.<ResourcePackRepository.Entry>newArrayList();
-    public final List<ResourcePackRepository.Entry> repositoryEntries = Lists.<ResourcePackRepository.Entry>newArrayList();
+    private final List<ResourcePackRepository.Entry> repositoryEntries = Lists.<ResourcePackRepository.Entry>newArrayList();
 
     public ResourcePackRepository(File dirResourcepacksIn, File dirServerResourcepacksIn, IResourcePack rprDefaultResourcePackIn, MetadataSerializer rprMetadataSerializerIn, GameSettings settings)
     {
@@ -100,9 +100,9 @@ public class ResourcePackRepository
     public static Map<String, String> getDownloadHeaders()
     {
         Map<String, String> map = Maps.<String, String>newHashMap();
-        map.put("X-Minecraft-Username", Minecraft.getMinecraft().getSession().getUsername());
-        map.put("X-Minecraft-UUID", Minecraft.getMinecraft().getSession().getPlayerID());
-        map.put("X-Minecraft-Version", "1.12");
+        map.put("X-Minecraft-Username", Minecraft.getInstance().getSession().getUsername());
+        map.put("X-Minecraft-UUID", Minecraft.getInstance().getSession().getPlayerID());
+        map.put("X-Minecraft-Version", "1.12.2");
         return map;
     }
 
@@ -180,7 +180,7 @@ public class ResourcePackRepository
                     resourcepackrepository$entry.updateResourcePack();
                     list.add(resourcepackrepository$entry);
                 }
-                catch (Exception var61)
+                catch (Exception var6)
                 {
                     list.remove(resourcepackrepository$entry);
                 }
@@ -254,9 +254,8 @@ public class ResourcePackRepository
             {
                 if (this.checkHash(s1, file1))
                 {
-                    ListenableFuture listenablefuture2 = this.setServerResourcePack(file1);
-                    ListenableFuture listenablefuture3 = listenablefuture2;
-                    return listenablefuture3;
+                    ListenableFuture listenablefuture1 = this.setServerResourcePack(file1);
+                    return listenablefuture1;
                 }
 
                 LOGGER.warn("Deleting file {}", (Object)file1);
@@ -266,7 +265,7 @@ public class ResourcePackRepository
             this.deleteOldServerResourcesPacks();
             final GuiScreenWorking guiscreenworking = new GuiScreenWorking();
             Map<String, String> map = getDownloadHeaders();
-            final Minecraft minecraft = Minecraft.getMinecraft();
+            final Minecraft minecraft = Minecraft.getInstance();
             Futures.getUnchecked(minecraft.addScheduledTask(new Runnable()
             {
                 public void run()
@@ -298,8 +297,7 @@ public class ResourcePackRepository
                 }
             });
             ListenableFuture listenablefuture = this.downloadingPacks;
-            ListenableFuture listenablefuture1 = listenablefuture;
-            return listenablefuture1;
+            return listenablefuture;
         }
         finally
         {
@@ -327,9 +325,9 @@ public class ResourcePackRepository
 
             LOGGER.warn("File {} had wrong hash (expected {}, found {}).", p_190113_2_, p_190113_1_, s);
         }
-        catch (IOException ioexception1)
+        catch (IOException ioexception)
         {
-            LOGGER.warn("File {} couldn't be hashed.", p_190113_2_, ioexception1);
+            LOGGER.warn("File {} couldn't be hashed.", p_190113_2_, ioexception);
         }
 
         return false;
@@ -351,9 +349,6 @@ public class ResourcePackRepository
         }
     }
 
-    /**
-     * Keep only the 10 most recent resources packs, delete the others
-     */
     private void deleteOldServerResourcesPacks()
     {
         try
@@ -371,9 +366,9 @@ public class ResourcePackRepository
                 }
             }
         }
-        catch (IllegalArgumentException illegalargumentexception1)
+        catch (IllegalArgumentException illegalargumentexception)
         {
-            LOGGER.error("Error while deleting old server resource pack : {}", (Object)illegalargumentexception1.getMessage());
+            LOGGER.error("Error while deleting old server resource pack : {}", (Object)illegalargumentexception.getMessage());
         }
     }
 
@@ -386,15 +381,11 @@ public class ResourcePackRepository
         else
         {
             this.serverResourcePack = new FileResourcePack(resourceFile);
-            return Minecraft.getMinecraft().scheduleResourcesRefresh();
+            return Minecraft.getInstance().scheduleResourcesRefresh();
         }
     }
 
     @Nullable
-
-    /**
-     * Getter for the IResourcePack instance associated with this ResourcePackRepository
-     */
     public IResourcePack getServerResourcePack()
     {
         return this.serverResourcePack;
@@ -416,7 +407,7 @@ public class ResourcePackRepository
             if (this.serverResourcePack != null)
             {
                 this.serverResourcePack = null;
-                Minecraft.getMinecraft().scheduleResourcesRefresh();
+                Minecraft.getInstance().scheduleResourcesRefresh();
             }
         }
         finally
@@ -451,27 +442,24 @@ public class ResourcePackRepository
         {
             BufferedImage bufferedimage = null;
 
-            if (this.locationTexturePackIcon == null)
+            try
+            {
+                bufferedimage = this.reResourcePack.getPackImage();
+            }
+            catch (IOException var5)
+            {
+                ;
+            }
+
+            if (bufferedimage == null)
             {
                 try
                 {
-                    bufferedimage = this.reResourcePack.getPackImage();
+                    bufferedimage = TextureUtil.readBufferedImage(Minecraft.getInstance().getResourceManager().getResource(ResourcePackRepository.UNKNOWN_PACK_TEXTURE).getInputStream());
                 }
-                catch (IOException var5)
+                catch (IOException ioexception)
                 {
-                    ;
-                }
-
-                if (bufferedimage == null)
-                {
-                    try
-                    {
-                        bufferedimage = TextureUtil.readBufferedImage(Minecraft.getMinecraft().getResourceManager().getResource(ResourcePackRepository.UNKNOWN_PACK_TEXTURE).getInputStream());
-                    }
-                    catch (IOException ioexception)
-                    {
-                        throw new Error("Couldn't bind resource pack icon", ioexception);
-                    }
+                    throw new Error("Couldn't bind resource pack icon", ioexception);
                 }
             }
 

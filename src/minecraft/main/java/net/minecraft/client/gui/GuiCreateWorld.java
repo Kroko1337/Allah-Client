@@ -19,10 +19,6 @@ public class GuiCreateWorld extends GuiScreen
     private GuiTextField worldSeedField;
     private String saveDirName;
     private String gameMode = "survival";
-
-    /**
-     * Used to save away the game mode when the current "debug" world type is chosen (forcing it to spectator mode)
-     */
     private String savedGameMode;
     private boolean generateStructuresEnabled = true;
 
@@ -53,8 +49,6 @@ public class GuiCreateWorld extends GuiScreen
     private String worldName;
     private int selectedIndex;
     public String chunkProviderSettingsJson = "";
-
-    /** These filenames are known to be restricted on one or more OS's. */
     private static final String[] DISALLOWED_FILENAMES = new String[] {"CON", "COM", "PRN", "AUX", "CLOCK$", "NUL", "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9", "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9"};
 
     public GuiCreateWorld(GuiScreen p_i46320_1_)
@@ -64,19 +58,12 @@ public class GuiCreateWorld extends GuiScreen
         this.worldName = I18n.format("selectWorld.newWorld");
     }
 
-    /**
-     * Called from the main game loop to update the screen.
-     */
     public void updateScreen()
     {
-        this.worldNameField.updateCursorCounter();
-        this.worldSeedField.updateCursorCounter();
+        this.worldNameField.tick();
+        this.worldSeedField.tick();
     }
 
-    /**
-     * Adds the buttons (and other controls) to the screen in question. Called when the GUI is displayed and when the
-     * window resizes, the buttonList is cleared beforehand.
-     */
     public void initGui()
     {
         Keyboard.enableRepeatEvents(true);
@@ -96,7 +83,7 @@ public class GuiCreateWorld extends GuiScreen
         this.btnCustomizeType = this.addButton(new GuiButton(8, this.width / 2 + 5, 120, 150, 20, I18n.format("selectWorld.customizeType")));
         this.btnCustomizeType.visible = false;
         this.worldNameField = new GuiTextField(9, this.fontRenderer, this.width / 2 - 100, 60, 200, 20);
-        this.worldNameField.setFocused(true);
+        this.worldNameField.setFocused2(true);
         this.worldNameField.setText(this.worldName);
         this.worldSeedField = new GuiTextField(10, this.fontRenderer, this.width / 2 - 100, 60, 200, 20);
         this.worldSeedField.setText(this.worldSeed);
@@ -125,9 +112,6 @@ public class GuiCreateWorld extends GuiScreen
         this.saveDirName = getUncollidingSaveDirName(this.mc.getSaveLoader(), this.saveDirName);
     }
 
-    /**
-     * Sets displayed GUI elements according to the current settings state
-     */
     private void updateDisplayState()
     {
         this.btnGameMode.displayString = I18n.format("selectWorld.gameMode") + ": " + I18n.format("selectWorld.gameMode." + this.gameMode);
@@ -168,10 +152,6 @@ public class GuiCreateWorld extends GuiScreen
         }
     }
 
-    /**
-     * Ensures that a proposed directory name doesn't collide with existing names.
-     * Returns the name, possibly modified to avoid collisions.
-     */
     public static String getUncollidingSaveDirName(ISaveFormat saveLoader, String name)
     {
         name = name.replaceAll("[\\./\"]", "_");
@@ -192,17 +172,11 @@ public class GuiCreateWorld extends GuiScreen
         return name;
     }
 
-    /**
-     * Called when the screen is unloaded. Used to disable keyboard repeat events
-     */
     public void onGuiClosed()
     {
         Keyboard.enableRepeatEvents(false);
     }
 
-    /**
-     * Called by the controls from the buttonList when activated. (Mouse pressed for buttons)
-     */
     protected void actionPerformed(GuiButton button) throws IOException
     {
         if (button.enabled)
@@ -441,10 +415,6 @@ public class GuiCreateWorld extends GuiScreen
         }
     }
 
-    /**
-     * Fired when a key is typed (except F11 which toggles full screen). This is the equivalent of
-     * KeyListener.keyTyped(KeyEvent e). Args : character (character on the key), keyCode (lwjgl Keyboard key code)
-     */
     protected void keyTyped(char typedChar, int keyCode) throws IOException
     {
         if (this.worldNameField.isFocused() && !this.inMoreWorldOptionsDisplay)
@@ -467,9 +437,6 @@ public class GuiCreateWorld extends GuiScreen
         this.calcSaveDirName();
     }
 
-    /**
-     * Called when the mouse is clicked. Args : mouseX, mouseY, clickedButton
-     */
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
     {
         super.mouseClicked(mouseX, mouseY, mouseButton);
@@ -484,9 +451,6 @@ public class GuiCreateWorld extends GuiScreen
         }
     }
 
-    /**
-     * Draws the screen and all the components in it.
-     */
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         this.drawDefaultBackground();
@@ -535,12 +499,12 @@ public class GuiCreateWorld extends GuiScreen
     {
         this.worldName = I18n.format("selectWorld.newWorld.copyOf", original.getWorldName());
         this.worldSeed = original.getSeed() + "";
-        this.selectedIndex = original.getTerrainType().getId();
+        this.selectedIndex = original.getGenerator().getId();
         this.chunkProviderSettingsJson = original.getGeneratorOptions();
         this.generateStructuresEnabled = original.isMapFeaturesEnabled();
         this.allowCheats = original.areCommandsAllowed();
 
-        if (original.isHardcoreModeEnabled())
+        if (original.isHardcore())
         {
             this.gameMode = "hardcore";
         }

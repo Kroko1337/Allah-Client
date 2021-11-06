@@ -20,27 +20,11 @@ public abstract class PathNavigate
     protected EntityLiving entity;
     protected World world;
     @Nullable
-
-    /** The PathEntity being followed. */
     protected Path currentPath;
     protected double speed;
-
-    /**
-     * The number of blocks (extra) +/- in each axis that get pulled out as cache for the pathfinder's search space
-     */
     private final IAttributeInstance pathSearchRange;
-
-    /** Time, in number of ticks, following the current path */
     protected int totalTicks;
-
-    /**
-     * The time when the last position check was done (to detect successful movement)
-     */
     private int ticksAtLastPos;
-
-    /**
-     * Coordinates of the entity's position last time a check was done (part of monitoring getting 'stuck')
-     */
     private Vec3d lastPosCheck = Vec3d.ZERO;
     private Vec3d timeoutCachedNode = Vec3d.ZERO;
     private long timeoutTimer;
@@ -57,7 +41,7 @@ public abstract class PathNavigate
     {
         this.entity = entityIn;
         this.world = worldIn;
-        this.pathSearchRange = entityIn.getEntityAttribute(SharedMonsterAttributes.FOLLOW_RANGE);
+        this.pathSearchRange = entityIn.getAttribute(SharedMonsterAttributes.FOLLOW_RANGE);
         this.pathFinder = this.getPathFinder();
     }
 
@@ -71,12 +55,9 @@ public abstract class PathNavigate
         this.speed = speedIn;
     }
 
-    /**
-     * Gets the maximum distance that the path finding will search in.
-     */
     public float getPathSearchRange()
     {
-        return (float)this.pathSearchRange.getAttributeValue();
+        return (float)this.pathSearchRange.getValue();
     }
 
     /**
@@ -90,13 +71,13 @@ public abstract class PathNavigate
 
     public void updatePath()
     {
-        if (this.world.getTotalWorldTime() - this.lastTimeUpdated > 20L)
+        if (this.world.getGameTime() - this.lastTimeUpdated > 20L)
         {
             if (this.targetPos != null)
             {
                 this.currentPath = null;
                 this.currentPath = this.getPathToPos(this.targetPos);
-                this.lastTimeUpdated = this.world.getTotalWorldTime();
+                this.lastTimeUpdated = this.world.getGameTime();
                 this.tryUpdatePath = false;
             }
         }
@@ -107,10 +88,6 @@ public abstract class PathNavigate
     }
 
     @Nullable
-
-    /**
-     * Returns the path to the given coordinates. Args : x, y, z
-     */
     public final Path getPathToXYZ(double x, double y, double z)
     {
         return this.getPathToPos(new BlockPos(x, y, z));
@@ -150,7 +127,7 @@ public abstract class PathNavigate
     /**
      * Returns the path to the given EntityLiving. Args : entity
      */
-    public Path getPathToEntityLiving(Entity entityIn)
+    public Path getPathToEntity(Entity entityIn)
     {
         if (!this.canNavigate())
         {
@@ -192,7 +169,7 @@ public abstract class PathNavigate
      */
     public boolean tryMoveToEntityLiving(Entity entityIn, double speedIn)
     {
-        Path path = this.getPathToEntityLiving(entityIn);
+        Path path = this.getPathToEntity(entityIn);
         return path != null && this.setPath(path, speedIn);
     }
 
@@ -214,7 +191,7 @@ public abstract class PathNavigate
                 this.currentPath = pathentityIn;
             }
 
-            this.removeSunnyPath();
+            this.trimPath();
 
             if (this.currentPath.getCurrentPathLength() <= 0)
             {
@@ -241,7 +218,7 @@ public abstract class PathNavigate
         return this.currentPath;
     }
 
-    public void onUpdateNavigation()
+    public void tick()
     {
         ++this.totalTicks;
 
@@ -332,7 +309,7 @@ public abstract class PathNavigate
         {
             if (positionVec3.squareDistanceTo(this.lastPosCheck) < 2.25D)
             {
-                this.clearPathEntity();
+                this.clearPath();
             }
 
             this.ticksAtLastPos = this.totalTicks;
@@ -359,7 +336,7 @@ public abstract class PathNavigate
                 this.timeoutCachedNode = Vec3d.ZERO;
                 this.timeoutTimer = 0L;
                 this.timeoutLimit = 0.0D;
-                this.clearPathEntity();
+                this.clearPath();
             }
 
             this.lastTimeoutCheck = System.currentTimeMillis();
@@ -377,7 +354,7 @@ public abstract class PathNavigate
     /**
      * sets active PathEntity to null
      */
-    public void clearPathEntity()
+    public void clearPath()
     {
         this.currentPath = null;
     }
@@ -400,7 +377,7 @@ public abstract class PathNavigate
     /**
      * Trims path data from the end to the first sun covered block
      */
-    protected void removeSunnyPath()
+    protected void trimPath()
     {
         if (this.currentPath != null)
         {

@@ -34,9 +34,9 @@ public class ItemChorusFruit extends ItemFood
                 double d4 = MathHelper.clamp(entityLiving.posY + (double)(entityLiving.getRNG().nextInt(16) - 8), 0.0D, (double)(worldIn.getActualHeight() - 1));
                 double d5 = entityLiving.posZ + (entityLiving.getRNG().nextDouble() - 0.5D) * 16.0D;
 
-                if (entityLiving.isRiding())
+                if (entityLiving.isPassenger())
                 {
-                    entityLiving.dismountRidingEntity();
+                    entityLiving.stopRiding();
                 }
 
                 if (entityLiving.attemptTeleport(d3, d4, d5))

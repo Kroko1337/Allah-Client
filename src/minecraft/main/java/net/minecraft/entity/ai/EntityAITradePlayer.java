@@ -14,11 +14,12 @@ public class EntityAITradePlayer extends EntityAIBase
     }
 
     /**
-     * Returns whether the EntityAIBase should begin execution.
+     * Returns whether execution should begin. You can also read and cache any state necessary for execution in this
+     * method as well.
      */
     public boolean shouldExecute()
     {
-        if (!this.villager.isEntityAlive())
+        if (!this.villager.isAlive())
         {
             return false;
         }
@@ -42,7 +43,7 @@ public class EntityAITradePlayer extends EntityAIBase
             {
                 return false;
             }
-            else if (this.villager.getDistanceSqToEntity(entityplayer) > 16.0D)
+            else if (this.villager.getDistanceSq(entityplayer) > 16.0D)
             {
                 return false;
             }
@@ -58,7 +59,7 @@ public class EntityAITradePlayer extends EntityAIBase
      */
     public void startExecuting()
     {
-        this.villager.getNavigator().clearPathEntity();
+        this.villager.getNavigator().clearPath();
     }
 
     /**

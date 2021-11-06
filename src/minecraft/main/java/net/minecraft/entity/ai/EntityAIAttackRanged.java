@@ -7,27 +7,13 @@ import net.minecraft.util.math.MathHelper;
 
 public class EntityAIAttackRanged extends EntityAIBase
 {
-    /** The entity the AI instance has been applied to */
     private final EntityLiving entityHost;
-
-    /**
-     * The entity (as a RangedAttackMob) the AI instance has been applied to.
-     */
     private final IRangedAttackMob rangedAttackEntityHost;
     private EntityLivingBase attackTarget;
-
-    /**
-     * A decrementing tick that spawns a ranged attack once this value reaches 0. It is then set back to the
-     * maxRangedAttackTime.
-     */
     private int rangedAttackTime;
     private final double entityMoveSpeed;
     private int seeTime;
     private final int attackIntervalMin;
-
-    /**
-     * The maximum time the AI has to wait before peforming another ranged attack.
-     */
     private final int maxRangedAttackTime;
     private final float attackRadius;
     private final float maxAttackDistance;
@@ -59,7 +45,8 @@ public class EntityAIAttackRanged extends EntityAIBase
     }
 
     /**
-     * Returns whether the EntityAIBase should begin execution.
+     * Returns whether execution should begin. You can also read and cache any state necessary for execution in this
+     * method as well.
      */
     public boolean shouldExecute()
     {
@@ -97,9 +84,9 @@ public class EntityAIAttackRanged extends EntityAIBase
     /**
      * Keep ticking a continuous task that has already been started
      */
-    public void updateTask()
+    public void tick()
     {
-        double d0 = this.entityHost.getDistanceSq(this.attackTarget.posX, this.attackTarget.getEntityBoundingBox().minY, this.attackTarget.posZ);
+        double d0 = this.entityHost.getDistanceSq(this.attackTarget.posX, this.attackTarget.getBoundingBox().minY, this.attackTarget.posZ);
         boolean flag = this.entityHost.getEntitySenses().canSee(this.attackTarget);
 
         if (flag)
@@ -113,14 +100,14 @@ public class EntityAIAttackRanged extends EntityAIBase
 
         if (d0 <= (double)this.maxAttackDistance && this.seeTime >= 20)
         {
-            this.entityHost.getNavigator().clearPathEntity();
+            this.entityHost.getNavigator().clearPath();
         }
         else
         {
             this.entityHost.getNavigator().tryMoveToEntityLiving(this.attackTarget, this.entityMoveSpeed);
         }
 
-        this.entityHost.getLookHelper().setLookPositionWithEntity(this.attackTarget, 30.0F, 30.0F);
+        this.entityHost.getLookController().setLookPositionWithEntity(this.attackTarget, 30.0F, 30.0F);
 
         if (--this.rangedAttackTime == 0)
         {

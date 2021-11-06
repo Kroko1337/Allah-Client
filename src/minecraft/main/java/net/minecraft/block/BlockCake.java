@@ -28,13 +28,13 @@ public class BlockCake extends Block
     protected BlockCake()
     {
         super(Material.CAKE);
-        this.setDefaultState(this.blockState.getBaseState().withProperty(BITES, Integer.valueOf(0)));
+        this.setDefaultState(this.stateContainer.getBaseState().withProperty(BITES, Integer.valueOf(0)));
         this.setTickRandomly(true);
     }
 
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
     {
-        return CAKE_AABB[((Integer)state.getValue(BITES)).intValue()];
+        return CAKE_AABB[((Integer)state.get(BITES)).intValue()];
     }
 
     public boolean isFullCube(IBlockState state)
@@ -42,17 +42,11 @@ public class BlockCake extends Block
         return false;
     }
 
-    /**
-     * Used to determine ambient occlusion and culling when rebuilding chunks for render
-     */
     public boolean isOpaqueCube(IBlockState state)
     {
         return false;
     }
 
-    /**
-     * Called when the block is right clicked by a player.
-     */
     public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
         if (!worldIn.isRemote)
@@ -74,9 +68,9 @@ public class BlockCake extends Block
         }
         else
         {
-            player.addStat(StatList.CAKE_SLICES_EATEN);
+            player.addStat(StatList.EAT_CAKE_SLICE);
             player.getFoodStats().addStats(2, 0.1F);
-            int i = ((Integer)state.getValue(BITES)).intValue();
+            int i = ((Integer)state.get(BITES)).intValue();
 
             if (i < 6)
             {
@@ -96,11 +90,6 @@ public class BlockCake extends Block
         return super.canPlaceBlockAt(worldIn, pos) ? this.canBlockStay(worldIn, pos) : false;
     }
 
-    /**
-     * Called when a neighboring block was changed and marks that this state should perform any checks during a neighbor
-     * change. Cases may include when redstone power is updated, cactus blocks popping off due to a neighboring solid
-     * block, etc.
-     */
     public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos)
     {
         if (!this.canBlockStay(worldIn, pos))
@@ -114,17 +103,11 @@ public class BlockCake extends Block
         return worldIn.getBlockState(pos.down()).getMaterial().isSolid();
     }
 
-    /**
-     * Returns the quantity of items to drop on block destruction.
-     */
     public int quantityDropped(Random random)
     {
         return 0;
     }
 
-    /**
-     * Get the Item that this Block should drop when harvested.
-     */
     public Item getItemDropped(IBlockState state, Random rand, int fortune)
     {
         return Items.AIR;
@@ -135,25 +118,19 @@ public class BlockCake extends Block
         return new ItemStack(Items.CAKE);
     }
 
-    public BlockRenderLayer getBlockLayer()
+    public BlockRenderLayer getRenderLayer()
     {
         return BlockRenderLayer.CUTOUT;
     }
 
-    /**
-     * Convert the given metadata into a BlockState for this Block
-     */
     public IBlockState getStateFromMeta(int meta)
     {
         return this.getDefaultState().withProperty(BITES, Integer.valueOf(meta));
     }
 
-    /**
-     * Convert the BlockState into the correct metadata value
-     */
     public int getMetaFromState(IBlockState state)
     {
-        return ((Integer)state.getValue(BITES)).intValue();
+        return ((Integer)state.get(BITES)).intValue();
     }
 
     protected BlockStateContainer createBlockState()
@@ -161,17 +138,25 @@ public class BlockCake extends Block
         return new BlockStateContainer(this, new IProperty[] {BITES});
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#getComparatorInputOverride(World,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public int getComparatorInputOverride(IBlockState blockState, World worldIn, BlockPos pos)
     {
-        return (7 - ((Integer)blockState.getValue(BITES)).intValue()) * 2;
+        return (7 - ((Integer)blockState.get(BITES)).intValue()) * 2;
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#hasComparatorInputOverride()} whenever possible. Implementing/overriding
+     * is fine.
+     */
     public boolean hasComparatorInputOverride(IBlockState state)
     {
         return true;
     }
 
-    public BlockFaceShape getBlockFaceShape(IBlockAccess p_193383_1_, IBlockState p_193383_2_, BlockPos p_193383_3_, EnumFacing p_193383_4_)
+    public BlockFaceShape getBlockFaceShape(IBlockAccess worldIn, IBlockState state, BlockPos pos, EnumFacing face)
     {
         return BlockFaceShape.UNDEFINED;
     }

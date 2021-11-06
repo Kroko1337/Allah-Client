@@ -16,13 +16,8 @@ import org.apache.logging.log4j.Logger;
 public class ChunkProviderClient implements IChunkProvider
 {
     private static final Logger LOGGER = LogManager.getLogger();
-
-    /**
-     * The completely empty chunk used by ChunkProviderClient when chunkMapping doesn't contain the requested
-     * coordinates.
-     */
-    private final Chunk blankChunk;
-    private final Long2ObjectMap<Chunk> chunkMapping = new Long2ObjectOpenHashMap<Chunk>(8192)
+    private final Chunk empty;
+    private final Long2ObjectMap<Chunk> loadedChunks = new Long2ObjectOpenHashMap<Chunk>(8192)
     {
         protected void rehash(int p_rehash_1_)
         {
@@ -32,13 +27,11 @@ public class ChunkProviderClient implements IChunkProvider
             }
         }
     };
-
-    /** Reference to the World object. */
     private final World world;
 
     public ChunkProviderClient(World worldIn)
     {
-        this.blankChunk = new EmptyChunk(worldIn, 0, 0);
+        this.empty = new EmptyChunk(worldIn, 0, 0);
         this.world = worldIn;
     }
 
@@ -55,38 +48,32 @@ public class ChunkProviderClient implements IChunkProvider
             chunk.onUnload();
         }
 
-        this.chunkMapping.remove(ChunkPos.asLong(x, z));
+        this.loadedChunks.remove(ChunkPos.asLong(x, z));
     }
 
     @Nullable
     public Chunk getLoadedChunk(int x, int z)
     {
-        return (Chunk)this.chunkMapping.get(ChunkPos.asLong(x, z));
+        return (Chunk)this.loadedChunks.get(ChunkPos.asLong(x, z));
     }
 
-    /**
-     * loads or generates the chunk at the chunk location specified
-     */
     public Chunk loadChunk(int chunkX, int chunkZ)
     {
         Chunk chunk = new Chunk(this.world, chunkX, chunkZ);
-        this.chunkMapping.put(ChunkPos.asLong(chunkX, chunkZ), chunk);
-        chunk.markLoaded(true);
+        this.loadedChunks.put(ChunkPos.asLong(chunkX, chunkZ), chunk);
+        chunk.setLoaded(true);
         return chunk;
     }
 
     public Chunk provideChunk(int x, int z)
     {
-        return (Chunk)MoreObjects.firstNonNull(this.getLoadedChunk(x, z), this.blankChunk);
+        return (Chunk)MoreObjects.firstNonNull(this.getLoadedChunk(x, z), this.empty);
     }
 
-    /**
-     * Unloads chunks that are marked to be unloaded. This is not guaranteed to unload every such chunk.
-     */
     public boolean tick()
     {
         long i = System.currentTimeMillis();
-        ObjectIterator objectiterator = this.chunkMapping.values().iterator();
+        ObjectIterator objectiterator = this.loadedChunks.values().iterator();
 
         while (objectiterator.hasNext())
         {
@@ -107,11 +94,11 @@ public class ChunkProviderClient implements IChunkProvider
      */
     public String makeString()
     {
-        return "MultiplayerChunkCache: " + this.chunkMapping.size() + ", " + this.chunkMapping.size();
+        return "MultiplayerChunkCache: " + this.loadedChunks.size() + ", " + this.loadedChunks.size();
     }
 
     public boolean isChunkGeneratedAt(int x, int z)
     {
-        return this.chunkMapping.containsKey(ChunkPos.asLong(x, z));
+        return this.loadedChunks.containsKey(ChunkPos.asLong(x, z));
     }
 }

@@ -24,18 +24,18 @@ public class GuiLabel extends Gui
     private final FontRenderer fontRenderer;
     private int border;
 
-    public GuiLabel(FontRenderer fontRendererObj, int p_i45540_2_, int p_i45540_3_, int p_i45540_4_, int p_i45540_5_, int p_i45540_6_, int p_i45540_7_)
+    public GuiLabel(FontRenderer fontRendererObj, int labelId, int xIn, int yIn, int widthIn, int heightIn, int colorIn)
     {
         this.fontRenderer = fontRendererObj;
-        this.id = p_i45540_2_;
-        this.x = p_i45540_3_;
-        this.y = p_i45540_4_;
-        this.width = p_i45540_5_;
-        this.height = p_i45540_6_;
+        this.id = labelId;
+        this.x = xIn;
+        this.y = yIn;
+        this.width = widthIn;
+        this.height = heightIn;
         this.labels = Lists.<String>newArrayList();
         this.centered = false;
         this.labelBgEnabled = false;
-        this.textColor = p_i45540_7_;
+        this.textColor = colorIn;
         this.backColor = -1;
         this.ulColor = -1;
         this.brColor = -1;
@@ -47,9 +47,6 @@ public class GuiLabel extends Gui
         this.labels.add(I18n.format(p_175202_1_));
     }
 
-    /**
-     * Sets the Label to be centered
-     */
     public GuiLabel setCentered()
     {
         this.centered = true;
@@ -80,7 +77,7 @@ public class GuiLabel extends Gui
         }
     }
 
-    protected void drawLabelBackground(Minecraft mcIn, int p_146160_2_, int p_146160_3_)
+    protected void drawLabelBackground(Minecraft mcIn, int mouseX, int mouseY)
     {
         if (this.labelBgEnabled)
         {

@@ -48,7 +48,7 @@ public class ItemLilyPad extends ItemColored
                 BlockPos blockpos1 = blockpos.up();
                 IBlockState iblockstate = worldIn.getBlockState(blockpos);
 
-                if (iblockstate.getMaterial() == Material.WATER && ((Integer)iblockstate.getValue(BlockLiquid.LEVEL)).intValue() == 0 && worldIn.isAirBlock(blockpos1))
+                if (iblockstate.getMaterial() == Material.WATER && ((Integer)iblockstate.get(BlockLiquid.LEVEL)).intValue() == 0 && worldIn.isAirBlock(blockpos1))
                 {
                     worldIn.setBlockState(blockpos1, Blocks.WATERLILY.getDefaultState(), 11);
 
@@ -57,13 +57,13 @@ public class ItemLilyPad extends ItemColored
                         CriteriaTriggers.PLACED_BLOCK.trigger((EntityPlayerMP)playerIn, blockpos1, itemstack);
                     }
 
-                    if (!playerIn.capabilities.isCreativeMode)
+                    if (!playerIn.abilities.isCreativeMode)
                     {
                         itemstack.shrink(1);
                     }
 
                     playerIn.addStat(StatList.getObjectUseStats(this));
-                    worldIn.playSound(playerIn, blockpos, SoundEvents.BLOCK_WATERLILY_PLACE, SoundCategory.BLOCKS, 1.0F, 1.0F);
+                    worldIn.playSound(playerIn, blockpos, SoundEvents.BLOCK_LILY_PAD_PLACE, SoundCategory.BLOCKS, 1.0F, 1.0F);
                     return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, itemstack);
                 }
             }

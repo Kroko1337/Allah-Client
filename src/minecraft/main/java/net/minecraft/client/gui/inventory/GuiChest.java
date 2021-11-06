@@ -14,13 +14,13 @@ public class GuiChest extends GuiContainer
     private final IInventory lowerChestInventory;
 
     /**
-     * window height is calculated with these values; the more rows, the heigher
+     * Window height is calculated with these values; the more rows, the higher
      */
     private final int inventoryRows;
 
     public GuiChest(IInventory upperInv, IInventory lowerInv)
     {
-        super(new ContainerChest(upperInv, lowerInv, Minecraft.getMinecraft().player));
+        super(new ContainerChest(upperInv, lowerInv, Minecraft.getInstance().player));
         this.upperChestInventory = upperInv;
         this.lowerChestInventory = lowerInv;
         this.allowUserInput = false;
@@ -30,9 +30,6 @@ public class GuiChest extends GuiContainer
         this.ySize = 114 + this.inventoryRows * 18;
     }
 
-    /**
-     * Draws the screen and all the components in it.
-     */
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         this.drawDefaultBackground();

@@ -41,8 +41,6 @@ public class EntityChicken extends EntityAnimal
     public float oFlapSpeed;
     public float oFlap;
     public float wingRotDelta = 1.0F;
-
-    /** The time until the next egg is spawned. */
     public int timeUntilNextEgg;
     public boolean chickenJockey;
 
@@ -54,16 +52,16 @@ public class EntityChicken extends EntityAnimal
         this.setPathPriority(PathNodeType.WATER, 0.0F);
     }
 
-    protected void initEntityAI()
+    protected void registerGoals()
     {
-        this.tasks.addTask(0, new EntityAISwimming(this));
-        this.tasks.addTask(1, new EntityAIPanic(this, 1.4D));
-        this.tasks.addTask(2, new EntityAIMate(this, 1.0D));
-        this.tasks.addTask(3, new EntityAITempt(this, 1.0D, false, TEMPTATION_ITEMS));
-        this.tasks.addTask(4, new EntityAIFollowParent(this, 1.1D));
-        this.tasks.addTask(5, new EntityAIWanderAvoidWater(this, 1.0D));
-        this.tasks.addTask(6, new EntityAIWatchClosest(this, EntityPlayer.class, 6.0F));
-        this.tasks.addTask(7, new EntityAILookIdle(this));
+        this.goalSelector.addGoal(0, new EntityAISwimming(this));
+        this.goalSelector.addGoal(1, new EntityAIPanic(this, 1.4D));
+        this.goalSelector.addGoal(2, new EntityAIMate(this, 1.0D));
+        this.goalSelector.addGoal(3, new EntityAITempt(this, 1.0D, false, TEMPTATION_ITEMS));
+        this.goalSelector.addGoal(4, new EntityAIFollowParent(this, 1.1D));
+        this.goalSelector.addGoal(5, new EntityAIWanderAvoidWater(this, 1.0D));
+        this.goalSelector.addGoal(6, new EntityAIWatchClosest(this, EntityPlayer.class, 6.0F));
+        this.goalSelector.addGoal(7, new EntityAILookIdle(this));
     }
 
     public float getEyeHeight()
@@ -71,20 +69,20 @@ public class EntityChicken extends EntityAnimal
         return this.height;
     }
 
-    protected void applyEntityAttributes()
+    protected void registerAttributes()
     {
-        super.applyEntityAttributes();
-        this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(4.0D);
-        this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.25D);
+        super.registerAttributes();
+        this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(4.0D);
+        this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.25D);
     }
 
     /**
      * Called frequently so the entity can update its state every tick as required. For example, zombies and skeletons
      * use this to react to sunlight and start to burn.
      */
-    public void onLivingUpdate()
+    public void livingTick()
     {
-        super.onLivingUpdate();
+        super.livingTick();
         this.oFlap = this.wingRotation;
         this.oFlapSpeed = this.destPos;
         this.destPos = (float)((double)this.destPos + (double)(this.onGround ? -1 : 4) * 0.3D);
@@ -172,30 +170,24 @@ public class EntityChicken extends EntityAnimal
     /**
      * (abstract) Protected helper method to read subclass entity data from NBT.
      */
-    public void readEntityFromNBT(NBTTagCompound compound)
+    public void readAdditional(NBTTagCompound compound)
     {
-        super.readEntityFromNBT(compound);
+        super.readAdditional(compound);
         this.chickenJockey = compound.getBoolean("IsChickenJockey");
 
-        if (compound.hasKey("EggLayTime"))
+        if (compound.contains("EggLayTime"))
         {
-            this.timeUntilNextEgg = compound.getInteger("EggLayTime");
+            this.timeUntilNextEgg = compound.getInt("EggLayTime");
         }
     }
 
-    /**
-     * (abstract) Protected helper method to write subclass entity data to NBT.
-     */
     public void writeEntityToNBT(NBTTagCompound compound)
     {
         super.writeEntityToNBT(compound);
-        compound.setBoolean("IsChickenJockey", this.chickenJockey);
-        compound.setInteger("EggLayTime", this.timeUntilNextEgg);
+        compound.putBoolean("IsChickenJockey", this.chickenJockey);
+        compound.putInt("EggLayTime", this.timeUntilNextEgg);
     }
 
-    /**
-     * Determines if an entity can be despawned, used on idle far away entities
-     */
     protected boolean canDespawn()
     {
         return this.isChickenJockey() && !this.isBeingRidden();

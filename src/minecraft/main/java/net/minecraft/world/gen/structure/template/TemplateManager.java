@@ -20,10 +20,6 @@ import org.apache.commons.io.IOUtils;
 public class TemplateManager
 {
     private final Map<String, Template> templates = Maps.<String, Template>newHashMap();
-
-    /**
-     * the folder in the assets folder where the structure templates are found.
-     */
     private final String baseFolder;
     private final DataFixer fixer;
 
@@ -40,7 +36,7 @@ public class TemplateManager
         if (template == null)
         {
             template = new Template();
-            this.templates.put(id.getResourcePath(), template);
+            this.templates.put(id.getPath(), template);
         }
 
         return template;
@@ -49,7 +45,7 @@ public class TemplateManager
     @Nullable
     public Template get(@Nullable MinecraftServer server, ResourceLocation templatePath)
     {
-        String s = templatePath.getResourcePath();
+        String s = templatePath.getPath();
 
         if (this.templates.containsKey(s))
         {
@@ -70,14 +66,9 @@ public class TemplateManager
         }
     }
 
-    /**
-     * This reads a structure template from the given location and stores it.
-     * This first attempts get the template from an external folder.
-     * If it isn't there then it attempts to take it from the minecraft jar.
-     */
     public boolean readTemplate(ResourceLocation server)
     {
-        String s = server.getResourcePath();
+        String s = server.getPath();
         File file1 = new File(this.baseFolder, s + ".nbt");
 
         if (!file1.exists())
@@ -108,13 +99,10 @@ public class TemplateManager
         }
     }
 
-    /**
-     * reads a template from the minecraft jar
-     */
     private boolean readTemplateFromJar(ResourceLocation id)
     {
-        String s = id.getResourceDomain();
-        String s1 = id.getResourcePath();
+        String s = id.getNamespace();
+        String s1 = id.getPath();
         InputStream inputstream = null;
         boolean flag;
 
@@ -136,16 +124,13 @@ public class TemplateManager
         return flag;
     }
 
-    /**
-     * reads a template from an inputstream
-     */
     private void readTemplateFromStream(String id, InputStream stream) throws IOException
     {
         NBTTagCompound nbttagcompound = CompressedStreamTools.readCompressed(stream);
 
-        if (!nbttagcompound.hasKey("DataVersion", 99))
+        if (!nbttagcompound.contains("DataVersion", 99))
         {
-            nbttagcompound.setInteger("DataVersion", 500);
+            nbttagcompound.putInt("DataVersion", 500);
         }
 
         Template template = new Template();
@@ -153,12 +138,9 @@ public class TemplateManager
         this.templates.put(id, template);
     }
 
-    /**
-     * writes the template to an external folder
-     */
     public boolean writeTemplate(@Nullable MinecraftServer server, ResourceLocation id)
     {
-        String s = id.getResourcePath();
+        String s = id.getPath();
 
         if (server != null && this.templates.containsKey(s))
         {
@@ -207,6 +189,6 @@ public class TemplateManager
 
     public void remove(ResourceLocation templatePath)
     {
-        this.templates.remove(templatePath.getResourcePath());
+        this.templates.remove(templatePath.getPath());
     }
 }

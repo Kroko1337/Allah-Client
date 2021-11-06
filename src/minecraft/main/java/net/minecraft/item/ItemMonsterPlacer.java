@@ -42,7 +42,7 @@ public class ItemMonsterPlacer extends Item
 
     public String getItemStackDisplayName(ItemStack stack)
     {
-        String s = ("" + I18n.translateToLocal(this.getUnlocalizedName() + ".name")).trim();
+        String s = ("" + I18n.translateToLocal(this.getTranslationKey() + ".name")).trim();
         String s1 = EntityList.getTranslationName(getNamedIdFrom(stack));
 
         if (s1 != null)
@@ -53,9 +53,6 @@ public class ItemMonsterPlacer extends Item
         return s;
     }
 
-    /**
-     * Called when a Block is right-clicked with this Item
-     */
     public EnumActionResult onItemUse(EntityPlayer player, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
         ItemStack itemstack = player.getHeldItem(hand);
@@ -73,7 +70,7 @@ public class ItemMonsterPlacer extends Item
             IBlockState iblockstate = worldIn.getBlockState(pos);
             Block block = iblockstate.getBlock();
 
-            if (block == Blocks.MOB_SPAWNER)
+            if (block == Blocks.SPAWNER)
             {
                 TileEntity tileentity = worldIn.getTileEntity(pos);
 
@@ -84,7 +81,7 @@ public class ItemMonsterPlacer extends Item
                     tileentity.markDirty();
                     worldIn.notifyBlockUpdate(pos, iblockstate, iblockstate, 3);
 
-                    if (!player.capabilities.isCreativeMode)
+                    if (!player.abilities.isCreativeMode)
                     {
                         itemstack.shrink(1);
                     }
@@ -106,7 +103,7 @@ public class ItemMonsterPlacer extends Item
 
                 applyItemEntityDataToEntity(worldIn, player, itemstack, entity);
 
-                if (!player.capabilities.isCreativeMode)
+                if (!player.abilities.isCreativeMode)
                 {
                     itemstack.shrink(1);
                 }
@@ -138,29 +135,26 @@ public class ItemMonsterPlacer extends Item
         }
     }
 
-    /**
-     * Applies the data in the EntityTag tag of the given ItemStack to the given Entity.
-     */
     public static void applyItemEntityDataToEntity(World entityWorld, @Nullable EntityPlayer player, ItemStack stack, @Nullable Entity targetEntity)
     {
-        MinecraftServer minecraftserver = entityWorld.getMinecraftServer();
+        MinecraftServer minecraftserver = entityWorld.getServer();
 
         if (minecraftserver != null && targetEntity != null)
         {
-            NBTTagCompound nbttagcompound = stack.getTagCompound();
+            NBTTagCompound nbttagcompound = stack.getTag();
 
-            if (nbttagcompound != null && nbttagcompound.hasKey("EntityTag", 10))
+            if (nbttagcompound != null && nbttagcompound.contains("EntityTag", 10))
             {
                 if (!entityWorld.isRemote && targetEntity.ignoreItemEntityData() && (player == null || !minecraftserver.getPlayerList().canSendCommands(player.getGameProfile())))
                 {
                     return;
                 }
 
-                NBTTagCompound nbttagcompound1 = targetEntity.writeToNBT(new NBTTagCompound());
+                NBTTagCompound nbttagcompound1 = targetEntity.writeWithoutTypeId(new NBTTagCompound());
                 UUID uuid = targetEntity.getUniqueID();
-                nbttagcompound1.merge(nbttagcompound.getCompoundTag("EntityTag"));
+                nbttagcompound1.merge(nbttagcompound.getCompound("EntityTag"));
                 targetEntity.setUniqueId(uuid);
-                targetEntity.readFromNBT(nbttagcompound1);
+                targetEntity.read(nbttagcompound1);
             }
         }
     }
@@ -202,7 +196,7 @@ public class ItemMonsterPlacer extends Item
 
                         applyItemEntityDataToEntity(worldIn, playerIn, itemstack, entity);
 
-                        if (!playerIn.capabilities.isCreativeMode)
+                        if (!playerIn.abilities.isCreativeMode)
                         {
                             itemstack.shrink(1);
                         }
@@ -224,11 +218,6 @@ public class ItemMonsterPlacer extends Item
     }
 
     @Nullable
-
-    /**
-     * Spawns the creature specified by the egg's type in the location specified by the last three parameters.
-     * Parameters: world, entityID, x, y, z.
-     */
     public static Entity spawnCreature(World worldIn, @Nullable ResourceLocation entityID, double x, double y, double z)
     {
         if (entityID != null && EntityList.ENTITY_EGGS.containsKey(entityID))
@@ -246,8 +235,8 @@ public class ItemMonsterPlacer extends Item
                     entityliving.rotationYawHead = entityliving.rotationYaw;
                     entityliving.renderYawOffset = entityliving.rotationYaw;
                     entityliving.onInitialSpawn(worldIn.getDifficultyForLocation(new BlockPos(entityliving)), (IEntityLivingData)null);
-                    worldIn.spawnEntity(entity);
-                    entityliving.playLivingSound();
+                    worldIn.addEntity0(entity);
+                    entityliving.playAmbientSound();
                 }
             }
 
@@ -262,9 +251,9 @@ public class ItemMonsterPlacer extends Item
     /**
      * returns a list of items with the same ID, but different meta (eg: dye returns 16 items)
      */
-    public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> items)
+    public void fillItemGroup(CreativeTabs group, NonNullList<ItemStack> items)
     {
-        if (this.isInCreativeTab(tab))
+        if (this.isInGroup(group))
         {
             for (EntityList.EntityEggInfo entitylist$entityegginfo : EntityList.ENTITY_EGGS.values())
             {
@@ -275,36 +264,33 @@ public class ItemMonsterPlacer extends Item
         }
     }
 
-    /**
-     * APplies the given entity ID to the given ItemStack's NBT data.
-     */
     public static void applyEntityIdToItemStack(ItemStack stack, ResourceLocation entityId)
     {
-        NBTTagCompound nbttagcompound = stack.hasTagCompound() ? stack.getTagCompound() : new NBTTagCompound();
+        NBTTagCompound nbttagcompound = stack.hasTag() ? stack.getTag() : new NBTTagCompound();
         NBTTagCompound nbttagcompound1 = new NBTTagCompound();
-        nbttagcompound1.setString("id", entityId.toString());
+        nbttagcompound1.putString("id", entityId.toString());
         nbttagcompound.setTag("EntityTag", nbttagcompound1);
-        stack.setTagCompound(nbttagcompound);
+        stack.setTag(nbttagcompound);
     }
 
     @Nullable
-    public static ResourceLocation getNamedIdFrom(ItemStack p_190908_0_)
+    public static ResourceLocation getNamedIdFrom(ItemStack stack)
     {
-        NBTTagCompound nbttagcompound = p_190908_0_.getTagCompound();
+        NBTTagCompound nbttagcompound = stack.getTag();
 
         if (nbttagcompound == null)
         {
             return null;
         }
-        else if (!nbttagcompound.hasKey("EntityTag", 10))
+        else if (!nbttagcompound.contains("EntityTag", 10))
         {
             return null;
         }
         else
         {
-            NBTTagCompound nbttagcompound1 = nbttagcompound.getCompoundTag("EntityTag");
+            NBTTagCompound nbttagcompound1 = nbttagcompound.getCompound("EntityTag");
 
-            if (!nbttagcompound1.hasKey("id", 8))
+            if (!nbttagcompound1.contains("id", 8))
             {
                 return null;
             }
@@ -315,7 +301,7 @@ public class ItemMonsterPlacer extends Item
 
                 if (!s.contains(":"))
                 {
-                    nbttagcompound1.setString("id", resourcelocation.toString());
+                    nbttagcompound1.putString("id", resourcelocation.toString());
                 }
 
                 return resourcelocation;

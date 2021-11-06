@@ -32,7 +32,7 @@ public class BlockCocoa extends BlockHorizontal implements IGrowable
     public BlockCocoa()
     {
         super(Material.PLANTS);
-        this.setDefaultState(this.blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH).withProperty(AGE, Integer.valueOf(0)));
+        this.setDefaultState(this.stateContainer.getBaseState().withProperty(HORIZONTAL_FACING, EnumFacing.NORTH).withProperty(AGE, Integer.valueOf(0)));
         this.setTickRandomly(true);
     }
 
@@ -44,7 +44,7 @@ public class BlockCocoa extends BlockHorizontal implements IGrowable
         }
         else if (worldIn.rand.nextInt(5) == 0)
         {
-            int i = ((Integer)state.getValue(AGE)).intValue();
+            int i = ((Integer)state.get(AGE)).intValue();
 
             if (i < 2)
             {
@@ -55,9 +55,9 @@ public class BlockCocoa extends BlockHorizontal implements IGrowable
 
     public boolean canBlockStay(World worldIn, BlockPos pos, IBlockState state)
     {
-        pos = pos.offset((EnumFacing)state.getValue(FACING));
+        pos = pos.offset((EnumFacing)state.get(HORIZONTAL_FACING));
         IBlockState iblockstate = worldIn.getBlockState(pos);
-        return iblockstate.getBlock() == Blocks.LOG && iblockstate.getValue(BlockOldLog.VARIANT) == BlockPlanks.EnumType.JUNGLE;
+        return iblockstate.getBlock() == Blocks.LOG && iblockstate.get(BlockOldLog.VARIANT) == BlockPlanks.EnumType.JUNGLE;
     }
 
     public boolean isFullCube(IBlockState state)
@@ -65,9 +65,6 @@ public class BlockCocoa extends BlockHorizontal implements IGrowable
         return false;
     }
 
-    /**
-     * Used to determine ambient occlusion and culling when rebuilding chunks for render
-     */
     public boolean isOpaqueCube(IBlockState state)
     {
         return false;
@@ -75,9 +72,9 @@ public class BlockCocoa extends BlockHorizontal implements IGrowable
 
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
     {
-        int i = ((Integer)state.getValue(AGE)).intValue();
+        int i = ((Integer)state.get(AGE)).intValue();
 
-        switch ((EnumFacing)state.getValue(FACING))
+        switch ((EnumFacing)state.get(HORIZONTAL_FACING))
         {
             case SOUTH:
                 return COCOA_SOUTH_AABB[i];
@@ -97,19 +94,22 @@ public class BlockCocoa extends BlockHorizontal implements IGrowable
     /**
      * Returns the blockstate with the given rotation from the passed blockstate. If inapplicable, returns the passed
      * blockstate.
+     * @deprecated call via {@link IBlockState#withRotation(Rotation)} whenever possible. Implementing/overriding is
+     * fine.
      */
-    public IBlockState withRotation(IBlockState state, Rotation rot)
+    public IBlockState rotate(IBlockState state, Rotation rot)
     {
-        return state.withProperty(FACING, rot.rotate((EnumFacing)state.getValue(FACING)));
+        return state.withProperty(HORIZONTAL_FACING, rot.rotate((EnumFacing)state.get(HORIZONTAL_FACING)));
     }
 
     /**
      * Returns the blockstate with the given mirror of the passed blockstate. If inapplicable, returns the passed
      * blockstate.
+     * @deprecated call via {@link IBlockState#withMirror(Mirror)} whenever possible. Implementing/overriding is fine.
      */
-    public IBlockState withMirror(IBlockState state, Mirror mirrorIn)
+    public IBlockState mirror(IBlockState state, Mirror mirrorIn)
     {
-        return state.withRotation(mirrorIn.toRotation((EnumFacing)state.getValue(FACING)));
+        return state.rotate(mirrorIn.toRotation((EnumFacing)state.get(HORIZONTAL_FACING)));
     }
 
     /**
@@ -118,13 +118,9 @@ public class BlockCocoa extends BlockHorizontal implements IGrowable
     public void onBlockPlacedBy(World worldIn, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack)
     {
         EnumFacing enumfacing = EnumFacing.fromAngle((double)placer.rotationYaw);
-        worldIn.setBlockState(pos, state.withProperty(FACING, enumfacing), 2);
+        worldIn.setBlockState(pos, state.withProperty(HORIZONTAL_FACING, enumfacing), 2);
     }
 
-    /**
-     * Called by ItemBlocks just before a block is actually set in the world, to allow for adjustments to the
-     * IBlockstate
-     */
     public IBlockState getStateForPlacement(World worldIn, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer)
     {
         if (!facing.getAxis().isHorizontal())
@@ -132,14 +128,9 @@ public class BlockCocoa extends BlockHorizontal implements IGrowable
             facing = EnumFacing.NORTH;
         }
 
-        return this.getDefaultState().withProperty(FACING, facing.getOpposite()).withProperty(AGE, Integer.valueOf(0));
+        return this.getDefaultState().withProperty(HORIZONTAL_FACING, facing.getOpposite()).withProperty(AGE, Integer.valueOf(0));
     }
 
-    /**
-     * Called when a neighboring block was changed and marks that this state should perform any checks during a neighbor
-     * change. Cases may include when redstone power is updated, cactus blocks popping off due to a neighboring solid
-     * block, etc.
-     */
     public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos)
     {
         if (!this.canBlockStay(worldIn, pos, state))
@@ -154,12 +145,9 @@ public class BlockCocoa extends BlockHorizontal implements IGrowable
         this.dropBlockAsItem(worldIn, pos, state, 0);
     }
 
-    /**
-     * Spawns this Block's drops into the World as EntityItems.
-     */
     public void dropBlockAsItemWithChance(World worldIn, BlockPos pos, IBlockState state, float chance, int fortune)
     {
-        int i = ((Integer)state.getValue(AGE)).intValue();
+        int i = ((Integer)state.get(AGE)).intValue();
         int j = 1;
 
         if (i >= 2)
@@ -183,7 +171,7 @@ public class BlockCocoa extends BlockHorizontal implements IGrowable
      */
     public boolean canGrow(World worldIn, BlockPos pos, IBlockState state, boolean isClient)
     {
-        return ((Integer)state.getValue(AGE)).intValue() < 2;
+        return ((Integer)state.get(AGE)).intValue() < 2;
     }
 
     public boolean canUseBonemeal(World worldIn, Random rand, BlockPos pos, IBlockState state)
@@ -193,39 +181,33 @@ public class BlockCocoa extends BlockHorizontal implements IGrowable
 
     public void grow(World worldIn, Random rand, BlockPos pos, IBlockState state)
     {
-        worldIn.setBlockState(pos, state.withProperty(AGE, Integer.valueOf(((Integer)state.getValue(AGE)).intValue() + 1)), 2);
+        worldIn.setBlockState(pos, state.withProperty(AGE, Integer.valueOf(((Integer)state.get(AGE)).intValue() + 1)), 2);
     }
 
-    public BlockRenderLayer getBlockLayer()
+    public BlockRenderLayer getRenderLayer()
     {
         return BlockRenderLayer.CUTOUT;
     }
 
-    /**
-     * Convert the given metadata into a BlockState for this Block
-     */
     public IBlockState getStateFromMeta(int meta)
     {
-        return this.getDefaultState().withProperty(FACING, EnumFacing.getHorizontal(meta)).withProperty(AGE, Integer.valueOf((meta & 15) >> 2));
+        return this.getDefaultState().withProperty(HORIZONTAL_FACING, EnumFacing.byHorizontalIndex(meta)).withProperty(AGE, Integer.valueOf((meta & 15) >> 2));
     }
 
-    /**
-     * Convert the BlockState into the correct metadata value
-     */
     public int getMetaFromState(IBlockState state)
     {
         int i = 0;
-        i = i | ((EnumFacing)state.getValue(FACING)).getHorizontalIndex();
-        i = i | ((Integer)state.getValue(AGE)).intValue() << 2;
+        i = i | ((EnumFacing)state.get(HORIZONTAL_FACING)).getHorizontalIndex();
+        i = i | ((Integer)state.get(AGE)).intValue() << 2;
         return i;
     }
 
     protected BlockStateContainer createBlockState()
     {
-        return new BlockStateContainer(this, new IProperty[] {FACING, AGE});
+        return new BlockStateContainer(this, new IProperty[] {HORIZONTAL_FACING, AGE});
     }
 
-    public BlockFaceShape getBlockFaceShape(IBlockAccess p_193383_1_, IBlockState p_193383_2_, BlockPos p_193383_3_, EnumFacing p_193383_4_)
+    public BlockFaceShape getBlockFaceShape(IBlockAccess worldIn, IBlockState state, BlockPos pos, EnumFacing face)
     {
         return BlockFaceShape.UNDEFINED;
     }

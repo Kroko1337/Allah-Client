@@ -16,13 +16,13 @@ public interface IPhase
      * Generates particle effects appropriate to the phase (or sometimes sounds).
      * Called by dragon's onLivingUpdate. Only used when worldObj.isRemote.
      */
-    void doClientRenderEffects();
+    void clientTick();
 
     /**
      * Gives the phase a chance to update its status.
      * Called by dragon's onLivingUpdate. Only used when !worldObj.isRemote.
      */
-    void doLocalUpdate();
+    void serverTick();
 
     void onCrystalDestroyed(EntityEnderCrystal crystal, BlockPos pos, DamageSource dmgSrc, EntityPlayer plyr);
 
@@ -40,7 +40,7 @@ public interface IPhase
 
     float getYawFactor();
 
-    PhaseList <? extends IPhase > getPhaseList();
+    PhaseList <? extends IPhase > getType();
 
     @Nullable
 
@@ -49,9 +49,5 @@ public interface IPhase
      */
     Vec3d getTargetLocation();
 
-    /**
-     * Normally, just returns damage. If dragon is sitting and src is an arrow, arrow is enflamed and zero damage
-     * returned.
-     */
     float getAdjustedDamage(MultiPartEntityPart pt, DamageSource src, float damage);
 }

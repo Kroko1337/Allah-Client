@@ -13,20 +13,16 @@ public class GuiConfirmOpenLink extends GuiYesNo
     private final String linkText;
     private boolean showSecurityWarning = true;
 
-    public GuiConfirmOpenLink(GuiYesNoCallback parentScreenIn, String linkTextIn, int parentButtonClickedIdIn, boolean p_i1084_4_)
+    public GuiConfirmOpenLink(GuiYesNoCallback parentScreenIn, String linkTextIn, int parentButtonClickedIdIn, boolean trusted)
     {
-        super(parentScreenIn, I18n.format(p_i1084_4_ ? "chat.link.confirmTrusted" : "chat.link.confirm"), linkTextIn, parentButtonClickedIdIn);
-        this.confirmButtonText = I18n.format(p_i1084_4_ ? "chat.link.open" : "gui.yes");
-        this.cancelButtonText = I18n.format(p_i1084_4_ ? "gui.cancel" : "gui.no");
+        super(parentScreenIn, I18n.format(trusted ? "chat.link.confirmTrusted" : "chat.link.confirm"), linkTextIn, parentButtonClickedIdIn);
+        this.confirmButtonText = I18n.format(trusted ? "chat.link.open" : "gui.yes");
+        this.cancelButtonText = I18n.format(trusted ? "gui.cancel" : "gui.no");
         this.copyLinkButtonText = I18n.format("chat.copy");
         this.openLinkWarning = I18n.format("chat.link.warning");
         this.linkText = linkTextIn;
     }
 
-    /**
-     * Adds the buttons (and other controls) to the screen in question. Called when the GUI is displayed and when the
-     * window resizes, the buttonList is cleared beforehand.
-     */
     public void initGui()
     {
         super.initGui();
@@ -36,9 +32,6 @@ public class GuiConfirmOpenLink extends GuiYesNo
         this.buttonList.add(new GuiButton(1, this.width / 2 - 50 + 105, this.height / 6 + 96, 100, 20, this.cancelButtonText));
     }
 
-    /**
-     * Called by the controls from the buttonList when activated. (Mouse pressed for buttons)
-     */
     protected void actionPerformed(GuiButton button) throws IOException
     {
         if (button.id == 2)
@@ -57,9 +50,6 @@ public class GuiConfirmOpenLink extends GuiYesNo
         setClipboardString(this.linkText);
     }
 
-    /**
-     * Draws the screen and all the components in it.
-     */
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         super.drawScreen(mouseX, mouseY, partialTicks);

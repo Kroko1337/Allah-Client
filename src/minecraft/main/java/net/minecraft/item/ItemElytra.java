@@ -33,7 +33,7 @@ public class ItemElytra extends Item
 
     public static boolean isUsable(ItemStack stack)
     {
-        return stack.getItemDamage() < stack.getMaxDamage() - 1;
+        return stack.getDamage() < stack.getMaxDamage() - 1;
     }
 
     /**

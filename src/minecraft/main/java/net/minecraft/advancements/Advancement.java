@@ -53,9 +53,9 @@ public class Advancement
         {
             this.displayText = new TextComponentString("[");
             this.displayText.getStyle().setColor(displayIn.getFrame().getFormat());
-            ITextComponent itextcomponent = displayIn.getTitle().createCopy();
+            ITextComponent itextcomponent = displayIn.getTitle().shallowCopy();
             ITextComponent itextcomponent1 = new TextComponentString("");
-            ITextComponent itextcomponent2 = itextcomponent.createCopy();
+            ITextComponent itextcomponent2 = itextcomponent.shallowCopy();
             itextcomponent2.getStyle().setColor(displayIn.getFrame().getFormat());
             itextcomponent1.appendSibling(itextcomponent2);
             itextcomponent1.appendText("\n");
@@ -75,12 +75,27 @@ public class Advancement
     }
 
     @Nullable
+
+    /**
+     * Get the {@code Advancement} that is this {@code Advancement}'s parent. This determines the tree structure that
+     * appears in the {@linkplain GuiScreenAdvancements GUI}.
+
+     * @return the parent {@code Advancement} of this {@code Advancement}, or {@code null} to signify that this {@code
+     * Advancement} is a root with no parent.
+     */
     public Advancement getParent()
     {
         return this.parent;
     }
 
     @Nullable
+
+    /**
+     * Get information that defines this {@code Advancement}'s appearance in GUIs.
+
+     * @return information that defines this {@code Advancement}'s appearance in GUIs. If {@code null}, signifies an
+     * invisible {@code Advancement}.
+     */
     public DisplayInfo getDisplay()
     {
         return this.display;
@@ -106,16 +121,32 @@ public class Advancement
         return this.criteria;
     }
 
+    /**
+     * Get how many requirements this {@code Advancement} has.
+
+     * @return {@code this.getRequirements().length}
+     * @see #getRequirements()
+     */
     public int getRequirementCount()
     {
         return this.requirements.length;
     }
 
+    /**
+     * Add the given {@code Advancement} as a child of this {@code Advancement}.
+
+     * @see #getParent()
+     */
     public void addChild(Advancement advancementIn)
     {
         this.children.add(advancementIn);
     }
 
+    /**
+     * Get this {@code Advancement}'s unique identifier.
+
+     * @return this {@code Advancement}'s unique identifier
+     */
     public ResourceLocation getId()
     {
         return this.id;
@@ -148,6 +179,16 @@ public class Advancement
         return this.requirements;
     }
 
+    /**
+     * Returns the {@code ITextComponent} that is shown in the chat message sent after this {@code Advancement} is
+     * completed.
+
+     * @return the {@code ITextComponent} that is shown in the chat message sent after this {@code Advancement} is
+     * completed. If this {@code Advancement} is {@linkplain #getDisplay() invisible}, then it consists simply of {@link
+     * #getId()}. Otherwise, it is the {@linkplain DisplayInfo#getTitle() title} inside square brackets, colored by the
+     * {@linkplain net.minecraft.advancements.FrameType#getFormat frame type}, and hovering over it shows the
+     * {@linkplain DisplayInfo#getDescription() description}.
+     */
     public ITextComponent getDisplayText()
     {
         return this.displayText;
@@ -162,13 +203,13 @@ public class Advancement
         private final Map<String, Criterion> criteria;
         private final String[][] requirements;
 
-        Builder(@Nullable ResourceLocation p_i47414_1_, @Nullable DisplayInfo p_i47414_2_, AdvancementRewards p_i47414_3_, Map<String, Criterion> p_i47414_4_, String[][] p_i47414_5_)
+        Builder(@Nullable ResourceLocation parentIdIn, @Nullable DisplayInfo displayIn, AdvancementRewards rewardsIn, Map<String, Criterion> criteriaIn, String[][] requirementsIn)
         {
-            this.parentId = p_i47414_1_;
-            this.display = p_i47414_2_;
-            this.rewards = p_i47414_3_;
-            this.criteria = p_i47414_4_;
-            this.requirements = p_i47414_5_;
+            this.parentId = parentIdIn;
+            this.display = displayIn;
+            this.rewards = rewardsIn;
+            this.criteria = criteriaIn;
+            this.requirements = requirementsIn;
         }
 
         public boolean resolveParent(Function<ResourceLocation, Advancement> lookup)

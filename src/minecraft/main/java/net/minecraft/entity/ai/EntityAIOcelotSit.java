@@ -21,7 +21,8 @@ public class EntityAIOcelotSit extends EntityAIMoveToBlock
     }
 
     /**
-     * Returns whether the EntityAIBase should begin execution.
+     * Returns whether execution should begin. You can also read and cache any state necessary for execution in this
+     * method as well.
      */
     public boolean shouldExecute()
     {
@@ -49,9 +50,9 @@ public class EntityAIOcelotSit extends EntityAIMoveToBlock
     /**
      * Keep ticking a continuous task that has already been started
      */
-    public void updateTask()
+    public void tick()
     {
-        super.updateTask();
+        super.tick();
         this.ocelot.getAISit().setSitting(false);
 
         if (!this.getIsAboveDestination())
@@ -94,7 +95,7 @@ public class EntityAIOcelotSit extends EntityAIMoveToBlock
                     return true;
                 }
 
-                if (block == Blocks.BED && iblockstate.getValue(BlockBed.PART) != BlockBed.EnumPartType.HEAD)
+                if (block == Blocks.BED && iblockstate.get(BlockBed.PART) != BlockBed.EnumPartType.HEAD)
                 {
                     return true;
                 }

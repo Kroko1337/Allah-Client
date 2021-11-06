@@ -56,7 +56,7 @@ public class ScorePlayerTeam extends Team
         else
         {
             this.displayName = name;
-            this.scoreboard.broadcastTeamInfoUpdate(this);
+            this.scoreboard.onTeamChanged(this);
         }
     }
 
@@ -65,21 +65,11 @@ public class ScorePlayerTeam extends Team
         return this.membershipSet;
     }
 
-    /**
-     * Gets the prefix applied before the names of members of this team. Usually a single format code, but may be any
-     * text.
-     *  
-     * Note that the prefix is also used to determine the color for the "glowing" effect - see {@link
-     * net.minecraft.client.renderer.entity.Renderer#getTeamColor Renderer.getTeamColor}.
-     */
     public String getPrefix()
     {
         return this.prefix;
     }
 
-    /**
-     * Sets the prefix applied before the names of members of this team.
-     */
     public void setPrefix(String prefix)
     {
         if (prefix == null)
@@ -89,39 +79,26 @@ public class ScorePlayerTeam extends Team
         else
         {
             this.prefix = prefix;
-            this.scoreboard.broadcastTeamInfoUpdate(this);
+            this.scoreboard.onTeamChanged(this);
         }
     }
 
-    /**
-     * Gets the suffix applied after the names of members of this team. Usually a single reset format code, but may be
-     * any text.
-     */
     public String getSuffix()
     {
         return this.suffix;
     }
 
-    /**
-     * Sets the suffix applied after the names of members of this team.
-     */
     public void setSuffix(String suffix)
     {
         this.suffix = suffix;
-        this.scoreboard.broadcastTeamInfoUpdate(this);
+        this.scoreboard.onTeamChanged(this);
     }
 
-    /**
-     * Formats the given text as a member of this team, using the prefix and suffix.
-     */
     public String formatString(String input)
     {
         return this.getPrefix() + input + this.getSuffix();
     }
 
-    /**
-     * Formats the given text as a member of the given team, using the team's prefix and suffix.
-     */
     public static String formatPlayerName(@Nullable Team teamIn, String string)
     {
         return teamIn == null ? string : teamIn.formatString(string);
@@ -141,7 +118,7 @@ public class ScorePlayerTeam extends Team
     public void setAllowFriendlyFire(boolean friendlyFire)
     {
         this.allowFriendlyFire = friendlyFire;
-        this.scoreboard.broadcastTeamInfoUpdate(this);
+        this.scoreboard.onTeamChanged(this);
     }
 
     /**
@@ -158,7 +135,7 @@ public class ScorePlayerTeam extends Team
     public void setSeeFriendlyInvisiblesEnabled(boolean friendlyInvisibles)
     {
         this.canSeeFriendlyInvisibles = friendlyInvisibles;
-        this.scoreboard.broadcastTeamInfoUpdate(this);
+        this.scoreboard.onTeamChanged(this);
     }
 
     /**
@@ -183,7 +160,7 @@ public class ScorePlayerTeam extends Team
     public void setNameTagVisibility(Team.EnumVisible visibility)
     {
         this.nameTagVisibility = visibility;
-        this.scoreboard.broadcastTeamInfoUpdate(this);
+        this.scoreboard.onTeamChanged(this);
     }
 
     /**
@@ -192,7 +169,7 @@ public class ScorePlayerTeam extends Team
     public void setDeathMessageVisibility(Team.EnumVisible visibility)
     {
         this.deathMessageVisibility = visibility;
-        this.scoreboard.broadcastTeamInfoUpdate(this);
+        this.scoreboard.onTeamChanged(this);
     }
 
     /**
@@ -209,7 +186,7 @@ public class ScorePlayerTeam extends Team
     public void setCollisionRule(Team.CollisionRule rule)
     {
         this.collisionRule = rule;
-        this.scoreboard.broadcastTeamInfoUpdate(this);
+        this.scoreboard.onTeamChanged(this);
     }
 
     /**

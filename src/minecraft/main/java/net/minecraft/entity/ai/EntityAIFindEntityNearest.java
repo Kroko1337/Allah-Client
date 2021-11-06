@@ -49,7 +49,7 @@ public class EntityAIFindEntityNearest extends EntityAIBase
                 }
                 else
                 {
-                    return (double)p_apply_1_.getDistanceToEntity(EntityAIFindEntityNearest.this.mob) > d0 ? false : EntityAITarget.isSuitableTarget(EntityAIFindEntityNearest.this.mob, p_apply_1_, false, true);
+                    return (double)p_apply_1_.getDistance(EntityAIFindEntityNearest.this.mob) > d0 ? false : EntityAITarget.isSuitableTarget(EntityAIFindEntityNearest.this.mob, p_apply_1_, false, true);
                 }
             }
         };
@@ -57,12 +57,13 @@ public class EntityAIFindEntityNearest extends EntityAIBase
     }
 
     /**
-     * Returns whether the EntityAIBase should begin execution.
+     * Returns whether execution should begin. You can also read and cache any state necessary for execution in this
+     * method as well.
      */
     public boolean shouldExecute()
     {
         double d0 = this.getFollowRange();
-        List<EntityLivingBase> list = this.mob.world.<EntityLivingBase>getEntitiesWithinAABB(this.classToCheck, this.mob.getEntityBoundingBox().grow(d0, 4.0D, d0), this.predicate);
+        List<EntityLivingBase> list = this.mob.world.<EntityLivingBase>getEntitiesWithinAABB(this.classToCheck, this.mob.getBoundingBox().grow(d0, 4.0D, d0), this.predicate);
         Collections.sort(list, this.sorter);
 
         if (list.isEmpty())
@@ -87,7 +88,7 @@ public class EntityAIFindEntityNearest extends EntityAIBase
         {
             return false;
         }
-        else if (!entitylivingbase.isEntityAlive())
+        else if (!entitylivingbase.isAlive())
         {
             return false;
         }
@@ -95,7 +96,7 @@ public class EntityAIFindEntityNearest extends EntityAIBase
         {
             double d0 = this.getFollowRange();
 
-            if (this.mob.getDistanceSqToEntity(entitylivingbase) > d0 * d0)
+            if (this.mob.getDistanceSq(entitylivingbase) > d0 * d0)
             {
                 return false;
             }
@@ -126,7 +127,7 @@ public class EntityAIFindEntityNearest extends EntityAIBase
 
     protected double getFollowRange()
     {
-        IAttributeInstance iattributeinstance = this.mob.getEntityAttribute(SharedMonsterAttributes.FOLLOW_RANGE);
-        return iattributeinstance == null ? 16.0D : iattributeinstance.getAttributeValue();
+        IAttributeInstance iattributeinstance = this.mob.getAttribute(SharedMonsterAttributes.FOLLOW_RANGE);
+        return iattributeinstance == null ? 16.0D : iattributeinstance.getValue();
     }
 }

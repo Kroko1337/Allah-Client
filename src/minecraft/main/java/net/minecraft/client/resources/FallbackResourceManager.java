@@ -74,7 +74,7 @@ public class FallbackResourceManager implements IResourceManager
 
     private void checkResourcePath(ResourceLocation p_188552_1_) throws IOException
     {
-        if (p_188552_1_.getResourcePath().contains(".."))
+        if (p_188552_1_.getPath().contains(".."))
         {
             throw new IOException("Invalid relative path to resource: " + p_188552_1_);
         }
@@ -107,7 +107,7 @@ public class FallbackResourceManager implements IResourceManager
 
     static ResourceLocation getLocationMcmeta(ResourceLocation location)
     {
-        return new ResourceLocation(location.getResourceDomain(), location.getResourcePath() + ".mcmeta");
+        return new ResourceLocation(location.getNamespace(), location.getPath() + ".mcmeta");
     }
 
     static class InputStreamLeakedResourceLogger extends InputStream

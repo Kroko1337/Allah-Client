@@ -20,15 +20,10 @@ import net.minecraft.world.chunk.storage.AnvilChunkLoader;
 
 public abstract class MobSpawnerBaseLogic
 {
-    /** The delay to spawn. */
     private int spawnDelay = 20;
     private final List<WeightedSpawnerEntity> potentialSpawns = Lists.<WeightedSpawnerEntity>newArrayList();
     private WeightedSpawnerEntity spawnData = new WeightedSpawnerEntity();
-
-    /** The rotation of the mob inside the mob spawner */
     private double mobRotation;
-
-    /** the previous rotation of the mob inside the mob spawner */
     private double prevMobRotation;
     private int minSpawnDelay = 200;
     private int maxSpawnDelay = 800;
@@ -37,11 +32,7 @@ public abstract class MobSpawnerBaseLogic
     /** Cached instance of the entity to render inside the spawner. */
     private Entity cachedEntity;
     private int maxNearbyEntities = 6;
-
-    /** The distance from which a player activates the spawner. */
     private int activatingRangeFromPlayer = 16;
-
-    /** The range coefficient for spawning entities around. */
     private int spawnRange = 4;
 
     @Nullable
@@ -55,7 +46,7 @@ public abstract class MobSpawnerBaseLogic
     {
         if (id != null)
         {
-            this.spawnData.getNbt().setString("id", id.toString());
+            this.spawnData.getNbt().putString("id", id.toString());
         }
     }
 
@@ -65,10 +56,10 @@ public abstract class MobSpawnerBaseLogic
     private boolean isActivated()
     {
         BlockPos blockpos = this.getSpawnerPosition();
-        return this.getSpawnerWorld().isAnyPlayerWithinRangeAt((double)blockpos.getX() + 0.5D, (double)blockpos.getY() + 0.5D, (double)blockpos.getZ() + 0.5D, (double)this.activatingRangeFromPlayer);
+        return this.getWorld().isAnyPlayerWithinRangeAt((double)blockpos.getX() + 0.5D, (double)blockpos.getY() + 0.5D, (double)blockpos.getZ() + 0.5D, (double)this.activatingRangeFromPlayer);
     }
 
-    public void updateSpawner()
+    public void tick()
     {
         if (!this.isActivated())
         {
@@ -78,13 +69,13 @@ public abstract class MobSpawnerBaseLogic
         {
             BlockPos blockpos = this.getSpawnerPosition();
 
-            if (this.getSpawnerWorld().isRemote)
+            if (this.getWorld().isRemote)
             {
-                double d3 = (double)((float)blockpos.getX() + this.getSpawnerWorld().rand.nextFloat());
-                double d4 = (double)((float)blockpos.getY() + this.getSpawnerWorld().rand.nextFloat());
-                double d5 = (double)((float)blockpos.getZ() + this.getSpawnerWorld().rand.nextFloat());
-                this.getSpawnerWorld().spawnParticle(EnumParticleTypes.SMOKE_NORMAL, d3, d4, d5, 0.0D, 0.0D, 0.0D);
-                this.getSpawnerWorld().spawnParticle(EnumParticleTypes.FLAME, d3, d4, d5, 0.0D, 0.0D, 0.0D);
+                double d3 = (double)((float)blockpos.getX() + this.getWorld().rand.nextFloat());
+                double d4 = (double)((float)blockpos.getY() + this.getWorld().rand.nextFloat());
+                double d5 = (double)((float)blockpos.getZ() + this.getWorld().rand.nextFloat());
+                this.getWorld().spawnParticle(EnumParticleTypes.SMOKE_NORMAL, d3, d4, d5, 0.0D, 0.0D, 0.0D);
+                this.getWorld().spawnParticle(EnumParticleTypes.FLAME, d3, d4, d5, 0.0D, 0.0D, 0.0D);
 
                 if (this.spawnDelay > 0)
                 {
@@ -112,12 +103,12 @@ public abstract class MobSpawnerBaseLogic
                 for (int i = 0; i < this.spawnCount; ++i)
                 {
                     NBTTagCompound nbttagcompound = this.spawnData.getNbt();
-                    NBTTagList nbttaglist = nbttagcompound.getTagList("Pos", 6);
-                    World world = this.getSpawnerWorld();
+                    NBTTagList nbttaglist = nbttagcompound.getList("Pos", 6);
+                    World world = this.getWorld();
                     int j = nbttaglist.tagCount();
-                    double d0 = j >= 1 ? nbttaglist.getDoubleAt(0) : (double)blockpos.getX() + (world.rand.nextDouble() - world.rand.nextDouble()) * (double)this.spawnRange + 0.5D;
-                    double d1 = j >= 2 ? nbttaglist.getDoubleAt(1) : (double)(blockpos.getY() + world.rand.nextInt(3) - 1);
-                    double d2 = j >= 3 ? nbttaglist.getDoubleAt(2) : (double)blockpos.getZ() + (world.rand.nextDouble() - world.rand.nextDouble()) * (double)this.spawnRange + 0.5D;
+                    double d0 = j >= 1 ? nbttaglist.getDouble(0) : (double)blockpos.getX() + (world.rand.nextDouble() - world.rand.nextDouble()) * (double)this.spawnRange + 0.5D;
+                    double d1 = j >= 2 ? nbttaglist.getDouble(1) : (double)(blockpos.getY() + world.rand.nextInt(3) - 1);
+                    double d2 = j >= 3 ? nbttaglist.getDouble(2) : (double)blockpos.getZ() + (world.rand.nextDouble() - world.rand.nextDouble()) * (double)this.spawnRange + 0.5D;
                     Entity entity = AnvilChunkLoader.readWorldEntityPos(nbttagcompound, world, d0, d1, d2, false);
 
                     if (entity == null)
@@ -138,7 +129,7 @@ public abstract class MobSpawnerBaseLogic
 
                     if (entityliving == null || entityliving.getCanSpawnHere() && entityliving.isNotColliding())
                     {
-                        if (this.spawnData.getNbt().getSize() == 1 && this.spawnData.getNbt().hasKey("id", 8) && entity instanceof EntityLiving)
+                        if (this.spawnData.getNbt().size() == 1 && this.spawnData.getNbt().contains("id", 8) && entity instanceof EntityLiving)
                         {
                             ((EntityLiving)entity).onInitialSpawn(world.getDifficultyForLocation(new BlockPos(entity)), (IEntityLivingData)null);
                         }
@@ -172,83 +163,83 @@ public abstract class MobSpawnerBaseLogic
         else
         {
             int i = this.maxSpawnDelay - this.minSpawnDelay;
-            this.spawnDelay = this.minSpawnDelay + this.getSpawnerWorld().rand.nextInt(i);
+            this.spawnDelay = this.minSpawnDelay + this.getWorld().rand.nextInt(i);
         }
 
         if (!this.potentialSpawns.isEmpty())
         {
-            this.setNextSpawnData((WeightedSpawnerEntity)WeightedRandom.getRandomItem(this.getSpawnerWorld().rand, this.potentialSpawns));
+            this.setNextSpawnData((WeightedSpawnerEntity)WeightedRandom.getRandomItem(this.getWorld().rand, this.potentialSpawns));
         }
 
         this.broadcastEvent(1);
     }
 
-    public void readFromNBT(NBTTagCompound nbt)
+    public void read(NBTTagCompound nbt)
     {
         this.spawnDelay = nbt.getShort("Delay");
         this.potentialSpawns.clear();
 
-        if (nbt.hasKey("SpawnPotentials", 9))
+        if (nbt.contains("SpawnPotentials", 9))
         {
-            NBTTagList nbttaglist = nbt.getTagList("SpawnPotentials", 10);
+            NBTTagList nbttaglist = nbt.getList("SpawnPotentials", 10);
 
             for (int i = 0; i < nbttaglist.tagCount(); ++i)
             {
-                this.potentialSpawns.add(new WeightedSpawnerEntity(nbttaglist.getCompoundTagAt(i)));
+                this.potentialSpawns.add(new WeightedSpawnerEntity(nbttaglist.getCompound(i)));
             }
         }
 
-        if (nbt.hasKey("SpawnData", 10))
+        if (nbt.contains("SpawnData", 10))
         {
-            this.setNextSpawnData(new WeightedSpawnerEntity(1, nbt.getCompoundTag("SpawnData")));
+            this.setNextSpawnData(new WeightedSpawnerEntity(1, nbt.getCompound("SpawnData")));
         }
         else if (!this.potentialSpawns.isEmpty())
         {
-            this.setNextSpawnData((WeightedSpawnerEntity)WeightedRandom.getRandomItem(this.getSpawnerWorld().rand, this.potentialSpawns));
+            this.setNextSpawnData((WeightedSpawnerEntity)WeightedRandom.getRandomItem(this.getWorld().rand, this.potentialSpawns));
         }
 
-        if (nbt.hasKey("MinSpawnDelay", 99))
+        if (nbt.contains("MinSpawnDelay", 99))
         {
             this.minSpawnDelay = nbt.getShort("MinSpawnDelay");
             this.maxSpawnDelay = nbt.getShort("MaxSpawnDelay");
             this.spawnCount = nbt.getShort("SpawnCount");
         }
 
-        if (nbt.hasKey("MaxNearbyEntities", 99))
+        if (nbt.contains("MaxNearbyEntities", 99))
         {
             this.maxNearbyEntities = nbt.getShort("MaxNearbyEntities");
             this.activatingRangeFromPlayer = nbt.getShort("RequiredPlayerRange");
         }
 
-        if (nbt.hasKey("SpawnRange", 99))
+        if (nbt.contains("SpawnRange", 99))
         {
             this.spawnRange = nbt.getShort("SpawnRange");
         }
 
-        if (this.getSpawnerWorld() != null)
+        if (this.getWorld() != null)
         {
             this.cachedEntity = null;
         }
     }
 
-    public NBTTagCompound writeToNBT(NBTTagCompound p_189530_1_)
+    public NBTTagCompound write(NBTTagCompound compound)
     {
         ResourceLocation resourcelocation = this.getEntityId();
 
         if (resourcelocation == null)
         {
-            return p_189530_1_;
+            return compound;
         }
         else
         {
-            p_189530_1_.setShort("Delay", (short)this.spawnDelay);
-            p_189530_1_.setShort("MinSpawnDelay", (short)this.minSpawnDelay);
-            p_189530_1_.setShort("MaxSpawnDelay", (short)this.maxSpawnDelay);
-            p_189530_1_.setShort("SpawnCount", (short)this.spawnCount);
-            p_189530_1_.setShort("MaxNearbyEntities", (short)this.maxNearbyEntities);
-            p_189530_1_.setShort("RequiredPlayerRange", (short)this.activatingRangeFromPlayer);
-            p_189530_1_.setShort("SpawnRange", (short)this.spawnRange);
-            p_189530_1_.setTag("SpawnData", this.spawnData.getNbt().copy());
+            compound.putShort("Delay", (short)this.spawnDelay);
+            compound.putShort("MinSpawnDelay", (short)this.minSpawnDelay);
+            compound.putShort("MaxSpawnDelay", (short)this.maxSpawnDelay);
+            compound.putShort("SpawnCount", (short)this.spawnCount);
+            compound.putShort("MaxNearbyEntities", (short)this.maxNearbyEntities);
+            compound.putShort("RequiredPlayerRange", (short)this.activatingRangeFromPlayer);
+            compound.putShort("SpawnRange", (short)this.spawnRange);
+            compound.setTag("SpawnData", this.spawnData.getNbt().copy());
             NBTTagList nbttaglist = new NBTTagList();
 
             if (this.potentialSpawns.isEmpty())
@@ -263,8 +254,8 @@ public abstract class MobSpawnerBaseLogic
                 }
             }
 
-            p_189530_1_.setTag("SpawnPotentials", nbttaglist);
-            return p_189530_1_;
+            compound.setTag("SpawnPotentials", nbttaglist);
+            return compound;
         }
     }
 
@@ -272,11 +263,11 @@ public abstract class MobSpawnerBaseLogic
     {
         if (this.cachedEntity == null)
         {
-            this.cachedEntity = AnvilChunkLoader.readWorldEntity(this.spawnData.getNbt(), this.getSpawnerWorld(), false);
+            this.cachedEntity = AnvilChunkLoader.readWorldEntity(this.spawnData.getNbt(), this.getWorld(), false);
 
-            if (this.spawnData.getNbt().getSize() == 1 && this.spawnData.getNbt().hasKey("id", 8) && this.cachedEntity instanceof EntityLiving)
+            if (this.spawnData.getNbt().size() == 1 && this.spawnData.getNbt().contains("id", 8) && this.cachedEntity instanceof EntityLiving)
             {
-                ((EntityLiving)this.cachedEntity).onInitialSpawn(this.getSpawnerWorld().getDifficultyForLocation(new BlockPos(this.cachedEntity)), (IEntityLivingData)null);
+                ((EntityLiving)this.cachedEntity).onInitialSpawn(this.getWorld().getDifficultyForLocation(new BlockPos(this.cachedEntity)), (IEntityLivingData)null);
             }
         }
 
@@ -288,7 +279,7 @@ public abstract class MobSpawnerBaseLogic
      */
     public boolean setDelayToMin(int delay)
     {
-        if (delay == 1 && this.getSpawnerWorld().isRemote)
+        if (delay == 1 && this.getWorld().isRemote)
         {
             this.spawnDelay = this.minSpawnDelay;
             return true;
@@ -299,14 +290,14 @@ public abstract class MobSpawnerBaseLogic
         }
     }
 
-    public void setNextSpawnData(WeightedSpawnerEntity p_184993_1_)
+    public void setNextSpawnData(WeightedSpawnerEntity nextSpawnData)
     {
-        this.spawnData = p_184993_1_;
+        this.spawnData = nextSpawnData;
     }
 
     public abstract void broadcastEvent(int id);
 
-    public abstract World getSpawnerWorld();
+    public abstract World getWorld();
 
     public abstract BlockPos getSpawnerPosition();
 

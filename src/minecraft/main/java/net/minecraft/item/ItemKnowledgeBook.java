@@ -28,23 +28,23 @@ public class ItemKnowledgeBook extends Item
     public ActionResult<ItemStack> onItemRightClick(World worldIn, EntityPlayer playerIn, EnumHand handIn)
     {
         ItemStack itemstack = playerIn.getHeldItem(handIn);
-        NBTTagCompound nbttagcompound = itemstack.getTagCompound();
+        NBTTagCompound nbttagcompound = itemstack.getTag();
 
-        if (!playerIn.capabilities.isCreativeMode)
+        if (!playerIn.abilities.isCreativeMode)
         {
             playerIn.setHeldItem(handIn, ItemStack.EMPTY);
         }
 
-        if (nbttagcompound != null && nbttagcompound.hasKey("Recipes", 9))
+        if (nbttagcompound != null && nbttagcompound.contains("Recipes", 9))
         {
             if (!worldIn.isRemote)
             {
-                NBTTagList nbttaglist = nbttagcompound.getTagList("Recipes", 8);
+                NBTTagList nbttaglist = nbttagcompound.getList("Recipes", 8);
                 List<IRecipe> list = Lists.<IRecipe>newArrayList();
 
                 for (int i = 0; i < nbttaglist.tagCount(); ++i)
                 {
-                    String s = nbttaglist.getStringTagAt(i);
+                    String s = nbttaglist.getString(i);
                     IRecipe irecipe = CraftingManager.getRecipe(new ResourceLocation(s));
 
                     if (irecipe == null)

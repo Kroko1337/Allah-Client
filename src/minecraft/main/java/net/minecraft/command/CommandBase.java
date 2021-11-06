@@ -41,9 +41,6 @@ public abstract class CommandBase implements ICommand
     private static final Splitter COMMA_SPLITTER = Splitter.on(',');
     private static final Splitter EQUAL_SPLITTER = Splitter.on('=').limit(2);
 
-    /**
-     * Convert a JsonParseException into a user-friendly exception
-     */
     protected static SyntaxErrorException toSyntaxException(JsonParseException e)
     {
         Throwable throwable = ExceptionUtils.getRootCause(e);
@@ -64,7 +61,7 @@ public abstract class CommandBase implements ICommand
 
     public static NBTTagCompound entityToNBT(Entity theEntity)
     {
-        NBTTagCompound nbttagcompound = theEntity.writeToNBT(new NBTTagCompound());
+        NBTTagCompound nbttagcompound = theEntity.writeWithoutTypeId(new NBTTagCompound());
 
         if (theEntity instanceof EntityPlayer)
         {
@@ -72,16 +69,13 @@ public abstract class CommandBase implements ICommand
 
             if (!itemstack.isEmpty())
             {
-                nbttagcompound.setTag("SelectedItem", itemstack.writeToNBT(new NBTTagCompound()));
+                nbttagcompound.setTag("SelectedItem", itemstack.write(new NBTTagCompound()));
             }
         }
 
         return nbttagcompound;
     }
 
-    /**
-     * Return the required permission level for this command.
-     */
     public int getRequiredPermissionLevel()
     {
         return 4;
@@ -92,9 +86,6 @@ public abstract class CommandBase implements ICommand
         return Collections.<String>emptyList();
     }
 
-    /**
-     * Check if the given ICommandSender has permission to execute this command
-     */
     public boolean checkPermission(MinecraftServer server, ICommandSender sender)
     {
         return sender.canUseCommand(this.getRequiredPermissionLevel(), this.getName());
@@ -239,9 +230,6 @@ public abstract class CommandBase implements ICommand
         }
     }
 
-    /**
-     * Returns the given ICommandSender as a EntityPlayer or throw an exception.
-     */
     public static EntityPlayerMP getCommandSenderAsPlayer(ICommandSender sender) throws PlayerNotFoundException
     {
         if (sender instanceof EntityPlayerMP)
@@ -430,9 +418,6 @@ public abstract class CommandBase implements ICommand
         return itextcomponent;
     }
 
-    /**
-     * Builds a string starting at startPos
-     */
     public static String buildString(String[] args, int startPos)
     {
         StringBuilder stringbuilder = new StringBuilder();
@@ -555,15 +540,10 @@ public abstract class CommandBase implements ICommand
         }
     }
 
-    /**
-     * Gets the Item specified by the given text string.  First checks the item registry, then tries by parsing the
-     * string as an integer ID (deprecated).  Warns the sender if we matched by parsing the ID.  Throws if the item
-     * wasn't found.  Returns the item if it was found.
-     */
     public static Item getItemByText(ICommandSender sender, String id) throws NumberInvalidException
     {
         ResourceLocation resourcelocation = new ResourceLocation(id);
-        Item item = Item.REGISTRY.getObject(resourcelocation);
+        Item item = Item.REGISTRY.getOrDefault(resourcelocation);
 
         if (item == null)
         {
@@ -575,11 +555,6 @@ public abstract class CommandBase implements ICommand
         }
     }
 
-    /**
-     * Gets the Block specified by the given text string.  First checks the block registry, then tries by parsing the
-     * string as an integer ID (deprecated).  Warns the sender if we matched by parsing the ID.  Throws if the block
-     * wasn't found.  Returns the block if it was found.
-     */
     public static Block getBlockByText(ICommandSender sender, String id) throws NumberInvalidException
     {
         ResourceLocation resourcelocation = new ResourceLocation(id);
@@ -590,7 +565,7 @@ public abstract class CommandBase implements ICommand
         }
         else
         {
-            return Block.REGISTRY.getObject(resourcelocation);
+            return Block.REGISTRY.getOrDefault(resourcelocation);
         }
     }
 
@@ -629,7 +604,7 @@ public abstract class CommandBase implements ICommand
             }
             catch (RuntimeException var6)
             {
-                throw new InvalidBlockStateException("commands.generic.blockstate.invalid", new Object[] {p_190794_1_, Block.REGISTRY.getNameForObject(p_190794_0_)});
+                throw new InvalidBlockStateException("commands.generic.blockstate.invalid", new Object[] {p_190794_1_, Block.REGISTRY.getKey(p_190794_0_)});
             }
         }
     }
@@ -665,7 +640,7 @@ public abstract class CommandBase implements ICommand
                         {
                             for (Entry < IProperty<?>, Comparable<? >> entry : map.entrySet())
                             {
-                                if (!p_apply_1_.getValue(entry.getKey()).equals(entry.getValue()))
+                                if (!p_apply_1_.get(entry.getKey()).equals(entry.getValue()))
                                 {
                                     return false;
                                 }
@@ -697,7 +672,7 @@ public abstract class CommandBase implements ICommand
         }
         else
         {
-            BlockStateContainer blockstatecontainer = p_190795_0_.getBlockState();
+            BlockStateContainer blockstatecontainer = p_190795_0_.getStateContainer();
             Iterator iterator = COMMA_SPLITTER.split(p_190795_1_).iterator();
 
             while (true)
@@ -732,7 +707,7 @@ public abstract class CommandBase implements ICommand
                 map.put(iproperty, comparable);
             }
 
-            throw new InvalidBlockStateException("commands.generic.blockstate.invalid", new Object[] {p_190795_1_, Block.REGISTRY.getNameForObject(p_190795_0_)});
+            throw new InvalidBlockStateException("commands.generic.blockstate.invalid", new Object[] {p_190795_1_, Block.REGISTRY.getKey(p_190795_0_)});
         }
     }
 
@@ -742,10 +717,6 @@ public abstract class CommandBase implements ICommand
         return (T)(p_190792_0_.parseValue(p_190792_1_).orNull());
     }
 
-    /**
-     * Creates a linguistic series joining the input objects together.  Examples: 1) {} --> "",  2) {"Steve"} -->
-     * "Steve",  3) {"Steve", "Phil"} --> "Steve and Phil",  4) {"Steve", "Phil", "Mark"} --> "Steve, Phil and Mark"
-     */
     public static String joinNiceString(Object[] elements)
     {
         StringBuilder stringbuilder = new StringBuilder();
@@ -796,11 +767,6 @@ public abstract class CommandBase implements ICommand
         return itextcomponent;
     }
 
-    /**
-     * Creates a linguistic series joining together the elements of the given collection.  Examples: 1) {} --> "",  2)
-     * {"Steve"} --> "Steve",  3) {"Steve", "Phil"} --> "Steve and Phil",  4) {"Steve", "Phil", "Mark"} --> "Steve, Phil
-     * and Mark"
-     */
     public static String joinNiceStringFromCollection(Collection<String> strings)
     {
         return joinNiceString(strings.toArray(new String[strings.size()]));
@@ -868,9 +834,6 @@ public abstract class CommandBase implements ICommand
         }
     }
 
-    /**
-     * Returns true if the given substring is exactly equal to the start of the given string (case insensitive).
-     */
     public static boolean doesStringStartWith(String original, String region)
     {
         return region.regionMatches(true, 0, original, 0, original.length());
@@ -900,7 +863,7 @@ public abstract class CommandBase implements ICommand
             {
                 for (Object object : possibleCompletions)
                 {
-                    if (object instanceof ResourceLocation && doesStringStartWith(s, ((ResourceLocation)object).getResourcePath()))
+                    if (object instanceof ResourceLocation && doesStringStartWith(s, ((ResourceLocation)object).getPath()))
                     {
                         list.add(String.valueOf(object));
                     }
@@ -911,9 +874,6 @@ public abstract class CommandBase implements ICommand
         return list;
     }
 
-    /**
-     * Return whether the specified command parameter index is a username parameter.
-     */
     public boolean isUsernameIndex(String[] args, int index)
     {
         return false;
@@ -932,9 +892,6 @@ public abstract class CommandBase implements ICommand
         }
     }
 
-    /**
-     * Sets the command listener responsable for notifying server operators when asked to by commands
-     */
     public static void setCommandListener(ICommandListener listener)
     {
         commandListener = listener;

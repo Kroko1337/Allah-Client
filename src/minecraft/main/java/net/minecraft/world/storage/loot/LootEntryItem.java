@@ -39,7 +39,7 @@ public class LootEntryItem extends LootEntry
 
         if (!itemstack.isEmpty())
         {
-            if (itemstack.getCount() < this.item.getItemStackLimit())
+            if (itemstack.getCount() < this.item.getMaxStackSize())
             {
                 stacks.add(itemstack);
             }
@@ -65,7 +65,7 @@ public class LootEntryItem extends LootEntry
             json.add("functions", context.serialize(this.functions));
         }
 
-        ResourceLocation resourcelocation = Item.REGISTRY.getNameForObject(this.item);
+        ResourceLocation resourcelocation = Item.REGISTRY.getKey(this.item);
 
         if (resourcelocation == null)
         {

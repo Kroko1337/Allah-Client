@@ -19,10 +19,6 @@ public class ScreenChatOptions extends GuiScreen
         this.game_settings = gameSettingsIn;
     }
 
-    /**
-     * Adds the buttons (and other controls) to the screen in question. Called when the GUI is displayed and when the
-     * window resizes, the buttonList is cleared beforehand.
-     */
     public void initGui()
     {
         this.chatTitle = I18n.format("options.chat.title");
@@ -30,13 +26,13 @@ public class ScreenChatOptions extends GuiScreen
 
         for (GameSettings.Options gamesettings$options : CHAT_OPTIONS)
         {
-            if (gamesettings$options.getEnumFloat())
+            if (gamesettings$options.isFloat())
             {
-                this.buttonList.add(new GuiOptionSlider(gamesettings$options.returnEnumOrdinal(), this.width / 2 - 155 + i % 2 * 160, this.height / 6 + 24 * (i >> 1), gamesettings$options));
+                this.buttonList.add(new GuiOptionSlider(gamesettings$options.getOrdinal(), this.width / 2 - 155 + i % 2 * 160, this.height / 6 + 24 * (i >> 1), gamesettings$options));
             }
             else
             {
-                GuiOptionButton guioptionbutton = new GuiOptionButton(gamesettings$options.returnEnumOrdinal(), this.width / 2 - 155 + i % 2 * 160, this.height / 6 + 24 * (i >> 1), gamesettings$options, this.game_settings.getKeyBinding(gamesettings$options));
+                GuiOptionButton guioptionbutton = new GuiOptionButton(gamesettings$options.getOrdinal(), this.width / 2 - 155 + i % 2 * 160, this.height / 6 + 24 * (i >> 1), gamesettings$options, this.game_settings.getKeyBinding(gamesettings$options));
                 this.buttonList.add(guioptionbutton);
 
                 if (gamesettings$options == GameSettings.Options.NARRATOR)
@@ -52,10 +48,6 @@ public class ScreenChatOptions extends GuiScreen
         this.buttonList.add(new GuiButton(200, this.width / 2 - 100, this.height / 6 + 144, I18n.format("gui.done")));
     }
 
-    /**
-     * Fired when a key is typed (except F11 which toggles full screen). This is the equivalent of
-     * KeyListener.keyTyped(KeyEvent e). Args : character (character on the key), keyCode (lwjgl Keyboard key code)
-     */
     protected void keyTyped(char typedChar, int keyCode) throws IOException
     {
         if (keyCode == 1)
@@ -66,9 +58,6 @@ public class ScreenChatOptions extends GuiScreen
         super.keyTyped(typedChar, keyCode);
     }
 
-    /**
-     * Called by the controls from the buttonList when activated. (Mouse pressed for buttons)
-     */
     protected void actionPerformed(GuiButton button) throws IOException
     {
         if (button.enabled)
@@ -76,7 +65,7 @@ public class ScreenChatOptions extends GuiScreen
             if (button.id < 100 && button instanceof GuiOptionButton)
             {
                 this.game_settings.setOptionValue(((GuiOptionButton)button).getOption(), 1);
-                button.displayString = this.game_settings.getKeyBinding(GameSettings.Options.getEnumOptions(button.id));
+                button.displayString = this.game_settings.getKeyBinding(GameSettings.Options.byOrdinal(button.id));
             }
 
             if (button.id == 200)
@@ -87,9 +76,6 @@ public class ScreenChatOptions extends GuiScreen
         }
     }
 
-    /**
-     * Draws the screen and all the components in it.
-     */
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         this.drawDefaultBackground();
@@ -99,6 +85,6 @@ public class ScreenChatOptions extends GuiScreen
 
     public void updateNarratorButton()
     {
-        this.narratorButton.displayString = this.game_settings.getKeyBinding(GameSettings.Options.getEnumOptions(this.narratorButton.id));
+        this.narratorButton.displayString = this.game_settings.getKeyBinding(GameSettings.Options.byOrdinal(this.narratorButton.id));
     }
 }

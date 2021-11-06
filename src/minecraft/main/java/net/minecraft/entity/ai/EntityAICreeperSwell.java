@@ -5,12 +5,7 @@ import net.minecraft.entity.monster.EntityCreeper;
 
 public class EntityAICreeperSwell extends EntityAIBase
 {
-    /** The creeper that is swelling. */
     EntityCreeper swellingCreeper;
-
-    /**
-     * The creeper's attack target. This is used for the changing of the creeper's state.
-     */
     EntityLivingBase creeperAttackTarget;
 
     public EntityAICreeperSwell(EntityCreeper entitycreeperIn)
@@ -20,12 +15,13 @@ public class EntityAICreeperSwell extends EntityAIBase
     }
 
     /**
-     * Returns whether the EntityAIBase should begin execution.
+     * Returns whether execution should begin. You can also read and cache any state necessary for execution in this
+     * method as well.
      */
     public boolean shouldExecute()
     {
         EntityLivingBase entitylivingbase = this.swellingCreeper.getAttackTarget();
-        return this.swellingCreeper.getCreeperState() > 0 || entitylivingbase != null && this.swellingCreeper.getDistanceSqToEntity(entitylivingbase) < 9.0D;
+        return this.swellingCreeper.getCreeperState() > 0 || entitylivingbase != null && this.swellingCreeper.getDistanceSq(entitylivingbase) < 9.0D;
     }
 
     /**
@@ -33,7 +29,7 @@ public class EntityAICreeperSwell extends EntityAIBase
      */
     public void startExecuting()
     {
-        this.swellingCreeper.getNavigator().clearPathEntity();
+        this.swellingCreeper.getNavigator().clearPath();
         this.creeperAttackTarget = this.swellingCreeper.getAttackTarget();
     }
 
@@ -48,13 +44,13 @@ public class EntityAICreeperSwell extends EntityAIBase
     /**
      * Keep ticking a continuous task that has already been started
      */
-    public void updateTask()
+    public void tick()
     {
         if (this.creeperAttackTarget == null)
         {
             this.swellingCreeper.setCreeperState(-1);
         }
-        else if (this.swellingCreeper.getDistanceSqToEntity(this.creeperAttackTarget) > 49.0D)
+        else if (this.swellingCreeper.getDistanceSq(this.creeperAttackTarget) > 49.0D)
         {
             this.swellingCreeper.setCreeperState(-1);
         }

@@ -18,13 +18,14 @@ public class EntityAILlamaFollowCaravan extends EntityAIBase
     }
 
     /**
-     * Returns whether the EntityAIBase should begin execution.
+     * Returns whether execution should begin. You can also read and cache any state necessary for execution in this
+     * method as well.
      */
     public boolean shouldExecute()
     {
         if (!this.llama.getLeashed() && !this.llama.inCaravan())
         {
-            List<EntityLlama> list = this.llama.world.<EntityLlama>getEntitiesWithinAABB(this.llama.getClass(), this.llama.getEntityBoundingBox().grow(9.0D, 4.0D, 9.0D));
+            List<EntityLlama> list = this.llama.world.<EntityLlama>getEntitiesWithinAABB(this.llama.getClass(), this.llama.getBoundingBox().grow(9.0D, 4.0D, 9.0D));
             EntityLlama entityllama = null;
             double d0 = Double.MAX_VALUE;
 
@@ -32,7 +33,7 @@ public class EntityAILlamaFollowCaravan extends EntityAIBase
             {
                 if (entityllama1.inCaravan() && !entityllama1.hasCaravanTrail())
                 {
-                    double d1 = this.llama.getDistanceSqToEntity(entityllama1);
+                    double d1 = this.llama.getDistanceSq(entityllama1);
 
                     if (d1 <= d0)
                     {
@@ -48,7 +49,7 @@ public class EntityAILlamaFollowCaravan extends EntityAIBase
                 {
                     if (entityllama2.getLeashed() && !entityllama2.hasCaravanTrail())
                     {
-                        double d2 = this.llama.getDistanceSqToEntity(entityllama2);
+                        double d2 = this.llama.getDistanceSq(entityllama2);
 
                         if (d2 <= d0)
                         {
@@ -88,9 +89,9 @@ public class EntityAILlamaFollowCaravan extends EntityAIBase
      */
     public boolean shouldContinueExecuting()
     {
-        if (this.llama.inCaravan() && this.llama.getCaravanHead().isEntityAlive() && this.firstIsLeashed(this.llama, 0))
+        if (this.llama.inCaravan() && this.llama.getCaravanHead().isAlive() && this.firstIsLeashed(this.llama, 0))
         {
-            double d0 = this.llama.getDistanceSqToEntity(this.llama.getCaravanHead());
+            double d0 = this.llama.getDistanceSq(this.llama.getCaravanHead());
 
             if (d0 > 676.0D)
             {
@@ -132,12 +133,12 @@ public class EntityAILlamaFollowCaravan extends EntityAIBase
     /**
      * Keep ticking a continuous task that has already been started
      */
-    public void updateTask()
+    public void tick()
     {
         if (this.llama.inCaravan())
         {
             EntityLlama entityllama = this.llama.getCaravanHead();
-            double d0 = (double)this.llama.getDistanceToEntity(entityllama);
+            double d0 = (double)this.llama.getDistance(entityllama);
             float f = 2.0F;
             Vec3d vec3d = (new Vec3d(entityllama.posX - this.llama.posX, entityllama.posY - this.llama.posY, entityllama.posZ - this.llama.posZ)).normalize().scale(Math.max(d0 - 2.0D, 0.0D));
             this.llama.getNavigator().tryMoveToXYZ(this.llama.posX + vec3d.x, this.llama.posY + vec3d.y, this.llama.posZ + vec3d.z, this.speedModifier);

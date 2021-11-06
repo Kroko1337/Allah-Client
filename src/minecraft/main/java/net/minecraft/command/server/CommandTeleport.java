@@ -20,33 +20,21 @@ import net.minecraft.util.math.Vec3d;
 
 public class CommandTeleport extends CommandBase
 {
-    /**
-     * Gets the name of the command
-     */
     public String getName()
     {
         return "teleport";
     }
 
-    /**
-     * Return the required permission level for this command.
-     */
     public int getRequiredPermissionLevel()
     {
         return 2;
     }
 
-    /**
-     * Gets the usage string for the command.
-     */
     public String getUsage(ICommandSender sender)
     {
         return "commands.teleport.usage";
     }
 
-    /**
-     * Callback for when the command is executed
-     */
     public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
     {
         if (args.length < 4)
@@ -75,17 +63,14 @@ public class CommandTeleport extends CommandBase
         }
     }
 
-    /**
-     * Perform the actual teleport
-     */
-    private static void doTeleport(Entity p_189862_0_, CommandBase.CoordinateArg p_189862_1_, CommandBase.CoordinateArg p_189862_2_, CommandBase.CoordinateArg p_189862_3_, CommandBase.CoordinateArg p_189862_4_, CommandBase.CoordinateArg p_189862_5_)
+    private static void doTeleport(Entity teleportingEntity, CommandBase.CoordinateArg argX, CommandBase.CoordinateArg argY, CommandBase.CoordinateArg argZ, CommandBase.CoordinateArg argYaw, CommandBase.CoordinateArg argPitch)
     {
-        if (p_189862_0_ instanceof EntityPlayerMP)
+        if (teleportingEntity instanceof EntityPlayerMP)
         {
             Set<SPacketPlayerPosLook.EnumFlags> set = EnumSet.<SPacketPlayerPosLook.EnumFlags>noneOf(SPacketPlayerPosLook.EnumFlags.class);
-            float f = (float)p_189862_4_.getAmount();
+            float f = (float)argYaw.getAmount();
 
-            if (p_189862_4_.isRelative())
+            if (argYaw.isRelative())
             {
                 set.add(SPacketPlayerPosLook.EnumFlags.Y_ROT);
             }
@@ -94,9 +79,9 @@ public class CommandTeleport extends CommandBase
                 f = MathHelper.wrapDegrees(f);
             }
 
-            float f1 = (float)p_189862_5_.getAmount();
+            float f1 = (float)argPitch.getAmount();
 
-            if (p_189862_5_.isRelative())
+            if (argPitch.isRelative())
             {
                 set.add(SPacketPlayerPosLook.EnumFlags.X_ROT);
             }
@@ -105,23 +90,23 @@ public class CommandTeleport extends CommandBase
                 f1 = MathHelper.wrapDegrees(f1);
             }
 
-            p_189862_0_.dismountRidingEntity();
-            ((EntityPlayerMP)p_189862_0_).connection.setPlayerLocation(p_189862_1_.getResult(), p_189862_2_.getResult(), p_189862_3_.getResult(), f, f1, set);
-            p_189862_0_.setRotationYawHead(f);
+            teleportingEntity.stopRiding();
+            ((EntityPlayerMP)teleportingEntity).connection.setPlayerLocation(argX.getResult(), argY.getResult(), argZ.getResult(), f, f1, set);
+            teleportingEntity.setRotationYawHead(f);
         }
         else
         {
-            float f2 = (float)MathHelper.wrapDegrees(p_189862_4_.getResult());
-            float f3 = (float)MathHelper.wrapDegrees(p_189862_5_.getResult());
+            float f2 = (float)MathHelper.wrapDegrees(argYaw.getResult());
+            float f3 = (float)MathHelper.wrapDegrees(argPitch.getResult());
             f3 = MathHelper.clamp(f3, -90.0F, 90.0F);
-            p_189862_0_.setLocationAndAngles(p_189862_1_.getResult(), p_189862_2_.getResult(), p_189862_3_.getResult(), f2, f3);
-            p_189862_0_.setRotationYawHead(f2);
+            teleportingEntity.setLocationAndAngles(argX.getResult(), argY.getResult(), argZ.getResult(), f2, f3);
+            teleportingEntity.setRotationYawHead(f2);
         }
 
-        if (!(p_189862_0_ instanceof EntityLivingBase) || !((EntityLivingBase)p_189862_0_).isElytraFlying())
+        if (!(teleportingEntity instanceof EntityLivingBase) || !((EntityLivingBase)teleportingEntity).isElytraFlying())
         {
-            p_189862_0_.motionY = 0.0D;
-            p_189862_0_.onGround = true;
+            teleportingEntity.motionY = 0.0D;
+            teleportingEntity.onGround = true;
         }
     }
 
@@ -137,9 +122,6 @@ public class CommandTeleport extends CommandBase
         }
     }
 
-    /**
-     * Return whether the specified command parameter index is a username parameter.
-     */
     public boolean isUsernameIndex(String[] args, int index)
     {
         return index == 0;

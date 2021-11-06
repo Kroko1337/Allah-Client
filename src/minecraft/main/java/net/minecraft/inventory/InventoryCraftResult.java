@@ -43,25 +43,16 @@ public class InventoryCraftResult implements IInventory
         return this.stackResult.get(0);
     }
 
-    /**
-     * Get the name of this object. For players this returns their username
-     */
     public String getName()
     {
         return "Result";
     }
 
-    /**
-     * Returns true if this thing is named
-     */
     public boolean hasCustomName()
     {
         return false;
     }
 
-    /**
-     * Get the formatted ChatComponent that will be used for the sender's username in chat
-     */
     public ITextComponent getDisplayName()
     {
         return (ITextComponent)(this.hasCustomName() ? new TextComponentString(this.getName()) : new TextComponentTranslation(this.getName(), new Object[0]));
@@ -151,9 +142,9 @@ public class InventoryCraftResult implements IInventory
         this.stackResult.clear();
     }
 
-    public void setRecipeUsed(@Nullable IRecipe p_193056_1_)
+    public void setRecipeUsed(@Nullable IRecipe recipe)
     {
-        this.recipeUsed = p_193056_1_;
+        this.recipeUsed = recipe;
     }
 
     @Nullable

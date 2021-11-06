@@ -58,17 +58,11 @@ public class CommandSenderWrapper implements ICommandSender
         return this.positionVector != null ? this : new CommandSenderWrapper(this.delegate, this.getPositionVector(), this.getPosition(), this.permissionLevel, this.entity, this.sendCommandFeedback);
     }
 
-    /**
-     * Get the name of this object. For players this returns their username
-     */
     public String getName()
     {
         return this.entity != null ? this.entity.getName() : this.delegate.getName();
     }
 
-    /**
-     * Get the formatted ChatComponent that will be used for the sender's username in chat
-     */
     public ITextComponent getDisplayName()
     {
         return this.entity != null ? this.entity.getDisplayName() : this.delegate.getDisplayName();
@@ -85,9 +79,6 @@ public class CommandSenderWrapper implements ICommandSender
         }
     }
 
-    /**
-     * Returns {@code true} if the CommandSender is allowed to execute the command, {@code false} if not
-     */
     public boolean canUseCommand(int permLevel, String commandName)
     {
         return this.permissionLevel != null && this.permissionLevel.intValue() < permLevel ? false : this.delegate.canUseCommand(permLevel, commandName);
@@ -135,18 +126,11 @@ public class CommandSenderWrapper implements ICommandSender
     }
 
     @Nullable
-
-    /**
-     * Returns the entity associated with the command sender. MAY BE NULL!
-     */
     public Entity getCommandSenderEntity()
     {
         return this.entity != null ? this.entity.getCommandSenderEntity() : this.delegate.getCommandSenderEntity();
     }
 
-    /**
-     * Returns true if the command sender should be sent feedback about executed commands
-     */
     public boolean sendCommandFeedback()
     {
         return this.sendCommandFeedback != null ? this.sendCommandFeedback.booleanValue() : this.delegate.sendCommandFeedback();

@@ -30,7 +30,7 @@ public class MovementStep implements ITutorialStep
         this.tutorial = tutorial;
     }
 
-    public void update()
+    public void tick()
     {
         ++this.timeWaiting;
 
@@ -122,8 +122,6 @@ public class MovementStep implements ITutorialStep
 
     /**
      * Handles the player movement
-     *  
-     * @param input The movement inputs of the player
      */
     public void handleMovement(MovementInput input)
     {
@@ -133,11 +131,6 @@ public class MovementStep implements ITutorialStep
         }
     }
 
-    /**
-     * Handles mouse mouvement
-     *  
-     * @param mouseHelperIn A MouseHelper providing you informations about the player mouse
-     */
     public void handleMouse(MouseHelper mouseHelperIn)
     {
         if ((double)MathHelper.abs(mouseHelperIn.deltaX) > 0.01D || (double)MathHelper.abs(mouseHelperIn.deltaY) > 0.01D)

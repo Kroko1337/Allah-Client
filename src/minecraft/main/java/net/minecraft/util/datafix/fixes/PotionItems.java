@@ -16,24 +16,24 @@ public class PotionItems implements IFixableData
     {
         if ("minecraft:potion".equals(compound.getString("id")))
         {
-            NBTTagCompound nbttagcompound = compound.getCompoundTag("tag");
+            NBTTagCompound nbttagcompound = compound.getCompound("tag");
             short short1 = compound.getShort("Damage");
 
-            if (!nbttagcompound.hasKey("Potion", 8))
+            if (!nbttagcompound.contains("Potion", 8))
             {
                 String s = POTION_IDS[short1 & 127];
-                nbttagcompound.setString("Potion", s == null ? "minecraft:water" : s);
+                nbttagcompound.putString("Potion", s == null ? "minecraft:water" : s);
                 compound.setTag("tag", nbttagcompound);
 
                 if ((short1 & 16384) == 16384)
                 {
-                    compound.setString("id", "minecraft:splash_potion");
+                    compound.putString("id", "minecraft:splash_potion");
                 }
             }
 
             if (short1 != 0)
             {
-                compound.setShort("Damage", (short)0);
+                compound.putShort("Damage", (short)0);
             }
         }
 

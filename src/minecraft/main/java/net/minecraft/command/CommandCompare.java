@@ -14,33 +14,21 @@ import net.minecraft.world.gen.structure.StructureBoundingBox;
 
 public class CommandCompare extends CommandBase
 {
-    /**
-     * Gets the name of the command
-     */
     public String getName()
     {
         return "testforblocks";
     }
 
-    /**
-     * Return the required permission level for this command.
-     */
     public int getRequiredPermissionLevel()
     {
         return 2;
     }
 
-    /**
-     * Gets the usage string for the command.
-     */
     public String getUsage(ICommandSender sender)
     {
         return "commands.compare.usage";
     }
 
-    /**
-     * Callback for when the command is executed
-     */
     public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
     {
         if (args.length < 9)
@@ -99,14 +87,14 @@ public class CommandCompare extends CommandBase
 
                                         if (tileentity != null && tileentity1 != null)
                                         {
-                                            NBTTagCompound nbttagcompound = tileentity.writeToNBT(new NBTTagCompound());
-                                            nbttagcompound.removeTag("x");
-                                            nbttagcompound.removeTag("y");
-                                            nbttagcompound.removeTag("z");
-                                            NBTTagCompound nbttagcompound1 = tileentity1.writeToNBT(new NBTTagCompound());
-                                            nbttagcompound1.removeTag("x");
-                                            nbttagcompound1.removeTag("y");
-                                            nbttagcompound1.removeTag("z");
+                                            NBTTagCompound nbttagcompound = tileentity.write(new NBTTagCompound());
+                                            nbttagcompound.remove("x");
+                                            nbttagcompound.remove("y");
+                                            nbttagcompound.remove("z");
+                                            NBTTagCompound nbttagcompound1 = tileentity1.write(new NBTTagCompound());
+                                            nbttagcompound1.remove("x");
+                                            nbttagcompound1.remove("y");
+                                            nbttagcompound1.remove("z");
 
                                             if (!nbttagcompound.equals(nbttagcompound1))
                                             {

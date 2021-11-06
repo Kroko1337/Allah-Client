@@ -59,9 +59,6 @@ public class RenderGuardian extends RenderLiving<EntityGuardian>
         return new Vec3d(d0, d1, d2);
     }
 
-    /**
-     * Renders the desired {@code T} type Entity.
-     */
     public void doRender(EntityGuardian entity, double x, double y, double z, float entityYaw, float partialTicks)
     {
         super.doRender(entity, x, y, z, entityYaw, partialTicks);
@@ -82,7 +79,7 @@ public class RenderGuardian extends RenderLiving<EntityGuardian>
             float f1 = 240.0F;
             OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240.0F, 240.0F);
             GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-            float f2 = (float)entity.world.getTotalWorldTime() + partialTicks;
+            float f2 = (float)entity.world.getGameTime() + partialTicks;
             float f3 = f2 * 0.5F % 1.0F;
             float f4 = entity.getEyeHeight();
             GlStateManager.pushMatrix();
@@ -90,7 +87,7 @@ public class RenderGuardian extends RenderLiving<EntityGuardian>
             Vec3d vec3d = this.getPosition(entitylivingbase, (double)entitylivingbase.height * 0.5D, partialTicks);
             Vec3d vec3d1 = this.getPosition(entity, (double)f4, partialTicks);
             Vec3d vec3d2 = vec3d.subtract(vec3d1);
-            double d0 = vec3d2.lengthVector() + 1.0D;
+            double d0 = vec3d2.length() + 1.0D;
             vec3d2 = vec3d2.normalize();
             float f5 = (float)Math.acos(vec3d2.y);
             float f6 = (float)Math.atan2(vec3d2.z, vec3d2.x);
@@ -150,7 +147,7 @@ public class RenderGuardian extends RenderLiving<EntityGuardian>
     }
 
     /**
-     * Returns the location of an entity's texture. Doesn't seem to be called unless you call Render.bindEntityTexture.
+     * Returns the location of an entity's texture.
      */
     protected ResourceLocation getEntityTexture(EntityGuardian entity)
     {

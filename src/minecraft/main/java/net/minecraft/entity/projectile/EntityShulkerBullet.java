@@ -76,73 +76,70 @@ public class EntityShulkerBullet extends Entity
         this.selectNextMoveDirection(p_i46772_4_);
     }
 
-    /**
-     * (abstract) Protected helper method to write subclass entity data to NBT.
-     */
     protected void writeEntityToNBT(NBTTagCompound compound)
     {
         if (this.owner != null)
         {
             BlockPos blockpos = new BlockPos(this.owner);
-            NBTTagCompound nbttagcompound = NBTUtil.createUUIDTag(this.owner.getUniqueID());
-            nbttagcompound.setInteger("X", blockpos.getX());
-            nbttagcompound.setInteger("Y", blockpos.getY());
-            nbttagcompound.setInteger("Z", blockpos.getZ());
+            NBTTagCompound nbttagcompound = NBTUtil.writeUniqueId(this.owner.getUniqueID());
+            nbttagcompound.putInt("X", blockpos.getX());
+            nbttagcompound.putInt("Y", blockpos.getY());
+            nbttagcompound.putInt("Z", blockpos.getZ());
             compound.setTag("Owner", nbttagcompound);
         }
 
         if (this.target != null)
         {
             BlockPos blockpos1 = new BlockPos(this.target);
-            NBTTagCompound nbttagcompound1 = NBTUtil.createUUIDTag(this.target.getUniqueID());
-            nbttagcompound1.setInteger("X", blockpos1.getX());
-            nbttagcompound1.setInteger("Y", blockpos1.getY());
-            nbttagcompound1.setInteger("Z", blockpos1.getZ());
+            NBTTagCompound nbttagcompound1 = NBTUtil.writeUniqueId(this.target.getUniqueID());
+            nbttagcompound1.putInt("X", blockpos1.getX());
+            nbttagcompound1.putInt("Y", blockpos1.getY());
+            nbttagcompound1.putInt("Z", blockpos1.getZ());
             compound.setTag("Target", nbttagcompound1);
         }
 
         if (this.direction != null)
         {
-            compound.setInteger("Dir", this.direction.getIndex());
+            compound.putInt("Dir", this.direction.getIndex());
         }
 
-        compound.setInteger("Steps", this.steps);
-        compound.setDouble("TXD", this.targetDeltaX);
-        compound.setDouble("TYD", this.targetDeltaY);
-        compound.setDouble("TZD", this.targetDeltaZ);
+        compound.putInt("Steps", this.steps);
+        compound.putDouble("TXD", this.targetDeltaX);
+        compound.putDouble("TYD", this.targetDeltaY);
+        compound.putDouble("TZD", this.targetDeltaZ);
     }
 
     /**
      * (abstract) Protected helper method to read subclass entity data from NBT.
      */
-    protected void readEntityFromNBT(NBTTagCompound compound)
+    protected void readAdditional(NBTTagCompound compound)
     {
-        this.steps = compound.getInteger("Steps");
+        this.steps = compound.getInt("Steps");
         this.targetDeltaX = compound.getDouble("TXD");
         this.targetDeltaY = compound.getDouble("TYD");
         this.targetDeltaZ = compound.getDouble("TZD");
 
-        if (compound.hasKey("Dir", 99))
+        if (compound.contains("Dir", 99))
         {
-            this.direction = EnumFacing.getFront(compound.getInteger("Dir"));
+            this.direction = EnumFacing.byIndex(compound.getInt("Dir"));
         }
 
-        if (compound.hasKey("Owner", 10))
+        if (compound.contains("Owner", 10))
         {
-            NBTTagCompound nbttagcompound = compound.getCompoundTag("Owner");
-            this.ownerUniqueId = NBTUtil.getUUIDFromTag(nbttagcompound);
-            this.ownerBlockPos = new BlockPos(nbttagcompound.getInteger("X"), nbttagcompound.getInteger("Y"), nbttagcompound.getInteger("Z"));
+            NBTTagCompound nbttagcompound = compound.getCompound("Owner");
+            this.ownerUniqueId = NBTUtil.readUniqueId(nbttagcompound);
+            this.ownerBlockPos = new BlockPos(nbttagcompound.getInt("X"), nbttagcompound.getInt("Y"), nbttagcompound.getInt("Z"));
         }
 
-        if (compound.hasKey("Target", 10))
+        if (compound.contains("Target", 10))
         {
-            NBTTagCompound nbttagcompound1 = compound.getCompoundTag("Target");
-            this.targetUniqueId = NBTUtil.getUUIDFromTag(nbttagcompound1);
-            this.targetBlockPos = new BlockPos(nbttagcompound1.getInteger("X"), nbttagcompound1.getInteger("Y"), nbttagcompound1.getInteger("Z"));
+            NBTTagCompound nbttagcompound1 = compound.getCompound("Target");
+            this.targetUniqueId = NBTUtil.readUniqueId(nbttagcompound1);
+            this.targetBlockPos = new BlockPos(nbttagcompound1.getInt("X"), nbttagcompound1.getInt("Y"), nbttagcompound1.getInt("Z"));
         }
     }
 
-    protected void entityInit()
+    protected void registerData()
     {
     }
 
@@ -226,9 +223,9 @@ public class EntityShulkerBullet extends Entity
                 enumfacing = list.get(this.rand.nextInt(list.size()));
             }
 
-            d1 = this.posX + (double)enumfacing.getFrontOffsetX();
-            d2 = this.posY + (double)enumfacing.getFrontOffsetY();
-            d3 = this.posZ + (double)enumfacing.getFrontOffsetZ();
+            d1 = this.posX + (double)enumfacing.getXOffset();
+            d2 = this.posY + (double)enumfacing.getYOffset();
+            d3 = this.posZ + (double)enumfacing.getZOffset();
         }
 
         this.setDirection(enumfacing);
@@ -257,15 +254,15 @@ public class EntityShulkerBullet extends Entity
     /**
      * Called to update the entity's position/logic.
      */
-    public void onUpdate()
+    public void tick()
     {
         if (!this.world.isRemote && this.world.getDifficulty() == EnumDifficulty.PEACEFUL)
         {
-            this.setDead();
+            this.remove();
         }
         else
         {
-            super.onUpdate();
+            super.tick();
 
             if (!this.world.isRemote)
             {
@@ -297,7 +294,7 @@ public class EntityShulkerBullet extends Entity
                     this.ownerUniqueId = null;
                 }
 
-                if (this.target == null || !this.target.isEntityAlive() || this.target instanceof EntityPlayer && ((EntityPlayer)this.target).isSpectator())
+                if (this.target == null || !this.target.isAlive() || this.target instanceof EntityPlayer && ((EntityPlayer)this.target).isSpectator())
                 {
                     if (!this.hasNoGravity())
                     {
@@ -329,7 +326,7 @@ public class EntityShulkerBullet extends Entity
             {
                 this.world.spawnParticle(EnumParticleTypes.END_ROD, this.posX - this.motionX, this.posY - this.motionY + 0.15D, this.posZ - this.motionZ, 0.0D, 0.0D, 0.0D);
             }
-            else if (this.target != null && !this.target.isDead)
+            else if (this.target != null && !this.target.removed)
             {
                 if (this.steps > 0)
                 {
@@ -415,7 +412,7 @@ public class EntityShulkerBullet extends Entity
             }
         }
 
-        this.setDead();
+        this.remove();
     }
 
     /**
@@ -435,7 +432,7 @@ public class EntityShulkerBullet extends Entity
         {
             this.playSound(SoundEvents.ENTITY_SHULKER_BULLET_HURT, 1.0F, 1.0F);
             ((WorldServer)this.world).spawnParticle(EnumParticleTypes.CRIT, this.posX, this.posY, this.posZ, 15, 0.2D, 0.2D, 0.2D, 0.0D);
-            this.setDead();
+            this.remove();
         }
 
         return true;

@@ -22,7 +22,7 @@ public class BlockLilyPad extends BlockBush
         this.setCreativeTab(CreativeTabs.DECORATIONS);
     }
 
-    public void addCollisionBoxToList(IBlockState state, World worldIn, BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, @Nullable Entity entityIn, boolean p_185477_7_)
+    public void addCollisionBoxToList(IBlockState state, World worldIn, BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, @Nullable Entity entityIn, boolean isActualState)
     {
         if (!(entityIn instanceof EntityBoat))
         {
@@ -30,12 +30,9 @@ public class BlockLilyPad extends BlockBush
         }
     }
 
-    /**
-     * Called When an Entity Collided with the Block
-     */
-    public void onEntityCollidedWithBlock(World worldIn, BlockPos pos, IBlockState state, Entity entityIn)
+    public void onEntityCollision(World worldIn, BlockPos pos, IBlockState state, Entity entityIn)
     {
-        super.onEntityCollidedWithBlock(worldIn, pos, state, entityIn);
+        super.onEntityCollision(worldIn, pos, state, entityIn);
 
         if (entityIn instanceof EntityBoat)
         {
@@ -48,9 +45,6 @@ public class BlockLilyPad extends BlockBush
         return LILY_PAD_AABB;
     }
 
-    /**
-     * Return true if the block can sustain a Bush
-     */
     protected boolean canSustainBush(IBlockState state)
     {
         return state.getBlock() == Blocks.WATER || state.getMaterial() == Material.ICE;
@@ -62,7 +56,7 @@ public class BlockLilyPad extends BlockBush
         {
             IBlockState iblockstate = worldIn.getBlockState(pos.down());
             Material material = iblockstate.getMaterial();
-            return material == Material.WATER && ((Integer)iblockstate.getValue(BlockLiquid.LEVEL)).intValue() == 0 || material == Material.ICE;
+            return material == Material.WATER && ((Integer)iblockstate.get(BlockLiquid.LEVEL)).intValue() == 0 || material == Material.ICE;
         }
         else
         {
@@ -70,9 +64,6 @@ public class BlockLilyPad extends BlockBush
         }
     }
 
-    /**
-     * Convert the BlockState into the correct metadata value
-     */
     public int getMetaFromState(IBlockState state)
     {
         return 0;

@@ -14,7 +14,7 @@ public class ArmorStandSilent implements IFixableData
     {
         if ("ArmorStand".equals(compound.getString("id")) && compound.getBoolean("Silent") && !compound.getBoolean("Marker"))
         {
-            compound.removeTag("Silent");
+            compound.remove("Silent");
         }
 
         return compound;

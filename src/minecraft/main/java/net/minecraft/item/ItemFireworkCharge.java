@@ -12,13 +12,13 @@ public class ItemFireworkCharge extends Item
 {
     public static NBTBase getExplosionTag(ItemStack stack, String key)
     {
-        if (stack.hasTagCompound())
+        if (stack.hasTag())
         {
-            NBTTagCompound nbttagcompound = stack.getTagCompound().getCompoundTag("Explosion");
+            NBTTagCompound nbttagcompound = stack.getTag().getCompound("Explosion");
 
             if (nbttagcompound != null)
             {
-                return nbttagcompound.getTag(key);
+                return nbttagcompound.get(key);
             }
         }
 
@@ -30,9 +30,9 @@ public class ItemFireworkCharge extends Item
      */
     public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn)
     {
-        if (stack.hasTagCompound())
+        if (stack.hasTag())
         {
-            NBTTagCompound nbttagcompound = stack.getTagCompound().getCompoundTag("Explosion");
+            NBTTagCompound nbttagcompound = stack.getTag().getCompound("Explosion");
 
             if (nbttagcompound != null)
             {
@@ -76,7 +76,7 @@ public class ItemFireworkCharge extends Item
                     if (i == ItemDye.DYE_COLORS[j])
                     {
                         flag1 = true;
-                        s = s + I18n.translateToLocal("item.fireworksCharge." + EnumDyeColor.byDyeDamage(j).getUnlocalizedName());
+                        s = s + I18n.translateToLocal("item.fireworksCharge." + EnumDyeColor.byDyeDamage(j).getTranslationKey());
                         break;
                     }
                 }
@@ -112,7 +112,7 @@ public class ItemFireworkCharge extends Item
                     if (l == ItemDye.DYE_COLORS[k])
                     {
                         flag5 = true;
-                        s1 = s1 + I18n.translateToLocal("item.fireworksCharge." + EnumDyeColor.byDyeDamage(k).getUnlocalizedName());
+                        s1 = s1 + I18n.translateToLocal("item.fireworksCharge." + EnumDyeColor.byDyeDamage(k).getTranslationKey());
                         break;
                     }
                 }

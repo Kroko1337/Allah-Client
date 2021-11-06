@@ -21,25 +21,16 @@ public class CommandHelp extends CommandBase
     private static final String[] SEARGE_SAYS = new String[] {"Yolo", "Ask for help on twitter", "/deop @p", "Scoreboard deleted, commands blocked", "Contact helpdesk for help", "/testfornoob @p", "/trigger warning", "Oh my god, it's full of stats", "/kill @p[name=!Searge]", "Have you tried turning it off and on again?", "Sorry, no help today"};
     private final Random rand = new Random();
 
-    /**
-     * Gets the name of the command
-     */
     public String getName()
     {
         return "help";
     }
 
-    /**
-     * Return the required permission level for this command.
-     */
     public int getRequiredPermissionLevel()
     {
         return 0;
     }
 
-    /**
-     * Gets the usage string for the command.
-     */
     public String getUsage(ICommandSender sender)
     {
         return "commands.help.usage";
@@ -50,9 +41,6 @@ public class CommandHelp extends CommandBase
         return Arrays.<String>asList("?");
     }
 
-    /**
-     * Callback for when the command is executed
-     */
     public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
     {
         if (sender instanceof CommandBlockBaseLogic)

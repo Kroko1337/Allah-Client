@@ -17,8 +17,10 @@ public class BlockHardenedClay extends Block
 
     /**
      * Get the MapColor for this Block and the given BlockState
+     * @deprecated call via {@link IBlockState#getMapColor(IBlockAccess,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
      */
-    public MapColor getMapColor(IBlockState state, IBlockAccess worldIn, BlockPos pos)
+    public MapColor getMaterialColor(IBlockState state, IBlockAccess worldIn, BlockPos pos)
     {
         return MapColor.ADOBE;
     }

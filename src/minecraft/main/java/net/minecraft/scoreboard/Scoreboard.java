@@ -16,8 +16,6 @@ public class Scoreboard
     private final Map<String, ScoreObjective> scoreObjectives = Maps.<String, ScoreObjective>newHashMap();
     private final Map<IScoreCriteria, List<ScoreObjective>> scoreObjectiveCriterias = Maps.<IScoreCriteria, List<ScoreObjective>>newHashMap();
     private final Map<String, Map<ScoreObjective, Score>> entitiesScoreObjectives = Maps.<String, Map<ScoreObjective, Score>>newHashMap();
-
-    /** Index 0 is tab menu, 1 is sidebar, and 2 is below name */
     private final ScoreObjective[] objectiveDisplaySlots = new ScoreObjective[19];
     private final Map<String, ScorePlayerTeam> teams = Maps.<String, ScorePlayerTeam>newHashMap();
     private final Map<String, ScorePlayerTeam> teamMemberships = Maps.<String, ScorePlayerTeam>newHashMap();
@@ -33,9 +31,6 @@ public class Scoreboard
         return this.scoreObjectives.get(name);
     }
 
-    /**
-     * Create and returns the score objective for the given name and ScoreCriteria
-     */
     public ScoreObjective addScoreObjective(String name, IScoreCriteria criteria)
     {
         if (name.length() > 16)
@@ -63,7 +58,7 @@ public class Scoreboard
 
                 list.add(scoreobjective);
                 this.scoreObjectives.put(name, scoreobjective);
-                this.onScoreObjectiveAdded(scoreobjective);
+                this.onObjectiveAdded(scoreobjective);
                 return scoreobjective;
             }
         }
@@ -163,7 +158,7 @@ public class Scoreboard
 
             if (map != null)
             {
-                this.broadcastScoreUpdate(name);
+                this.onPlayerRemoved(name);
             }
         }
         else
@@ -180,12 +175,12 @@ public class Scoreboard
 
                     if (map1 != null)
                     {
-                        this.broadcastScoreUpdate(name);
+                        this.onPlayerRemoved(name);
                     }
                 }
                 else if (score != null)
                 {
-                    this.broadcastScoreUpdate(name, objective);
+                    this.onPlayerScoreRemoved(name, objective);
                 }
             }
         }
@@ -240,7 +235,7 @@ public class Scoreboard
             map.remove(objective);
         }
 
-        this.onScoreObjectiveRemoved(objective);
+        this.onObjectiveRemoved(objective);
     }
 
     /**
@@ -287,7 +282,7 @@ public class Scoreboard
             {
                 scoreplayerteam = new ScorePlayerTeam(this, name);
                 this.teams.put(name, scoreplayerteam);
-                this.broadcastTeamCreated(scoreplayerteam);
+                this.onTeamAdded(scoreplayerteam);
                 return scoreplayerteam;
             }
         }
@@ -305,12 +300,9 @@ public class Scoreboard
             this.teamMemberships.remove(s);
         }
 
-        this.broadcastTeamRemove(playerTeam);
+        this.onTeamRemoved(playerTeam);
     }
 
-    /**
-     * Adds a player to the given team
-     */
     public boolean addPlayerToTeam(String player, String newTeam)
     {
         if (player.length() > 40)
@@ -388,10 +380,7 @@ public class Scoreboard
         return this.teamMemberships.get(username);
     }
 
-    /**
-     * Called when a score objective is added
-     */
-    public void onScoreObjectiveAdded(ScoreObjective scoreObjectiveIn)
+    public void onObjectiveAdded(ScoreObjective objective)
     {
     }
 
@@ -399,37 +388,31 @@ public class Scoreboard
     {
     }
 
-    public void onScoreObjectiveRemoved(ScoreObjective objective)
+    public void onObjectiveRemoved(ScoreObjective objective)
     {
     }
 
-    public void onScoreUpdated(Score scoreIn)
+    public void onScoreChanged(Score scoreIn)
     {
     }
 
-    public void broadcastScoreUpdate(String scoreName)
+    public void onPlayerRemoved(String scoreName)
     {
     }
 
-    public void broadcastScoreUpdate(String scoreName, ScoreObjective objective)
+    public void onPlayerScoreRemoved(String scoreName, ScoreObjective objective)
     {
     }
 
-    /**
-     * This packet will notify the players that this team is created, and that will register it on the client
-     */
-    public void broadcastTeamCreated(ScorePlayerTeam playerTeam)
+    public void onTeamAdded(ScorePlayerTeam playerTeam)
     {
     }
 
-    /**
-     * This packet will notify the players that this team is updated
-     */
-    public void broadcastTeamInfoUpdate(ScorePlayerTeam playerTeam)
+    public void onTeamChanged(ScorePlayerTeam playerTeam)
     {
     }
 
-    public void broadcastTeamRemove(ScorePlayerTeam playerTeam)
+    public void onTeamRemoved(ScorePlayerTeam playerTeam)
     {
     }
 
@@ -515,7 +498,7 @@ public class Scoreboard
 
     public void removeEntity(Entity entityIn)
     {
-        if (entityIn != null && !(entityIn instanceof EntityPlayer) && !entityIn.isEntityAlive())
+        if (entityIn != null && !(entityIn instanceof EntityPlayer) && !entityIn.isAlive())
         {
             String s = entityIn.getCachedUniqueIdString();
             this.removeObjectiveFromEntity(s, (ScoreObjective)null);

@@ -15,45 +15,19 @@ public class MobEffects
     public static final Potion INSTANT_DAMAGE;
     public static final Potion JUMP_BOOST;
     public static final Potion NAUSEA;
-
-    /** The regeneration Potion object. */
     public static final Potion REGENERATION;
     public static final Potion RESISTANCE;
-
-    /** The fire resistance Potion object. */
     public static final Potion FIRE_RESISTANCE;
-
-    /** The water breathing Potion object. */
     public static final Potion WATER_BREATHING;
-
-    /** The invisibility Potion object. */
     public static final Potion INVISIBILITY;
-
-    /** The blindness Potion object. */
     public static final Potion BLINDNESS;
-
-    /** The night vision Potion object. */
     public static final Potion NIGHT_VISION;
-
-    /** The hunger Potion object. */
     public static final Potion HUNGER;
-
-    /** The weakness Potion object. */
     public static final Potion WEAKNESS;
-
-    /** The poison Potion object. */
     public static final Potion POISON;
-
-    /** The wither Potion object. */
     public static final Potion WITHER;
-
-    /** The health boost Potion object. */
     public static final Potion HEALTH_BOOST;
-
-    /** The absorption Potion object. */
     public static final Potion ABSORPTION;
-
-    /** The saturation Potion object. */
     public static final Potion SATURATION;
     public static final Potion GLOWING;
     public static final Potion LEVITATION;
@@ -63,7 +37,7 @@ public class MobEffects
     @Nullable
     private static Potion getRegisteredMobEffect(String id)
     {
-        Potion potion = Potion.REGISTRY.getObject(new ResourceLocation(id));
+        Potion potion = Potion.REGISTRY.getOrDefault(new ResourceLocation(id));
 
         if (potion == null)
         {

@@ -41,7 +41,7 @@ public class BlockStatePaletteHashMap implements IBlockStatePalette
     /**
      * Gets the block state by the palette id.
      */
-    public IBlockState getBlockState(int indexKey)
+    public IBlockState get(int indexKey)
     {
         return this.statePaletteMap.get(indexKey);
     }

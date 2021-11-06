@@ -11,14 +11,8 @@ import org.apache.logging.log4j.Logger;
 public class GuiWorldSelection extends GuiScreen
 {
     private static final Logger LOGGER = LogManager.getLogger();
-
-    /** The screen to return to when this closes (always Main Menu). */
     protected GuiScreen prevScreen;
     protected String title = "Select world";
-
-    /**
-     * Tooltip displayed a world whose version is different from this client's
-     */
     private String worldVersTooltip;
     private GuiButton deleteButton;
     private GuiButton selectButton;
@@ -31,10 +25,6 @@ public class GuiWorldSelection extends GuiScreen
         this.prevScreen = screenIn;
     }
 
-    /**
-     * Adds the buttons (and other controls) to the screen in question. Called when the GUI is displayed and when the
-     * window resizes, the buttonList is cleared beforehand.
-     */
     public void initGui()
     {
         this.title = I18n.format("selectWorld.title");
@@ -42,9 +32,6 @@ public class GuiWorldSelection extends GuiScreen
         this.postInit();
     }
 
-    /**
-     * Handles mouse input.
-     */
     public void handleMouseInput() throws IOException
     {
         super.handleMouseInput();
@@ -65,9 +52,6 @@ public class GuiWorldSelection extends GuiScreen
         this.copyButton.enabled = false;
     }
 
-    /**
-     * Called by the controls from the buttonList when activated. (Mouse pressed for buttons)
-     */
     protected void actionPerformed(GuiButton button) throws IOException
     {
         if (button.enabled)
@@ -110,9 +94,6 @@ public class GuiWorldSelection extends GuiScreen
         }
     }
 
-    /**
-     * Draws the screen and all the components in it.
-     */
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         this.worldVersTooltip = null;
@@ -126,18 +107,12 @@ public class GuiWorldSelection extends GuiScreen
         }
     }
 
-    /**
-     * Called when the mouse is clicked. Args : mouseX, mouseY, clickedButton
-     */
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
     {
         super.mouseClicked(mouseX, mouseY, mouseButton);
         this.selectionList.mouseClicked(mouseX, mouseY, mouseButton);
     }
 
-    /**
-     * Called when a mouse button is released.
-     */
     protected void mouseReleased(int mouseX, int mouseY, int state)
     {
         super.mouseReleased(mouseX, mouseY, state);

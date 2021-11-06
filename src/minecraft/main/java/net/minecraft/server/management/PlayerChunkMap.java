@@ -44,13 +44,7 @@ public class PlayerChunkMap
     private final List<PlayerChunkMapEntry> pendingSendToPlayers = Lists.<PlayerChunkMapEntry>newLinkedList();
     private final List<PlayerChunkMapEntry> entriesWithoutChunks = Lists.<PlayerChunkMapEntry>newLinkedList();
     private final List<PlayerChunkMapEntry> entries = Lists.<PlayerChunkMapEntry>newArrayList();
-
-    /**
-     * Number of chunks the server sends to the client. Valid 3<=x<=15. In server.properties.
-     */
     private int playerViewRadius;
-
-    /** time what is using to check if InhabitedTime should be calculated */
     private long previousTotalWorldTime;
     private boolean sortMissingChunks = true;
     private boolean sortSendToPlayers = true;
@@ -58,12 +52,9 @@ public class PlayerChunkMap
     public PlayerChunkMap(WorldServer serverWorld)
     {
         this.world = serverWorld;
-        this.setPlayerViewRadius(serverWorld.getMinecraftServer().getPlayerList().getViewDistance());
+        this.setPlayerViewRadius(serverWorld.getServer().getPlayerList().getViewDistance());
     }
 
-    /**
-     * Returns the WorldServer associated with this PlayerManager
-     */
     public WorldServer getWorldServer()
     {
         return this.world;
@@ -112,12 +103,9 @@ public class PlayerChunkMap
         };
     }
 
-    /**
-     * updates all the player instances that need to be updated
-     */
     public void tick()
     {
-        long i = this.world.getTotalWorldTime();
+        long i = this.world.getGameTime();
 
         if (i - this.previousTotalWorldTime > 8000L)
         {
@@ -223,7 +211,7 @@ public class PlayerChunkMap
 
         if (this.players.isEmpty())
         {
-            WorldProvider worldprovider = this.world.provider;
+            WorldProvider worldprovider = this.world.dimension;
 
             if (!worldprovider.canRespawnHere())
             {
@@ -281,9 +269,6 @@ public class PlayerChunkMap
         }
     }
 
-    /**
-     * Adds an EntityPlayerMP to the PlayerManager and to all player instances within player visibility
-     */
     public void addPlayer(EntityPlayerMP player)
     {
         int i = (int)player.posX >> 4;
@@ -303,9 +288,6 @@ public class PlayerChunkMap
         this.markSortPending();
     }
 
-    /**
-     * Removes an EntityPlayerMP from the PlayerManager.
-     */
     public void removePlayer(EntityPlayerMP player)
     {
         int i = (int)player.managedPosX >> 4;
@@ -328,10 +310,6 @@ public class PlayerChunkMap
         this.markSortPending();
     }
 
-    /**
-     * Determine if two rectangles centered at the given points overlap for the provided radius. Arguments: x1, z1, x2,
-     * z2, radius.
-     */
     private boolean overlaps(int x1, int z1, int x2, int z2, int radius)
     {
         int i = x1 - x2;
@@ -347,9 +325,6 @@ public class PlayerChunkMap
         }
     }
 
-    /**
-     * Update chunks around a player that moved
-     */
     public void updateMovingPlayer(EntityPlayerMP player)
     {
         int i = (int)player.posX >> 4;
@@ -456,22 +431,16 @@ public class PlayerChunkMap
         this.sortSendToPlayers = true;
     }
 
-    /**
-     * Get the furthest viewable block given player's view distance
-     */
     public static int getFurthestViewableBlock(int distance)
     {
         return distance * 16 - 16;
     }
 
-    private static long getIndex(int p_187307_0_, int p_187307_1_)
+    private static long getIndex(int chunkX, int chunkZ)
     {
-        return (long)p_187307_0_ + 2147483647L | (long)p_187307_1_ + 2147483647L << 32;
+        return (long)chunkX + 2147483647L | (long)chunkZ + 2147483647L << 32;
     }
 
-    /**
-     * Marks an entry as dirty
-     */
     public void entryChanged(PlayerChunkMapEntry entry)
     {
         this.dirtyEntries.add(entry);

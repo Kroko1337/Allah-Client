@@ -120,16 +120,16 @@ public class StructureNetherBridgePieces
             this.chest = p_i45615_2_.nextInt(3) == 0;
         }
 
-        protected void readStructureFromNBT(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
+        protected void readAdditional(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
         {
-            super.readStructureFromNBT(tagCompound, p_143011_2_);
+            super.readAdditional(tagCompound, p_143011_2_);
             this.chest = tagCompound.getBoolean("Chest");
         }
 
         protected void writeStructureToNBT(NBTTagCompound tagCompound)
         {
             super.writeStructureToNBT(tagCompound);
-            tagCompound.setBoolean("Chest", this.chest);
+            tagCompound.putBoolean("Chest", this.chest);
         }
 
         public void buildComponent(StructureComponent componentIn, List<StructureComponent> listIn, Random rand)
@@ -191,16 +191,16 @@ public class StructureNetherBridgePieces
             this.chest = p_i45613_2_.nextInt(3) == 0;
         }
 
-        protected void readStructureFromNBT(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
+        protected void readAdditional(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
         {
-            super.readStructureFromNBT(tagCompound, p_143011_2_);
+            super.readAdditional(tagCompound, p_143011_2_);
             this.chest = tagCompound.getBoolean("Chest");
         }
 
         protected void writeStructureToNBT(NBTTagCompound tagCompound)
         {
             super.writeStructureToNBT(tagCompound);
-            tagCompound.setBoolean("Chest", this.chest);
+            tagCompound.putBoolean("Chest", this.chest);
         }
 
         public void buildComponent(StructureComponent componentIn, List<StructureComponent> listIn, Random rand)
@@ -640,16 +640,16 @@ public class StructureNetherBridgePieces
             return isAboveGround(structureboundingbox) && StructureComponent.findIntersecting(p_175884_0_, structureboundingbox) == null ? new StructureNetherBridgePieces.End(p_175884_6_, p_175884_1_, structureboundingbox, p_175884_5_) : null;
         }
 
-        protected void readStructureFromNBT(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
+        protected void readAdditional(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
         {
-            super.readStructureFromNBT(tagCompound, p_143011_2_);
-            this.fillSeed = tagCompound.getInteger("Seed");
+            super.readAdditional(tagCompound, p_143011_2_);
+            this.fillSeed = tagCompound.getInt("Seed");
         }
 
         protected void writeStructureToNBT(NBTTagCompound tagCompound)
         {
             super.writeStructureToNBT(tagCompound);
-            tagCompound.setInteger("Seed", this.fillSeed);
+            tagCompound.putInt("Seed", this.fillSeed);
         }
 
         public boolean addComponentParts(World worldIn, Random randomIn, StructureBoundingBox structureBoundingBoxIn)
@@ -956,7 +956,7 @@ public class StructureNetherBridgePieces
             super(p_i2054_1_);
         }
 
-        protected void readStructureFromNBT(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
+        protected void readAdditional(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
         {
         }
 
@@ -1329,16 +1329,16 @@ public class StructureNetherBridgePieces
             this.boundingBox = p_i45611_3_;
         }
 
-        protected void readStructureFromNBT(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
+        protected void readAdditional(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
         {
-            super.readStructureFromNBT(tagCompound, p_143011_2_);
+            super.readAdditional(tagCompound, p_143011_2_);
             this.hasSpawner = tagCompound.getBoolean("Mob");
         }
 
         protected void writeStructureToNBT(NBTTagCompound tagCompound)
         {
             super.writeStructureToNBT(tagCompound);
-            tagCompound.setBoolean("Mob", this.hasSpawner);
+            tagCompound.putBoolean("Mob", this.hasSpawner);
         }
 
         public static StructureNetherBridgePieces.Throne createPiece(List<StructureComponent> p_175874_0_, Random p_175874_1_, int p_175874_2_, int p_175874_3_, int p_175874_4_, int p_175874_5_, EnumFacing p_175874_6_)
@@ -1375,7 +1375,7 @@ public class StructureNetherBridgePieces
                 if (structureBoundingBoxIn.isVecInside(blockpos))
                 {
                     this.hasSpawner = true;
-                    worldIn.setBlockState(blockpos, Blocks.MOB_SPAWNER.getDefaultState(), 2);
+                    worldIn.setBlockState(blockpos, Blocks.SPAWNER.getDefaultState(), 2);
                     TileEntity tileentity = worldIn.getTileEntity(blockpos);
 
                     if (tileentity instanceof TileEntityMobSpawner)

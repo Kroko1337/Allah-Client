@@ -24,9 +24,6 @@ public class SaveHandlerMP implements ISaveHandler
     {
     }
 
-    /**
-     * initializes and returns the chunk loader for the specified world provider
-     */
     public IChunkLoader getChunkLoader(WorldProvider provider)
     {
         return null;
@@ -51,16 +48,10 @@ public class SaveHandlerMP implements ISaveHandler
         return null;
     }
 
-    /**
-     * Called to flush all changes to disk, waiting for them to complete.
-     */
     public void flush()
     {
     }
 
-    /**
-     * Gets the file location of the given map
-     */
     public File getMapFileFromName(String mapName)
     {
         return null;

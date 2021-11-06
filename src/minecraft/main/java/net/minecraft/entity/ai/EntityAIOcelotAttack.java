@@ -19,7 +19,8 @@ public class EntityAIOcelotAttack extends EntityAIBase
     }
 
     /**
-     * Returns whether the EntityAIBase should begin execution.
+     * Returns whether execution should begin. You can also read and cache any state necessary for execution in this
+     * method as well.
      */
     public boolean shouldExecute()
     {
@@ -41,11 +42,11 @@ public class EntityAIOcelotAttack extends EntityAIBase
      */
     public boolean shouldContinueExecuting()
     {
-        if (!this.target.isEntityAlive())
+        if (!this.target.isAlive())
         {
             return false;
         }
-        else if (this.entity.getDistanceSqToEntity(this.target) > 225.0D)
+        else if (this.entity.getDistanceSq(this.target) > 225.0D)
         {
             return false;
         }
@@ -61,17 +62,17 @@ public class EntityAIOcelotAttack extends EntityAIBase
     public void resetTask()
     {
         this.target = null;
-        this.entity.getNavigator().clearPathEntity();
+        this.entity.getNavigator().clearPath();
     }
 
     /**
      * Keep ticking a continuous task that has already been started
      */
-    public void updateTask()
+    public void tick()
     {
-        this.entity.getLookHelper().setLookPositionWithEntity(this.target, 30.0F, 30.0F);
+        this.entity.getLookController().setLookPositionWithEntity(this.target, 30.0F, 30.0F);
         double d0 = (double)(this.entity.width * 2.0F * this.entity.width * 2.0F);
-        double d1 = this.entity.getDistanceSq(this.target.posX, this.target.getEntityBoundingBox().minY, this.target.posZ);
+        double d1 = this.entity.getDistanceSq(this.target.posX, this.target.getBoundingBox().minY, this.target.posZ);
         double d2 = 0.8D;
 
         if (d1 > d0 && d1 < 16.0D)

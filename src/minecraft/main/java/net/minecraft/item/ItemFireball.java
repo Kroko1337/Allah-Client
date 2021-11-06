@@ -19,9 +19,6 @@ public class ItemFireball extends Item
         this.setCreativeTab(CreativeTabs.MISC);
     }
 
-    /**
-     * Called when a Block is right-clicked with this Item
-     */
     public EnumActionResult onItemUse(EntityPlayer player, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
         if (worldIn.isRemote)
@@ -41,11 +38,11 @@ public class ItemFireball extends Item
             {
                 if (worldIn.getBlockState(pos).getMaterial() == Material.AIR)
                 {
-                    worldIn.playSound((EntityPlayer)null, pos, SoundEvents.ITEM_FIRECHARGE_USE, SoundCategory.BLOCKS, 1.0F, (itemRand.nextFloat() - itemRand.nextFloat()) * 0.2F + 1.0F);
+                    worldIn.playSound((EntityPlayer)null, pos, SoundEvents.ITEM_FIRECHARGE_USE, SoundCategory.BLOCKS, 1.0F, (random.nextFloat() - random.nextFloat()) * 0.2F + 1.0F);
                     worldIn.setBlockState(pos, Blocks.FIRE.getDefaultState());
                 }
 
-                if (!player.capabilities.isCreativeMode)
+                if (!player.abilities.isCreativeMode)
                 {
                     itemstack.shrink(1);
                 }

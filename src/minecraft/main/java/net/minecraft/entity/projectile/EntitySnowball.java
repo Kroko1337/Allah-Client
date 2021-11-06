@@ -64,7 +64,7 @@ public class EntitySnowball extends EntityThrowable
         if (!this.world.isRemote)
         {
             this.world.setEntityState(this, (byte)3);
-            this.setDead();
+            this.remove();
         }
     }
 }

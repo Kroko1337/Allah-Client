@@ -32,9 +32,6 @@ public class ItemBlock extends Item
         this.block = block;
     }
 
-    /**
-     * Called when a Block is right-clicked with this Item
-     */
     public EnumActionResult onItemUse(EntityPlayer player, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
         IBlockState iblockstate = worldIn.getBlockState(pos);
@@ -82,7 +79,7 @@ public class ItemBlock extends Item
 
     public static boolean setTileEntityNBT(World worldIn, @Nullable EntityPlayer player, BlockPos pos, ItemStack stackIn)
     {
-        MinecraftServer minecraftserver = worldIn.getMinecraftServer();
+        MinecraftServer minecraftserver = worldIn.getServer();
 
         if (minecraftserver == null)
         {
@@ -90,7 +87,7 @@ public class ItemBlock extends Item
         }
         else
         {
-            NBTTagCompound nbttagcompound = stackIn.getSubCompound("BlockEntityTag");
+            NBTTagCompound nbttagcompound = stackIn.getChildTag("BlockEntityTag");
 
             if (nbttagcompound != null)
             {
@@ -103,16 +100,16 @@ public class ItemBlock extends Item
                         return false;
                     }
 
-                    NBTTagCompound nbttagcompound1 = tileentity.writeToNBT(new NBTTagCompound());
+                    NBTTagCompound nbttagcompound1 = tileentity.write(new NBTTagCompound());
                     NBTTagCompound nbttagcompound2 = nbttagcompound1.copy();
                     nbttagcompound1.merge(nbttagcompound);
-                    nbttagcompound1.setInteger("x", pos.getX());
-                    nbttagcompound1.setInteger("y", pos.getY());
-                    nbttagcompound1.setInteger("z", pos.getZ());
+                    nbttagcompound1.putInt("x", pos.getX());
+                    nbttagcompound1.putInt("y", pos.getY());
+                    nbttagcompound1.putInt("z", pos.getZ());
 
                     if (!nbttagcompound1.equals(nbttagcompound2))
                     {
-                        tileentity.readFromNBT(nbttagcompound1);
+                        tileentity.read(nbttagcompound1);
                         tileentity.markDirty();
                         return true;
                     }
@@ -143,35 +140,35 @@ public class ItemBlock extends Item
      * Returns the unlocalized name of this item. This version accepts an ItemStack so different stacks can have
      * different names based on their damage or NBT.
      */
-    public String getUnlocalizedName(ItemStack stack)
+    public String getTranslationKey(ItemStack stack)
     {
-        return this.block.getUnlocalizedName();
+        return this.block.getTranslationKey();
     }
 
     /**
      * Returns the unlocalized name of this item.
      */
-    public String getUnlocalizedName()
+    public String getTranslationKey()
     {
-        return this.block.getUnlocalizedName();
+        return this.block.getTranslationKey();
     }
 
     /**
      * gets the CreativeTab this item is displayed on
      */
-    public CreativeTabs getCreativeTab()
+    public CreativeTabs getGroup()
     {
-        return this.block.getCreativeTabToDisplayOn();
+        return this.block.getCreativeTab();
     }
 
     /**
      * returns a list of items with the same ID, but different meta (eg: dye returns 16 items)
      */
-    public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> items)
+    public void fillItemGroup(CreativeTabs group, NonNullList<ItemStack> items)
     {
-        if (this.isInCreativeTab(tab))
+        if (this.isInGroup(group))
         {
-            this.block.getSubBlocks(tab, items);
+            this.block.fillItemGroup(group, items);
         }
     }
 

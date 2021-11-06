@@ -53,24 +53,24 @@ public class EntityPig extends EntityAnimal
         this.setSize(0.9F, 0.9F);
     }
 
-    protected void initEntityAI()
+    protected void registerGoals()
     {
-        this.tasks.addTask(0, new EntityAISwimming(this));
-        this.tasks.addTask(1, new EntityAIPanic(this, 1.25D));
-        this.tasks.addTask(3, new EntityAIMate(this, 1.0D));
-        this.tasks.addTask(4, new EntityAITempt(this, 1.2D, Items.CARROT_ON_A_STICK, false));
-        this.tasks.addTask(4, new EntityAITempt(this, 1.2D, false, TEMPTATION_ITEMS));
-        this.tasks.addTask(5, new EntityAIFollowParent(this, 1.1D));
-        this.tasks.addTask(6, new EntityAIWanderAvoidWater(this, 1.0D));
-        this.tasks.addTask(7, new EntityAIWatchClosest(this, EntityPlayer.class, 6.0F));
-        this.tasks.addTask(8, new EntityAILookIdle(this));
+        this.goalSelector.addGoal(0, new EntityAISwimming(this));
+        this.goalSelector.addGoal(1, new EntityAIPanic(this, 1.25D));
+        this.goalSelector.addGoal(3, new EntityAIMate(this, 1.0D));
+        this.goalSelector.addGoal(4, new EntityAITempt(this, 1.2D, Items.CARROT_ON_A_STICK, false));
+        this.goalSelector.addGoal(4, new EntityAITempt(this, 1.2D, false, TEMPTATION_ITEMS));
+        this.goalSelector.addGoal(5, new EntityAIFollowParent(this, 1.1D));
+        this.goalSelector.addGoal(6, new EntityAIWanderAvoidWater(this, 1.0D));
+        this.goalSelector.addGoal(7, new EntityAIWatchClosest(this, EntityPlayer.class, 6.0F));
+        this.goalSelector.addGoal(8, new EntityAILookIdle(this));
     }
 
-    protected void applyEntityAttributes()
+    protected void registerAttributes()
     {
-        super.applyEntityAttributes();
-        this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(10.0D);
-        this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.25D);
+        super.registerAttributes();
+        this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(10.0D);
+        this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.25D);
     }
 
     @Nullable
@@ -115,9 +115,9 @@ public class EntityPig extends EntityAnimal
         super.notifyDataManagerChange(key);
     }
 
-    protected void entityInit()
+    protected void registerData()
     {
-        super.entityInit();
+        super.registerData();
         this.dataManager.register(SADDLED, Boolean.valueOf(false));
         this.dataManager.register(BOOST_TIME, Integer.valueOf(0));
     }
@@ -127,21 +127,18 @@ public class EntityPig extends EntityAnimal
         EntityLiving.registerFixesMob(fixer, EntityPig.class);
     }
 
-    /**
-     * (abstract) Protected helper method to write subclass entity data to NBT.
-     */
     public void writeEntityToNBT(NBTTagCompound compound)
     {
         super.writeEntityToNBT(compound);
-        compound.setBoolean("Saddle", this.getSaddled());
+        compound.putBoolean("Saddle", this.getSaddled());
     }
 
     /**
      * (abstract) Protected helper method to read subclass entity data from NBT.
      */
-    public void readEntityFromNBT(NBTTagCompound compound)
+    public void readAdditional(NBTTagCompound compound)
     {
-        super.readEntityFromNBT(compound);
+        super.readAdditional(compound);
         this.setSaddled(compound.getBoolean("Saddle"));
     }
 
@@ -251,7 +248,7 @@ public class EntityPig extends EntityAnimal
      */
     public void onStruckByLightning(EntityLightningBolt lightningBolt)
     {
-        if (!this.world.isRemote && !this.isDead)
+        if (!this.world.isRemote && !this.removed)
         {
             EntityPigZombie entitypigzombie = new EntityPigZombie(this.world);
             entitypigzombie.setItemStackToSlot(EntityEquipmentSlot.MAINHAND, new ItemStack(Items.GOLDEN_SWORD));
@@ -261,15 +258,15 @@ public class EntityPig extends EntityAnimal
             if (this.hasCustomName())
             {
                 entitypigzombie.setCustomNameTag(this.getCustomNameTag());
-                entitypigzombie.setAlwaysRenderNameTag(this.getAlwaysRenderNameTag());
+                entitypigzombie.setCustomNameVisible(this.isCustomNameVisible());
             }
 
-            this.world.spawnEntity(entitypigzombie);
-            this.setDead();
+            this.world.addEntity0(entitypigzombie);
+            this.remove();
         }
     }
 
-    public void travel(float p_191986_1_, float p_191986_2_, float p_191986_3_)
+    public void travel(float strafe, float vertical, float forward)
     {
         Entity entity = this.getPassengers().isEmpty() ? null : (Entity)this.getPassengers().get(0);
 
@@ -291,7 +288,7 @@ public class EntityPig extends EntityAnimal
 
             if (this.canPassengerSteer())
             {
-                float f = (float)this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getAttributeValue() * 0.225F;
+                float f = (float)this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).getValue() * 0.225F;
 
                 if (this.boosting)
                 {
@@ -325,7 +322,7 @@ public class EntityPig extends EntityAnimal
         {
             this.stepHeight = 0.5F;
             this.jumpMovementFactor = 0.02F;
-            super.travel(p_191986_1_, p_191986_2_, p_191986_3_);
+            super.travel(strafe, vertical, forward);
         }
     }
 

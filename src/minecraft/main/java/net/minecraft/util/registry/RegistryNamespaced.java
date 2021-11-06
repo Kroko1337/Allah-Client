@@ -30,9 +30,9 @@ public class RegistryNamespaced<K, V> extends RegistrySimple<K, V> implements IO
     }
 
     @Nullable
-    public V getObject(@Nullable K name)
+    public V getOrDefault(@Nullable K name)
     {
-        return (V)super.getObject(name);
+        return (V)super.getOrDefault(name);
     }
 
     @Nullable
@@ -40,14 +40,11 @@ public class RegistryNamespaced<K, V> extends RegistrySimple<K, V> implements IO
     /**
      * Gets the name we use to identify the given object.
      */
-    public K getNameForObject(V value)
+    public K getKey(V value)
     {
         return this.inverseObjectRegistry.get(value);
     }
 
-    /**
-     * Does this registry contain an entry for the given key?
-     */
     public boolean containsKey(K key)
     {
         return super.containsKey(key);
@@ -56,16 +53,12 @@ public class RegistryNamespaced<K, V> extends RegistrySimple<K, V> implements IO
     /**
      * Gets the integer ID we use to identify the given object.
      */
-    public int getIDForObject(@Nullable V value)
+    public int getId(@Nullable V value)
     {
         return this.underlyingIntegerMap.getId(value);
     }
 
     @Nullable
-
-    /**
-     * Gets the object identified by the given ID.
-     */
     public V getObjectById(int id)
     {
         return this.underlyingIntegerMap.get(id);

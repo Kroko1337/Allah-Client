@@ -13,11 +13,11 @@ public class EntityTag implements IDataWalker
 
     public NBTTagCompound process(IDataFixer fixer, NBTTagCompound compound, int versionIn)
     {
-        NBTTagCompound nbttagcompound = compound.getCompoundTag("tag");
+        NBTTagCompound nbttagcompound = compound.getCompound("tag");
 
-        if (nbttagcompound.hasKey("EntityTag", 10))
+        if (nbttagcompound.contains("EntityTag", 10))
         {
-            NBTTagCompound nbttagcompound1 = nbttagcompound.getCompoundTag("EntityTag");
+            NBTTagCompound nbttagcompound1 = nbttagcompound.getCompound("EntityTag");
             String s = compound.getString("id");
             String s1;
 
@@ -44,15 +44,15 @@ public class EntityTag implements IDataWalker
             }
             else
             {
-                flag = !nbttagcompound1.hasKey("id", 8);
-                nbttagcompound1.setString("id", s1);
+                flag = !nbttagcompound1.contains("id", 8);
+                nbttagcompound1.putString("id", s1);
             }
 
             fixer.process(FixTypes.ENTITY, nbttagcompound1, versionIn);
 
             if (flag)
             {
-                nbttagcompound1.removeTag("id");
+                nbttagcompound1.remove("id");
             }
         }
 

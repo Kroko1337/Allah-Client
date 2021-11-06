@@ -42,7 +42,7 @@ public class RandomValueRange
 
     public int generateInt(Random rand)
     {
-        return MathHelper.getInt(rand, MathHelper.floor(this.min), MathHelper.floor(this.max));
+        return MathHelper.nextInt(rand, MathHelper.floor(this.min), MathHelper.floor(this.max));
     }
 
     public float generateFloat(Random rand)

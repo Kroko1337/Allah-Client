@@ -183,7 +183,7 @@ public class StructureStrongholdPieces
 
                     if (i < 0)
                     {
-                        if (!structurestrongholdpieces$pieceweight.canSpawnMoreStructuresOfType(p_175955_7_) || structurestrongholdpieces$pieceweight == p_175955_0_.strongholdPieceWeight)
+                        if (!structurestrongholdpieces$pieceweight.canSpawnMoreStructuresOfType(p_175955_7_) || structurestrongholdpieces$pieceweight == p_175955_0_.lastPlaced)
                         {
                             break;
                         }
@@ -193,7 +193,7 @@ public class StructureStrongholdPieces
                         if (structurestrongholdpieces$stronghold1 != null)
                         {
                             ++structurestrongholdpieces$pieceweight.instancesSpawned;
-                            p_175955_0_.strongholdPieceWeight = structurestrongholdpieces$pieceweight;
+                            p_175955_0_.lastPlaced = structurestrongholdpieces$pieceweight;
 
                             if (!structurestrongholdpieces$pieceweight.canSpawnMoreStructures())
                             {
@@ -262,12 +262,12 @@ public class StructureStrongholdPieces
         protected void writeStructureToNBT(NBTTagCompound tagCompound)
         {
             super.writeStructureToNBT(tagCompound);
-            tagCompound.setBoolean("Chest", this.hasMadeChest);
+            tagCompound.putBoolean("Chest", this.hasMadeChest);
         }
 
-        protected void readStructureFromNBT(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
+        protected void readAdditional(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
         {
-            super.readStructureFromNBT(tagCompound, p_143011_2_);
+            super.readAdditional(tagCompound, p_143011_2_);
             this.hasMadeChest = tagCompound.getBoolean("Chest");
         }
 
@@ -334,13 +334,13 @@ public class StructureStrongholdPieces
         protected void writeStructureToNBT(NBTTagCompound tagCompound)
         {
             super.writeStructureToNBT(tagCompound);
-            tagCompound.setInteger("Steps", this.steps);
+            tagCompound.putInt("Steps", this.steps);
         }
 
-        protected void readStructureFromNBT(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
+        protected void readAdditional(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
         {
-            super.readStructureFromNBT(tagCompound, p_143011_2_);
-            this.steps = tagCompound.getInteger("Steps");
+            super.readAdditional(tagCompound, p_143011_2_);
+            this.steps = tagCompound.getInt("Steps");
         }
 
         public static StructureBoundingBox findPieceBox(List<StructureComponent> p_175869_0_, Random p_175869_1_, int p_175869_2_, int p_175869_3_, int p_175869_4_, EnumFacing p_175869_5_)
@@ -435,15 +435,15 @@ public class StructureStrongholdPieces
         protected void writeStructureToNBT(NBTTagCompound tagCompound)
         {
             super.writeStructureToNBT(tagCompound);
-            tagCompound.setBoolean("leftLow", this.leftLow);
-            tagCompound.setBoolean("leftHigh", this.leftHigh);
-            tagCompound.setBoolean("rightLow", this.rightLow);
-            tagCompound.setBoolean("rightHigh", this.rightHigh);
+            tagCompound.putBoolean("leftLow", this.leftLow);
+            tagCompound.putBoolean("leftHigh", this.leftHigh);
+            tagCompound.putBoolean("rightLow", this.rightLow);
+            tagCompound.putBoolean("rightHigh", this.rightHigh);
         }
 
-        protected void readStructureFromNBT(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
+        protected void readAdditional(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
         {
-            super.readStructureFromNBT(tagCompound, p_143011_2_);
+            super.readAdditional(tagCompound, p_143011_2_);
             this.leftLow = tagCompound.getBoolean("leftLow");
             this.leftHigh = tagCompound.getBoolean("leftHigh");
             this.rightLow = tagCompound.getBoolean("rightLow");
@@ -622,12 +622,12 @@ public class StructureStrongholdPieces
         protected void writeStructureToNBT(NBTTagCompound tagCompound)
         {
             super.writeStructureToNBT(tagCompound);
-            tagCompound.setBoolean("Tall", this.isLargeRoom);
+            tagCompound.putBoolean("Tall", this.isLargeRoom);
         }
 
-        protected void readStructureFromNBT(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
+        protected void readAdditional(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
         {
-            super.readStructureFromNBT(tagCompound, p_143011_2_);
+            super.readAdditional(tagCompound, p_143011_2_);
             this.isLargeRoom = tagCompound.getBoolean("Tall");
         }
 
@@ -807,12 +807,12 @@ public class StructureStrongholdPieces
         protected void writeStructureToNBT(NBTTagCompound tagCompound)
         {
             super.writeStructureToNBT(tagCompound);
-            tagCompound.setBoolean("Mob", this.hasSpawner);
+            tagCompound.putBoolean("Mob", this.hasSpawner);
         }
 
-        protected void readStructureFromNBT(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
+        protected void readAdditional(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
         {
-            super.readStructureFromNBT(tagCompound, p_143011_2_);
+            super.readAdditional(tagCompound, p_143011_2_);
             this.hasSpawner = tagCompound.getBoolean("Mob");
         }
 
@@ -917,7 +917,7 @@ public class StructureStrongholdPieces
                 if (structureBoundingBoxIn.isVecInside(blockpos))
                 {
                     this.hasSpawner = true;
-                    worldIn.setBlockState(blockpos, Blocks.MOB_SPAWNER.getDefaultState(), 2);
+                    worldIn.setBlockState(blockpos, Blocks.SPAWNER.getDefaultState(), 2);
                     TileEntity tileentity = worldIn.getTileEntity(blockpos);
 
                     if (tileentity instanceof TileEntityMobSpawner)
@@ -1048,13 +1048,13 @@ public class StructureStrongholdPieces
         protected void writeStructureToNBT(NBTTagCompound tagCompound)
         {
             super.writeStructureToNBT(tagCompound);
-            tagCompound.setInteger("Type", this.roomType);
+            tagCompound.putInt("Type", this.roomType);
         }
 
-        protected void readStructureFromNBT(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
+        protected void readAdditional(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
         {
-            super.readStructureFromNBT(tagCompound, p_143011_2_);
-            this.roomType = tagCompound.getInteger("Type");
+            super.readAdditional(tagCompound, p_143011_2_);
+            this.roomType = tagCompound.getInt("Type");
         }
 
         public void buildComponent(StructureComponent componentIn, List<StructureComponent> listIn, Random rand)
@@ -1216,12 +1216,12 @@ public class StructureStrongholdPieces
         protected void writeStructureToNBT(NBTTagCompound tagCompound)
         {
             super.writeStructureToNBT(tagCompound);
-            tagCompound.setBoolean("Source", this.source);
+            tagCompound.putBoolean("Source", this.source);
         }
 
-        protected void readStructureFromNBT(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
+        protected void readAdditional(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
         {
-            super.readStructureFromNBT(tagCompound, p_143011_2_);
+            super.readAdditional(tagCompound, p_143011_2_);
             this.source = tagCompound.getBoolean("Source");
         }
 
@@ -1276,7 +1276,7 @@ public class StructureStrongholdPieces
 
     public static class Stairs2 extends StructureStrongholdPieces.Stairs
     {
-        public StructureStrongholdPieces.PieceWeight strongholdPieceWeight;
+        public StructureStrongholdPieces.PieceWeight lastPlaced;
         public StructureStrongholdPieces.PortalRoom strongholdPortalRoom;
         public List<StructureComponent> pendingChildren = Lists.<StructureComponent>newArrayList();
 
@@ -1405,13 +1405,13 @@ public class StructureStrongholdPieces
         protected void writeStructureToNBT(NBTTagCompound tagCompound)
         {
             super.writeStructureToNBT(tagCompound);
-            tagCompound.setBoolean("Left", this.expandsX);
-            tagCompound.setBoolean("Right", this.expandsZ);
+            tagCompound.putBoolean("Left", this.expandsX);
+            tagCompound.putBoolean("Right", this.expandsZ);
         }
 
-        protected void readStructureFromNBT(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
+        protected void readAdditional(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
         {
-            super.readStructureFromNBT(tagCompound, p_143011_2_);
+            super.readAdditional(tagCompound, p_143011_2_);
             this.expandsX = tagCompound.getBoolean("Left");
             this.expandsZ = tagCompound.getBoolean("Right");
         }
@@ -1485,10 +1485,10 @@ public class StructureStrongholdPieces
 
         protected void writeStructureToNBT(NBTTagCompound tagCompound)
         {
-            tagCompound.setString("EntryDoor", this.entryDoor.name());
+            tagCompound.putString("EntryDoor", this.entryDoor.name());
         }
 
-        protected void readStructureFromNBT(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
+        protected void readAdditional(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
         {
             this.entryDoor = StructureStrongholdPieces.Stronghold.Door.valueOf(tagCompound.getString("EntryDoor"));
         }

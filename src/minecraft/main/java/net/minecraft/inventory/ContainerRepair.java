@@ -20,30 +20,18 @@ import org.apache.logging.log4j.Logger;
 public class ContainerRepair extends Container
 {
     private static final Logger LOGGER = LogManager.getLogger();
-
-    /** Here comes out item you merged and/or renamed. */
     private final IInventory outputSlot;
-
-    /**
-     * The 2slots where you put your items in that you want to merge and/or rename.
-     */
     private final IInventory inputSlots;
     private final World world;
-    private final BlockPos selfPosition;
-
-    /** The maximum cost of repairing/renaming in the anvil. */
+    private final BlockPos pos;
     public int maximumCost;
-
-    /** determined by damage of input item and stackSize of repair materials */
     private int materialCost;
     private String repairedItemName;
-
-    /** The player that has this container open. */
     private final EntityPlayer player;
 
     public ContainerRepair(InventoryPlayer playerInventory, World worldIn, EntityPlayer player)
     {
-        this(playerInventory, worldIn, BlockPos.ORIGIN, player);
+        this(playerInventory, worldIn, BlockPos.ZERO, player);
     }
 
     public ContainerRepair(InventoryPlayer playerInventory, final World worldIn, final BlockPos blockPosIn, EntityPlayer player)
@@ -57,12 +45,12 @@ public class ContainerRepair extends Container
                 ContainerRepair.this.onCraftMatrixChanged(this);
             }
         };
-        this.selfPosition = blockPosIn;
+        this.pos = blockPosIn;
         this.world = worldIn;
         this.player = player;
-        this.addSlotToContainer(new Slot(this.inputSlots, 0, 27, 47));
-        this.addSlotToContainer(new Slot(this.inputSlots, 1, 76, 47));
-        this.addSlotToContainer(new Slot(this.outputSlot, 2, 134, 47)
+        this.addSlot(new Slot(this.inputSlots, 0, 27, 47));
+        this.addSlot(new Slot(this.inputSlots, 1, 76, 47));
+        this.addSlot(new Slot(this.outputSlot, 2, 134, 47)
         {
             public boolean isItemValid(ItemStack stack)
             {
@@ -70,11 +58,11 @@ public class ContainerRepair extends Container
             }
             public boolean canTakeStack(EntityPlayer playerIn)
             {
-                return (playerIn.capabilities.isCreativeMode || playerIn.experienceLevel >= ContainerRepair.this.maximumCost) && ContainerRepair.this.maximumCost > 0 && this.getHasStack();
+                return (playerIn.abilities.isCreativeMode || playerIn.experienceLevel >= ContainerRepair.this.maximumCost) && ContainerRepair.this.maximumCost > 0 && this.getHasStack();
             }
             public ItemStack onTake(EntityPlayer thePlayer, ItemStack stack)
             {
-                if (!thePlayer.capabilities.isCreativeMode)
+                if (!thePlayer.abilities.isCreativeMode)
                 {
                     thePlayer.addExperienceLevel(-ContainerRepair.this.maximumCost);
                 }
@@ -103,9 +91,9 @@ public class ContainerRepair extends Container
                 ContainerRepair.this.maximumCost = 0;
                 IBlockState iblockstate = worldIn.getBlockState(blockPosIn);
 
-                if (!thePlayer.capabilities.isCreativeMode && !worldIn.isRemote && iblockstate.getBlock() == Blocks.ANVIL && thePlayer.getRNG().nextFloat() < 0.12F)
+                if (!thePlayer.abilities.isCreativeMode && !worldIn.isRemote && iblockstate.getBlock() == Blocks.ANVIL && thePlayer.getRNG().nextFloat() < 0.12F)
                 {
-                    int l = ((Integer)iblockstate.getValue(BlockAnvil.DAMAGE)).intValue();
+                    int l = ((Integer)iblockstate.get(BlockAnvil.DAMAGE)).intValue();
                     ++l;
 
                     if (l > 2)
@@ -132,13 +120,13 @@ public class ContainerRepair extends Container
         {
             for (int j = 0; j < 9; ++j)
             {
-                this.addSlotToContainer(new Slot(playerInventory, j + i * 9 + 9, 8 + j * 18, 84 + i * 18));
+                this.addSlot(new Slot(playerInventory, j + i * 9 + 9, 8 + j * 18, 84 + i * 18));
             }
         }
 
         for (int k = 0; k < 9; ++k)
         {
-            this.addSlotToContainer(new Slot(playerInventory, k, 8 + k * 18, 142));
+            this.addSlot(new Slot(playerInventory, k, 8 + k * 18, 142));
         }
     }
 
@@ -181,11 +169,11 @@ public class ContainerRepair extends Container
 
             if (!itemstack2.isEmpty())
             {
-                boolean flag = itemstack2.getItem() == Items.ENCHANTED_BOOK && !ItemEnchantedBook.getEnchantments(itemstack2).hasNoTags();
+                boolean flag = itemstack2.getItem() == Items.ENCHANTED_BOOK && !ItemEnchantedBook.getEnchantments(itemstack2).isEmpty();
 
-                if (itemstack1.isItemStackDamageable() && itemstack1.getItem().getIsRepairable(itemstack, itemstack2))
+                if (itemstack1.isDamageable() && itemstack1.getItem().getIsRepairable(itemstack, itemstack2))
                 {
-                    int l2 = Math.min(itemstack1.getItemDamage(), itemstack1.getMaxDamage() / 4);
+                    int l2 = Math.min(itemstack1.getDamage(), itemstack1.getMaxDamage() / 4);
 
                     if (l2 <= 0)
                     {
@@ -198,27 +186,27 @@ public class ContainerRepair extends Container
 
                     for (i3 = 0; l2 > 0 && i3 < itemstack2.getCount(); ++i3)
                     {
-                        int j3 = itemstack1.getItemDamage() - l2;
+                        int j3 = itemstack1.getDamage() - l2;
                         itemstack1.setItemDamage(j3);
                         ++i;
-                        l2 = Math.min(itemstack1.getItemDamage(), itemstack1.getMaxDamage() / 4);
+                        l2 = Math.min(itemstack1.getDamage(), itemstack1.getMaxDamage() / 4);
                     }
 
                     this.materialCost = i3;
                 }
                 else
                 {
-                    if (!flag && (itemstack1.getItem() != itemstack2.getItem() || !itemstack1.isItemStackDamageable()))
+                    if (!flag && (itemstack1.getItem() != itemstack2.getItem() || !itemstack1.isDamageable()))
                     {
                         this.outputSlot.setInventorySlotContents(0, ItemStack.EMPTY);
                         this.maximumCost = 0;
                         return;
                     }
 
-                    if (itemstack1.isItemStackDamageable() && !flag)
+                    if (itemstack1.isDamageable() && !flag)
                     {
-                        int l = itemstack.getMaxDamage() - itemstack.getItemDamage();
-                        int i1 = itemstack2.getMaxDamage() - itemstack2.getItemDamage();
+                        int l = itemstack.getMaxDamage() - itemstack.getDamage();
+                        int i1 = itemstack2.getMaxDamage() - itemstack2.getDamage();
                         int j1 = i1 + itemstack1.getMaxDamage() * 12 / 100;
                         int k1 = l + j1;
                         int l1 = itemstack1.getMaxDamage() - k1;
@@ -248,7 +236,7 @@ public class ContainerRepair extends Container
                             j2 = i2 == j2 ? j2 + 1 : Math.max(j2, i2);
                             boolean flag1 = enchantment1.canApply(itemstack);
 
-                            if (this.player.capabilities.isCreativeMode || itemstack.getItem() == Items.ENCHANTED_BOOK)
+                            if (this.player.abilities.isCreativeMode || itemstack.getItem() == Items.ENCHANTED_BOOK)
                             {
                                 flag1 = true;
                             }
@@ -348,7 +336,7 @@ public class ContainerRepair extends Container
                 this.maximumCost = 39;
             }
 
-            if (this.maximumCost >= 40 && !this.player.capabilities.isCreativeMode)
+            if (this.maximumCost >= 40 && !this.player.abilities.isCreativeMode)
             {
                 itemstack1 = ItemStack.EMPTY;
             }
@@ -408,13 +396,13 @@ public class ContainerRepair extends Container
      */
     public boolean canInteractWith(EntityPlayer playerIn)
     {
-        if (this.world.getBlockState(this.selfPosition).getBlock() != Blocks.ANVIL)
+        if (this.world.getBlockState(this.pos).getBlock() != Blocks.ANVIL)
         {
             return false;
         }
         else
         {
-            return playerIn.getDistanceSq((double)this.selfPosition.getX() + 0.5D, (double)this.selfPosition.getY() + 0.5D, (double)this.selfPosition.getZ() + 0.5D) <= 64.0D;
+            return playerIn.getDistanceSq((double)this.pos.getX() + 0.5D, (double)this.pos.getY() + 0.5D, (double)this.pos.getZ() + 0.5D) <= 64.0D;
         }
     }
 

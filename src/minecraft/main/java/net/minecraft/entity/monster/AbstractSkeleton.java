@@ -66,29 +66,29 @@ public abstract class AbstractSkeleton extends EntityMob implements IRangedAttac
         this.setCombatTask();
     }
 
-    protected void initEntityAI()
+    protected void registerGoals()
     {
-        this.tasks.addTask(1, new EntityAISwimming(this));
-        this.tasks.addTask(2, new EntityAIRestrictSun(this));
-        this.tasks.addTask(3, new EntityAIFleeSun(this, 1.0D));
-        this.tasks.addTask(3, new EntityAIAvoidEntity(this, EntityWolf.class, 6.0F, 1.0D, 1.2D));
-        this.tasks.addTask(5, new EntityAIWanderAvoidWater(this, 1.0D));
-        this.tasks.addTask(6, new EntityAIWatchClosest(this, EntityPlayer.class, 8.0F));
-        this.tasks.addTask(6, new EntityAILookIdle(this));
-        this.targetTasks.addTask(1, new EntityAIHurtByTarget(this, false, new Class[0]));
-        this.targetTasks.addTask(2, new EntityAINearestAttackableTarget(this, EntityPlayer.class, true));
-        this.targetTasks.addTask(3, new EntityAINearestAttackableTarget(this, EntityIronGolem.class, true));
+        this.goalSelector.addGoal(1, new EntityAISwimming(this));
+        this.goalSelector.addGoal(2, new EntityAIRestrictSun(this));
+        this.goalSelector.addGoal(3, new EntityAIFleeSun(this, 1.0D));
+        this.goalSelector.addGoal(3, new EntityAIAvoidEntity(this, EntityWolf.class, 6.0F, 1.0D, 1.2D));
+        this.goalSelector.addGoal(5, new EntityAIWanderAvoidWater(this, 1.0D));
+        this.goalSelector.addGoal(6, new EntityAIWatchClosest(this, EntityPlayer.class, 8.0F));
+        this.goalSelector.addGoal(6, new EntityAILookIdle(this));
+        this.targetSelector.addGoal(1, new EntityAIHurtByTarget(this, false, new Class[0]));
+        this.targetSelector.addGoal(2, new EntityAINearestAttackableTarget(this, EntityPlayer.class, true));
+        this.targetSelector.addGoal(3, new EntityAINearestAttackableTarget(this, EntityIronGolem.class, true));
     }
 
-    protected void applyEntityAttributes()
+    protected void registerAttributes()
     {
-        super.applyEntityAttributes();
-        this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.25D);
+        super.registerAttributes();
+        this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.25D);
     }
 
-    protected void entityInit()
+    protected void registerData()
     {
-        super.entityInit();
+        super.registerData();
         this.dataManager.register(SWINGING_ARMS, Boolean.valueOf(false));
     }
 
@@ -99,9 +99,6 @@ public abstract class AbstractSkeleton extends EntityMob implements IRangedAttac
 
     abstract SoundEvent getStepSound();
 
-    /**
-     * Get this Entity's EnumCreatureAttribute
-     */
     public EnumCreatureAttribute getCreatureAttribute()
     {
         return EnumCreatureAttribute.UNDEAD;
@@ -111,7 +108,7 @@ public abstract class AbstractSkeleton extends EntityMob implements IRangedAttac
      * Called frequently so the entity can update its state every tick as required. For example, zombies and skeletons
      * use this to react to sunlight and start to burn.
      */
-    public void onLivingUpdate()
+    public void livingTick()
     {
         if (this.world.isDaytime() && !this.world.isRemote)
         {
@@ -125,11 +122,11 @@ public abstract class AbstractSkeleton extends EntityMob implements IRangedAttac
 
                 if (!itemstack.isEmpty())
                 {
-                    if (itemstack.isItemStackDamageable())
+                    if (itemstack.isDamageable())
                     {
-                        itemstack.setItemDamage(itemstack.getItemDamage() + this.rand.nextInt(2));
+                        itemstack.setItemDamage(itemstack.getDamage() + this.rand.nextInt(2));
 
-                        if (itemstack.getItemDamage() >= itemstack.getMaxDamage())
+                        if (itemstack.getDamage() >= itemstack.getMaxDamage())
                         {
                             this.renderBrokenItemStack(itemstack);
                             this.setItemStackToSlot(EntityEquipmentSlot.HEAD, ItemStack.EMPTY);
@@ -146,7 +143,7 @@ public abstract class AbstractSkeleton extends EntityMob implements IRangedAttac
             }
         }
 
-        super.onLivingUpdate();
+        super.livingTick();
     }
 
     /**
@@ -173,11 +170,6 @@ public abstract class AbstractSkeleton extends EntityMob implements IRangedAttac
     }
 
     @Nullable
-
-    /**
-     * Called only once on an entity when first time spawned, via egg, mob spawner, natural spawning etc, but not called
-     * when entity is reloaded from nbt. Mainly used for initializing attributes and inventory
-     */
     public IEntityLivingData onInitialSpawn(DifficultyInstance difficulty, @Nullable IEntityLivingData livingdata)
     {
         livingdata = super.onInitialSpawn(difficulty, livingdata);
@@ -207,8 +199,8 @@ public abstract class AbstractSkeleton extends EntityMob implements IRangedAttac
     {
         if (this.world != null && !this.world.isRemote)
         {
-            this.tasks.removeTask(this.aiAttackOnCollide);
-            this.tasks.removeTask(this.aiArrowAttack);
+            this.goalSelector.removeGoal(this.aiAttackOnCollide);
+            this.goalSelector.removeGoal(this.aiArrowAttack);
             ItemStack itemstack = this.getHeldItemMainhand();
 
             if (itemstack.getItem() == Items.BOW)
@@ -221,11 +213,11 @@ public abstract class AbstractSkeleton extends EntityMob implements IRangedAttac
                 }
 
                 this.aiArrowAttack.setAttackCooldown(i);
-                this.tasks.addTask(4, this.aiArrowAttack);
+                this.goalSelector.addGoal(4, this.aiArrowAttack);
             }
             else
             {
-                this.tasks.addTask(4, this.aiAttackOnCollide);
+                this.goalSelector.addGoal(4, this.aiAttackOnCollide);
             }
         }
     }
@@ -237,12 +229,12 @@ public abstract class AbstractSkeleton extends EntityMob implements IRangedAttac
     {
         EntityArrow entityarrow = this.getArrow(distanceFactor);
         double d0 = target.posX - this.posX;
-        double d1 = target.getEntityBoundingBox().minY + (double)(target.height / 3.0F) - entityarrow.posY;
+        double d1 = target.getBoundingBox().minY + (double)(target.height / 3.0F) - entityarrow.posY;
         double d2 = target.posZ - this.posZ;
         double d3 = (double)MathHelper.sqrt(d0 * d0 + d2 * d2);
-        entityarrow.setThrowableHeading(d0, d1 + d3 * 0.20000000298023224D, d2, 1.6F, (float)(14 - this.world.getDifficulty().getDifficultyId() * 4));
+        entityarrow.shoot(d0, d1 + d3 * 0.20000000298023224D, d2, 1.6F, (float)(14 - this.world.getDifficulty().getId() * 4));
         this.playSound(SoundEvents.ENTITY_SKELETON_SHOOT, 1.0F, 1.0F / (this.getRNG().nextFloat() * 0.4F + 0.8F));
-        this.world.spawnEntity(entityarrow);
+        this.world.addEntity0(entityarrow);
     }
 
     protected EntityArrow getArrow(float p_190726_1_)
@@ -255,9 +247,9 @@ public abstract class AbstractSkeleton extends EntityMob implements IRangedAttac
     /**
      * (abstract) Protected helper method to read subclass entity data from NBT.
      */
-    public void readEntityFromNBT(NBTTagCompound compound)
+    public void readAdditional(NBTTagCompound compound)
     {
-        super.readEntityFromNBT(compound);
+        super.readAdditional(compound);
         this.setCombatTask();
     }
 

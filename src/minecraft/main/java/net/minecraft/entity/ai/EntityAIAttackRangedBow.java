@@ -19,22 +19,23 @@ public class EntityAIAttackRangedBow<T extends EntityMob & IRangedAttackMob> ext
     private boolean strafingBackwards;
     private int strafingTime = -1;
 
-    public EntityAIAttackRangedBow(T p_i47515_1_, double p_i47515_2_, int p_i47515_4_, float p_i47515_5_)
+    public EntityAIAttackRangedBow(T mob, double moveSpeedAmpIn, int attackCooldownIn, float maxAttackDistanceIn)
     {
-        this.entity = p_i47515_1_;
-        this.moveSpeedAmp = p_i47515_2_;
-        this.attackCooldown = p_i47515_4_;
-        this.maxAttackDistance = p_i47515_5_ * p_i47515_5_;
+        this.entity = mob;
+        this.moveSpeedAmp = moveSpeedAmpIn;
+        this.attackCooldown = attackCooldownIn;
+        this.maxAttackDistance = maxAttackDistanceIn * maxAttackDistanceIn;
         this.setMutexBits(3);
     }
 
-    public void setAttackCooldown(int p_189428_1_)
+    public void setAttackCooldown(int attackCooldownIn)
     {
-        this.attackCooldown = p_189428_1_;
+        this.attackCooldown = attackCooldownIn;
     }
 
     /**
-     * Returns whether the EntityAIBase should begin execution.
+     * Returns whether execution should begin. You can also read and cache any state necessary for execution in this
+     * method as well.
      */
     public boolean shouldExecute()
     {
@@ -78,13 +79,13 @@ public class EntityAIAttackRangedBow<T extends EntityMob & IRangedAttackMob> ext
     /**
      * Keep ticking a continuous task that has already been started
      */
-    public void updateTask()
+    public void tick()
     {
         EntityLivingBase entitylivingbase = this.entity.getAttackTarget();
 
         if (entitylivingbase != null)
         {
-            double d0 = this.entity.getDistanceSq(entitylivingbase.posX, entitylivingbase.getEntityBoundingBox().minY, entitylivingbase.posZ);
+            double d0 = this.entity.getDistanceSq(entitylivingbase.posX, entitylivingbase.getBoundingBox().minY, entitylivingbase.posZ);
             boolean flag = this.entity.getEntitySenses().canSee(entitylivingbase);
             boolean flag1 = this.seeTime > 0;
 
@@ -104,7 +105,7 @@ public class EntityAIAttackRangedBow<T extends EntityMob & IRangedAttackMob> ext
 
             if (d0 <= (double)this.maxAttackDistance && this.seeTime >= 20)
             {
-                this.entity.getNavigator().clearPathEntity();
+                this.entity.getNavigator().clearPath();
                 ++this.strafingTime;
             }
             else
@@ -144,7 +145,7 @@ public class EntityAIAttackRangedBow<T extends EntityMob & IRangedAttackMob> ext
             }
             else
             {
-                this.entity.getLookHelper().setLookPositionWithEntity(entitylivingbase, 30.0F, 30.0F);
+                this.entity.getLookController().setLookPositionWithEntity(entitylivingbase, 30.0F, 30.0F);
             }
 
             if (this.entity.isHandActive())

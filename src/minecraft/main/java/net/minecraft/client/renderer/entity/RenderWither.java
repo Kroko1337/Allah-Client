@@ -18,7 +18,7 @@ public class RenderWither extends RenderLiving<EntityWither>
     }
 
     /**
-     * Returns the location of an entity's texture. Doesn't seem to be called unless you call Render.bindEntityTexture.
+     * Returns the location of an entity's texture.
      */
     protected ResourceLocation getEntityTexture(EntityWither entity)
     {
@@ -26,9 +26,6 @@ public class RenderWither extends RenderLiving<EntityWither>
         return i > 0 && (i > 80 || i / 5 % 2 != 1) ? INVULNERABLE_WITHER_TEXTURES : WITHER_TEXTURES;
     }
 
-    /**
-     * Allows the render to do state modifications necessary before the model is rendered.
-     */
     protected void preRenderCallback(EntityWither entitylivingbaseIn, float partialTickTime)
     {
         float f = 2.0F;

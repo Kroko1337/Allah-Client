@@ -24,47 +24,39 @@ public class BlockStone extends Block
     public BlockStone()
     {
         super(Material.ROCK);
-        this.setDefaultState(this.blockState.getBaseState().withProperty(VARIANT, BlockStone.EnumType.STONE));
+        this.setDefaultState(this.stateContainer.getBaseState().withProperty(VARIANT, BlockStone.EnumType.STONE));
         this.setCreativeTab(CreativeTabs.BUILDING_BLOCKS);
     }
 
-    /**
-     * Gets the localized name of this block. Used for the statistics page.
-     */
     public String getLocalizedName()
     {
-        return I18n.translateToLocal(this.getUnlocalizedName() + "." + BlockStone.EnumType.STONE.getUnlocalizedName() + ".name");
+        return I18n.translateToLocal(this.getTranslationKey() + "." + BlockStone.EnumType.STONE.getTranslationKey() + ".name");
     }
 
     /**
      * Get the MapColor for this Block and the given BlockState
+     * @deprecated call via {@link IBlockState#getMapColor(IBlockAccess,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
      */
-    public MapColor getMapColor(IBlockState state, IBlockAccess worldIn, BlockPos pos)
+    public MapColor getMaterialColor(IBlockState state, IBlockAccess worldIn, BlockPos pos)
     {
-        return ((BlockStone.EnumType)state.getValue(VARIANT)).getMapColor();
+        return ((BlockStone.EnumType)state.get(VARIANT)).getMapColor();
     }
 
-    /**
-     * Get the Item that this Block should drop when harvested.
-     */
     public Item getItemDropped(IBlockState state, Random rand, int fortune)
     {
-        return state.getValue(VARIANT) == BlockStone.EnumType.STONE ? Item.getItemFromBlock(Blocks.COBBLESTONE) : Item.getItemFromBlock(Blocks.STONE);
+        return state.get(VARIANT) == BlockStone.EnumType.STONE ? Item.getItemFromBlock(Blocks.COBBLESTONE) : Item.getItemFromBlock(Blocks.STONE);
     }
 
-    /**
-     * Gets the metadata of the item this Block can drop. This method is called when the block gets destroyed. It
-     * returns the metadata of the dropped item based on the old metadata of the block.
-     */
     public int damageDropped(IBlockState state)
     {
-        return ((BlockStone.EnumType)state.getValue(VARIANT)).getMetadata();
+        return ((BlockStone.EnumType)state.get(VARIANT)).getMetadata();
     }
 
     /**
      * returns a list of blocks with the same ID, but different meta (eg: wood returns 4 blocks)
      */
-    public void getSubBlocks(CreativeTabs itemIn, NonNullList<ItemStack> items)
+    public void fillItemGroup(CreativeTabs group, NonNullList<ItemStack> items)
     {
         for (BlockStone.EnumType blockstone$enumtype : BlockStone.EnumType.values())
         {
@@ -72,20 +64,14 @@ public class BlockStone extends Block
         }
     }
 
-    /**
-     * Convert the given metadata into a BlockState for this Block
-     */
     public IBlockState getStateFromMeta(int meta)
     {
         return this.getDefaultState().withProperty(VARIANT, BlockStone.EnumType.byMetadata(meta));
     }
 
-    /**
-     * Convert the BlockState into the correct metadata value
-     */
     public int getMetaFromState(IBlockState state)
     {
-        return ((BlockStone.EnumType)state.getValue(VARIANT)).getMetadata();
+        return ((BlockStone.EnumType)state.get(VARIANT)).getMetadata();
     }
 
     protected BlockStateContainer createBlockState()
@@ -106,7 +92,7 @@ public class BlockStone extends Block
         private static final BlockStone.EnumType[] META_LOOKUP = new BlockStone.EnumType[values().length];
         private final int meta;
         private final String name;
-        private final String unlocalizedName;
+        private final String translationKey;
         private final MapColor mapColor;
         private final boolean isNatural;
 
@@ -119,7 +105,7 @@ public class BlockStone extends Block
         {
             this.meta = p_i46384_3_;
             this.name = p_i46384_5_;
-            this.unlocalizedName = p_i46384_6_;
+            this.translationKey = p_i46384_6_;
             this.mapColor = p_i46384_4_;
             this.isNatural = p_i46384_7_;
         }
@@ -154,9 +140,9 @@ public class BlockStone extends Block
             return this.name;
         }
 
-        public String getUnlocalizedName()
+        public String getTranslationKey()
         {
-            return this.unlocalizedName;
+            return this.translationKey;
         }
 
         public boolean isNatural()

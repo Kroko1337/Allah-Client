@@ -5,11 +5,8 @@ import net.minecraft.util.math.BlockPos;
 
 public class VillageDoorInfo
 {
-    /** a block representing the door. Could be either upper or lower part */
     private final BlockPos doorBlockPos;
     private final BlockPos insideBlock;
-
-    /** the inside direction is where can see less sky */
     private final EnumFacing insideDirection;
     private int lastActivityTimestamp;
     private boolean isDetachedFromVillageFlag;
@@ -44,9 +41,6 @@ public class VillageDoorInfo
         this.lastActivityTimestamp = timestamp;
     }
 
-    /**
-     * Returns the squared distance between this door and the given coordinate.
-     */
     public int getDistanceSquared(int x, int y, int z)
     {
         return (int)this.doorBlockPos.distanceSq((double)x, (double)y, (double)z);
@@ -66,7 +60,7 @@ public class VillageDoorInfo
     {
         int i = pos.getX() - this.doorBlockPos.getX();
         int j = pos.getZ() - this.doorBlockPos.getY();
-        return i * this.insideDirection.getFrontOffsetX() + j * this.insideDirection.getFrontOffsetZ() >= 0;
+        return i * this.insideDirection.getXOffset() + j * this.insideDirection.getZOffset() >= 0;
     }
 
     public void resetDoorOpeningRestrictionCounter()
@@ -96,12 +90,12 @@ public class VillageDoorInfo
 
     public int getInsideOffsetX()
     {
-        return this.insideDirection.getFrontOffsetX() * 2;
+        return this.insideDirection.getXOffset() * 2;
     }
 
     public int getInsideOffsetZ()
     {
-        return this.insideDirection.getFrontOffsetZ() * 2;
+        return this.insideDirection.getZOffset() * 2;
     }
 
     public int getLastActivityTimestamp()

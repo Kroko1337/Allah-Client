@@ -23,11 +23,11 @@ public interface ISound
 
     float getPitch();
 
-    float getXPosF();
+    float getX();
 
-    float getYPosF();
+    float getY();
 
-    float getZPosF();
+    float getZ();
 
     ISound.AttenuationType getAttenuationType();
 

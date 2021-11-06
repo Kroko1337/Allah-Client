@@ -14,8 +14,6 @@ import net.minecraft.util.math.MathHelper;
 public class GuiScreenOptionsSounds extends GuiScreen
 {
     private final GuiScreen parent;
-
-    /** Reference to the GameSettings object. */
     private final GameSettings game_settings_4;
     protected String title = "Options";
     private String offDisplayString;
@@ -26,10 +24,6 @@ public class GuiScreenOptionsSounds extends GuiScreen
         this.game_settings_4 = settingsIn;
     }
 
-    /**
-     * Adds the buttons (and other controls) to the screen in question. Called when the GUI is displayed and when the
-     * window resizes, the buttonList is cleared beforehand.
-     */
     public void initGui()
     {
         this.title = I18n.format("options.sounds.title");
@@ -54,10 +48,6 @@ public class GuiScreenOptionsSounds extends GuiScreen
         this.buttonList.add(new GuiButton(200, this.width / 2 - 100, this.height / 6 + 168, I18n.format("gui.done")));
     }
 
-    /**
-     * Fired when a key is typed (except F11 which toggles full screen). This is the equivalent of
-     * KeyListener.keyTyped(KeyEvent e). Args : character (character on the key), keyCode (lwjgl Keyboard key code)
-     */
     protected void keyTyped(char typedChar, int keyCode) throws IOException
     {
         if (keyCode == 1)
@@ -68,9 +58,6 @@ public class GuiScreenOptionsSounds extends GuiScreen
         super.keyTyped(typedChar, keyCode);
     }
 
-    /**
-     * Called by the controls from the buttonList when activated. (Mouse pressed for buttons)
-     */
     protected void actionPerformed(GuiButton button) throws IOException
     {
         if (button.enabled)
@@ -89,9 +76,6 @@ public class GuiScreenOptionsSounds extends GuiScreen
         }
     }
 
-    /**
-     * Draws the screen and all the components in it.
-     */
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         this.drawDefaultBackground();
@@ -171,7 +155,7 @@ public class GuiScreenOptionsSounds extends GuiScreen
         {
             if (this.pressed)
             {
-                GuiScreenOptionsSounds.this.mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+                GuiScreenOptionsSounds.this.mc.getSoundHandler().play(PositionedSoundRecord.master(SoundEvents.UI_BUTTON_CLICK, 1.0F));
             }
 
             this.pressed = false;

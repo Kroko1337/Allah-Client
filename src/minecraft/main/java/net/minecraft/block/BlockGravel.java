@@ -10,9 +10,6 @@ import net.minecraft.world.IBlockAccess;
 
 public class BlockGravel extends BlockFalling
 {
-    /**
-     * Get the Item that this Block should drop when harvested.
-     */
     public Item getItemDropped(IBlockState state, Random rand, int fortune)
     {
         if (fortune > 3)
@@ -25,8 +22,10 @@ public class BlockGravel extends BlockFalling
 
     /**
      * Get the MapColor for this Block and the given BlockState
+     * @deprecated call via {@link IBlockState#getMapColor(IBlockAccess,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
      */
-    public MapColor getMapColor(IBlockState state, IBlockAccess worldIn, BlockPos pos)
+    public MapColor getMaterialColor(IBlockState state, IBlockAccess worldIn, BlockPos pos)
     {
         return MapColor.STONE;
     }

@@ -14,16 +14,13 @@ import net.minecraft.world.World;
 
 public class BlockDropper extends BlockDispenser
 {
-    private final IBehaviorDispenseItem dropBehavior = new BehaviorDefaultDispenseItem();
+    private final IBehaviorDispenseItem DISPENSE_BEHAVIOR = new BehaviorDefaultDispenseItem();
 
     protected IBehaviorDispenseItem getBehavior(ItemStack stack)
     {
-        return this.dropBehavior;
+        return this.DISPENSE_BEHAVIOR;
     }
 
-    /**
-     * Returns a new instance of a block's tile entity class. Called on placing the block.
-     */
     public TileEntity createNewTileEntity(World worldIn, int meta)
     {
         return new TileEntityDropper();
@@ -48,18 +45,18 @@ public class BlockDropper extends BlockDispenser
 
                 if (!itemstack.isEmpty())
                 {
-                    EnumFacing enumfacing = (EnumFacing)worldIn.getBlockState(pos).getValue(FACING);
+                    EnumFacing enumfacing = (EnumFacing)worldIn.getBlockState(pos).get(FACING);
                     BlockPos blockpos = pos.offset(enumfacing);
                     IInventory iinventory = TileEntityHopper.getInventoryAtPosition(worldIn, (double)blockpos.getX(), (double)blockpos.getY(), (double)blockpos.getZ());
                     ItemStack itemstack1;
 
                     if (iinventory == null)
                     {
-                        itemstack1 = this.dropBehavior.dispense(blocksourceimpl, itemstack);
+                        itemstack1 = this.DISPENSE_BEHAVIOR.dispense(blocksourceimpl, itemstack);
                     }
                     else
                     {
-                        itemstack1 = TileEntityHopper.putStackInInventoryAllSlots(tileentitydispenser, iinventory, itemstack.copy().splitStack(1), enumfacing.getOpposite());
+                        itemstack1 = TileEntityHopper.putStackInInventoryAllSlots(tileentitydispenser, iinventory, itemstack.copy().split(1), enumfacing.getOpposite());
 
                         if (itemstack1.isEmpty())
                         {

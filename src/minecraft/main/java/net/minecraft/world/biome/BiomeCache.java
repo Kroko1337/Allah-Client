@@ -8,10 +8,7 @@ import net.minecraft.server.MinecraftServer;
 
 public class BiomeCache
 {
-    /** Reference to the WorldChunkManager */
     private final BiomeProvider provider;
-
-    /** The last time this BiomeCache was cleaned, in milliseconds. */
     private long lastCleanupTime;
     private final Long2ObjectMap<BiomeCache.Block> cacheMap = new Long2ObjectOpenHashMap<BiomeCache.Block>(4096);
     private final List<BiomeCache.Block> cache = Lists.<BiomeCache.Block>newArrayList();
@@ -21,10 +18,7 @@ public class BiomeCache
         this.provider = provider;
     }
 
-    /**
-     * Returns a biome cache block at location specified.
-     */
-    public BiomeCache.Block getBiomeCacheBlock(int x, int z)
+    public BiomeCache.Block getEntry(int x, int z)
     {
         x = x >> 4;
         z = z >> 4;
@@ -44,13 +38,10 @@ public class BiomeCache
 
     public Biome getBiome(int x, int z, Biome defaultValue)
     {
-        Biome biome = this.getBiomeCacheBlock(x, z).getBiome(x, z);
+        Biome biome = this.getEntry(x, z).getBiome(x, z);
         return biome == null ? defaultValue : biome;
     }
 
-    /**
-     * Removes BiomeCacheBlocks from this cache that haven't been accessed in at least 30 seconds.
-     */
     public void cleanupCache()
     {
         long i = MinecraftServer.getCurrentTimeMillis();
@@ -75,12 +66,9 @@ public class BiomeCache
         }
     }
 
-    /**
-     * Returns the array of cached biome types in the BiomeCacheBlock at the given location.
-     */
     public Biome[] getCachedBiomes(int x, int z)
     {
-        return this.getBiomeCacheBlock(x, z).biomes;
+        return this.getEntry(x, z).biomes;
     }
 
     public class Block

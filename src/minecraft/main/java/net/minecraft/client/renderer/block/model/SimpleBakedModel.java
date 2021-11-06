@@ -146,7 +146,7 @@ public class SimpleBakedModel implements IBakedModel
             return this;
         }
 
-        public IBakedModel makeBakedModel()
+        public IBakedModel build()
         {
             if (this.builderTexture == null)
             {

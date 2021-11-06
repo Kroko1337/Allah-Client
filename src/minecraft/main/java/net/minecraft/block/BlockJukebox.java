@@ -36,16 +36,13 @@ public class BlockJukebox extends BlockContainer
     protected BlockJukebox()
     {
         super(Material.WOOD, MapColor.DIRT);
-        this.setDefaultState(this.blockState.getBaseState().withProperty(HAS_RECORD, Boolean.valueOf(false)));
+        this.setDefaultState(this.stateContainer.getBaseState().withProperty(HAS_RECORD, Boolean.valueOf(false)));
         this.setCreativeTab(CreativeTabs.DECORATIONS);
     }
 
-    /**
-     * Called when the block is right clicked by a player.
-     */
     public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
-        if (((Boolean)state.getValue(HAS_RECORD)).booleanValue())
+        if (((Boolean)state.get(HAS_RECORD)).booleanValue())
         {
             this.dropRecord(worldIn, pos, state);
             state = state.withProperty(HAS_RECORD, Boolean.valueOf(false));
@@ -92,24 +89,18 @@ public class BlockJukebox extends BlockContainer
                     ItemStack itemstack1 = itemstack.copy();
                     EntityItem entityitem = new EntityItem(worldIn, (double)pos.getX() + d0, (double)pos.getY() + d1, (double)pos.getZ() + d2, itemstack1);
                     entityitem.setDefaultPickupDelay();
-                    worldIn.spawnEntity(entityitem);
+                    worldIn.addEntity0(entityitem);
                 }
             }
         }
     }
 
-    /**
-     * Called serverside after this block is replaced with another in Chunk, but before the Tile Entity is updated
-     */
     public void breakBlock(World worldIn, BlockPos pos, IBlockState state)
     {
         this.dropRecord(worldIn, pos, state);
         super.breakBlock(worldIn, pos, state);
     }
 
-    /**
-     * Spawns this Block's drops into the World as EntityItems.
-     */
     public void dropBlockAsItemWithChance(World worldIn, BlockPos pos, IBlockState state, float chance, int fortune)
     {
         if (!worldIn.isRemote)
@@ -118,19 +109,24 @@ public class BlockJukebox extends BlockContainer
         }
     }
 
-    /**
-     * Returns a new instance of a block's tile entity class. Called on placing the block.
-     */
     public TileEntity createNewTileEntity(World worldIn, int meta)
     {
         return new BlockJukebox.TileEntityJukebox();
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#hasComparatorInputOverride()} whenever possible. Implementing/overriding
+     * is fine.
+     */
     public boolean hasComparatorInputOverride(IBlockState state)
     {
         return true;
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#getComparatorInputOverride(World,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public int getComparatorInputOverride(IBlockState blockState, World worldIn, BlockPos pos)
     {
         TileEntity tileentity = worldIn.getTileEntity(pos);
@@ -151,26 +147,21 @@ public class BlockJukebox extends BlockContainer
     /**
      * The type of render function called. MODEL for mixed tesr and static model, MODELBLOCK_ANIMATED for TESR-only,
      * LIQUID for vanilla liquids, INVISIBLE to skip all rendering
+     * @deprecated call via {@link IBlockState#getRenderType()} whenever possible. Implementing/overriding is fine.
      */
     public EnumBlockRenderType getRenderType(IBlockState state)
     {
         return EnumBlockRenderType.MODEL;
     }
 
-    /**
-     * Convert the given metadata into a BlockState for this Block
-     */
     public IBlockState getStateFromMeta(int meta)
     {
         return this.getDefaultState().withProperty(HAS_RECORD, Boolean.valueOf(meta > 0));
     }
 
-    /**
-     * Convert the BlockState into the correct metadata value
-     */
     public int getMetaFromState(IBlockState state)
     {
-        return ((Boolean)state.getValue(HAS_RECORD)).booleanValue() ? 1 : 0;
+        return ((Boolean)state.get(HAS_RECORD)).booleanValue() ? 1 : 0;
     }
 
     protected BlockStateContainer createBlockState()
@@ -182,27 +173,27 @@ public class BlockJukebox extends BlockContainer
     {
         private ItemStack record = ItemStack.EMPTY;
 
-        public void readFromNBT(NBTTagCompound compound)
+        public void read(NBTTagCompound compound)
         {
-            super.readFromNBT(compound);
+            super.read(compound);
 
-            if (compound.hasKey("RecordItem", 10))
+            if (compound.contains("RecordItem", 10))
             {
-                this.setRecord(new ItemStack(compound.getCompoundTag("RecordItem")));
+                this.setRecord(new ItemStack(compound.getCompound("RecordItem")));
             }
-            else if (compound.getInteger("Record") > 0)
+            else if (compound.getInt("Record") > 0)
             {
-                this.setRecord(new ItemStack(Item.getItemById(compound.getInteger("Record"))));
+                this.setRecord(new ItemStack(Item.getItemById(compound.getInt("Record"))));
             }
         }
 
-        public NBTTagCompound writeToNBT(NBTTagCompound compound)
+        public NBTTagCompound write(NBTTagCompound compound)
         {
-            super.writeToNBT(compound);
+            super.write(compound);
 
             if (!this.getRecord().isEmpty())
             {
-                compound.setTag("RecordItem", this.getRecord().writeToNBT(new NBTTagCompound()));
+                compound.setTag("RecordItem", this.getRecord().write(new NBTTagCompound()));
             }
 
             return compound;

@@ -211,7 +211,7 @@ public class GuiPageButtonList extends GuiListExtended
 
             if (this.focusedControl != guipagebuttonlist$guientry.focusedControl && this.focusedControl != null && this.focusedControl instanceof GuiTextField)
             {
-                ((GuiTextField)this.focusedControl).setFocused(false);
+                ((GuiTextField)this.focusedControl).setFocused2(false);
             }
 
             this.focusedControl = guipagebuttonlist$guientry.focusedControl;
@@ -273,7 +273,7 @@ public class GuiPageButtonList extends GuiListExtended
             {
                 if (p_178062_2_ == 15)
                 {
-                    guitextfield.setFocused(false);
+                    guitextfield.setFocused2(false);
                     int k = this.editBoxes.indexOf(this.focusedControl);
 
                     if (GuiScreen.isShiftKeyDown())
@@ -298,7 +298,7 @@ public class GuiPageButtonList extends GuiListExtended
 
                     this.focusedControl = this.editBoxes.get(k);
                     guitextfield = (GuiTextField)this.focusedControl;
-                    guitextfield.setFocused(true);
+                    guitextfield.setFocused2(true);
                     int l = guitextfield.y + this.slotHeight;
                     int i1 = guitextfield.y;
 
@@ -347,9 +347,6 @@ public class GuiPageButtonList extends GuiListExtended
         }
     }
 
-    /**
-     * Gets the IGuiListEntry object for the given index
-     */
     public GuiPageButtonList.GuiEntry getListEntry(int index)
     {
         return this.entries.get(index);
@@ -360,9 +357,6 @@ public class GuiPageButtonList extends GuiListExtended
         return this.entries.size();
     }
 
-    /**
-     * Gets the width of the list
-     */
     public int getListWidth()
     {
         return 400;
@@ -407,7 +401,7 @@ public class GuiPageButtonList extends GuiListExtended
 
     public static class GuiEntry implements GuiListExtended.IGuiListEntry
     {
-        private final Minecraft client = Minecraft.getMinecraft();
+        private final Minecraft client = Minecraft.getInstance();
         private final Gui component1;
         private final Gui component2;
         private Gui focusedControl;
@@ -483,10 +477,10 @@ public class GuiPageButtonList extends GuiListExtended
             }
         }
 
-        public void updatePosition(int p_192633_1_, int p_192633_2_, int p_192633_3_, float p_192633_4_)
+        public void updatePosition(int slotIndex, int x, int y, float partialTicks)
         {
-            this.renderComponent(this.component1, p_192633_3_, 0, 0, true, p_192633_4_);
-            this.renderComponent(this.component2, p_192633_3_, 0, 0, true, p_192633_4_);
+            this.renderComponent(this.component1, y, 0, 0, true, partialTicks);
+            this.renderComponent(this.component2, y, 0, 0, true, partialTicks);
         }
 
         public boolean mousePressed(int slotIndex, int mouseX, int mouseY, int mouseEvent, int relativeX, int relativeY)

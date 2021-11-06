@@ -23,26 +23,24 @@ public class BlockDirt extends Block
 
     protected BlockDirt()
     {
-        super(Material.GROUND);
-        this.setDefaultState(this.blockState.getBaseState().withProperty(VARIANT, BlockDirt.DirtType.DIRT).withProperty(SNOWY, Boolean.valueOf(false)));
+        super(Material.EARTH);
+        this.setDefaultState(this.stateContainer.getBaseState().withProperty(VARIANT, BlockDirt.DirtType.DIRT).withProperty(SNOWY, Boolean.valueOf(false)));
         this.setCreativeTab(CreativeTabs.BUILDING_BLOCKS);
     }
 
     /**
      * Get the MapColor for this Block and the given BlockState
+     * @deprecated call via {@link IBlockState#getMapColor(IBlockAccess,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
      */
-    public MapColor getMapColor(IBlockState state, IBlockAccess worldIn, BlockPos pos)
+    public MapColor getMaterialColor(IBlockState state, IBlockAccess worldIn, BlockPos pos)
     {
-        return ((BlockDirt.DirtType)state.getValue(VARIANT)).getColor();
+        return ((BlockDirt.DirtType)state.get(VARIANT)).getColor();
     }
 
-    /**
-     * Get the actual Block state of this Block at the given position. This applies properties not visible in the
-     * metadata, such as fence connections.
-     */
     public IBlockState getActualState(IBlockState state, IBlockAccess worldIn, BlockPos pos)
     {
-        if (state.getValue(VARIANT) == BlockDirt.DirtType.PODZOL)
+        if (state.get(VARIANT) == BlockDirt.DirtType.PODZOL)
         {
             Block block = worldIn.getBlockState(pos.up()).getBlock();
             state = state.withProperty(SNOWY, Boolean.valueOf(block == Blocks.SNOW || block == Blocks.SNOW_LAYER));
@@ -54,7 +52,7 @@ public class BlockDirt extends Block
     /**
      * returns a list of blocks with the same ID, but different meta (eg: wood returns 4 blocks)
      */
-    public void getSubBlocks(CreativeTabs itemIn, NonNullList<ItemStack> items)
+    public void fillItemGroup(CreativeTabs group, NonNullList<ItemStack> items)
     {
         items.add(new ItemStack(this, 1, BlockDirt.DirtType.DIRT.getMetadata()));
         items.add(new ItemStack(this, 1, BlockDirt.DirtType.COARSE_DIRT.getMetadata()));
@@ -63,23 +61,17 @@ public class BlockDirt extends Block
 
     public ItemStack getItem(World worldIn, BlockPos pos, IBlockState state)
     {
-        return new ItemStack(this, 1, ((BlockDirt.DirtType)state.getValue(VARIANT)).getMetadata());
+        return new ItemStack(this, 1, ((BlockDirt.DirtType)state.get(VARIANT)).getMetadata());
     }
 
-    /**
-     * Convert the given metadata into a BlockState for this Block
-     */
     public IBlockState getStateFromMeta(int meta)
     {
         return this.getDefaultState().withProperty(VARIANT, BlockDirt.DirtType.byMetadata(meta));
     }
 
-    /**
-     * Convert the BlockState into the correct metadata value
-     */
     public int getMetaFromState(IBlockState state)
     {
-        return ((BlockDirt.DirtType)state.getValue(VARIANT)).getMetadata();
+        return ((BlockDirt.DirtType)state.get(VARIANT)).getMetadata();
     }
 
     protected BlockStateContainer createBlockState()
@@ -87,13 +79,9 @@ public class BlockDirt extends Block
         return new BlockStateContainer(this, new IProperty[] {VARIANT, SNOWY});
     }
 
-    /**
-     * Gets the metadata of the item this Block can drop. This method is called when the block gets destroyed. It
-     * returns the metadata of the dropped item based on the old metadata of the block.
-     */
     public int damageDropped(IBlockState state)
     {
-        BlockDirt.DirtType blockdirt$dirttype = (BlockDirt.DirtType)state.getValue(VARIANT);
+        BlockDirt.DirtType blockdirt$dirttype = (BlockDirt.DirtType)state.get(VARIANT);
 
         if (blockdirt$dirttype == BlockDirt.DirtType.PODZOL)
         {
@@ -112,7 +100,7 @@ public class BlockDirt extends Block
         private static final BlockDirt.DirtType[] METADATA_LOOKUP = new BlockDirt.DirtType[values().length];
         private final int metadata;
         private final String name;
-        private final String unlocalizedName;
+        private final String translationKey;
         private final MapColor color;
 
         private DirtType(int metadataIn, String nameIn, MapColor color)
@@ -124,7 +112,7 @@ public class BlockDirt extends Block
         {
             this.metadata = metadataIn;
             this.name = nameIn;
-            this.unlocalizedName = unlocalizedNameIn;
+            this.translationKey = unlocalizedNameIn;
             this.color = color;
         }
 
@@ -133,9 +121,9 @@ public class BlockDirt extends Block
             return this.metadata;
         }
 
-        public String getUnlocalizedName()
+        public String getTranslationKey()
         {
-            return this.unlocalizedName;
+            return this.translationKey;
         }
 
         public MapColor getColor()

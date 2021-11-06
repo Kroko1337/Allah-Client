@@ -17,16 +17,10 @@ import net.minecraft.util.text.translation.I18n;
 public abstract class Enchantment
 {
     public static final RegistryNamespaced<ResourceLocation, Enchantment> REGISTRY = new RegistryNamespaced<ResourceLocation, Enchantment>();
-
-    /** Where this enchantment has an effect, e.g. offhand, pants */
     private final EntityEquipmentSlot[] applicableEquipmentTypes;
     private final Enchantment.Rarity rarity;
     @Nullable
-
-    /** The EnumEnchantmentType given to this Enchantment. */
     public EnumEnchantmentType type;
-
-    /** Used in localisation and stats. */
     protected String name;
 
     @Nullable
@@ -39,22 +33,15 @@ public abstract class Enchantment
         return REGISTRY.getObjectById(id);
     }
 
-    /**
-     * Gets the numeric ID for the passed enchantment.
-     */
     public static int getEnchantmentID(Enchantment enchantmentIn)
     {
-        return REGISTRY.getIDForObject(enchantmentIn);
+        return REGISTRY.getId(enchantmentIn);
     }
 
     @Nullable
-
-    /**
-     * Retrieves an enchantment by using its location name.
-     */
     public static Enchantment getEnchantmentByLocation(String location)
     {
-        return REGISTRY.getObject(new ResourceLocation(location));
+        return REGISTRY.getOrDefault(new ResourceLocation(location));
     }
 
     protected Enchantment(Enchantment.Rarity rarityIn, EnumEnchantmentType typeIn, EntityEquipmentSlot[] slots)
@@ -114,9 +101,6 @@ public abstract class Enchantment
         return 1 + enchantmentLevel * 10;
     }
 
-    /**
-     * Returns the maximum value of enchantability nedded on the enchantment level passed.
-     */
     public int getMaxEnchantability(int enchantmentLevel)
     {
         return this.getMinEnchantability(enchantmentLevel) + 5;
@@ -139,9 +123,9 @@ public abstract class Enchantment
         return 0.0F;
     }
 
-    public final boolean isCompatibleWith(Enchantment p_191560_1_)
+    public final boolean isCompatibleWith(Enchantment enchantmentIn)
     {
-        return this.canApplyTogether(p_191560_1_) && p_191560_1_.canApplyTogether(this);
+        return this.canApplyTogether(enchantmentIn) && enchantmentIn.canApplyTogether(this);
     }
 
     /**
@@ -152,9 +136,6 @@ public abstract class Enchantment
         return this != ench;
     }
 
-    /**
-     * Sets the enchantment name
-     */
     public Enchantment setName(String enchName)
     {
         this.name = enchName;
@@ -169,9 +150,6 @@ public abstract class Enchantment
         return "enchantment." + this.name;
     }
 
-    /**
-     * Returns the correct traslated name of the enchantment and the level in roman numbers.
-     */
     public String getTranslatedName(int level)
     {
         String s = I18n.translateToLocal(this.getName());
@@ -217,9 +195,6 @@ public abstract class Enchantment
         return false;
     }
 
-    /**
-     * Registers all of the vanilla enchantments.
-     */
     public static void registerEnchantments()
     {
         EntityEquipmentSlot[] aentityequipmentslot = new EntityEquipmentSlot[] {EntityEquipmentSlot.HEAD, EntityEquipmentSlot.CHEST, EntityEquipmentSlot.LEGS, EntityEquipmentSlot.FEET};

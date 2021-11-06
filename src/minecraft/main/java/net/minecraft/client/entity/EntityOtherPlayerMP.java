@@ -30,7 +30,7 @@ public class EntityOtherPlayerMP extends AbstractClientPlayer
      */
     public boolean isInRangeToRenderDist(double distance)
     {
-        double d0 = this.getEntityBoundingBox().getAverageEdgeLength() * 10.0D;
+        double d0 = this.getBoundingBox().getAverageEdgeLength() * 10.0D;
 
         if (Double.isNaN(d0))
         {
@@ -50,7 +50,7 @@ public class EntityOtherPlayerMP extends AbstractClientPlayer
     }
 
     /**
-     * Set the position and rotation values directly without any clamping.
+     * Sets a target for the client to interpolate towards over the next few ticks
      */
     public void setPositionAndRotationDirect(double x, double y, double z, float yaw, float pitch, int posRotationIncrements, boolean teleport)
     {
@@ -65,10 +65,10 @@ public class EntityOtherPlayerMP extends AbstractClientPlayer
     /**
      * Called to update the entity's position/logic.
      */
-    public void onUpdate()
+    public void tick()
     {
         this.renderOffsetY = 0.0F;
-        super.onUpdate();
+        super.tick();
         this.prevLimbSwingAmount = this.limbSwingAmount;
         double d0 = this.posX - this.prevPosX;
         double d1 = this.posZ - this.prevPosZ;
@@ -87,7 +87,7 @@ public class EntityOtherPlayerMP extends AbstractClientPlayer
      * Called frequently so the entity can update its state every tick as required. For example, zombies and skeletons
      * use this to react to sunlight and start to burn.
      */
-    public void onLivingUpdate()
+    public void livingTick()
     {
         if (this.otherPlayerMPPosRotationIncrements > 0)
         {
@@ -145,12 +145,9 @@ public class EntityOtherPlayerMP extends AbstractClientPlayer
      */
     public void sendMessage(ITextComponent component)
     {
-        Minecraft.getMinecraft().ingameGUI.getChatGUI().printChatMessage(component);
+        Minecraft.getInstance().ingameGUI.getChatGUI().printChatMessage(component);
     }
 
-    /**
-     * Returns {@code true} if the CommandSender is allowed to execute the command, {@code false} if not
-     */
     public boolean canUseCommand(int permLevel, String commandName)
     {
         return false;

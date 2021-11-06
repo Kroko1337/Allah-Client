@@ -11,9 +11,6 @@ import net.minecraft.world.World;
 
 public interface ICommandSender
 {
-    /**
-     * Get the name of this object. For players this returns their username
-     */
     String getName();
 
 default ITextComponent getDisplayName()
@@ -25,14 +22,11 @@ default void sendMessage(ITextComponent component)
     {
     }
 
-    /**
-     * Returns {@code true} if the CommandSender is allowed to execute the command, {@code false} if not
-     */
     boolean canUseCommand(int permLevel, String commandName);
 
 default BlockPos getPosition()
     {
-        return BlockPos.ORIGIN;
+        return BlockPos.ZERO;
     }
 
 default Vec3d getPositionVector()

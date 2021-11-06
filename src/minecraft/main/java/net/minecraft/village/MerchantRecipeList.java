@@ -21,10 +21,6 @@ public class MerchantRecipeList extends ArrayList<MerchantRecipe>
     }
 
     @Nullable
-
-    /**
-     * can par1,par2 be used to in crafting recipe par3
-     */
     public MerchantRecipe canRecipeBeUsed(ItemStack stack0, ItemStack stack1, int index)
     {
         if (index > 0 && index < this.size())
@@ -50,7 +46,7 @@ public class MerchantRecipeList extends ArrayList<MerchantRecipe>
 
     private boolean areItemStacksExactlyEqual(ItemStack stack1, ItemStack stack2)
     {
-        return ItemStack.areItemsEqual(stack1, stack2) && (!stack2.hasTagCompound() || stack1.hasTagCompound() && NBTUtil.areNBTEquals(stack2.getTagCompound(), stack1.getTagCompound(), false));
+        return ItemStack.areItemsEqual(stack1, stack2) && (!stack2.hasTag() || stack1.hasTag() && NBTUtil.areNBTEquals(stack2.getTag(), stack1.getTag(), false));
     }
 
     public void writeToBuf(PacketBuffer buffer)
@@ -110,11 +106,11 @@ public class MerchantRecipeList extends ArrayList<MerchantRecipe>
 
     public void readRecipiesFromTags(NBTTagCompound compound)
     {
-        NBTTagList nbttaglist = compound.getTagList("Recipes", 10);
+        NBTTagList nbttaglist = compound.getList("Recipes", 10);
 
         for (int i = 0; i < nbttaglist.tagCount(); ++i)
         {
-            NBTTagCompound nbttagcompound = nbttaglist.getCompoundTagAt(i);
+            NBTTagCompound nbttagcompound = nbttaglist.getCompound(i);
             this.add(new MerchantRecipe(nbttagcompound));
         }
     }

@@ -1,64 +1,63 @@
 package net.minecraft.stats;
 
 import java.util.BitSet;
+import javax.annotation.Nullable;
 import net.minecraft.item.crafting.CraftingManager;
 import net.minecraft.item.crafting.IRecipe;
 
 public class RecipeBook
 {
     protected final BitSet recipes = new BitSet();
-
-    /** Recipes the player has not yet seen, so the GUI can play an animation */
-    protected final BitSet unseenRecipes = new BitSet();
+    protected final BitSet newRecipes = new BitSet();
     protected boolean isGuiOpen;
     protected boolean isFilteringCraftable;
 
-    public void apply(RecipeBook that)
+    public void copyFrom(RecipeBook that)
     {
         this.recipes.clear();
-        this.unseenRecipes.clear();
+        this.newRecipes.clear();
         this.recipes.or(that.recipes);
-        this.unseenRecipes.or(that.unseenRecipes);
+        this.newRecipes.or(that.newRecipes);
     }
 
-    public void setRecipes(IRecipe recipe)
+    public void unlock(IRecipe recipe)
     {
-        if (!recipe.isHidden())
+        if (!recipe.isDynamic())
         {
             this.recipes.set(getRecipeId(recipe));
         }
     }
 
-    public boolean containsRecipe(IRecipe recipe)
+    public boolean isUnlocked(@Nullable IRecipe recipe)
     {
         return this.recipes.get(getRecipeId(recipe));
     }
 
-    public void removeRecipe(IRecipe recipe)
+    public void lock(IRecipe recipe)
     {
         int i = getRecipeId(recipe);
         this.recipes.clear(i);
-        this.unseenRecipes.clear(i);
+        this.newRecipes.clear(i);
     }
 
-    protected static int getRecipeId(IRecipe recipe)
+    protected static int getRecipeId(@Nullable IRecipe recipe)
     {
-        return CraftingManager.REGISTRY.getIDForObject(recipe);
+        return CraftingManager.REGISTRY.getId(recipe);
     }
 
-    public boolean isRecipeUnseen(IRecipe recipe)
+    public boolean isNew(IRecipe recipe)
     {
-        return this.unseenRecipes.get(getRecipeId(recipe));
+        return this.newRecipes.get(getRecipeId(recipe));
     }
 
-    public void setRecipeSeen(IRecipe recipe)
+    public void markSeen(IRecipe recipe)
     {
-        this.unseenRecipes.clear(getRecipeId(recipe));
+        this.newRecipes.clear(getRecipeId(recipe));
     }
 
-    public void addDisplayedRecipe(IRecipe recipe)
+    public void markNew(IRecipe recipe)
     {
-        this.unseenRecipes.set(getRecipeId(recipe));
+        this.newRecipes.set(getRecipeId(recipe));
     }
 
     public boolean isGuiOpen()

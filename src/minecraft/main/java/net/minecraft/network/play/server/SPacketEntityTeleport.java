@@ -97,7 +97,7 @@ public class SPacketEntityTeleport implements Packet<INetHandlerPlayClient>
         return this.pitch;
     }
 
-    public boolean getOnGround()
+    public boolean isOnGround()
     {
         return this.onGround;
     }

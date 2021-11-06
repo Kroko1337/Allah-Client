@@ -13,7 +13,6 @@ import net.minecraft.world.World;
 
 public class ShapelessRecipes implements IRecipe
 {
-    /** Is the ItemStack that you get when craft the recipe. */
     private final ItemStack recipeOutput;
     private final NonNullList<Ingredient> recipeItems;
     private final String group;
@@ -25,11 +24,18 @@ public class ShapelessRecipes implements IRecipe
         this.recipeItems = ingredients;
     }
 
+    /**
+     * Recipes with equal group are combined into one button in the recipe book
+     */
     public String getGroup()
     {
         return this.group;
     }
 
+    /**
+     * Get the result of this recipe, usually for display purposes (e.g. recipe book). If your recipe has more than one
+     * possible result (e.g. it's dynamic and depends on its inputs), then return an empty stack.
+     */
     public ItemStack getRecipeOutput()
     {
         return this.recipeOutput;

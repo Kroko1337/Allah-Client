@@ -55,7 +55,7 @@ public class SimpleReloadableResourceManager implements IReloadableResourceManag
 
     public IResource getResource(ResourceLocation location) throws IOException
     {
-        IResourceManager iresourcemanager = this.domainResourceManagers.get(location.getResourceDomain());
+        IResourceManager iresourcemanager = this.domainResourceManagers.get(location.getNamespace());
 
         if (iresourcemanager != null)
         {
@@ -69,7 +69,7 @@ public class SimpleReloadableResourceManager implements IReloadableResourceManag
 
     public List<IResource> getAllResources(ResourceLocation location) throws IOException
     {
-        IResourceManager iresourcemanager = this.domainResourceManagers.get(location.getResourceDomain());
+        IResourceManager iresourcemanager = this.domainResourceManagers.get(location.getNamespace());
 
         if (iresourcemanager != null)
         {

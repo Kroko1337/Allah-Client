@@ -173,7 +173,7 @@ public class ServerPinger
 
         try
         {
-            networkmanager.sendPacket(new C00Handshake(335, serveraddress.getIP(), serveraddress.getPort(), EnumConnectionState.STATUS));
+            networkmanager.sendPacket(new C00Handshake(serveraddress.getIP(), serveraddress.getPort(), EnumConnectionState.STATUS));
             networkmanager.sendPacket(new CPacketServerQuery());
         }
         catch (Throwable throwable)
@@ -282,12 +282,12 @@ public class ServerPinger
 
                 if (networkmanager.isChannelOpen())
                 {
-                    networkmanager.processReceivedPackets();
+                    networkmanager.tick();
                 }
                 else
                 {
                     iterator.remove();
-                    networkmanager.checkDisconnected();
+                    networkmanager.handleDisconnection();
                 }
             }
         }

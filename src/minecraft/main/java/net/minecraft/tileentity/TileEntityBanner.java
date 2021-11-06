@@ -24,20 +24,16 @@ public class TileEntityBanner extends TileEntity implements IWorldNameable
     private boolean patternDataSet;
     private List<BannerPattern> patternList;
     private List<EnumDyeColor> colorList;
-
-    /**
-     * This is a String representation of this banners pattern and color lists, used for texture caching.
-     */
     private String patternResourceLocation;
 
     public void setItemValues(ItemStack stack, boolean p_175112_2_)
     {
         this.patterns = null;
-        NBTTagCompound nbttagcompound = stack.getSubCompound("BlockEntityTag");
+        NBTTagCompound nbttagcompound = stack.getChildTag("BlockEntityTag");
 
-        if (nbttagcompound != null && nbttagcompound.hasKey("Patterns", 9))
+        if (nbttagcompound != null && nbttagcompound.contains("Patterns", 9))
         {
-            this.patterns = nbttagcompound.getTagList("Patterns", 10).copy();
+            this.patterns = nbttagcompound.getList("Patterns", 10).copy();
         }
 
         this.baseColor = p_175112_2_ ? getColor(stack) : ItemBanner.getBaseColor(stack);
@@ -48,34 +44,25 @@ public class TileEntityBanner extends TileEntity implements IWorldNameable
         this.name = stack.hasDisplayName() ? stack.getDisplayName() : null;
     }
 
-    /**
-     * Get the name of this object. For players this returns their username
-     */
     public String getName()
     {
         return this.hasCustomName() ? this.name : "banner";
     }
 
-    /**
-     * Returns true if this thing is named
-     */
     public boolean hasCustomName()
     {
         return this.name != null && !this.name.isEmpty();
     }
 
-    /**
-     * Get the formatted ChatComponent that will be used for the sender's username in chat
-     */
     public ITextComponent getDisplayName()
     {
         return (ITextComponent)(this.hasCustomName() ? new TextComponentString(this.getName()) : new TextComponentTranslation(this.getName(), new Object[0]));
     }
 
-    public NBTTagCompound writeToNBT(NBTTagCompound compound)
+    public NBTTagCompound write(NBTTagCompound compound)
     {
-        super.writeToNBT(compound);
-        compound.setInteger("Base", this.baseColor.getDyeDamage());
+        super.write(compound);
+        compound.putInt("Base", this.baseColor.getDyeDamage());
 
         if (this.patterns != null)
         {
@@ -84,23 +71,23 @@ public class TileEntityBanner extends TileEntity implements IWorldNameable
 
         if (this.hasCustomName())
         {
-            compound.setString("CustomName", this.name);
+            compound.putString("CustomName", this.name);
         }
 
         return compound;
     }
 
-    public void readFromNBT(NBTTagCompound compound)
+    public void read(NBTTagCompound compound)
     {
-        super.readFromNBT(compound);
+        super.read(compound);
 
-        if (compound.hasKey("CustomName", 8))
+        if (compound.contains("CustomName", 8))
         {
             this.name = compound.getString("CustomName");
         }
 
-        this.baseColor = EnumDyeColor.byDyeDamage(compound.getInteger("Base"));
-        this.patterns = compound.getTagList("Patterns", 10);
+        this.baseColor = EnumDyeColor.byDyeDamage(compound.getInt("Base"));
+        this.patterns = compound.getList("Patterns", 10);
         this.patternList = null;
         this.colorList = null;
         this.patternResourceLocation = null;
@@ -108,14 +95,23 @@ public class TileEntityBanner extends TileEntity implements IWorldNameable
     }
 
     @Nullable
+
+    /**
+     * Retrieves packet to send to the client whenever this Tile Entity is resynced via World.notifyBlockUpdate. For
+     * modded TE's, this packet comes back to you clientside in {@link #onDataPacket}
+     */
     public SPacketUpdateTileEntity getUpdatePacket()
     {
         return new SPacketUpdateTileEntity(this.pos, 6, this.getUpdateTag());
     }
 
+    /**
+     * Get an NBT compound to sync to the client with SPacketChunkData, used for initial loading of the chunk or when
+     * many blocks change at once. This compound comes back to you clientside in {@link handleUpdateTag}
+     */
     public NBTTagCompound getUpdateTag()
     {
-        return this.writeToNBT(new NBTTagCompound());
+        return this.write(new NBTTagCompound());
     }
 
     /**
@@ -123,8 +119,8 @@ public class TileEntityBanner extends TileEntity implements IWorldNameable
      */
     public static int getPatterns(ItemStack stack)
     {
-        NBTTagCompound nbttagcompound = stack.getSubCompound("BlockEntityTag");
-        return nbttagcompound != null && nbttagcompound.hasKey("Patterns") ? nbttagcompound.getTagList("Patterns", 10).tagCount() : 0;
+        NBTTagCompound nbttagcompound = stack.getChildTag("BlockEntityTag");
+        return nbttagcompound != null && nbttagcompound.contains("Patterns") ? nbttagcompound.getList("Patterns", 10).tagCount() : 0;
     }
 
     public List<BannerPattern> getPatternList()
@@ -169,13 +165,13 @@ public class TileEntityBanner extends TileEntity implements IWorldNameable
                 {
                     for (int i = 0; i < this.patterns.tagCount(); ++i)
                     {
-                        NBTTagCompound nbttagcompound = this.patterns.getCompoundTagAt(i);
+                        NBTTagCompound nbttagcompound = this.patterns.getCompound(i);
                         BannerPattern bannerpattern = BannerPattern.byHash(nbttagcompound.getString("Pattern"));
 
                         if (bannerpattern != null)
                         {
                             this.patternList.add(bannerpattern);
-                            int j = nbttagcompound.getInteger("Color");
+                            int j = nbttagcompound.getInt("Color");
                             this.colorList.add(EnumDyeColor.byDyeDamage(j));
                             this.patternResourceLocation = this.patternResourceLocation + bannerpattern.getHashname() + j;
                         }
@@ -190,23 +186,23 @@ public class TileEntityBanner extends TileEntity implements IWorldNameable
      */
     public static void removeBannerData(ItemStack stack)
     {
-        NBTTagCompound nbttagcompound = stack.getSubCompound("BlockEntityTag");
+        NBTTagCompound nbttagcompound = stack.getChildTag("BlockEntityTag");
 
-        if (nbttagcompound != null && nbttagcompound.hasKey("Patterns", 9))
+        if (nbttagcompound != null && nbttagcompound.contains("Patterns", 9))
         {
-            NBTTagList nbttaglist = nbttagcompound.getTagList("Patterns", 10);
+            NBTTagList nbttaglist = nbttagcompound.getList("Patterns", 10);
 
-            if (!nbttaglist.hasNoTags())
+            if (!nbttaglist.isEmpty())
             {
                 nbttaglist.removeTag(nbttaglist.tagCount() - 1);
 
-                if (nbttaglist.hasNoTags())
+                if (nbttaglist.isEmpty())
                 {
-                    stack.getTagCompound().removeTag("BlockEntityTag");
+                    stack.getTag().remove("BlockEntityTag");
 
-                    if (stack.getTagCompound().hasNoTags())
+                    if (stack.getTag().isEmpty())
                     {
-                        stack.setTagCompound((NBTTagCompound)null);
+                        stack.setTag((NBTTagCompound)null);
                     }
                 }
             }
@@ -227,7 +223,7 @@ public class TileEntityBanner extends TileEntity implements IWorldNameable
 
     public static EnumDyeColor getColor(ItemStack p_190616_0_)
     {
-        NBTTagCompound nbttagcompound = p_190616_0_.getSubCompound("BlockEntityTag");
-        return nbttagcompound != null && nbttagcompound.hasKey("Base") ? EnumDyeColor.byDyeDamage(nbttagcompound.getInteger("Base")) : EnumDyeColor.BLACK;
+        NBTTagCompound nbttagcompound = p_190616_0_.getChildTag("BlockEntityTag");
+        return nbttagcompound != null && nbttagcompound.contains("Base") ? EnumDyeColor.byDyeDamage(nbttagcompound.getInt("Base")) : EnumDyeColor.BLACK;
     }
 }

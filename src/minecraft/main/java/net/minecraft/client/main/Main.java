@@ -36,7 +36,7 @@ public class Main
         OptionSpec<Integer> optionspec6 = optionparser.accepts("proxyPort").withRequiredArg().defaultsTo("8080").<Integer>ofType(Integer.class);
         OptionSpec<String> optionspec7 = optionparser.accepts("proxyUser").withRequiredArg();
         OptionSpec<String> optionspec8 = optionparser.accepts("proxyPass").withRequiredArg();
-        OptionSpec<String> optionspec9 = optionparser.accepts("username").withRequiredArg().defaultsTo("Player" + Minecraft.getSystemTime() % 1000L);
+        OptionSpec<String> optionspec9 = optionparser.accepts("username").withRequiredArg().defaultsTo("Mineguafter" + Minecraft.getSystemTime() % 1000L);
         OptionSpec<String> optionspec10 = optionparser.accepts("uuid").withRequiredArg();
         OptionSpec<String> optionspec11 = optionparser.accepts("accessToken").withRequiredArg().required();
         OptionSpec<String> optionspec12 = optionparser.accepts("version").withRequiredArg().required();
@@ -74,7 +74,7 @@ public class Main
         final String s1 = (String)optionset.valueOf(optionspec7);
         final String s2 = (String)optionset.valueOf(optionspec8);
 
-        if (!proxy.equals(Proxy.NO_PROXY) && isNullOrEmpty(s1) && isNullOrEmpty(s2))
+        if (!proxy.equals(Proxy.NO_PROXY) && isNotEmpty(s1) && isNotEmpty(s2))
         {
             Authenticator.setDefault(new Authenticator()
             {
@@ -92,8 +92,8 @@ public class Main
         boolean flag2 = optionset.has("demo");
         String s3 = (String)optionset.valueOf(optionspec12);
         Gson gson = (new GsonBuilder()).registerTypeAdapter(PropertyMap.class, new Serializer()).create();
-        PropertyMap propertymap = (PropertyMap)JsonUtils.gsonDeserialize(gson, (String)optionset.valueOf(optionspec15), PropertyMap.class);
-        PropertyMap propertymap1 = (PropertyMap)JsonUtils.gsonDeserialize(gson, (String)optionset.valueOf(optionspec16), PropertyMap.class);
+        PropertyMap propertymap = (PropertyMap)JsonUtils.fromJson(gson, (String)optionset.valueOf(optionspec15), PropertyMap.class);
+        PropertyMap propertymap1 = (PropertyMap)JsonUtils.fromJson(gson, (String)optionset.valueOf(optionspec16), PropertyMap.class);
         String s4 = (String)optionset.valueOf(optionspec19);
         File file1 = (File)optionset.valueOf(optionspec2);
         File file2 = optionset.has(optionspec3) ? (File)optionset.valueOf(optionspec3) : new File(file1, "assets/");
@@ -116,9 +116,9 @@ public class Main
     }
 
     /**
-     * Returns whether a string is either null or empty.
+     * Returns true if the given string is neither null nor empty.
      */
-    private static boolean isNullOrEmpty(String str)
+    private static boolean isNotEmpty(String str)
     {
         return str != null && !str.isEmpty();
     }

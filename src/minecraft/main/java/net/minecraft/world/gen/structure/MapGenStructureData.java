@@ -15,21 +15,17 @@ public class MapGenStructureData extends WorldSavedData
     /**
      * reads in data from the NBTTagCompound into this MapDataBase
      */
-    public void readFromNBT(NBTTagCompound nbt)
+    public void read(NBTTagCompound nbt)
     {
-        this.tagCompound = nbt.getCompoundTag("Features");
+        this.tagCompound = nbt.getCompound("Features");
     }
 
-    public NBTTagCompound writeToNBT(NBTTagCompound compound)
+    public NBTTagCompound write(NBTTagCompound compound)
     {
         compound.setTag("Features", this.tagCompound);
         return compound;
     }
 
-    /**
-     * Writes the NBT tag of an instance of this structure type to the internal NBT tag, using the chunkcoordinates as
-     * the key
-     */
     public void writeInstance(NBTTagCompound tagCompoundIn, int chunkX, int chunkZ)
     {
         this.tagCompound.setTag(formatChunkCoords(chunkX, chunkZ), tagCompoundIn);

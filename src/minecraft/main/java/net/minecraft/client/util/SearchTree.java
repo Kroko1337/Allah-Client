@@ -13,8 +13,8 @@ import net.minecraft.util.ResourceLocation;
 
 public class SearchTree<T> implements ISearchTree<T>
 {
-    protected SuffixArray<T> byId = new SuffixArray<T>();
     protected SuffixArray<T> byName = new SuffixArray<T>();
+    protected SuffixArray<T> byId = new SuffixArray<T>();
     private final Function<T, Iterable<String>> nameFunc;
     private final Function<T, Iterable<ResourceLocation>> idFunc;
     private final List<T> contents = Lists.<T>newArrayList();
@@ -32,23 +32,18 @@ public class SearchTree<T> implements ISearchTree<T>
      */
     public void recalculate()
     {
-        this.byId = new SuffixArray<T>();
         this.byName = new SuffixArray<T>();
+        this.byId = new SuffixArray<T>();
 
         for (T t : this.contents)
         {
             this.index(t);
         }
 
-        this.byId.generate();
         this.byName.generate();
+        this.byId.generate();
     }
 
-    /**
-     * Adds the given item to the search tree.
-     *  
-     * @param element The element to add
-     */
     public void add(T element)
     {
         this.numericContents.put(element, this.contents.size());
@@ -59,24 +54,22 @@ public class SearchTree<T> implements ISearchTree<T>
     /**
      * Directly puts the given item into {@link #byId} and {@link #byName}, applying {@link #nameFunc} and {@link
      * idFunc}.
-     *  
-     * @param element The element to add
      */
     private void index(T element)
     {
         (this.idFunc.apply(element)).forEach((p_194039_2_) ->
         {
-            this.byName.add(element, p_194039_2_.toString().toLowerCase(Locale.ROOT));
+            this.byId.add(element, p_194039_2_.toString().toLowerCase(Locale.ROOT));
         });
         (this.nameFunc.apply(element)).forEach((p_194041_2_) ->
         {
-            this.byId.add(element, p_194041_2_.toLowerCase(Locale.ROOT));
+            this.byName.add(element, p_194041_2_.toLowerCase(Locale.ROOT));
         });
     }
 
     public List<T> search(String searchText)
     {
-        List<T> list = this.byId.search(searchText);
+        List<T> list = this.byName.search(searchText);
 
         if (searchText.indexOf(58) < 0)
         {
@@ -84,7 +77,7 @@ public class SearchTree<T> implements ISearchTree<T>
         }
         else
         {
-            List<T> list1 = this.byName.search(searchText);
+            List<T> list1 = this.byId.search(searchText);
             return (List<T>)(list1.isEmpty() ? list : Lists.newArrayList(new SearchTree.MergingIterator(list.iterator(), list1.iterator(), this.numericContents)));
         }
     }

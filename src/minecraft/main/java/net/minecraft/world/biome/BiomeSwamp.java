@@ -39,7 +39,7 @@ public class BiomeSwamp extends Biome
 
     public int getGrassColorAtPos(BlockPos pos)
     {
-        double d0 = GRASS_COLOR_NOISE.getValue((double)pos.getX() * 0.0225D, (double)pos.getZ() * 0.0225D);
+        double d0 = INFO_NOISE.getValue((double)pos.getX() * 0.0225D, (double)pos.getZ() * 0.0225D);
         return d0 < -0.1D ? 5011004 : 6975545;
     }
 
@@ -55,7 +55,7 @@ public class BiomeSwamp extends Biome
 
     public void genTerrainBlocks(World worldIn, Random rand, ChunkPrimer chunkPrimerIn, int x, int z, double noiseVal)
     {
-        double d0 = GRASS_COLOR_NOISE.getValue((double)x * 0.25D, (double)z * 0.25D);
+        double d0 = INFO_NOISE.getValue((double)x * 0.25D, (double)z * 0.25D);
 
         if (d0 > 0.0D)
         {

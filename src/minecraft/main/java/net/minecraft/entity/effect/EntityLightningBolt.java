@@ -15,19 +15,8 @@ import net.minecraft.world.World;
 
 public class EntityLightningBolt extends EntityWeatherEffect
 {
-    /**
-     * Declares which state the lightning bolt is in. Whether it's in the air, hit the ground, etc.
-     */
     private int lightningState;
-
-    /**
-     * A random long that is used to change the vertex of the lightning rendered in RenderLightningBolt
-     */
     public long boltVertex;
-
-    /**
-     * Determines the time before the EntityLightningBolt is destroyed. It is a random integer decremented over time.
-     */
     private int boltLivingTime;
     private final boolean effectOnly;
 
@@ -68,14 +57,14 @@ public class EntityLightningBolt extends EntityWeatherEffect
     /**
      * Called to update the entity's position/logic.
      */
-    public void onUpdate()
+    public void tick()
     {
-        super.onUpdate();
+        super.tick();
 
         if (this.lightningState == 2)
         {
-            this.world.playSound((EntityPlayer)null, this.posX, this.posY, this.posZ, SoundEvents.ENTITY_LIGHTNING_THUNDER, SoundCategory.WEATHER, 10000.0F, 0.8F + this.rand.nextFloat() * 0.2F);
-            this.world.playSound((EntityPlayer)null, this.posX, this.posY, this.posZ, SoundEvents.ENTITY_LIGHTNING_IMPACT, SoundCategory.WEATHER, 2.0F, 0.5F + this.rand.nextFloat() * 0.2F);
+            this.world.playSound((EntityPlayer)null, this.posX, this.posY, this.posZ, SoundEvents.ENTITY_LIGHTNING_BOLT_THUNDER, SoundCategory.WEATHER, 10000.0F, 0.8F + this.rand.nextFloat() * 0.2F);
+            this.world.playSound((EntityPlayer)null, this.posX, this.posY, this.posZ, SoundEvents.ENTITY_LIGHTNING_BOLT_IMPACT, SoundCategory.WEATHER, 2.0F, 0.5F + this.rand.nextFloat() * 0.2F);
         }
 
         --this.lightningState;
@@ -84,7 +73,7 @@ public class EntityLightningBolt extends EntityWeatherEffect
         {
             if (this.boltLivingTime == 0)
             {
-                this.setDead();
+                this.remove();
             }
             else if (this.lightningState < -this.rand.nextInt(10))
             {
@@ -124,20 +113,17 @@ public class EntityLightningBolt extends EntityWeatherEffect
         }
     }
 
-    protected void entityInit()
+    protected void registerData()
     {
     }
 
     /**
      * (abstract) Protected helper method to read subclass entity data from NBT.
      */
-    protected void readEntityFromNBT(NBTTagCompound compound)
+    protected void readAdditional(NBTTagCompound compound)
     {
     }
 
-    /**
-     * (abstract) Protected helper method to write subclass entity data to NBT.
-     */
     protected void writeEntityToNBT(NBTTagCompound compound)
     {
     }

@@ -9,7 +9,7 @@ public class RealmsEditBox
 
     public RealmsEditBox(int id, int x, int y, int width, int height)
     {
-        this.editBox = new GuiTextField(id, Minecraft.getMinecraft().fontRenderer, x, y, width, height);
+        this.editBox = new GuiTextField(id, Minecraft.getInstance().fontRenderer, x, y, width, height);
     }
 
     public String getValue()
@@ -19,12 +19,12 @@ public class RealmsEditBox
 
     public void tick()
     {
-        this.editBox.updateCursorCounter();
+        this.editBox.tick();
     }
 
     public void setFocus(boolean p_setFocus_1_)
     {
-        this.editBox.setFocused(p_setFocus_1_);
+        this.editBox.setFocused2(p_setFocus_1_);
     }
 
     public void setValue(String p_setValue_1_)

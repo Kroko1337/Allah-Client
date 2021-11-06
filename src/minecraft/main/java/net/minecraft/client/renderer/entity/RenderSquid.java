@@ -9,20 +9,20 @@ public class RenderSquid extends RenderLiving<EntitySquid>
 {
     private static final ResourceLocation SQUID_TEXTURES = new ResourceLocation("textures/entity/squid.png");
 
-    public RenderSquid(RenderManager p_i47192_1_)
+    public RenderSquid(RenderManager renderManagerIn)
     {
-        super(p_i47192_1_, new ModelSquid(), 0.7F);
+        super(renderManagerIn, new ModelSquid(), 0.7F);
     }
 
     /**
-     * Returns the location of an entity's texture. Doesn't seem to be called unless you call Render.bindEntityTexture.
+     * Returns the location of an entity's texture.
      */
     protected ResourceLocation getEntityTexture(EntitySquid entity)
     {
         return SQUID_TEXTURES;
     }
 
-    protected void applyRotations(EntitySquid entityLiving, float p_77043_2_, float rotationYaw, float partialTicks)
+    protected void applyRotations(EntitySquid entityLiving, float ageInTicks, float rotationYaw, float partialTicks)
     {
         float f = entityLiving.prevSquidPitch + (entityLiving.squidPitch - entityLiving.prevSquidPitch) * partialTicks;
         float f1 = entityLiving.prevSquidYaw + (entityLiving.squidYaw - entityLiving.prevSquidYaw) * partialTicks;

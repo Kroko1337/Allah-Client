@@ -36,7 +36,7 @@ public class EntityMinecartTNT extends EntityMinecart
         EntityMinecart.registerFixesMinecart(fixer, EntityMinecartTNT.class);
     }
 
-    public EntityMinecart.Type getType()
+    public EntityMinecart.Type getMinecartType()
     {
         return EntityMinecart.Type.TNT;
     }
@@ -49,9 +49,9 @@ public class EntityMinecartTNT extends EntityMinecart
     /**
      * Called to update the entity's position/logic.
      */
-    public void onUpdate()
+    public void tick()
     {
-        super.onUpdate();
+        super.tick();
 
         if (this.minecartTNTFuse > 0)
         {
@@ -63,7 +63,7 @@ public class EntityMinecartTNT extends EntityMinecart
             this.explodeCart(this.motionX * this.motionX + this.motionZ * this.motionZ);
         }
 
-        if (this.isCollidedHorizontally)
+        if (this.collidedHorizontally)
         {
             double d0 = this.motionX * this.motionX + this.motionZ * this.motionZ;
 
@@ -132,7 +132,7 @@ public class EntityMinecartTNT extends EntityMinecart
             }
 
             this.world.createExplosion(this, this.posX, this.posY, this.posZ, (float)(4.0D + this.rand.nextDouble() * 1.5D * d0), true);
-            this.setDead();
+            this.remove();
         }
     }
 
@@ -223,22 +223,19 @@ public class EntityMinecartTNT extends EntityMinecart
     /**
      * (abstract) Protected helper method to read subclass entity data from NBT.
      */
-    protected void readEntityFromNBT(NBTTagCompound compound)
+    protected void readAdditional(NBTTagCompound compound)
     {
-        super.readEntityFromNBT(compound);
+        super.readAdditional(compound);
 
-        if (compound.hasKey("TNTFuse", 99))
+        if (compound.contains("TNTFuse", 99))
         {
-            this.minecartTNTFuse = compound.getInteger("TNTFuse");
+            this.minecartTNTFuse = compound.getInt("TNTFuse");
         }
     }
 
-    /**
-     * (abstract) Protected helper method to write subclass entity data to NBT.
-     */
     protected void writeEntityToNBT(NBTTagCompound compound)
     {
         super.writeEntityToNBT(compound);
-        compound.setInteger("TNTFuse", this.minecartTNTFuse);
+        compound.putInt("TNTFuse", this.minecartTNTFuse);
     }
 }

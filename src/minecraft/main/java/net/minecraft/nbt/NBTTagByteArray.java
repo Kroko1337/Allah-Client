@@ -8,7 +8,6 @@ import java.util.List;
 
 public class NBTTagByteArray extends NBTBase
 {
-    /** The byte array stored in the tag. */
     private byte[] data;
 
     NBTTagByteArray()

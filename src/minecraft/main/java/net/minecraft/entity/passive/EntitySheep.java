@@ -47,11 +47,6 @@ import net.minecraft.world.storage.loot.LootTableList;
 public class EntitySheep extends EntityAnimal
 {
     private static final DataParameter<Byte> DYE_COLOR = EntityDataManager.<Byte>createKey(EntitySheep.class, DataSerializers.BYTE);
-
-    /**
-     * Internal crafting inventory used to check the result of mixing dyes corresponding to the fleece color when
-     * breeding sheep.
-     */
     private final InventoryCrafting inventoryCrafting = new InventoryCrafting(new Container()
     {
         public boolean canInteractWith(EntityPlayer playerIn)
@@ -60,17 +55,12 @@ public class EntitySheep extends EntityAnimal
         }
     }, 2, 1);
     private static final Map<EnumDyeColor, float[]> DYE_TO_RGB = Maps.newEnumMap(EnumDyeColor.class);
-
-    /**
-     * Used to control movement as well as wool regrowth. Set to 40 on handleHealthUpdate and counts down with each
-     * tick.
-     */
     private int sheepTimer;
-    private EntityAIEatGrass entityAIEatGrass;
+    private EntityAIEatGrass eatGrassGoal;
 
-    private static float[] createSheepColor(EnumDyeColor p_192020_0_)
+    private static float[] createSheepColor(EnumDyeColor dyeColorIn)
     {
-        float[] afloat = p_192020_0_.getColorComponentValues();
+        float[] afloat = dyeColorIn.getColorComponentValues();
         float f = 0.75F;
         return new float[] {afloat[0] * 0.75F, afloat[1] * 0.75F, afloat[2] * 0.75F};
     }
@@ -88,23 +78,23 @@ public class EntitySheep extends EntityAnimal
         this.inventoryCrafting.setInventorySlotContents(1, new ItemStack(Items.DYE));
     }
 
-    protected void initEntityAI()
+    protected void registerGoals()
     {
-        this.entityAIEatGrass = new EntityAIEatGrass(this);
-        this.tasks.addTask(0, new EntityAISwimming(this));
-        this.tasks.addTask(1, new EntityAIPanic(this, 1.25D));
-        this.tasks.addTask(2, new EntityAIMate(this, 1.0D));
-        this.tasks.addTask(3, new EntityAITempt(this, 1.1D, Items.WHEAT, false));
-        this.tasks.addTask(4, new EntityAIFollowParent(this, 1.1D));
-        this.tasks.addTask(5, this.entityAIEatGrass);
-        this.tasks.addTask(6, new EntityAIWanderAvoidWater(this, 1.0D));
-        this.tasks.addTask(7, new EntityAIWatchClosest(this, EntityPlayer.class, 6.0F));
-        this.tasks.addTask(8, new EntityAILookIdle(this));
+        this.eatGrassGoal = new EntityAIEatGrass(this);
+        this.goalSelector.addGoal(0, new EntityAISwimming(this));
+        this.goalSelector.addGoal(1, new EntityAIPanic(this, 1.25D));
+        this.goalSelector.addGoal(2, new EntityAIMate(this, 1.0D));
+        this.goalSelector.addGoal(3, new EntityAITempt(this, 1.1D, Items.WHEAT, false));
+        this.goalSelector.addGoal(4, new EntityAIFollowParent(this, 1.1D));
+        this.goalSelector.addGoal(5, this.eatGrassGoal);
+        this.goalSelector.addGoal(6, new EntityAIWanderAvoidWater(this, 1.0D));
+        this.goalSelector.addGoal(7, new EntityAIWatchClosest(this, EntityPlayer.class, 6.0F));
+        this.goalSelector.addGoal(8, new EntityAILookIdle(this));
     }
 
     protected void updateAITasks()
     {
-        this.sheepTimer = this.entityAIEatGrass.getEatingGrassTimer();
+        this.sheepTimer = this.eatGrassGoal.getEatingGrassTimer();
         super.updateAITasks();
     }
 
@@ -112,26 +102,26 @@ public class EntitySheep extends EntityAnimal
      * Called frequently so the entity can update its state every tick as required. For example, zombies and skeletons
      * use this to react to sunlight and start to burn.
      */
-    public void onLivingUpdate()
+    public void livingTick()
     {
         if (this.world.isRemote)
         {
             this.sheepTimer = Math.max(0, this.sheepTimer - 1);
         }
 
-        super.onLivingUpdate();
+        super.livingTick();
     }
 
-    protected void applyEntityAttributes()
+    protected void registerAttributes()
     {
-        super.applyEntityAttributes();
-        this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(8.0D);
-        this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.23000000417232513D);
+        super.registerAttributes();
+        this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(8.0D);
+        this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.23000000417232513D);
     }
 
-    protected void entityInit()
+    protected void registerData()
     {
-        super.entityInit();
+        super.registerData();
         this.dataManager.register(DYE_COLOR, Byte.valueOf((byte)0));
     }
 
@@ -274,22 +264,19 @@ public class EntitySheep extends EntityAnimal
         EntityLiving.registerFixesMob(fixer, EntitySheep.class);
     }
 
-    /**
-     * (abstract) Protected helper method to write subclass entity data to NBT.
-     */
     public void writeEntityToNBT(NBTTagCompound compound)
     {
         super.writeEntityToNBT(compound);
-        compound.setBoolean("Sheared", this.getSheared());
-        compound.setByte("Color", (byte)this.getFleeceColor().getMetadata());
+        compound.putBoolean("Sheared", this.getSheared());
+        compound.putByte("Color", (byte)this.getFleeceColor().getMetadata());
     }
 
     /**
      * (abstract) Protected helper method to read subclass entity data from NBT.
      */
-    public void readEntityFromNBT(NBTTagCompound compound)
+    public void readAdditional(NBTTagCompound compound)
     {
-        super.readEntityFromNBT(compound);
+        super.readAdditional(compound);
         this.setSheared(compound.getBoolean("Sheared"));
         this.setFleeceColor(EnumDyeColor.byMetadata(compound.getByte("Color")));
     }
@@ -408,11 +395,6 @@ public class EntitySheep extends EntityAnimal
     }
 
     @Nullable
-
-    /**
-     * Called only once on an entity when first time spawned, via egg, mob spawner, natural spawning etc, but not called
-     * when entity is reloaded from nbt. Mainly used for initializing attributes and inventory
-     */
     public IEntityLivingData onInitialSpawn(DifficultyInstance difficulty, @Nullable IEntityLivingData livingdata)
     {
         livingdata = super.onInitialSpawn(difficulty, livingdata);

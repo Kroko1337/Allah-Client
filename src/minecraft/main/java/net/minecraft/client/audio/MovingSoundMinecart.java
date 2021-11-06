@@ -18,20 +18,17 @@ public class MovingSoundMinecart extends MovingSound
         this.repeatDelay = 0;
     }
 
-    /**
-     * Like the old updateEntity(), except more generic.
-     */
-    public void update()
+    public void tick()
     {
-        if (this.minecart.isDead)
+        if (this.minecart.removed)
         {
             this.donePlaying = true;
         }
         else
         {
-            this.xPosF = (float)this.minecart.posX;
-            this.yPosF = (float)this.minecart.posY;
-            this.zPosF = (float)this.minecart.posZ;
+            this.x = (float)this.minecart.posX;
+            this.y = (float)this.minecart.posY;
+            this.z = (float)this.minecart.posZ;
             float f = MathHelper.sqrt(this.minecart.motionX * this.minecart.motionX + this.minecart.motionZ * this.minecart.motionZ);
 
             if ((double)f >= 0.01D)

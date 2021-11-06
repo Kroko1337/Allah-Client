@@ -14,9 +14,6 @@ public class PropertyDirection extends PropertyEnum<EnumFacing>
         super(name, EnumFacing.class, values);
     }
 
-    /**
-     * Create a new PropertyDirection with the given name
-     */
     public static PropertyDirection create(String name)
     {
         return create(name, Predicates.alwaysTrue());

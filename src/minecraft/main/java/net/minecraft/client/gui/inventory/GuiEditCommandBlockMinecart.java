@@ -32,18 +32,11 @@ public class GuiEditCommandBlockMinecart extends GuiScreen implements ITabComple
         this.commandBlockLogic = p_i46595_1_;
     }
 
-    /**
-     * Called from the main game loop to update the screen.
-     */
     public void updateScreen()
     {
-        this.commandField.updateCursorCounter();
+        this.commandField.tick();
     }
 
-    /**
-     * Adds the buttons (and other controls) to the screen in question. Called when the GUI is displayed and when the
-     * window resizes, the buttonList is cleared beforehand.
-     */
     public void initGui()
     {
         Keyboard.enableRepeatEvents(true);
@@ -53,7 +46,7 @@ public class GuiEditCommandBlockMinecart extends GuiScreen implements ITabComple
         this.outputButton = this.addButton(new GuiButton(4, this.width / 2 + 150 - 20, 150, 20, 20, "O"));
         this.commandField = new GuiTextField(2, this.fontRenderer, this.width / 2 - 150, 50, 300, 20);
         this.commandField.setMaxStringLength(32500);
-        this.commandField.setFocused(true);
+        this.commandField.setFocused2(true);
         this.commandField.setText(this.commandBlockLogic.getCommand());
         this.previousEdit = new GuiTextField(3, this.fontRenderer, this.width / 2 - 150, 150, 276, 20);
         this.previousEdit.setMaxStringLength(32500);
@@ -72,17 +65,11 @@ public class GuiEditCommandBlockMinecart extends GuiScreen implements ITabComple
         };
     }
 
-    /**
-     * Called when the screen is unloaded. Used to disable keyboard repeat events
-     */
     public void onGuiClosed()
     {
         Keyboard.enableRepeatEvents(false);
     }
 
-    /**
-     * Called by the controls from the buttonList when activated. (Mouse pressed for buttons)
-     */
     protected void actionPerformed(GuiButton button) throws IOException
     {
         if (button.enabled)
@@ -116,10 +103,6 @@ public class GuiEditCommandBlockMinecart extends GuiScreen implements ITabComple
         }
     }
 
-    /**
-     * Fired when a key is typed (except F11 which toggles full screen). This is the equivalent of
-     * KeyListener.keyTyped(KeyEvent e). Args : character (character on the key), keyCode (lwjgl Keyboard key code)
-     */
     protected void keyTyped(char typedChar, int keyCode) throws IOException
     {
         this.tabCompleter.resetRequested();
@@ -150,9 +133,6 @@ public class GuiEditCommandBlockMinecart extends GuiScreen implements ITabComple
         }
     }
 
-    /**
-     * Called when the mouse is clicked. Args : mouseX, mouseY, clickedButton
-     */
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
     {
         super.mouseClicked(mouseX, mouseY, mouseButton);
@@ -160,9 +140,6 @@ public class GuiEditCommandBlockMinecart extends GuiScreen implements ITabComple
         this.previousEdit.mouseClicked(mouseX, mouseY, mouseButton);
     }
 
-    /**
-     * Draws the screen and all the components in it.
-     */
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         this.drawDefaultBackground();
@@ -205,9 +182,6 @@ public class GuiEditCommandBlockMinecart extends GuiScreen implements ITabComple
         }
     }
 
-    /**
-     * Sets the list of tab completions, as long as they were previously requested.
-     */
     public void setCompletions(String... newCompletions)
     {
         this.tabCompleter.setCompletions(newCompletions);

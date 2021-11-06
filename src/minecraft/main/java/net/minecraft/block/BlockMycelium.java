@@ -21,16 +21,12 @@ public class BlockMycelium extends Block
 
     protected BlockMycelium()
     {
-        super(Material.GRASS, MapColor.PURPLE);
-        this.setDefaultState(this.blockState.getBaseState().withProperty(SNOWY, Boolean.valueOf(false)));
+        super(Material.ORGANIC, MapColor.PURPLE);
+        this.setDefaultState(this.stateContainer.getBaseState().withProperty(SNOWY, Boolean.valueOf(false)));
         this.setTickRandomly(true);
         this.setCreativeTab(CreativeTabs.BUILDING_BLOCKS);
     }
 
-    /**
-     * Get the actual Block state of this Block at the given position. This applies properties not visible in the
-     * metadata, such as fence connections.
-     */
     public IBlockState getActualState(IBlockState state, IBlockAccess worldIn, BlockPos pos)
     {
         Block block = worldIn.getBlockState(pos.up()).getBlock();
@@ -55,7 +51,7 @@ public class BlockMycelium extends Block
                         IBlockState iblockstate = worldIn.getBlockState(blockpos);
                         IBlockState iblockstate1 = worldIn.getBlockState(blockpos.up());
 
-                        if (iblockstate.getBlock() == Blocks.DIRT && iblockstate.getValue(BlockDirt.VARIANT) == BlockDirt.DirtType.DIRT && worldIn.getLightFromNeighbors(blockpos.up()) >= 4 && iblockstate1.getLightOpacity() <= 2)
+                        if (iblockstate.getBlock() == Blocks.DIRT && iblockstate.get(BlockDirt.VARIANT) == BlockDirt.DirtType.DIRT && worldIn.getLightFromNeighbors(blockpos.up()) >= 4 && iblockstate1.getLightOpacity() <= 2)
                         {
                             worldIn.setBlockState(blockpos, this.getDefaultState());
                         }
@@ -65,9 +61,14 @@ public class BlockMycelium extends Block
         }
     }
 
-    public void randomDisplayTick(IBlockState stateIn, World worldIn, BlockPos pos, Random rand)
+    /**
+     * Called periodically clientside on blocks near the player to show effects (like furnace fire particles). Note that
+     * this method is unrelated to {@link randomTick} and {@link #needsRandomTick}, and will always be called regardless
+     * of whether the block can receive random update ticks
+     */
+    public void animateTick(IBlockState stateIn, World worldIn, BlockPos pos, Random rand)
     {
-        super.randomDisplayTick(stateIn, worldIn, pos, rand);
+        super.animateTick(stateIn, worldIn, pos, rand);
 
         if (rand.nextInt(10) == 0)
         {
@@ -75,17 +76,11 @@ public class BlockMycelium extends Block
         }
     }
 
-    /**
-     * Get the Item that this Block should drop when harvested.
-     */
     public Item getItemDropped(IBlockState state, Random rand, int fortune)
     {
         return Blocks.DIRT.getItemDropped(Blocks.DIRT.getDefaultState().withProperty(BlockDirt.VARIANT, BlockDirt.DirtType.DIRT), rand, fortune);
     }
 
-    /**
-     * Convert the BlockState into the correct metadata value
-     */
     public int getMetaFromState(IBlockState state)
     {
         return 0;

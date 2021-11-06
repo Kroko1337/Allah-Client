@@ -36,7 +36,7 @@ public class SPacketSpawnMob implements Packet<INetHandlerPlayClient>
     {
         this.entityId = entityIn.getEntityId();
         this.uniqueId = entityIn.getUniqueID();
-        this.type = EntityList.REGISTRY.getIDForObject(entityIn.getClass());
+        this.type = EntityList.REGISTRY.getId(entityIn.getClass());
         this.x = entityIn.posX;
         this.y = entityIn.posY;
         this.z = entityIn.posZ;

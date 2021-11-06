@@ -32,9 +32,9 @@ public class EntitySpectralArrow extends EntityArrow
     /**
      * Called to update the entity's position/logic.
      */
-    public void onUpdate()
+    public void tick()
     {
-        super.onUpdate();
+        super.tick();
 
         if (this.world.isRemote && !this.inGround)
         {
@@ -62,22 +62,19 @@ public class EntitySpectralArrow extends EntityArrow
     /**
      * (abstract) Protected helper method to read subclass entity data from NBT.
      */
-    public void readEntityFromNBT(NBTTagCompound compound)
+    public void readAdditional(NBTTagCompound compound)
     {
-        super.readEntityFromNBT(compound);
+        super.readAdditional(compound);
 
-        if (compound.hasKey("Duration"))
+        if (compound.contains("Duration"))
         {
-            this.duration = compound.getInteger("Duration");
+            this.duration = compound.getInt("Duration");
         }
     }
 
-    /**
-     * (abstract) Protected helper method to write subclass entity data to NBT.
-     */
     public void writeEntityToNBT(NBTTagCompound compound)
     {
         super.writeEntityToNBT(compound);
-        compound.setInteger("Duration", this.duration);
+        compound.putInt("Duration", this.duration);
     }
 }

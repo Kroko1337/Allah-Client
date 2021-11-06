@@ -10,10 +10,6 @@ public class ModelBoat extends ModelBase implements IMultipassModel
 {
     public ModelRenderer[] boatSides = new ModelRenderer[5];
     public ModelRenderer[] paddles = new ModelRenderer[2];
-
-    /**
-     * Part of the model rendered to make it seem like there's no water in the boat
-     */
     public ModelRenderer noWater;
     private final int patchList = GLAllocation.generateDisplayLists(1);
 
@@ -56,9 +52,6 @@ public class ModelBoat extends ModelBase implements IMultipassModel
         this.noWater.rotateAngleX = ((float)Math.PI / 2F);
     }
 
-    /**
-     * Sets the models various rotation angles then renders the model.
-     */
     public void render(Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale)
     {
         GlStateManager.rotate(90.0F, 0.0F, 1.0F, 0.0F);
@@ -74,7 +67,7 @@ public class ModelBoat extends ModelBase implements IMultipassModel
         this.renderPaddle(entityboat, 1, scale, limbSwing);
     }
 
-    public void renderMultipass(Entity p_187054_1_, float p_187054_2_, float p_187054_3_, float p_187054_4_, float p_187054_5_, float p_187054_6_, float scale)
+    public void renderMultipass(Entity entityIn, float partialTicks, float p_187054_3_, float p_187054_4_, float p_187054_5_, float p_187054_6_, float scale)
     {
         GlStateManager.rotate(90.0F, 0.0F, 1.0F, 0.0F);
         GlStateManager.colorMask(false, false, false, false);

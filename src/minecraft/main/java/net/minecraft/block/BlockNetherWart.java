@@ -25,19 +25,16 @@ public class BlockNetherWart extends BlockBush
     protected BlockNetherWart()
     {
         super(Material.PLANTS, MapColor.RED);
-        this.setDefaultState(this.blockState.getBaseState().withProperty(AGE, Integer.valueOf(0)));
+        this.setDefaultState(this.stateContainer.getBaseState().withProperty(AGE, Integer.valueOf(0)));
         this.setTickRandomly(true);
         this.setCreativeTab((CreativeTabs)null);
     }
 
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
     {
-        return NETHER_WART_AABB[((Integer)state.getValue(AGE)).intValue()];
+        return NETHER_WART_AABB[((Integer)state.get(AGE)).intValue()];
     }
 
-    /**
-     * Return true if the block can sustain a Bush
-     */
     protected boolean canSustainBush(IBlockState state)
     {
         return state.getBlock() == Blocks.SOUL_SAND;
@@ -50,7 +47,7 @@ public class BlockNetherWart extends BlockBush
 
     public void updateTick(World worldIn, BlockPos pos, IBlockState state, Random rand)
     {
-        int i = ((Integer)state.getValue(AGE)).intValue();
+        int i = ((Integer)state.get(AGE)).intValue();
 
         if (i < 3 && rand.nextInt(10) == 0)
         {
@@ -61,16 +58,13 @@ public class BlockNetherWart extends BlockBush
         super.updateTick(worldIn, pos, state, rand);
     }
 
-    /**
-     * Spawns this Block's drops into the World as EntityItems.
-     */
     public void dropBlockAsItemWithChance(World worldIn, BlockPos pos, IBlockState state, float chance, int fortune)
     {
         if (!worldIn.isRemote)
         {
             int i = 1;
 
-            if (((Integer)state.getValue(AGE)).intValue() >= 3)
+            if (((Integer)state.get(AGE)).intValue() >= 3)
             {
                 i = 2 + worldIn.rand.nextInt(3);
 
@@ -87,17 +81,11 @@ public class BlockNetherWart extends BlockBush
         }
     }
 
-    /**
-     * Get the Item that this Block should drop when harvested.
-     */
     public Item getItemDropped(IBlockState state, Random rand, int fortune)
     {
         return Items.AIR;
     }
 
-    /**
-     * Returns the quantity of items to drop on block destruction.
-     */
     public int quantityDropped(Random random)
     {
         return 0;
@@ -108,20 +96,14 @@ public class BlockNetherWart extends BlockBush
         return new ItemStack(Items.NETHER_WART);
     }
 
-    /**
-     * Convert the given metadata into a BlockState for this Block
-     */
     public IBlockState getStateFromMeta(int meta)
     {
         return this.getDefaultState().withProperty(AGE, Integer.valueOf(meta));
     }
 
-    /**
-     * Convert the BlockState into the correct metadata value
-     */
     public int getMetaFromState(IBlockState state)
     {
-        return ((Integer)state.getValue(AGE)).intValue();
+        return ((Integer)state.get(AGE)).intValue();
     }
 
     protected BlockStateContainer createBlockState()

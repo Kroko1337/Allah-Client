@@ -17,16 +17,7 @@ import org.apache.logging.log4j.Logger;
 
 public class SuffixArray<T>
 {
-    /**
-     * A debug property (<code>SuffixArray.printComparisons</code>) that can be specified in the JVM arguments, that
-     * causes debug printing of comparisons as they happen.
-     */
     private static final boolean DEBUG_PRINT_COMPARISONS = Boolean.parseBoolean(System.getProperty("SuffixArray.printComparisons", "false"));
-
-    /**
-     * A debug property (<code>SuffixArray.printArray</code>) that can be specified in the JVM arguments, that causes
-     * the full array to be printed ({@link #printArray()}) after calling {@link #generate()}
-     */
     private static final boolean DEBUG_PRINT_ARRAY = Boolean.parseBoolean(System.getProperty("SuffixArray.printArray", "false"));
     private static final Logger LOGGER = LogManager.getLogger();
     protected final List<T> list = Lists.<T>newArrayList();

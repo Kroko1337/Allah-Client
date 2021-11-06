@@ -7,27 +7,17 @@ import net.minecraft.util.math.MathHelper;
 
 public class EntityLookHelper
 {
-    private final EntityLiving entity;
-
-    /**
-     * The amount of change that is made each update for an entity facing a direction.
-     */
+    private final EntityLiving mob;
     private float deltaLookYaw;
-
-    /**
-     * The amount of change that is made each update for an entity facing a direction.
-     */
     private float deltaLookPitch;
-
-    /** Whether or not the entity is trying to look at something. */
     private boolean isLooking;
     private double posX;
     private double posY;
     private double posZ;
 
-    public EntityLookHelper(EntityLiving entitylivingIn)
+    public EntityLookHelper(EntityLiving mob)
     {
-        this.entity = entitylivingIn;
+        this.mob = mob;
     }
 
     /**
@@ -43,7 +33,7 @@ public class EntityLookHelper
         }
         else
         {
-            this.posY = (entityIn.getEntityBoundingBox().minY + entityIn.getEntityBoundingBox().maxY) / 2.0D;
+            this.posY = (entityIn.getBoundingBox().minY + entityIn.getBoundingBox().maxY) / 2.0D;
         }
 
         this.posZ = entityIn.posZ;
@@ -68,39 +58,39 @@ public class EntityLookHelper
     /**
      * Updates look
      */
-    public void onUpdateLook()
+    public void tick()
     {
-        this.entity.rotationPitch = 0.0F;
+        this.mob.rotationPitch = 0.0F;
 
         if (this.isLooking)
         {
             this.isLooking = false;
-            double d0 = this.posX - this.entity.posX;
-            double d1 = this.posY - (this.entity.posY + (double)this.entity.getEyeHeight());
-            double d2 = this.posZ - this.entity.posZ;
+            double d0 = this.posX - this.mob.posX;
+            double d1 = this.posY - (this.mob.posY + (double)this.mob.getEyeHeight());
+            double d2 = this.posZ - this.mob.posZ;
             double d3 = (double)MathHelper.sqrt(d0 * d0 + d2 * d2);
             float f = (float)(MathHelper.atan2(d2, d0) * (180D / Math.PI)) - 90.0F;
             float f1 = (float)(-(MathHelper.atan2(d1, d3) * (180D / Math.PI)));
-            this.entity.rotationPitch = this.updateRotation(this.entity.rotationPitch, f1, this.deltaLookPitch);
-            this.entity.rotationYawHead = this.updateRotation(this.entity.rotationYawHead, f, this.deltaLookYaw);
+            this.mob.rotationPitch = this.updateRotation(this.mob.rotationPitch, f1, this.deltaLookPitch);
+            this.mob.rotationYawHead = this.updateRotation(this.mob.rotationYawHead, f, this.deltaLookYaw);
         }
         else
         {
-            this.entity.rotationYawHead = this.updateRotation(this.entity.rotationYawHead, this.entity.renderYawOffset, 10.0F);
+            this.mob.rotationYawHead = this.updateRotation(this.mob.rotationYawHead, this.mob.renderYawOffset, 10.0F);
         }
 
-        float f2 = MathHelper.wrapDegrees(this.entity.rotationYawHead - this.entity.renderYawOffset);
+        float f2 = MathHelper.wrapDegrees(this.mob.rotationYawHead - this.mob.renderYawOffset);
 
-        if (!this.entity.getNavigator().noPath())
+        if (!this.mob.getNavigator().noPath())
         {
             if (f2 < -75.0F)
             {
-                this.entity.rotationYawHead = this.entity.renderYawOffset - 75.0F;
+                this.mob.rotationYawHead = this.mob.renderYawOffset - 75.0F;
             }
 
             if (f2 > 75.0F)
             {
-                this.entity.rotationYawHead = this.entity.renderYawOffset + 75.0F;
+                this.mob.rotationYawHead = this.mob.renderYawOffset + 75.0F;
             }
         }
     }

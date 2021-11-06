@@ -12,14 +12,14 @@ public class HorseSaddle implements IFixableData
 
     public NBTTagCompound fixTagCompound(NBTTagCompound compound)
     {
-        if ("EntityHorse".equals(compound.getString("id")) && !compound.hasKey("SaddleItem", 10) && compound.getBoolean("Saddle"))
+        if ("EntityHorse".equals(compound.getString("id")) && !compound.contains("SaddleItem", 10) && compound.getBoolean("Saddle"))
         {
             NBTTagCompound nbttagcompound = new NBTTagCompound();
-            nbttagcompound.setString("id", "minecraft:saddle");
-            nbttagcompound.setByte("Count", (byte)1);
-            nbttagcompound.setShort("Damage", (short)0);
+            nbttagcompound.putString("id", "minecraft:saddle");
+            nbttagcompound.putByte("Count", (byte)1);
+            nbttagcompound.putShort("Damage", (short)0);
             compound.setTag("SaddleItem", nbttagcompound);
-            compound.removeTag("Saddle");
+            compound.remove("Saddle");
         }
 
         return compound;

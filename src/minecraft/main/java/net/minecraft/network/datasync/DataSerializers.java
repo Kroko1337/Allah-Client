@@ -110,10 +110,10 @@ public class DataSerializers
         }
         public ITextComponent copyValue(ITextComponent value)
         {
-            return value.createCopy();
+            return value.shallowCopy();
         }
     };
-    public static final DataSerializer<ItemStack> ITEM_STACK = new DataSerializer<ItemStack>()
+    public static final DataSerializer<ItemStack> ITEMSTACK = new DataSerializer<ItemStack>()
     {
         public void write(PacketBuffer buf, ItemStack value)
         {
@@ -242,7 +242,7 @@ public class DataSerializers
             return value;
         }
     };
-    public static final DataSerializer<EnumFacing> FACING = new DataSerializer<EnumFacing>()
+    public static final DataSerializer<EnumFacing> DIRECTION = new DataSerializer<EnumFacing>()
     {
         public void write(PacketBuffer buf, EnumFacing value)
         {
@@ -285,7 +285,7 @@ public class DataSerializers
             return value;
         }
     };
-    public static final DataSerializer<NBTTagCompound> COMPOUND_TAG = new DataSerializer<NBTTagCompound>()
+    public static final DataSerializer<NBTTagCompound> COMPOUND_NBT = new DataSerializer<NBTTagCompound>()
     {
         public void write(PacketBuffer buf, NBTTagCompound value)
         {
@@ -328,14 +328,14 @@ public class DataSerializers
         registerSerializer(FLOAT);
         registerSerializer(STRING);
         registerSerializer(TEXT_COMPONENT);
-        registerSerializer(ITEM_STACK);
+        registerSerializer(ITEMSTACK);
         registerSerializer(BOOLEAN);
         registerSerializer(ROTATIONS);
         registerSerializer(BLOCK_POS);
         registerSerializer(OPTIONAL_BLOCK_POS);
-        registerSerializer(FACING);
+        registerSerializer(DIRECTION);
         registerSerializer(OPTIONAL_UNIQUE_ID);
         registerSerializer(OPTIONAL_BLOCK_STATE);
-        registerSerializer(COMPOUND_TAG);
+        registerSerializer(COMPOUND_NBT);
     }
 }

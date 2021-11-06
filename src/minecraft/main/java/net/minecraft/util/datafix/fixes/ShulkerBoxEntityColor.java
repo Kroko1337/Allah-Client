@@ -12,9 +12,9 @@ public class ShulkerBoxEntityColor implements IFixableData
 
     public NBTTagCompound fixTagCompound(NBTTagCompound compound)
     {
-        if ("minecraft:shulker".equals(compound.getString("id")) && !compound.hasKey("Color", 99))
+        if ("minecraft:shulker".equals(compound.getString("id")) && !compound.contains("Color", 99))
         {
-            compound.setByte("Color", (byte)10);
+            compound.putByte("Color", (byte)10);
         }
 
         return compound;

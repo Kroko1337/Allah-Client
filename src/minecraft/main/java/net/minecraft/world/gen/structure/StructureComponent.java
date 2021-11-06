@@ -25,13 +25,9 @@ public abstract class StructureComponent
 {
     protected StructureBoundingBox boundingBox;
     @Nullable
-
-    /** switches the Coordinate System base off the Bounding Box */
     private EnumFacing coordBaseMode;
     private Mirror mirror;
     private Rotation rotation;
-
-    /** The type ID of this component. */
     protected int componentType;
 
     public StructureComponent()
@@ -49,45 +45,37 @@ public abstract class StructureComponent
      * net.minecraft.world.gen.structure.StructureComponent#componentType componentType}) to new NBTTagCompound and
      * returns it.
      */
-    public final NBTTagCompound createStructureBaseNBT()
+    public final NBTTagCompound write()
     {
         NBTTagCompound nbttagcompound = new NBTTagCompound();
-        nbttagcompound.setString("id", MapGenStructureIO.getStructureComponentName(this));
+        nbttagcompound.putString("id", MapGenStructureIO.getStructureComponentName(this));
         nbttagcompound.setTag("BB", this.boundingBox.toNBTTagIntArray());
         EnumFacing enumfacing = this.getCoordBaseMode();
-        nbttagcompound.setInteger("O", enumfacing == null ? -1 : enumfacing.getHorizontalIndex());
-        nbttagcompound.setInteger("GD", this.componentType);
+        nbttagcompound.putInt("O", enumfacing == null ? -1 : enumfacing.getHorizontalIndex());
+        nbttagcompound.putInt("GD", this.componentType);
         this.writeStructureToNBT(nbttagcompound);
         return nbttagcompound;
     }
 
-    /**
-     * (abstract) Helper method to write subclass data to NBT
-     */
     protected abstract void writeStructureToNBT(NBTTagCompound tagCompound);
 
-    /**
-     * Reads and sets structure base data (boundingbox, {@link
-     * net.minecraft.world.gen.structure.StructureComponent#coordBaseMode coordBase} and {@link
-     * net.minecraft.world.gen.structure.StructureComponent#componentType componentType})
-     */
     public void readStructureBaseNBT(World worldIn, NBTTagCompound tagCompound)
     {
-        if (tagCompound.hasKey("BB"))
+        if (tagCompound.contains("BB"))
         {
             this.boundingBox = new StructureBoundingBox(tagCompound.getIntArray("BB"));
         }
 
-        int i = tagCompound.getInteger("O");
-        this.setCoordBaseMode(i == -1 ? null : EnumFacing.getHorizontal(i));
-        this.componentType = tagCompound.getInteger("GD");
-        this.readStructureFromNBT(tagCompound, worldIn.getSaveHandler().getStructureTemplateManager());
+        int i = tagCompound.getInt("O");
+        this.setCoordBaseMode(i == -1 ? null : EnumFacing.byHorizontalIndex(i));
+        this.componentType = tagCompound.getInt("GD");
+        this.readAdditional(tagCompound, worldIn.getSaveHandler().getStructureTemplateManager());
     }
 
     /**
      * (abstract) Helper method to read subclass data from NBT
      */
-    protected abstract void readStructureFromNBT(NBTTagCompound tagCompound, TemplateManager p_143011_2_);
+    protected abstract void readAdditional(NBTTagCompound tagCompound, TemplateManager p_143011_2_);
 
     /**
      * Initiates construction of the Structure Component picked, at the current Location of StructGen
@@ -96,10 +84,6 @@ public abstract class StructureComponent
     {
     }
 
-    /**
-     * second Part of Structure generating, this for example places Spiderwebs, Mob Spawners, it closes Mineshafts at
-     * the end, it adds Fences...
-     */
     public abstract boolean addComponentParts(World worldIn, Random randomIn, StructureBoundingBox structureBoundingBoxIn);
 
     public StructureBoundingBox getBoundingBox()
@@ -264,12 +248,12 @@ public abstract class StructureComponent
         {
             if (this.mirror != Mirror.NONE)
             {
-                blockstateIn = blockstateIn.withMirror(this.mirror);
+                blockstateIn = blockstateIn.mirror(this.mirror);
             }
 
             if (this.rotation != Rotation.NONE)
             {
-                blockstateIn = blockstateIn.withRotation(this.rotation);
+                blockstateIn = blockstateIn.rotate(this.rotation);
             }
 
             worldIn.setBlockState(blockpos, blockstateIn, 2);
@@ -427,9 +411,6 @@ public abstract class StructureComponent
         }
     }
 
-    /**
-     * Deletes all continuous blocks from selected position upwards. Stops at hitting air.
-     */
     protected void clearCurrentPositionBlocksUpwards(World worldIn, int x, int y, int z, StructureBoundingBox structurebb)
     {
         BlockPos blockpos = new BlockPos(this.getXWithOffset(x, z), this.getYWithOffset(y), this.getZWithOffset(x, z));
@@ -472,21 +453,21 @@ public abstract class StructureComponent
         return this.generateChest(worldIn, structurebb, randomIn, blockpos, loot, (IBlockState)null);
     }
 
-    protected boolean generateChest(World p_191080_1_, StructureBoundingBox p_191080_2_, Random p_191080_3_, BlockPos p_191080_4_, ResourceLocation p_191080_5_, @Nullable IBlockState p_191080_6_)
+    protected boolean generateChest(World worldIn, StructureBoundingBox boundsIn, Random rand, BlockPos posIn, ResourceLocation resourceLocationIn, @Nullable IBlockState p_191080_6_)
     {
-        if (p_191080_2_.isVecInside(p_191080_4_) && p_191080_1_.getBlockState(p_191080_4_).getBlock() != Blocks.CHEST)
+        if (boundsIn.isVecInside(posIn) && worldIn.getBlockState(posIn).getBlock() != Blocks.CHEST)
         {
             if (p_191080_6_ == null)
             {
-                p_191080_6_ = Blocks.CHEST.correctFacing(p_191080_1_, p_191080_4_, Blocks.CHEST.getDefaultState());
+                p_191080_6_ = Blocks.CHEST.correctFacing(worldIn, posIn, Blocks.CHEST.getDefaultState());
             }
 
-            p_191080_1_.setBlockState(p_191080_4_, p_191080_6_, 2);
-            TileEntity tileentity = p_191080_1_.getTileEntity(p_191080_4_);
+            worldIn.setBlockState(posIn, p_191080_6_, 2);
+            TileEntity tileentity = worldIn.getTileEntity(posIn);
 
             if (tileentity instanceof TileEntityChest)
             {
-                ((TileEntityChest)tileentity).setLootTable(p_191080_5_, p_191080_3_.nextLong());
+                ((TileEntityChest)tileentity).setLootTable(resourceLocationIn, rand.nextLong());
             }
 
             return true;

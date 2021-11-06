@@ -29,7 +29,7 @@ public class ParticleBreaking extends Particle
     protected ParticleBreaking(World worldIn, double posXIn, double posYIn, double posZIn, Item itemIn, int meta)
     {
         super(worldIn, posXIn, posYIn, posZIn, 0.0D, 0.0D, 0.0D);
-        this.setParticleTexture(Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getParticleIcon(itemIn, meta));
+        this.setParticleTexture(Minecraft.getInstance().getItemRenderer().getItemModelMesher().getParticleIcon(itemIn, meta));
         this.particleRed = 1.0F;
         this.particleGreen = 1.0F;
         this.particleBlue = 1.0F;
@@ -37,18 +37,11 @@ public class ParticleBreaking extends Particle
         this.particleScale /= 2.0F;
     }
 
-    /**
-     * Retrieve what effect layer (what texture) the particle should be rendered with. 0 for the particle sprite sheet,
-     * 1 for the main Texture atlas, and 3 for a custom texture
-     */
     public int getFXLayer()
     {
         return 1;
     }
 
-    /**
-     * Renders the particle
-     */
     public void renderParticle(BufferBuilder buffer, Entity entityIn, float partialTicks, float rotationX, float rotationZ, float rotationYZ, float rotationXY, float rotationXZ)
     {
         float f = ((float)this.particleTextureIndexX + this.particleTextureJitterX / 4.0F) / 16.0F;

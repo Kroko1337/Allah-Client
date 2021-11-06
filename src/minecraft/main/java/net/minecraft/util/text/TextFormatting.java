@@ -35,32 +35,20 @@ public enum TextFormatting
     RESET("RESET", 'r', -1);
 
     private static final Map<String, TextFormatting> NAME_MAPPING = Maps.<String, TextFormatting>newHashMap();
-
-    /**
-     * Matches formatting codes that indicate that the client should treat the following text as bold, recolored,
-     * obfuscated, etc.
-     */
     private static final Pattern FORMATTING_CODE_PATTERN = Pattern.compile("(?i)\u00a7[0-9A-FK-OR]");
 
     /** The name of this color/formatting */
     private final String name;
-
-    /** The formatting code that produces this format. */
     private final char formattingCode;
     private final boolean fancyStyling;
-
-    /**
-     * The control string (section sign + formatting code) that can be inserted into client-side text to display
-     * subsequent text in this format.
-     */
     private final String controlString;
 
     /** The numerical index that represents this color */
     private final int colorIndex;
 
-    private static String lowercaseAlpha(String p_175745_0_)
+    private static String lowercaseAlpha(String string)
     {
-        return p_175745_0_.toLowerCase(Locale.ROOT).replaceAll("[^a-z]", "");
+        return string.toLowerCase(Locale.ROOT).replaceAll("[^a-z]", "");
     }
 
     private TextFormatting(String formattingName, char formattingCodeIn, int colorIndex)
@@ -164,13 +152,13 @@ public enum TextFormatting
         }
     }
 
-    public static Collection<String> getValidValues(boolean p_96296_0_, boolean p_96296_1_)
+    public static Collection<String> getValidValues(boolean getColor, boolean getFancyStyling)
     {
         List<String> list = Lists.<String>newArrayList();
 
         for (TextFormatting textformatting : values())
         {
-            if ((!textformatting.isColor() || p_96296_0_) && (!textformatting.isFancyStyling() || p_96296_1_))
+            if ((!textformatting.isColor() || getColor) && (!textformatting.isFancyStyling() || getFancyStyling))
             {
                 list.add(textformatting.getFriendlyName());
             }

@@ -16,33 +16,12 @@ import net.minecraft.util.math.MathHelper;
 
 public abstract class EntityAITarget extends EntityAIBase
 {
-    /** The entity that this task belongs to */
-    protected final EntityCreature taskOwner;
-
-    /**
-     * If true, EntityAI targets must be able to be seen (cannot be blocked by walls) to be suitable targets.
-     */
+    /** The entity that this goal belongs to */
+    protected final EntityCreature goalOwner;
     protected boolean shouldCheckSight;
-
-    /**
-     * When true, only entities that can be reached with minimal effort will be targetted.
-     */
     private final boolean nearbyOnly;
-
-    /**
-     * When nearbyOnly is true: 0 -> No target, but OK to search; 1 -> Nearby target found; 2 -> Target too far.
-     */
     private int targetSearchStatus;
-
-    /**
-     * When nearbyOnly is true, this throttles target searching to avoid excessive pathfinding.
-     */
     private int targetSearchDelay;
-
-    /**
-     * If  @shouldCheckSight is true, the number of ticks before the interuption of this AITastk when the entity does't
-     * see the target
-     */
     private int targetUnseenTicks;
     protected EntityLivingBase target;
     protected int unseenMemoryTicks;
@@ -55,7 +34,7 @@ public abstract class EntityAITarget extends EntityAIBase
     public EntityAITarget(EntityCreature creature, boolean checkSight, boolean onlyNearby)
     {
         this.unseenMemoryTicks = 60;
-        this.taskOwner = creature;
+        this.goalOwner = creature;
         this.shouldCheckSight = checkSight;
         this.nearbyOnly = onlyNearby;
     }
@@ -65,7 +44,7 @@ public abstract class EntityAITarget extends EntityAIBase
      */
     public boolean shouldContinueExecuting()
     {
-        EntityLivingBase entitylivingbase = this.taskOwner.getAttackTarget();
+        EntityLivingBase entitylivingbase = this.goalOwner.getAttackTarget();
 
         if (entitylivingbase == null)
         {
@@ -76,13 +55,13 @@ public abstract class EntityAITarget extends EntityAIBase
         {
             return false;
         }
-        else if (!entitylivingbase.isEntityAlive())
+        else if (!entitylivingbase.isAlive())
         {
             return false;
         }
         else
         {
-            Team team = this.taskOwner.getTeam();
+            Team team = this.goalOwner.getTeam();
             Team team1 = entitylivingbase.getTeam();
 
             if (team != null && team1 == team)
@@ -93,7 +72,7 @@ public abstract class EntityAITarget extends EntityAIBase
             {
                 double d0 = this.getTargetDistance();
 
-                if (this.taskOwner.getDistanceSqToEntity(entitylivingbase) > d0 * d0)
+                if (this.goalOwner.getDistanceSq(entitylivingbase) > d0 * d0)
                 {
                     return false;
                 }
@@ -101,7 +80,7 @@ public abstract class EntityAITarget extends EntityAIBase
                 {
                     if (this.shouldCheckSight)
                     {
-                        if (this.taskOwner.getEntitySenses().canSee(entitylivingbase))
+                        if (this.goalOwner.getEntitySenses().canSee(entitylivingbase))
                         {
                             this.targetUnseenTicks = 0;
                         }
@@ -111,13 +90,13 @@ public abstract class EntityAITarget extends EntityAIBase
                         }
                     }
 
-                    if (entitylivingbase instanceof EntityPlayer && ((EntityPlayer)entitylivingbase).capabilities.disableDamage)
+                    if (entitylivingbase instanceof EntityPlayer && ((EntityPlayer)entitylivingbase).abilities.disableDamage)
                     {
                         return false;
                     }
                     else
                     {
-                        this.taskOwner.setAttackTarget(entitylivingbase);
+                        this.goalOwner.setAttackTarget(entitylivingbase);
                         return true;
                     }
                 }
@@ -127,8 +106,8 @@ public abstract class EntityAITarget extends EntityAIBase
 
     protected double getTargetDistance()
     {
-        IAttributeInstance iattributeinstance = this.taskOwner.getEntityAttribute(SharedMonsterAttributes.FOLLOW_RANGE);
-        return iattributeinstance == null ? 16.0D : iattributeinstance.getAttributeValue();
+        IAttributeInstance iattributeinstance = this.goalOwner.getAttribute(SharedMonsterAttributes.FOLLOW_RANGE);
+        return iattributeinstance == null ? 16.0D : iattributeinstance.getValue();
     }
 
     /**
@@ -146,13 +125,10 @@ public abstract class EntityAITarget extends EntityAIBase
      */
     public void resetTask()
     {
-        this.taskOwner.setAttackTarget((EntityLivingBase)null);
+        this.goalOwner.setAttackTarget((EntityLivingBase)null);
         this.target = null;
     }
 
-    /**
-     * A static method used to see if an entity is a suitable target through a number of checks.
-     */
     public static boolean isSuitableTarget(EntityLiving attacker, @Nullable EntityLivingBase target, boolean includeInvincibles, boolean checkSight)
     {
         if (target == null)
@@ -163,7 +139,7 @@ public abstract class EntityAITarget extends EntityAIBase
         {
             return false;
         }
-        else if (!target.isEntityAlive())
+        else if (!target.isAlive())
         {
             return false;
         }
@@ -189,7 +165,7 @@ public abstract class EntityAITarget extends EntityAIBase
                     return false;
                 }
             }
-            else if (target instanceof EntityPlayer && !includeInvincibles && ((EntityPlayer)target).capabilities.disableDamage)
+            else if (target instanceof EntityPlayer && !includeInvincibles && ((EntityPlayer)target).abilities.disableDamage)
             {
                 return false;
             }
@@ -198,17 +174,13 @@ public abstract class EntityAITarget extends EntityAIBase
         }
     }
 
-    /**
-     * A method used to see if an entity is a suitable target through a number of checks. Args : entity,
-     * canTargetInvinciblePlayer
-     */
     protected boolean isSuitableTarget(@Nullable EntityLivingBase target, boolean includeInvincibles)
     {
-        if (!isSuitableTarget(this.taskOwner, target, includeInvincibles, this.shouldCheckSight))
+        if (!isSuitableTarget(this.goalOwner, target, includeInvincibles, this.shouldCheckSight))
         {
             return false;
         }
-        else if (!this.taskOwner.isWithinHomeDistanceFromPosition(new BlockPos(target)))
+        else if (!this.goalOwner.isWithinHomeDistanceFromPosition(new BlockPos(target)))
         {
             return false;
         }
@@ -241,8 +213,8 @@ public abstract class EntityAITarget extends EntityAIBase
      */
     private boolean canEasilyReach(EntityLivingBase target)
     {
-        this.targetSearchDelay = 10 + this.taskOwner.getRNG().nextInt(5);
-        Path path = this.taskOwner.getNavigator().getPathToEntityLiving(target);
+        this.targetSearchDelay = 10 + this.goalOwner.getRNG().nextInt(5);
+        Path path = this.goalOwner.getNavigator().getPathToEntity(target);
 
         if (path == null)
         {
@@ -265,9 +237,9 @@ public abstract class EntityAITarget extends EntityAIBase
         }
     }
 
-    public EntityAITarget setUnseenMemoryTicks(int p_190882_1_)
+    public EntityAITarget setUnseenMemoryTicks(int unseenMemoryTicksIn)
     {
-        this.unseenMemoryTicks = p_190882_1_;
+        this.unseenMemoryTicks = unseenMemoryTicksIn;
         return this;
     }
 }

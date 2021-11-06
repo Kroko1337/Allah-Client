@@ -18,18 +18,15 @@ import net.minecraft.world.World;
 
 public class ItemFirework extends Item
 {
-    /**
-     * Called when a Block is right-clicked with this Item
-     */
     public EnumActionResult onItemUse(EntityPlayer player, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
         if (!worldIn.isRemote)
         {
             ItemStack itemstack = player.getHeldItem(hand);
             EntityFireworkRocket entityfireworkrocket = new EntityFireworkRocket(worldIn, (double)((float)pos.getX() + hitX), (double)((float)pos.getY() + hitY), (double)((float)pos.getZ() + hitZ), itemstack);
-            worldIn.spawnEntity(entityfireworkrocket);
+            worldIn.addEntity0(entityfireworkrocket);
 
-            if (!player.capabilities.isCreativeMode)
+            if (!player.abilities.isCreativeMode)
             {
                 itemstack.shrink(1);
             }
@@ -47,9 +44,9 @@ public class ItemFirework extends Item
             if (!worldIn.isRemote)
             {
                 EntityFireworkRocket entityfireworkrocket = new EntityFireworkRocket(worldIn, itemstack, playerIn);
-                worldIn.spawnEntity(entityfireworkrocket);
+                worldIn.addEntity0(entityfireworkrocket);
 
-                if (!playerIn.capabilities.isCreativeMode)
+                if (!playerIn.abilities.isCreativeMode)
                 {
                     itemstack.shrink(1);
                 }
@@ -68,22 +65,22 @@ public class ItemFirework extends Item
      */
     public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn)
     {
-        NBTTagCompound nbttagcompound = stack.getSubCompound("Fireworks");
+        NBTTagCompound nbttagcompound = stack.getChildTag("Fireworks");
 
         if (nbttagcompound != null)
         {
-            if (nbttagcompound.hasKey("Flight", 99))
+            if (nbttagcompound.contains("Flight", 99))
             {
                 tooltip.add(I18n.translateToLocal("item.fireworks.flight") + " " + nbttagcompound.getByte("Flight"));
             }
 
-            NBTTagList nbttaglist = nbttagcompound.getTagList("Explosions", 10);
+            NBTTagList nbttaglist = nbttagcompound.getList("Explosions", 10);
 
-            if (!nbttaglist.hasNoTags())
+            if (!nbttaglist.isEmpty())
             {
                 for (int i = 0; i < nbttaglist.tagCount(); ++i)
                 {
-                    NBTTagCompound nbttagcompound1 = nbttaglist.getCompoundTagAt(i);
+                    NBTTagCompound nbttagcompound1 = nbttaglist.getCompound(i);
                     List<String> list = Lists.<String>newArrayList();
                     ItemFireworkCharge.addExplosionInfo(nbttagcompound1, list);
 

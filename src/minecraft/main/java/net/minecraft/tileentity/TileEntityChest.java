@@ -26,20 +26,10 @@ import net.minecraft.util.math.BlockPos;
 public class TileEntityChest extends TileEntityLockableLoot implements ITickable
 {
     private NonNullList<ItemStack> chestContents = NonNullList.<ItemStack>withSize(27, ItemStack.EMPTY);
-
-    /** Determines if the check for adjacent chests has taken place. */
     public boolean adjacentChestChecked;
-
-    /** Contains the chest tile located adjacent to this one (if any) */
     public TileEntityChest adjacentChestZNeg;
-
-    /** Contains the chest tile located adjacent to this one (if any) */
     public TileEntityChest adjacentChestXPos;
-
-    /** Contains the chest tile located adjacent to this one (if any) */
     public TileEntityChest adjacentChestXNeg;
-
-    /** Contains the chest tile located adjacent to this one (if any) */
     public TileEntityChest adjacentChestZPos;
 
     /** The current angle of the lid (between 0 and 1) */
@@ -51,7 +41,11 @@ public class TileEntityChest extends TileEntityLockableLoot implements ITickable
     /** The number of players currently using this chest */
     public int numPlayersUsing;
 
-    /** Server sync counter (once per 20 ticks) */
+    /**
+     * A counter that is incremented once each tick. Used to determine when to recompute ; this is done every 200 ticks
+     * (but staggered between different chests). However, the new value isn't actually sent to clients when it is
+     * changed.
+     */
     private int ticksSinceSync;
     private BlockChest.Type cachedChestType;
 
@@ -85,9 +79,6 @@ public class TileEntityChest extends TileEntityLockableLoot implements ITickable
         return true;
     }
 
-    /**
-     * Get the name of this object. For players this returns their username
-     */
     public String getName()
     {
         return this.hasCustomName() ? this.customName : "container.chest";
@@ -98,9 +89,9 @@ public class TileEntityChest extends TileEntityLockableLoot implements ITickable
         fixer.registerWalker(FixTypes.BLOCK_ENTITY, new ItemStackDataLists(TileEntityChest.class, new String[] {"Items"}));
     }
 
-    public void readFromNBT(NBTTagCompound compound)
+    public void read(NBTTagCompound compound)
     {
-        super.readFromNBT(compound);
+        super.read(compound);
         this.chestContents = NonNullList.<ItemStack>withSize(this.getSizeInventory(), ItemStack.EMPTY);
 
         if (!this.checkLootAndRead(compound))
@@ -108,15 +99,15 @@ public class TileEntityChest extends TileEntityLockableLoot implements ITickable
             ItemStackHelper.loadAllItems(compound, this.chestContents);
         }
 
-        if (compound.hasKey("CustomName", 8))
+        if (compound.contains("CustomName", 8))
         {
             this.customName = compound.getString("CustomName");
         }
     }
 
-    public NBTTagCompound writeToNBT(NBTTagCompound compound)
+    public NBTTagCompound write(NBTTagCompound compound)
     {
-        super.writeToNBT(compound);
+        super.write(compound);
 
         if (!this.checkLootAndWrite(compound))
         {
@@ -125,7 +116,7 @@ public class TileEntityChest extends TileEntityLockableLoot implements ITickable
 
         if (this.hasCustomName())
         {
-            compound.setString("CustomName", this.customName);
+            compound.putString("CustomName", this.customName);
         }
 
         return compound;
@@ -148,7 +139,7 @@ public class TileEntityChest extends TileEntityLockableLoot implements ITickable
     @SuppressWarnings("incomplete-switch")
     private void setNeighbor(TileEntityChest chestTe, EnumFacing side)
     {
-        if (chestTe.isInvalid())
+        if (chestTe.isRemoved())
         {
             this.adjacentChestChecked = false;
         }
@@ -189,9 +180,6 @@ public class TileEntityChest extends TileEntityLockableLoot implements ITickable
         }
     }
 
-    /**
-     * Performs the check for adjacent chests to determine if this chest is double or not.
-     */
     public void checkForAdjacentChests()
     {
         if (!this.adjacentChestChecked)
@@ -237,10 +225,7 @@ public class TileEntityChest extends TileEntityLockableLoot implements ITickable
         }
     }
 
-    /**
-     * Like the old updateEntity(), except more generic.
-     */
-    public void update()
+    public void tick()
     {
         this.checkForAdjacentChests();
         int i = this.pos.getX();
@@ -333,6 +318,10 @@ public class TileEntityChest extends TileEntityLockableLoot implements ITickable
         }
     }
 
+    /**
+     * See {@link Block#eventReceived} for more information. This must return true serverside before it is called
+     * clientside.
+     */
     public boolean receiveClientEvent(int id, int type)
     {
         if (id == 1)
@@ -384,9 +373,9 @@ public class TileEntityChest extends TileEntityLockableLoot implements ITickable
     /**
      * invalidates a tile entity
      */
-    public void invalidate()
+    public void remove()
     {
-        super.invalidate();
+        super.remove();
         this.updateContainingBlockInfo();
         this.checkForAdjacentChests();
     }

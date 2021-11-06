@@ -15,7 +15,7 @@ public class BedItemColor implements IFixableData
     {
         if ("minecraft:bed".equals(compound.getString("id")) && compound.getShort("Damage") == 0)
         {
-            compound.setShort("Damage", (short)EnumDyeColor.RED.getMetadata());
+            compound.putShort("Damage", (short)EnumDyeColor.RED.getMetadata());
         }
 
         return compound;

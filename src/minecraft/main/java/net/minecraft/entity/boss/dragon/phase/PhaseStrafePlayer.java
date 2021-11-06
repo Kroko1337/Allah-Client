@@ -31,7 +31,7 @@ public class PhaseStrafePlayer extends PhaseBase
      * Gives the phase a chance to update its status.
      * Called by dragon's onLivingUpdate. Only used when !worldObj.isRemote.
      */
-    public void doLocalUpdate()
+    public void serverTick()
     {
         if (this.attackTarget == null)
         {
@@ -60,7 +60,7 @@ public class PhaseStrafePlayer extends PhaseBase
 
             double d13 = 64.0D;
 
-            if (this.attackTarget.getDistanceSqToEntity(this.dragon) < 4096.0D)
+            if (this.attackTarget.getDistanceSq(this.dragon) < 4096.0D)
             {
                 if (this.dragon.canEntityBeSeen(this.attackTarget))
                 {
@@ -84,7 +84,7 @@ public class PhaseStrafePlayer extends PhaseBase
                         this.dragon.world.playEvent((EntityPlayer)null, 1017, new BlockPos(this.dragon), 0);
                         EntityDragonFireball entitydragonfireball = new EntityDragonFireball(this.dragon.world, this.dragon, d9, d10, d11);
                         entitydragonfireball.setLocationAndAngles(d6, d7, d8, 0.0F, 0.0F);
-                        this.dragon.world.spawnEntity(entitydragonfireball);
+                        this.dragon.world.addEntity0(entitydragonfireball);
                         this.fireballCharge = 0;
 
                         if (this.currentPath != null)
@@ -226,7 +226,7 @@ public class PhaseStrafePlayer extends PhaseBase
         return this.targetLocation;
     }
 
-    public PhaseList<PhaseStrafePlayer> getPhaseList()
+    public PhaseList<PhaseStrafePlayer> getType()
     {
         return PhaseList.STRAFE_PLAYER;
     }

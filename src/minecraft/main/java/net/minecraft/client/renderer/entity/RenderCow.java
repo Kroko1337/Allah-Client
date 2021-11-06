@@ -8,13 +8,13 @@ public class RenderCow extends RenderLiving<EntityCow>
 {
     private static final ResourceLocation COW_TEXTURES = new ResourceLocation("textures/entity/cow/cow.png");
 
-    public RenderCow(RenderManager p_i47210_1_)
+    public RenderCow(RenderManager renderManagerIn)
     {
-        super(p_i47210_1_, new ModelCow(), 0.7F);
+        super(renderManagerIn, new ModelCow(), 0.7F);
     }
 
     /**
-     * Returns the location of an entity's texture. Doesn't seem to be called unless you call Render.bindEntityTexture.
+     * Returns the location of an entity's texture.
      */
     protected ResourceLocation getEntityTexture(EntityCow entity)
     {

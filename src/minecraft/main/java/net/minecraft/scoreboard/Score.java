@@ -82,7 +82,7 @@ public class Score
         if (i != points || this.forceUpdate)
         {
             this.forceUpdate = false;
-            this.getScoreScoreboard().onScoreUpdated(this);
+            this.getScoreScoreboard().onScoreChanged(this);
         }
     }
 

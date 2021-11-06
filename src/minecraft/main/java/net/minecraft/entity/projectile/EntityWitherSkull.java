@@ -43,7 +43,7 @@ public class EntityWitherSkull extends EntityFireball
      */
     protected float getMotionFactor()
     {
-        return this.isInvulnerable() ? 0.73F : super.getMotionFactor();
+        return this.isSkullInvulnerable() ? 0.73F : super.getMotionFactor();
     }
 
     public EntityWitherSkull(World worldIn, double x, double y, double z, double accelX, double accelY, double accelZ)
@@ -68,7 +68,7 @@ public class EntityWitherSkull extends EntityFireball
         float f = super.getExplosionResistance(explosionIn, worldIn, pos, blockStateIn);
         Block block = blockStateIn.getBlock();
 
-        if (this.isInvulnerable() && EntityWither.canDestroyBlock(block))
+        if (this.isSkullInvulnerable() && EntityWither.canDestroyBlock(block))
         {
             f = Math.min(0.8F, f);
         }
@@ -89,7 +89,7 @@ public class EntityWitherSkull extends EntityFireball
                 {
                     if (result.entityHit.attackEntityFrom(DamageSource.causeMobDamage(this.shootingEntity), 8.0F))
                     {
-                        if (result.entityHit.isEntityAlive())
+                        if (result.entityHit.isAlive())
                         {
                             this.applyEnchantments(this.shootingEntity, result.entityHit);
                         }
@@ -125,7 +125,7 @@ public class EntityWitherSkull extends EntityFireball
             }
 
             this.world.newExplosion(this, this.posX, this.posY, this.posZ, 1.0F, false, this.world.getGameRules().getBoolean("mobGriefing"));
-            this.setDead();
+            this.remove();
         }
     }
 
@@ -145,7 +145,7 @@ public class EntityWitherSkull extends EntityFireball
         return false;
     }
 
-    protected void entityInit()
+    protected void registerData()
     {
         this.dataManager.register(INVULNERABLE, Boolean.valueOf(false));
     }
@@ -153,7 +153,7 @@ public class EntityWitherSkull extends EntityFireball
     /**
      * Return whether this skull comes from an invulnerable (aura) wither boss.
      */
-    public boolean isInvulnerable()
+    public boolean isSkullInvulnerable()
     {
         return ((Boolean)this.dataManager.get(INVULNERABLE)).booleanValue();
     }
@@ -161,7 +161,7 @@ public class EntityWitherSkull extends EntityFireball
     /**
      * Set whether this skull comes from an invulnerable (aura) wither boss.
      */
-    public void setInvulnerable(boolean invulnerable)
+    public void setSkullInvulnerable(boolean invulnerable)
     {
         this.dataManager.set(INVULNERABLE, Boolean.valueOf(invulnerable));
     }

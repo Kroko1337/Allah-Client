@@ -22,6 +22,10 @@ public interface IRecipe
      */
     boolean canFit(int width, int height);
 
+    /**
+     * Get the result of this recipe, usually for display purposes (e.g. recipe book). If your recipe has more than one
+     * possible result (e.g. it's dynamic and depends on its inputs), then return an empty stack.
+     */
     ItemStack getRecipeOutput();
 
     NonNullList<ItemStack> getRemainingItems(InventoryCrafting inv);
@@ -31,7 +35,7 @@ default NonNullList<Ingredient> getIngredients()
         return NonNullList.<Ingredient>create();
     }
 
-default boolean isHidden()
+default boolean isDynamic()
     {
         return false;
     }

@@ -14,7 +14,7 @@ public class BlockBreakable extends Block
 
     protected BlockBreakable(Material materialIn, boolean ignoreSimilarityIn)
     {
-        this(materialIn, ignoreSimilarityIn, materialIn.getMaterialMapColor());
+        this(materialIn, ignoreSimilarityIn, materialIn.getColor());
     }
 
     protected BlockBreakable(Material materialIn, boolean ignoreSimilarityIn, MapColor mapColorIn)
@@ -23,14 +23,14 @@ public class BlockBreakable extends Block
         this.ignoreSimilarity = ignoreSimilarityIn;
     }
 
-    /**
-     * Used to determine ambient occlusion and culling when rebuilding chunks for render
-     */
     public boolean isOpaqueCube(IBlockState state)
     {
         return false;
     }
 
+    /**
+     * ""
+     */
     public boolean shouldSideBeRendered(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side)
     {
         IBlockState iblockstate = blockAccess.getBlockState(pos.offset(side));

@@ -17,10 +17,6 @@ public abstract class PhaseSittingBase extends PhaseBase
         return true;
     }
 
-    /**
-     * Normally, just returns damage. If dragon is sitting and src is an arrow, arrow is enflamed and zero damage
-     * returned.
-     */
     public float getAdjustedDamage(MultiPartEntityPart pt, DamageSource src, float damage)
     {
         if (src.getImmediateSource() instanceof EntityArrow)

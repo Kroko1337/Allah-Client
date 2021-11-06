@@ -25,10 +25,10 @@ public class RecipeBookServer extends RecipeBook
 
         for (IRecipe irecipe : recipesIn)
         {
-            if (!this.recipes.get(getRecipeId(irecipe)) && !irecipe.isHidden())
+            if (!this.recipes.get(getRecipeId(irecipe)) && !irecipe.isDynamic())
             {
-                this.setRecipes(irecipe);
-                this.addDisplayedRecipe(irecipe);
+                this.unlock(irecipe);
+                this.markNew(irecipe);
                 list.add(irecipe);
                 CriteriaTriggers.RECIPE_UNLOCKED.trigger(player, irecipe);
             }
@@ -45,7 +45,7 @@ public class RecipeBookServer extends RecipeBook
         {
             if (this.recipes.get(getRecipeId(irecipe)))
             {
-                this.removeRecipe(irecipe);
+                this.lock(irecipe);
                 list.add(irecipe);
             }
         }
@@ -61,13 +61,13 @@ public class RecipeBookServer extends RecipeBook
     public NBTTagCompound write()
     {
         NBTTagCompound nbttagcompound = new NBTTagCompound();
-        nbttagcompound.setBoolean("isGuiOpen", this.isGuiOpen);
-        nbttagcompound.setBoolean("isFilteringCraftable", this.isFilteringCraftable);
+        nbttagcompound.putBoolean("isGuiOpen", this.isGuiOpen);
+        nbttagcompound.putBoolean("isFilteringCraftable", this.isFilteringCraftable);
         NBTTagList nbttaglist = new NBTTagList();
 
         for (IRecipe irecipe : this.getRecipes())
         {
-            nbttaglist.appendTag(new NBTTagString(((ResourceLocation)CraftingManager.REGISTRY.getNameForObject(irecipe)).toString()));
+            nbttaglist.appendTag(new NBTTagString(((ResourceLocation)CraftingManager.REGISTRY.getKey(irecipe)).toString()));
         }
 
         nbttagcompound.setTag("recipes", nbttaglist);
@@ -75,7 +75,7 @@ public class RecipeBookServer extends RecipeBook
 
         for (IRecipe irecipe1 : this.getDisplayedRecipes())
         {
-            nbttaglist1.appendTag(new NBTTagString(((ResourceLocation)CraftingManager.REGISTRY.getNameForObject(irecipe1)).toString()));
+            nbttaglist1.appendTag(new NBTTagString(((ResourceLocation)CraftingManager.REGISTRY.getKey(irecipe1)).toString()));
         }
 
         nbttagcompound.setTag("toBeDisplayed", nbttaglist1);
@@ -86,11 +86,11 @@ public class RecipeBookServer extends RecipeBook
     {
         this.isGuiOpen = tag.getBoolean("isGuiOpen");
         this.isFilteringCraftable = tag.getBoolean("isFilteringCraftable");
-        NBTTagList nbttaglist = tag.getTagList("recipes", 8);
+        NBTTagList nbttaglist = tag.getList("recipes", 8);
 
         for (int i = 0; i < nbttaglist.tagCount(); ++i)
         {
-            ResourceLocation resourcelocation = new ResourceLocation(nbttaglist.getStringTagAt(i));
+            ResourceLocation resourcelocation = new ResourceLocation(nbttaglist.getString(i));
             IRecipe irecipe = CraftingManager.getRecipe(resourcelocation);
 
             if (irecipe == null)
@@ -99,15 +99,15 @@ public class RecipeBookServer extends RecipeBook
             }
             else
             {
-                this.setRecipes(irecipe);
+                this.unlock(irecipe);
             }
         }
 
-        NBTTagList nbttaglist1 = tag.getTagList("toBeDisplayed", 8);
+        NBTTagList nbttaglist1 = tag.getList("toBeDisplayed", 8);
 
         for (int j = 0; j < nbttaglist1.tagCount(); ++j)
         {
-            ResourceLocation resourcelocation1 = new ResourceLocation(nbttaglist1.getStringTagAt(j));
+            ResourceLocation resourcelocation1 = new ResourceLocation(nbttaglist1.getString(j));
             IRecipe irecipe1 = CraftingManager.getRecipe(resourcelocation1);
 
             if (irecipe1 == null)
@@ -116,7 +116,7 @@ public class RecipeBookServer extends RecipeBook
             }
             else
             {
-                this.addDisplayedRecipe(irecipe1);
+                this.markNew(irecipe1);
             }
         }
     }
@@ -137,7 +137,7 @@ public class RecipeBookServer extends RecipeBook
     {
         List<IRecipe> list = Lists.<IRecipe>newArrayList();
 
-        for (int i = this.unseenRecipes.nextSetBit(0); i >= 0; i = this.unseenRecipes.nextSetBit(i + 1))
+        for (int i = this.newRecipes.nextSetBit(0); i >= 0; i = this.newRecipes.nextSetBit(i + 1))
         {
             list.add(CraftingManager.REGISTRY.getObjectById(i));
         }

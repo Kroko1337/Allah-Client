@@ -41,13 +41,13 @@ public class ItemShears extends Item
         return block == Blocks.WEB || block == Blocks.REDSTONE_WIRE || block == Blocks.TRIPWIRE;
     }
 
-    public float getStrVsBlock(ItemStack stack, IBlockState state)
+    public float getDestroySpeed(ItemStack stack, IBlockState state)
     {
         Block block = state.getBlock();
 
         if (block != Blocks.WEB && state.getMaterial() != Material.LEAVES)
         {
-            return block == Blocks.WOOL ? 5.0F : super.getStrVsBlock(stack, state);
+            return block == Blocks.WOOL ? 5.0F : super.getDestroySpeed(stack, state);
         }
         else
         {

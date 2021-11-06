@@ -42,28 +42,28 @@ public class RealmsConnect
                         return;
                     }
 
-                    RealmsConnect.this.connection = NetworkManager.createNetworkManagerAndConnect(inetaddress, p_connect_2_, Minecraft.getMinecraft().gameSettings.isUsingNativeTransport());
+                    RealmsConnect.this.connection = NetworkManager.createNetworkManagerAndConnect(inetaddress, p_connect_2_, Minecraft.getInstance().gameSettings.isUsingNativeTransport());
 
                     if (RealmsConnect.this.aborted)
                     {
                         return;
                     }
 
-                    RealmsConnect.this.connection.setNetHandler(new NetHandlerLoginClient(RealmsConnect.this.connection, Minecraft.getMinecraft(), RealmsConnect.this.onlineScreen.getProxy()));
+                    RealmsConnect.this.connection.setNetHandler(new NetHandlerLoginClient(RealmsConnect.this.connection, Minecraft.getInstance(), RealmsConnect.this.onlineScreen.getProxy()));
 
                     if (RealmsConnect.this.aborted)
                     {
                         return;
                     }
 
-                    RealmsConnect.this.connection.sendPacket(new C00Handshake(335, p_connect_1_, p_connect_2_, EnumConnectionState.LOGIN));
+                    RealmsConnect.this.connection.sendPacket(new C00Handshake(p_connect_1_, p_connect_2_, EnumConnectionState.LOGIN));
 
                     if (RealmsConnect.this.aborted)
                     {
                         return;
                     }
 
-                    RealmsConnect.this.connection.sendPacket(new CPacketLoginStart(Minecraft.getMinecraft().getSession().getProfile()));
+                    RealmsConnect.this.connection.sendPacket(new CPacketLoginStart(Minecraft.getInstance().getSession().getProfile()));
                 }
                 catch (UnknownHostException unknownhostexception)
                 {
@@ -108,7 +108,7 @@ public class RealmsConnect
         if (this.connection != null && this.connection.isChannelOpen())
         {
             this.connection.closeChannel(new TextComponentTranslation("disconnect.genericReason", new Object[0]));
-            this.connection.checkDisconnected();
+            this.connection.handleDisconnection();
         }
     }
 
@@ -118,11 +118,11 @@ public class RealmsConnect
         {
             if (this.connection.isChannelOpen())
             {
-                this.connection.processReceivedPackets();
+                this.connection.tick();
             }
             else
             {
-                this.connection.checkDisconnected();
+                this.connection.handleDisconnection();
             }
         }
     }

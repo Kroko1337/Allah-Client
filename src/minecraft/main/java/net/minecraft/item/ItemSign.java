@@ -25,9 +25,6 @@ public class ItemSign extends Item
         this.setCreativeTab(CreativeTabs.DECORATIONS);
     }
 
-    /**
-     * Called when a Block is right-clicked with this Item
-     */
     public EnumActionResult onItemUse(EntityPlayer player, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
         IBlockState iblockstate = worldIn.getBlockState(pos);
@@ -62,7 +59,7 @@ public class ItemSign extends Item
 
                     if (tileentity instanceof TileEntitySign && !ItemBlock.setTileEntityNBT(worldIn, player, pos, itemstack))
                     {
-                        player.openEditSign((TileEntitySign)tileentity);
+                        player.openSignEditor((TileEntitySign)tileentity);
                     }
 
                     if (player instanceof EntityPlayerMP)

@@ -16,8 +16,6 @@ public class EntityTNTPrimed extends Entity
     private static final DataParameter<Integer> FUSE = EntityDataManager.<Integer>createKey(EntityTNTPrimed.class, DataSerializers.VARINT);
     @Nullable
     private EntityLivingBase tntPlacedBy;
-
-    /** How long the fuse is */
     private int fuse;
 
     public EntityTNTPrimed(World worldIn)
@@ -44,15 +42,11 @@ public class EntityTNTPrimed extends Entity
         this.tntPlacedBy = igniter;
     }
 
-    protected void entityInit()
+    protected void registerData()
     {
         this.dataManager.register(FUSE, Integer.valueOf(80));
     }
 
-    /**
-     * returns if this entity triggers Block.onEntityWalking on the blocks they walk on. used for spiders and wolves to
-     * prevent them from trampling crops
-     */
     protected boolean canTriggerWalking()
     {
         return false;
@@ -63,13 +57,13 @@ public class EntityTNTPrimed extends Entity
      */
     public boolean canBeCollidedWith()
     {
-        return !this.isDead;
+        return !this.removed;
     }
 
     /**
      * Called to update the entity's position/logic.
      */
-    public void onUpdate()
+    public void tick()
     {
         this.prevPosX = this.posX;
         this.prevPosY = this.posY;
@@ -96,7 +90,7 @@ public class EntityTNTPrimed extends Entity
 
         if (this.fuse <= 0)
         {
-            this.setDead();
+            this.remove();
 
             if (!this.world.isRemote)
             {
@@ -116,18 +110,15 @@ public class EntityTNTPrimed extends Entity
         this.world.createExplosion(this, this.posX, this.posY + (double)(this.height / 16.0F), this.posZ, 4.0F, true);
     }
 
-    /**
-     * (abstract) Protected helper method to write subclass entity data to NBT.
-     */
     protected void writeEntityToNBT(NBTTagCompound compound)
     {
-        compound.setShort("Fuse", (short)this.getFuse());
+        compound.putShort("Fuse", (short)this.getFuse());
     }
 
     /**
      * (abstract) Protected helper method to read subclass entity data from NBT.
      */
-    protected void readEntityFromNBT(NBTTagCompound compound)
+    protected void readAdditional(NBTTagCompound compound)
     {
         this.setFuse(compound.getShort("Fuse"));
     }

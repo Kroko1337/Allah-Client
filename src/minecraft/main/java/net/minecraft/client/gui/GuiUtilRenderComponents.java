@@ -11,10 +11,10 @@ public class GuiUtilRenderComponents
 {
     public static String removeTextColorsIfConfigured(String text, boolean forceColor)
     {
-        return !forceColor && !Minecraft.getMinecraft().gameSettings.chatColours ? TextFormatting.getTextWithoutFormattingCodes(text) : text;
+        return !forceColor && !Minecraft.getInstance().gameSettings.chatColor ? TextFormatting.getTextWithoutFormattingCodes(text) : text;
     }
 
-    public static List<ITextComponent> splitText(ITextComponent textComponent, int maxTextLenght, FontRenderer fontRendererIn, boolean p_178908_3_, boolean forceTextColor)
+    public static List<ITextComponent> splitText(ITextComponent textComponent, int maxTextLenght, FontRenderer fontRendererIn, boolean trimSpace, boolean forceTextColor)
     {
         int i = 0;
         ITextComponent itextcomponent = new TextComponentString("");
@@ -57,7 +57,7 @@ public class GuiUtilRenderComponents
                     {
                         s2 = s4.substring(0, l);
 
-                        if (p_178908_3_)
+                        if (trimSpace)
                         {
                             ++l;
                         }

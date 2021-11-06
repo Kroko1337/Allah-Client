@@ -70,28 +70,14 @@ import org.apache.logging.log4j.Logger;
 public class EntityTrackerEntry
 {
     private static final Logger LOGGER = LogManager.getLogger();
-
-    /** The entity that this EntityTrackerEntry tracks. */
     private final Entity trackedEntity;
     private final int range;
     private int maxRange;
-
-    /** check for sync when ticks % updateFrequency==0 */
     private final int updateFrequency;
-
-    /** The encoded entity X position. */
     private long encodedPosX;
-
-    /** The encoded entity Y position. */
     private long encodedPosY;
-
-    /** The encoded entity Z position. */
     private long encodedPosZ;
-
-    /** The encoded entity yaw rotation. */
     private int encodedRotationYaw;
-
-    /** The encoded entity pitch rotation. */
     private int encodedRotationPitch;
     private int lastHeadMotion;
     private double lastTrackedEntityMotionX;
@@ -103,11 +89,6 @@ public class EntityTrackerEntry
     private double lastTrackedEntityPosZ;
     private boolean updatedPlayerVisibility;
     private final boolean sendVelocityUpdates;
-
-    /**
-     * every 400 ticks a  full teleport packet is sent, rather than just a "move me +x" command, so that position
-     * remains fully synced.
-     */
     private int ticksSinceLastForcedTeleport;
     private List<Entity> passengers = Collections.<Entity>emptyList();
     private boolean ridingEntity;
@@ -183,7 +164,7 @@ public class EntityTrackerEntry
                 {
                     EntityPlayerMP entityplayermp = (EntityPlayerMP)entityplayer;
                     mapdata.updateVisiblePlayers(entityplayermp, itemstack);
-                    Packet<?> packet = Items.FILLED_MAP.createMapDataPacket(itemstack, this.trackedEntity.world, entityplayermp);
+                    Packet<?> packet = Items.FILLED_MAP.getUpdatePacket(itemstack, this.trackedEntity.world, entityplayermp);
 
                     if (packet != null)
                     {
@@ -197,7 +178,7 @@ public class EntityTrackerEntry
 
         if (this.updateCounter % this.updateFrequency == 0 || this.trackedEntity.isAirBorne || this.trackedEntity.getDataManager().isDirty())
         {
-            if (this.trackedEntity.isRiding())
+            if (this.trackedEntity.isPassenger())
             {
                 int j1 = MathHelper.floor(this.trackedEntity.rotationYaw * 256.0F / 360.0F);
                 int l1 = MathHelper.floor(this.trackedEntity.rotationPitch * 256.0F / 360.0F);
@@ -327,10 +308,6 @@ public class EntityTrackerEntry
         }
     }
 
-    /**
-     * Sends the entity metadata (DataWatcher) and attributes to all players tracking this entity, including the entity
-     * itself if a player.
-     */
     private void sendMetadata()
     {
         EntityDataManager entitydatamanager = this.trackedEntity.getDataManager();
@@ -342,7 +319,7 @@ public class EntityTrackerEntry
 
         if (this.trackedEntity instanceof EntityLivingBase)
         {
-            AttributeMap attributemap = (AttributeMap)((EntityLivingBase)this.trackedEntity).getAttributeMap();
+            AttributeMap attributemap = (AttributeMap)((EntityLivingBase)this.trackedEntity).getAttributes();
             Set<IAttributeInstance> set = attributemap.getDirtyInstances();
 
             if (!set.isEmpty())
@@ -354,9 +331,6 @@ public class EntityTrackerEntry
         }
     }
 
-    /**
-     * Send the given packet to all players tracking this entity.
-     */
     public void sendPacketToTrackedPlayers(Packet<?> packetIn)
     {
         for (EntityPlayerMP entityplayermp : this.trackingPlayers)
@@ -415,7 +389,7 @@ public class EntityTrackerEntry
 
                     if (this.trackedEntity instanceof EntityLivingBase)
                     {
-                        AttributeMap attributemap = (AttributeMap)((EntityLivingBase)this.trackedEntity).getAttributeMap();
+                        AttributeMap attributemap = (AttributeMap)((EntityLivingBase)this.trackedEntity).getAttributes();
                         Collection<IAttributeInstance> collection = attributemap.getWatchedAttributes();
 
                         if (!collection.isEmpty())
@@ -455,7 +429,7 @@ public class EntityTrackerEntry
                     {
                         EntityPlayer entityplayer = (EntityPlayer)this.trackedEntity;
 
-                        if (entityplayer.isPlayerSleeping())
+                        if (entityplayer.isSleeping())
                         {
                             playerMP.connection.sendPacket(new SPacketUseBed(entityplayer, new BlockPos(this.trackedEntity)));
                         }
@@ -476,7 +450,7 @@ public class EntityTrackerEntry
                         playerMP.connection.sendPacket(new SPacketSetPassengers(this.trackedEntity));
                     }
 
-                    if (this.trackedEntity.isRiding())
+                    if (this.trackedEntity.isPassenger())
                     {
                         playerMP.connection.sendPacket(new SPacketSetPassengers(this.trackedEntity.getRidingEntity()));
                     }
@@ -517,7 +491,7 @@ public class EntityTrackerEntry
 
     private Packet<?> createSpawnPacket()
     {
-        if (this.trackedEntity.isDead)
+        if (this.trackedEntity.removed)
         {
             LOGGER.warn("Fetching addPacket for removed entity");
         }
@@ -542,7 +516,7 @@ public class EntityTrackerEntry
         else if (this.trackedEntity instanceof EntityMinecart)
         {
             EntityMinecart entityminecart = (EntityMinecart)this.trackedEntity;
-            return new SPacketSpawnObject(this.trackedEntity, 10, entityminecart.getType().getId());
+            return new SPacketSpawnObject(this.trackedEntity, 10, entityminecart.getMinecartType().getId());
         }
         else if (this.trackedEntity instanceof EntityBoat)
         {
@@ -681,9 +655,6 @@ public class EntityTrackerEntry
         }
     }
 
-    /**
-     * Remove a tracked player from our list and tell the tracked player to destroy us from their world.
-     */
     public void removeTrackedPlayerSymmetric(EntityPlayerMP playerMP)
     {
         if (this.trackingPlayers.contains(playerMP))

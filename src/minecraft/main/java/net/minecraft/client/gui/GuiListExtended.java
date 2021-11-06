@@ -9,16 +9,10 @@ public abstract class GuiListExtended extends GuiSlot
         super(mcIn, widthIn, heightIn, topIn, bottomIn, slotHeightIn);
     }
 
-    /**
-     * The element in the slot that was clicked, boolean for whether it was double clicked or not
-     */
     protected void elementClicked(int slotIndex, boolean isDoubleClick, int mouseX, int mouseY)
     {
     }
 
-    /**
-     * Returns true if the element passed in is currently selected
-     */
     protected boolean isSelected(int slotIndex)
     {
         return false;
@@ -28,9 +22,9 @@ public abstract class GuiListExtended extends GuiSlot
     {
     }
 
-    protected void drawSlot(int p_192637_1_, int p_192637_2_, int p_192637_3_, int p_192637_4_, int p_192637_5_, int p_192637_6_, float p_192637_7_)
+    protected void drawSlot(int slotIndex, int xPos, int yPos, int heightIn, int mouseXIn, int mouseYIn, float partialTicks)
     {
-        this.getListEntry(p_192637_1_).drawEntry(p_192637_1_, p_192637_2_, p_192637_3_, this.getListWidth(), p_192637_4_, p_192637_5_, p_192637_6_, this.isMouseYWithinSlotBounds(p_192637_6_) && this.getSlotIndexFromScreenCoords(p_192637_5_, p_192637_6_) == p_192637_1_, p_192637_7_);
+        this.getListEntry(slotIndex).drawEntry(slotIndex, xPos, yPos, this.getListWidth(), heightIn, mouseXIn, mouseYIn, this.isMouseYWithinSlotBounds(mouseYIn) && this.getSlotIndexFromScreenCoords(mouseXIn, mouseYIn) == slotIndex, partialTicks);
     }
 
     protected void updateItemPos(int entryID, int insideLeft, int yPos, float partialTicks)
@@ -77,14 +71,11 @@ public abstract class GuiListExtended extends GuiSlot
         return false;
     }
 
-    /**
-     * Gets the IGuiListEntry object for the given index
-     */
     public abstract GuiListExtended.IGuiListEntry getListEntry(int index);
 
     public interface IGuiListEntry
     {
-        void updatePosition(int p_192633_1_, int p_192633_2_, int p_192633_3_, float p_192633_4_);
+        void updatePosition(int slotIndex, int x, int y, float partialTicks);
 
         void drawEntry(int slotIndex, int x, int y, int listWidth, int slotHeight, int mouseX, int mouseY, boolean isSelected, float partialTicks);
 

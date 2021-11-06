@@ -12,33 +12,21 @@ import net.minecraft.util.text.TextComponentTranslation;
 
 public class CommandEffect extends CommandBase
 {
-    /**
-     * Gets the name of the command
-     */
     public String getName()
     {
         return "effect";
     }
 
-    /**
-     * Return the required permission level for this command.
-     */
     public int getRequiredPermissionLevel()
     {
         return 2;
     }
 
-    /**
-     * Gets the usage string for the command.
-     */
     public String getUsage(ICommandSender sender)
     {
         return "commands.effect.usage";
     }
 
-    /**
-     * Callback for when the command is executed
-     */
     public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
     {
         if (args.length < 2)
@@ -67,7 +55,7 @@ public class CommandEffect extends CommandBase
 
                 try
                 {
-                    potion = Potion.getPotionById(parseInt(args[1], 1));
+                    potion = Potion.get(parseInt(args[1], 1));
                 }
                 catch (NumberInvalidException var11)
                 {
@@ -118,7 +106,7 @@ public class CommandEffect extends CommandBase
                     {
                         PotionEffect potioneffect = new PotionEffect(potion, i, k, false, flag);
                         entitylivingbase.addPotionEffect(potioneffect);
-                        notifyCommandListener(sender, this, "commands.effect.success", new Object[] {new TextComponentTranslation(potioneffect.getEffectName(), new Object[0]), Potion.getIdFromPotion(potion), k, entitylivingbase.getName(), j});
+                        notifyCommandListener(sender, this, "commands.effect.success", new Object[] {new TextComponentTranslation(potioneffect.getEffectName(), new Object[0]), Potion.getId(potion), k, entitylivingbase.getName(), j});
                     }
                     else if (entitylivingbase.isPotionActive(potion))
                     {
@@ -142,7 +130,7 @@ public class CommandEffect extends CommandBase
         }
         else if (args.length == 2)
         {
-            return getListOfStringsMatchingLastWord(args, Potion.REGISTRY.getKeys());
+            return getListOfStringsMatchingLastWord(args, Potion.REGISTRY.keySet());
         }
         else
         {
@@ -150,9 +138,6 @@ public class CommandEffect extends CommandBase
         }
     }
 
-    /**
-     * Return whether the specified command parameter index is a username parameter.
-     */
     public boolean isUsernameIndex(String[] args, int index)
     {
         return index == 0;

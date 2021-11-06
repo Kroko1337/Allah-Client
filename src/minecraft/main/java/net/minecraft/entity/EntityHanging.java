@@ -47,7 +47,7 @@ public abstract class EntityHanging extends Entity
         this.hangingPosition = hangingPositionIn;
     }
 
-    protected void entityInit()
+    protected void registerData()
     {
     }
 
@@ -77,12 +77,12 @@ public abstract class EntityHanging extends Entity
             double d3 = 0.46875D;
             double d4 = this.offs(this.getWidthPixels());
             double d5 = this.offs(this.getHeightPixels());
-            d0 = d0 - (double)this.facingDirection.getFrontOffsetX() * 0.46875D;
-            d2 = d2 - (double)this.facingDirection.getFrontOffsetZ() * 0.46875D;
+            d0 = d0 - (double)this.facingDirection.getXOffset() * 0.46875D;
+            d2 = d2 - (double)this.facingDirection.getZOffset() * 0.46875D;
             d1 = d1 + d5;
             EnumFacing enumfacing = this.facingDirection.rotateYCCW();
-            d0 = d0 + d4 * (double)enumfacing.getFrontOffsetX();
-            d2 = d2 + d4 * (double)enumfacing.getFrontOffsetZ();
+            d0 = d0 + d4 * (double)enumfacing.getXOffset();
+            d2 = d2 + d4 * (double)enumfacing.getZOffset();
             this.posX = d0;
             this.posY = d1;
             this.posZ = d2;
@@ -102,7 +102,7 @@ public abstract class EntityHanging extends Entity
             d6 = d6 / 32.0D;
             d7 = d7 / 32.0D;
             d8 = d8 / 32.0D;
-            this.setEntityBoundingBox(new AxisAlignedBB(d0 - d6, d1 - d7, d2 - d8, d0 + d6, d1 + d7, d2 + d8));
+            this.setBoundingBox(new AxisAlignedBB(d0 - d6, d1 - d7, d2 - d8, d0 + d6, d1 + d7, d2 + d8));
         }
     }
 
@@ -114,7 +114,7 @@ public abstract class EntityHanging extends Entity
     /**
      * Called to update the entity's position/logic.
      */
-    public void onUpdate()
+    public void tick()
     {
         this.prevPosX = this.posX;
         this.prevPosY = this.posY;
@@ -124,9 +124,9 @@ public abstract class EntityHanging extends Entity
         {
             this.tickCounter1 = 0;
 
-            if (!this.isDead && !this.onValidSurface())
+            if (!this.removed && !this.onValidSurface())
             {
-                this.setDead();
+                this.remove();
                 this.onBroken((Entity)null);
             }
         }
@@ -137,7 +137,7 @@ public abstract class EntityHanging extends Entity
      */
     public boolean onValidSurface()
     {
-        if (!this.world.getCollisionBoxes(this, this.getEntityBoundingBox()).isEmpty())
+        if (!this.world.getCollisionBoxes(this, this.getBoundingBox()).isEmpty())
         {
             return false;
         }
@@ -165,7 +165,7 @@ public abstract class EntityHanging extends Entity
                 }
             }
 
-            return this.world.getEntitiesInAABBexcluding(this, this.getEntityBoundingBox(), IS_HANGING_ENTITY).isEmpty();
+            return this.world.getEntitiesInAABBexcluding(this, this.getBoundingBox(), IS_HANGING_ENTITY).isEmpty();
         }
     }
 
@@ -198,16 +198,16 @@ public abstract class EntityHanging extends Entity
      */
     public boolean attackEntityFrom(DamageSource source, float amount)
     {
-        if (this.isEntityInvulnerable(source))
+        if (this.isInvulnerableTo(source))
         {
             return false;
         }
         else
         {
-            if (!this.isDead && !this.world.isRemote)
+            if (!this.removed && !this.world.isRemote)
             {
-                this.setDead();
-                this.setBeenAttacked();
+                this.remove();
+                this.markVelocityChanged();
                 this.onBroken(source.getTrueSource());
             }
 
@@ -215,49 +215,43 @@ public abstract class EntityHanging extends Entity
         }
     }
 
-    /**
-     * Tries to move the entity towards the specified location.
-     */
     public void move(MoverType type, double x, double y, double z)
     {
-        if (!this.world.isRemote && !this.isDead && x * x + y * y + z * z > 0.0D)
+        if (!this.world.isRemote && !this.removed && x * x + y * y + z * z > 0.0D)
         {
-            this.setDead();
+            this.remove();
             this.onBroken((Entity)null);
         }
     }
 
     /**
-     * Adds to the current velocity of the entity.
+     * Adds to the current velocity of the entity, and sets {@link #isAirBorne} to true.
      */
     public void addVelocity(double x, double y, double z)
     {
-        if (!this.world.isRemote && !this.isDead && x * x + y * y + z * z > 0.0D)
+        if (!this.world.isRemote && !this.removed && x * x + y * y + z * z > 0.0D)
         {
-            this.setDead();
+            this.remove();
             this.onBroken((Entity)null);
         }
     }
 
-    /**
-     * (abstract) Protected helper method to write subclass entity data to NBT.
-     */
     public void writeEntityToNBT(NBTTagCompound compound)
     {
-        compound.setByte("Facing", (byte)this.facingDirection.getHorizontalIndex());
+        compound.putByte("Facing", (byte)this.facingDirection.getHorizontalIndex());
         BlockPos blockpos = this.getHangingPosition();
-        compound.setInteger("TileX", blockpos.getX());
-        compound.setInteger("TileY", blockpos.getY());
-        compound.setInteger("TileZ", blockpos.getZ());
+        compound.putInt("TileX", blockpos.getX());
+        compound.putInt("TileY", blockpos.getY());
+        compound.putInt("TileZ", blockpos.getZ());
     }
 
     /**
      * (abstract) Protected helper method to read subclass entity data from NBT.
      */
-    public void readEntityFromNBT(NBTTagCompound compound)
+    public void readAdditional(NBTTagCompound compound)
     {
-        this.hangingPosition = new BlockPos(compound.getInteger("TileX"), compound.getInteger("TileY"), compound.getInteger("TileZ"));
-        this.updateFacingWithBoundingBox(EnumFacing.getHorizontal(compound.getByte("Facing")));
+        this.hangingPosition = new BlockPos(compound.getInt("TileX"), compound.getInt("TileY"), compound.getInt("TileZ"));
+        this.updateFacingWithBoundingBox(EnumFacing.byHorizontalIndex(compound.getByte("Facing")));
     }
 
     public abstract int getWidthPixels();
@@ -276,9 +270,9 @@ public abstract class EntityHanging extends Entity
      */
     public EntityItem entityDropItem(ItemStack stack, float offsetY)
     {
-        EntityItem entityitem = new EntityItem(this.world, this.posX + (double)((float)this.facingDirection.getFrontOffsetX() * 0.15F), this.posY + (double)offsetY, this.posZ + (double)((float)this.facingDirection.getFrontOffsetZ() * 0.15F), stack);
+        EntityItem entityitem = new EntityItem(this.world, this.posX + (double)((float)this.facingDirection.getXOffset() * 0.15F), this.posY + (double)offsetY, this.posZ + (double)((float)this.facingDirection.getZOffset() * 0.15F), stack);
         entityitem.setDefaultPickupDelay();
-        this.world.spawnEntity(entityitem);
+        this.world.addEntity0(entityitem);
         return entityitem;
     }
 

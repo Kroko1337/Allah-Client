@@ -29,8 +29,8 @@ public class BlockTallGrass extends BlockBush implements IGrowable
 
     protected BlockTallGrass()
     {
-        super(Material.VINE);
-        this.setDefaultState(this.blockState.getBaseState().withProperty(TYPE, BlockTallGrass.EnumType.DEAD_BUSH));
+        super(Material.TALL_PLANTS);
+        this.setDefaultState(this.stateContainer.getBaseState().withProperty(TYPE, BlockTallGrass.EnumType.DEAD_BUSH));
     }
 
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
@@ -43,25 +43,16 @@ public class BlockTallGrass extends BlockBush implements IGrowable
         return this.canSustainBush(worldIn.getBlockState(pos.down()));
     }
 
-    /**
-     * Whether this Block can be replaced directly by other blocks (true for e.g. tall grass)
-     */
     public boolean isReplaceable(IBlockAccess worldIn, BlockPos pos)
     {
         return true;
     }
 
-    /**
-     * Get the Item that this Block should drop when harvested.
-     */
     public Item getItemDropped(IBlockState state, Random rand, int fortune)
     {
         return rand.nextInt(8) == 0 ? Items.WHEAT_SEEDS : Items.AIR;
     }
 
-    /**
-     * Get the quantity dropped based on the given fortune level
-     */
     public int quantityDroppedWithBonus(int fortune, Random random)
     {
         return 1 + random.nextInt(fortune * 2 + 1);
@@ -76,7 +67,7 @@ public class BlockTallGrass extends BlockBush implements IGrowable
         if (!worldIn.isRemote && stack.getItem() == Items.SHEARS)
         {
             player.addStat(StatList.getBlockStats(this));
-            spawnAsEntity(worldIn, pos, new ItemStack(Blocks.TALLGRASS, 1, ((BlockTallGrass.EnumType)state.getValue(TYPE)).getMeta()));
+            spawnAsEntity(worldIn, pos, new ItemStack(Blocks.TALLGRASS, 1, ((BlockTallGrass.EnumType)state.get(TYPE)).getMeta()));
         }
         else
         {
@@ -92,7 +83,7 @@ public class BlockTallGrass extends BlockBush implements IGrowable
     /**
      * returns a list of blocks with the same ID, but different meta (eg: wood returns 4 blocks)
      */
-    public void getSubBlocks(CreativeTabs itemIn, NonNullList<ItemStack> items)
+    public void fillItemGroup(CreativeTabs group, NonNullList<ItemStack> items)
     {
         for (int i = 1; i < 3; ++i)
         {
@@ -105,7 +96,7 @@ public class BlockTallGrass extends BlockBush implements IGrowable
      */
     public boolean canGrow(World worldIn, BlockPos pos, IBlockState state, boolean isClient)
     {
-        return state.getValue(TYPE) != BlockTallGrass.EnumType.DEAD_BUSH;
+        return state.get(TYPE) != BlockTallGrass.EnumType.DEAD_BUSH;
     }
 
     public boolean canUseBonemeal(World worldIn, Random rand, BlockPos pos, IBlockState state)
@@ -117,7 +108,7 @@ public class BlockTallGrass extends BlockBush implements IGrowable
     {
         BlockDoublePlant.EnumPlantType blockdoubleplant$enumplanttype = BlockDoublePlant.EnumPlantType.GRASS;
 
-        if (state.getValue(TYPE) == BlockTallGrass.EnumType.FERN)
+        if (state.get(TYPE) == BlockTallGrass.EnumType.FERN)
         {
             blockdoubleplant$enumplanttype = BlockDoublePlant.EnumPlantType.FERN;
         }
@@ -128,20 +119,14 @@ public class BlockTallGrass extends BlockBush implements IGrowable
         }
     }
 
-    /**
-     * Convert the given metadata into a BlockState for this Block
-     */
     public IBlockState getStateFromMeta(int meta)
     {
         return this.getDefaultState().withProperty(TYPE, BlockTallGrass.EnumType.byMetadata(meta));
     }
 
-    /**
-     * Convert the BlockState into the correct metadata value
-     */
     public int getMetaFromState(IBlockState state)
     {
-        return ((BlockTallGrass.EnumType)state.getValue(TYPE)).getMeta();
+        return ((BlockTallGrass.EnumType)state.get(TYPE)).getMeta();
     }
 
     protected BlockStateContainer createBlockState()

@@ -96,7 +96,7 @@ public class StructureEndCityPieces
                 {
                     if (p_191086_6_.nextBoolean())
                     {
-                        StructureEndCityPieces.CityTemplate structureendcitypieces$citytemplate2 = StructureEndCityPieces.addHelper(p_191086_5_, StructureEndCityPieces.addPiece(p_191086_1_, structureendcitypieces$citytemplate1, tuple.getSecond(), "bridge_end", rotation.add(tuple.getFirst()), true));
+                        StructureEndCityPieces.CityTemplate structureendcitypieces$citytemplate2 = StructureEndCityPieces.addHelper(p_191086_5_, StructureEndCityPieces.addPiece(p_191086_1_, structureendcitypieces$citytemplate1, tuple.getB(), "bridge_end", rotation.add(tuple.getA()), true));
                         StructureEndCityPieces.recursiveChildren(p_191086_1_, StructureEndCityPieces.TOWER_BRIDGE_GENERATOR, p_191086_2_ + 1, structureendcitypieces$citytemplate2, (BlockPos)null, p_191086_5_, p_191086_6_);
                     }
                 }
@@ -188,7 +188,7 @@ public class StructureEndCityPieces
                 {
                     if (p_191086_6_.nextBoolean())
                     {
-                        StructureEndCityPieces.CityTemplate structureendcitypieces$citytemplate1 = StructureEndCityPieces.addHelper(p_191086_5_, StructureEndCityPieces.addPiece(p_191086_1_, structureendcitypieces$citytemplate, tuple.getSecond(), "bridge_end", rotation.add(tuple.getFirst()), true));
+                        StructureEndCityPieces.CityTemplate structureendcitypieces$citytemplate1 = StructureEndCityPieces.addHelper(p_191086_5_, StructureEndCityPieces.addPiece(p_191086_1_, structureendcitypieces$citytemplate, tuple.getB(), "bridge_end", rotation.add(tuple.getA()), true));
                         StructureEndCityPieces.recursiveChildren(p_191086_1_, StructureEndCityPieces.TOWER_BRIDGE_GENERATOR, p_191086_2_ + 1, structureendcitypieces$citytemplate1, (BlockPos)null, p_191086_5_, p_191086_6_);
                     }
                 }
@@ -204,10 +204,10 @@ public class StructureEndCityPieces
         MapGenStructureIO.registerStructureComponent(StructureEndCityPieces.CityTemplate.class, "ECP");
     }
 
-    private static StructureEndCityPieces.CityTemplate addPiece(TemplateManager p_191090_0_, StructureEndCityPieces.CityTemplate p_191090_1_, BlockPos p_191090_2_, String p_191090_3_, Rotation p_191090_4_, boolean p_191090_5_)
+    private static StructureEndCityPieces.CityTemplate addPiece(TemplateManager p_191090_0_, StructureEndCityPieces.CityTemplate p_191090_1_, BlockPos p_191090_2_, String p_191090_3_, Rotation p_191090_4_, boolean owerwrite)
     {
-        StructureEndCityPieces.CityTemplate structureendcitypieces$citytemplate = new StructureEndCityPieces.CityTemplate(p_191090_0_, p_191090_3_, p_191090_1_.templatePosition, p_191090_4_, p_191090_5_);
-        BlockPos blockpos = p_191090_1_.template.calculateConnectedPos(p_191090_1_.placeSettings, p_191090_2_, structureendcitypieces$citytemplate.placeSettings, BlockPos.ORIGIN);
+        StructureEndCityPieces.CityTemplate structureendcitypieces$citytemplate = new StructureEndCityPieces.CityTemplate(p_191090_0_, p_191090_3_, p_191090_1_.templatePosition, p_191090_4_, owerwrite);
+        BlockPos blockpos = p_191090_1_.template.calculateConnectedPos(p_191090_1_.placeSettings, p_191090_2_, structureendcitypieces$citytemplate.placeSettings, BlockPos.ZERO);
         structureendcitypieces$citytemplate.offset(blockpos.getX(), blockpos.getY(), blockpos.getZ());
         return structureendcitypieces$citytemplate;
     }
@@ -279,13 +279,13 @@ public class StructureEndCityPieces
         {
         }
 
-        public CityTemplate(TemplateManager p_i47214_1_, String p_i47214_2_, BlockPos p_i47214_3_, Rotation p_i47214_4_, boolean p_i47214_5_)
+        public CityTemplate(TemplateManager p_i47214_1_, String p_i47214_2_, BlockPos p_i47214_3_, Rotation p_i47214_4_, boolean overwriteIn)
         {
             super(0);
             this.pieceName = p_i47214_2_;
             this.templatePosition = p_i47214_3_;
             this.rotation = p_i47214_4_;
-            this.overwrite = p_i47214_5_;
+            this.overwrite = overwriteIn;
             this.loadTemplate(p_i47214_1_);
         }
 
@@ -299,14 +299,14 @@ public class StructureEndCityPieces
         protected void writeStructureToNBT(NBTTagCompound tagCompound)
         {
             super.writeStructureToNBT(tagCompound);
-            tagCompound.setString("Template", this.pieceName);
-            tagCompound.setString("Rot", this.rotation.name());
-            tagCompound.setBoolean("OW", this.overwrite);
+            tagCompound.putString("Template", this.pieceName);
+            tagCompound.putString("Rot", this.rotation.name());
+            tagCompound.putBoolean("OW", this.overwrite);
         }
 
-        protected void readStructureFromNBT(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
+        protected void readAdditional(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
         {
-            super.readStructureFromNBT(tagCompound, p_143011_2_);
+            super.readAdditional(tagCompound, p_143011_2_);
             this.pieceName = tagCompound.getString("Template");
             this.rotation = Rotation.valueOf(tagCompound.getString("Rot"));
             this.overwrite = tagCompound.getBoolean("OW");
@@ -334,13 +334,13 @@ public class StructureEndCityPieces
                 EntityShulker entityshulker = new EntityShulker(worldIn);
                 entityshulker.setPosition((double)pos.getX() + 0.5D, (double)pos.getY() + 0.5D, (double)pos.getZ() + 0.5D);
                 entityshulker.setAttachmentPos(pos);
-                worldIn.spawnEntity(entityshulker);
+                worldIn.addEntity0(entityshulker);
             }
             else if (function.startsWith("Elytra"))
             {
                 EntityItemFrame entityitemframe = new EntityItemFrame(worldIn, pos, this.rotation.rotate(EnumFacing.SOUTH));
                 entityitemframe.setDisplayedItem(new ItemStack(Items.ELYTRA));
-                worldIn.spawnEntity(entityitemframe);
+                worldIn.addEntity0(entityitemframe);
             }
         }
     }

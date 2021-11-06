@@ -22,7 +22,7 @@ public class BlockObserver extends BlockDirectional
     public BlockObserver()
     {
         super(Material.ROCK);
-        this.setDefaultState(this.blockState.getBaseState().withProperty(FACING, EnumFacing.SOUTH).withProperty(POWERED, Boolean.valueOf(false)));
+        this.setDefaultState(this.stateContainer.getBaseState().withProperty(FACING, EnumFacing.SOUTH).withProperty(POWERED, Boolean.valueOf(false)));
         this.setCreativeTab(CreativeTabs.REDSTONE);
     }
 
@@ -34,24 +34,27 @@ public class BlockObserver extends BlockDirectional
     /**
      * Returns the blockstate with the given rotation from the passed blockstate. If inapplicable, returns the passed
      * blockstate.
+     * @deprecated call via {@link IBlockState#withRotation(Rotation)} whenever possible. Implementing/overriding is
+     * fine.
      */
-    public IBlockState withRotation(IBlockState state, Rotation rot)
+    public IBlockState rotate(IBlockState state, Rotation rot)
     {
-        return state.withProperty(FACING, rot.rotate((EnumFacing)state.getValue(FACING)));
+        return state.withProperty(FACING, rot.rotate((EnumFacing)state.get(FACING)));
     }
 
     /**
      * Returns the blockstate with the given mirror of the passed blockstate. If inapplicable, returns the passed
      * blockstate.
+     * @deprecated call via {@link IBlockState#withMirror(Mirror)} whenever possible. Implementing/overriding is fine.
      */
-    public IBlockState withMirror(IBlockState state, Mirror mirrorIn)
+    public IBlockState mirror(IBlockState state, Mirror mirrorIn)
     {
-        return state.withRotation(mirrorIn.toRotation((EnumFacing)state.getValue(FACING)));
+        return state.rotate(mirrorIn.toRotation((EnumFacing)state.get(FACING)));
     }
 
     public void updateTick(World worldIn, BlockPos pos, IBlockState state, Random rand)
     {
-        if (((Boolean)state.getValue(POWERED)).booleanValue())
+        if (((Boolean)state.get(POWERED)).booleanValue())
         {
             worldIn.setBlockState(pos, state.withProperty(POWERED, Boolean.valueOf(false)), 2);
         }
@@ -64,18 +67,13 @@ public class BlockObserver extends BlockDirectional
         this.updateNeighborsInFront(worldIn, pos, state);
     }
 
-    /**
-     * Called when a neighboring block was changed and marks that this state should perform any checks during a neighbor
-     * change. Cases may include when redstone power is updated, cactus blocks popping off due to a neighboring solid
-     * block, etc.
-     */
     public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos)
     {
     }
 
     public void observedNeighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos)
     {
-        if (!worldIn.isRemote && pos.offset((EnumFacing)state.getValue(FACING)).equals(fromPos))
+        if (!worldIn.isRemote && pos.offset((EnumFacing)state.get(FACING)).equals(fromPos))
         {
             this.startSignal(state, worldIn, pos);
         }
@@ -83,7 +81,7 @@ public class BlockObserver extends BlockDirectional
 
     private void startSignal(IBlockState p_190960_1_, World p_190960_2_, BlockPos pos)
     {
-        if (!((Boolean)p_190960_1_.getValue(POWERED)).booleanValue())
+        if (!((Boolean)p_190960_1_.get(POWERED)).booleanValue())
         {
             if (!p_190960_2_.isUpdateScheduled(pos, this))
             {
@@ -94,7 +92,7 @@ public class BlockObserver extends BlockDirectional
 
     protected void updateNeighborsInFront(World worldIn, BlockPos pos, IBlockState state)
     {
-        EnumFacing enumfacing = (EnumFacing)state.getValue(FACING);
+        EnumFacing enumfacing = (EnumFacing)state.get(FACING);
         BlockPos blockpos = pos.offset(enumfacing.getOpposite());
         worldIn.neighborChanged(blockpos, this, pos);
         worldIn.notifyNeighborsOfStateExcept(blockpos, this, enumfacing);
@@ -102,30 +100,36 @@ public class BlockObserver extends BlockDirectional
 
     /**
      * Can this block provide power. Only wire currently seems to have this change based on its state.
+     * @deprecated call via {@link IBlockState#canProvidePower()} whenever possible. Implementing/overriding is fine.
      */
     public boolean canProvidePower(IBlockState state)
     {
         return true;
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#getStrongPower(IBlockAccess,BlockPos,EnumFacing)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public int getStrongPower(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side)
     {
         return blockState.getWeakPower(blockAccess, pos, side);
     }
 
+    /**
+     * @deprecated call via {@link IBlockState#getWeakPower(IBlockAccess,BlockPos,EnumFacing)} whenever possible.
+     * Implementing/overriding is fine.
+     */
     public int getWeakPower(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side)
     {
-        return ((Boolean)blockState.getValue(POWERED)).booleanValue() && blockState.getValue(FACING) == side ? 15 : 0;
+        return ((Boolean)blockState.get(POWERED)).booleanValue() && blockState.get(FACING) == side ? 15 : 0;
     }
 
-    /**
-     * Called after the block is set in the Chunk data, but before the Tile Entity is set
-     */
     public void onBlockAdded(World worldIn, BlockPos pos, IBlockState state)
     {
         if (!worldIn.isRemote)
         {
-            if (((Boolean)state.getValue(POWERED)).booleanValue())
+            if (((Boolean)state.get(POWERED)).booleanValue())
             {
                 this.updateTick(worldIn, pos, state, worldIn.rand);
             }
@@ -134,35 +138,25 @@ public class BlockObserver extends BlockDirectional
         }
     }
 
-    /**
-     * Called serverside after this block is replaced with another in Chunk, but before the Tile Entity is updated
-     */
     public void breakBlock(World worldIn, BlockPos pos, IBlockState state)
     {
-        if (((Boolean)state.getValue(POWERED)).booleanValue() && worldIn.isUpdateScheduled(pos, this))
+        if (((Boolean)state.get(POWERED)).booleanValue() && worldIn.isUpdateScheduled(pos, this))
         {
             this.updateNeighborsInFront(worldIn, pos, state.withProperty(POWERED, Boolean.valueOf(false)));
         }
     }
 
-    /**
-     * Called by ItemBlocks just before a block is actually set in the world, to allow for adjustments to the
-     * IBlockstate
-     */
     public IBlockState getStateForPlacement(World worldIn, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer)
     {
         return this.getDefaultState().withProperty(FACING, EnumFacing.getDirectionFromEntityLiving(pos, placer).getOpposite());
     }
 
-    /**
-     * Convert the BlockState into the correct metadata value
-     */
     public int getMetaFromState(IBlockState state)
     {
         int i = 0;
-        i = i | ((EnumFacing)state.getValue(FACING)).getIndex();
+        i = i | ((EnumFacing)state.get(FACING)).getIndex();
 
-        if (((Boolean)state.getValue(POWERED)).booleanValue())
+        if (((Boolean)state.get(POWERED)).booleanValue())
         {
             i |= 8;
         }
@@ -170,11 +164,8 @@ public class BlockObserver extends BlockDirectional
         return i;
     }
 
-    /**
-     * Convert the given metadata into a BlockState for this Block
-     */
     public IBlockState getStateFromMeta(int meta)
     {
-        return this.getDefaultState().withProperty(FACING, EnumFacing.getFront(meta & 7));
+        return this.getDefaultState().withProperty(FACING, EnumFacing.byIndex(meta & 7));
     }
 }

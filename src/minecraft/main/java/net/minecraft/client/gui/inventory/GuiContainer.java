@@ -32,7 +32,7 @@ public abstract class GuiContainer extends GuiScreen
     protected int ySize = 166;
 
     /** A list of the players inventory slots */
-    public Container inventorySlots;
+    public Container container;
 
     /**
      * Starting X position for the Gui. Inconsistent use for Gui backgrounds.
@@ -44,10 +44,10 @@ public abstract class GuiContainer extends GuiScreen
      */
     protected int guiTop;
 
-    /** holds the slot currently hovered */
+    /** Holds the slot currently hovered */
     private Slot hoveredSlot;
 
-    /** Used when touchscreen is enabled. */
+    /** Used when touchscreen is enabled */
     private Slot clickedSlot;
 
     /** Used when touchscreen is enabled. */
@@ -78,25 +78,18 @@ public abstract class GuiContainer extends GuiScreen
 
     public GuiContainer(Container inventorySlotsIn)
     {
-        this.inventorySlots = inventorySlotsIn;
+        this.container = inventorySlotsIn;
         this.ignoreMouseUp = true;
     }
 
-    /**
-     * Adds the buttons (and other controls) to the screen in question. Called when the GUI is displayed and when the
-     * window resizes, the buttonList is cleared beforehand.
-     */
     public void initGui()
     {
         super.initGui();
-        this.mc.player.openContainer = this.inventorySlots;
+        this.mc.player.openContainer = this.container;
         this.guiLeft = (this.width - this.xSize) / 2;
         this.guiTop = (this.height - this.ySize) / 2;
     }
 
-    /**
-     * Draws the screen and all the components in it.
-     */
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         int i = this.guiLeft;
@@ -118,9 +111,9 @@ public abstract class GuiContainer extends GuiScreen
         OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240.0F, 240.0F);
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 
-        for (int i1 = 0; i1 < this.inventorySlots.inventorySlots.size(); ++i1)
+        for (int i1 = 0; i1 < this.container.inventorySlots.size(); ++i1)
         {
-            Slot slot = this.inventorySlots.inventorySlots.get(i1);
+            Slot slot = this.container.inventorySlots.get(i1);
 
             if (slot.isEnabled())
             {
@@ -196,11 +189,11 @@ public abstract class GuiContainer extends GuiScreen
         RenderHelper.enableStandardItemLighting();
     }
 
-    protected void renderHoveredToolTip(int p_191948_1_, int p_191948_2_)
+    protected void renderHoveredToolTip(int mouseX, int mouseY)
     {
         if (this.mc.player.inventory.getItemStack().isEmpty() && this.hoveredSlot != null && this.hoveredSlot.getHasStack())
         {
-            this.renderToolTip(this.hoveredSlot.getStack(), p_191948_1_, p_191948_2_);
+            this.renderToolTip(this.hoveredSlot.getStack(), mouseX, mouseY);
         }
     }
 
@@ -257,7 +250,7 @@ public abstract class GuiContainer extends GuiScreen
                 return;
             }
 
-            if (Container.canAddItemToSlot(slotIn, itemstack1, true) && this.inventorySlots.canDragIntoSlot(slotIn))
+            if (Container.canAddItemToSlot(slotIn, itemstack1, true) && this.container.canDragIntoSlot(slotIn))
             {
                 itemstack = itemstack1.copy();
                 flag = true;
@@ -344,14 +337,11 @@ public abstract class GuiContainer extends GuiScreen
         }
     }
 
-    /**
-     * Returns the slot at the given coordinates or null if there is none.
-     */
     private Slot getSlotAtPosition(int x, int y)
     {
-        for (int i = 0; i < this.inventorySlots.inventorySlots.size(); ++i)
+        for (int i = 0; i < this.container.inventorySlots.size(); ++i)
         {
-            Slot slot = this.inventorySlots.inventorySlots.get(i);
+            Slot slot = this.container.inventorySlots.get(i);
 
             if (this.isMouseOverSlot(slot, x, y) && slot.isEnabled())
             {
@@ -362,9 +352,6 @@ public abstract class GuiContainer extends GuiScreen
         return null;
     }
 
-    /**
-     * Called when the mouse is clicked. Args : mouseX, mouseY, clickedButton
-     */
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
     {
         super.mouseClicked(mouseX, mouseY, mouseButton);
@@ -473,10 +460,6 @@ public abstract class GuiContainer extends GuiScreen
         return p_193983_1_ < p_193983_3_ || p_193983_2_ < p_193983_4_ || p_193983_1_ >= p_193983_3_ + this.xSize || p_193983_2_ >= p_193983_4_ + this.ySize;
     }
 
-    /**
-     * Called when a mouse button is pressed and the mouse is moved around. Parameters are : mouseX, mouseY,
-     * lastButtonClicked & timeSinceMouseClick.
-     */
     protected void mouseClickMove(int mouseX, int mouseY, int clickedMouseButton, long timeSinceLastClick)
     {
         Slot slot = this.getSlotAtPosition(mouseX, mouseY);
@@ -516,16 +499,13 @@ public abstract class GuiContainer extends GuiScreen
                 }
             }
         }
-        else if (this.dragSplitting && slot != null && !itemstack.isEmpty() && (itemstack.getCount() > this.dragSplittingSlots.size() || this.dragSplittingLimit == 2) && Container.canAddItemToSlot(slot, itemstack, true) && slot.isItemValid(itemstack) && this.inventorySlots.canDragIntoSlot(slot))
+        else if (this.dragSplitting && slot != null && !itemstack.isEmpty() && (itemstack.getCount() > this.dragSplittingSlots.size() || this.dragSplittingLimit == 2) && Container.canAddItemToSlot(slot, itemstack, true) && slot.isItemValid(itemstack) && this.container.canDragIntoSlot(slot))
         {
             this.dragSplittingSlots.add(slot);
             this.updateDragSplitting();
         }
     }
 
-    /**
-     * Called when a mouse button is released.
-     */
     protected void mouseReleased(int mouseX, int mouseY, int state)
     {
         Slot slot = this.getSlotAtPosition(mouseX, mouseY);
@@ -544,13 +524,13 @@ public abstract class GuiContainer extends GuiScreen
             k = -999;
         }
 
-        if (this.doubleClick && slot != null && state == 0 && this.inventorySlots.canMergeSlot(ItemStack.EMPTY, slot))
+        if (this.doubleClick && slot != null && state == 0 && this.container.canMergeSlot(ItemStack.EMPTY, slot))
         {
             if (isShiftKeyDown())
             {
                 if (!this.shiftClickedSlot.isEmpty())
                 {
-                    for (Slot slot2 : this.inventorySlots.inventorySlots)
+                    for (Slot slot2 : this.container.inventorySlots)
                     {
                         if (slot2 != null && slot2.canTakeStack(this.mc.player) && slot2.getHasStack() && slot2.inventory == slot.inventory && Container.canAddItemToSlot(slot2, this.shiftClickedSlot, true))
                         {
@@ -665,18 +645,11 @@ public abstract class GuiContainer extends GuiScreen
         this.dragSplitting = false;
     }
 
-    /**
-     * Returns whether the mouse is over the given slot.
-     */
     private boolean isMouseOverSlot(Slot slotIn, int mouseX, int mouseY)
     {
         return this.isPointInRegion(slotIn.xPos, slotIn.yPos, 16, 16, mouseX, mouseY);
     }
 
-    /**
-     * Test if the 2D point is in a rectangle (relative to the GUI). Args : rectX, rectY, rectWidth, rectHeight, pointX,
-     * pointY
-     */
     protected boolean isPointInRegion(int rectX, int rectY, int rectWidth, int rectHeight, int pointX, int pointY)
     {
         int i = this.guiLeft;
@@ -696,13 +669,9 @@ public abstract class GuiContainer extends GuiScreen
             slotId = slotIn.slotNumber;
         }
 
-        this.mc.playerController.windowClick(this.inventorySlots.windowId, slotId, mouseButton, type, this.mc.player);
+        this.mc.playerController.windowClick(this.container.windowId, slotId, mouseButton, type, this.mc.player);
     }
 
-    /**
-     * Fired when a key is typed (except F11 which toggles full screen). This is the equivalent of
-     * KeyListener.keyTyped(KeyEvent e). Args : character (character on the key), keyCode (lwjgl Keyboard key code)
-     */
     protected void keyTyped(char typedChar, int keyCode) throws IOException
     {
         if (keyCode == 1 || keyCode == this.mc.gameSettings.keyBindInventory.getKeyCode())
@@ -725,11 +694,6 @@ public abstract class GuiContainer extends GuiScreen
         }
     }
 
-    /**
-     * Checks whether a hotbar key (to swap the hovered item with an item in the hotbar) has been pressed. If so, it
-     * swaps the given items.
-     * Returns true if a hotbar key was pressed.
-     */
     protected boolean checkHotbarKeys(int keyCode)
     {
         if (this.mc.player.inventory.getItemStack().isEmpty() && this.hoveredSlot != null)
@@ -747,33 +711,24 @@ public abstract class GuiContainer extends GuiScreen
         return false;
     }
 
-    /**
-     * Called when the screen is unloaded. Used to disable keyboard repeat events
-     */
     public void onGuiClosed()
     {
         if (this.mc.player != null)
         {
-            this.inventorySlots.onContainerClosed(this.mc.player);
+            this.container.onContainerClosed(this.mc.player);
         }
     }
 
-    /**
-     * Returns true if this GUI should pause the game when it is displayed in single-player
-     */
     public boolean doesGuiPauseGame()
     {
         return false;
     }
 
-    /**
-     * Called from the main game loop to update the screen.
-     */
     public void updateScreen()
     {
         super.updateScreen();
 
-        if (!this.mc.player.isEntityAlive() || this.mc.player.isDead)
+        if (!this.mc.player.isAlive() || this.mc.player.removed)
         {
             this.mc.player.closeScreen();
         }

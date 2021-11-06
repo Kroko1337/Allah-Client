@@ -17,20 +17,14 @@ public abstract class EntityWaterMob extends EntityLiving implements IAnimals
         return true;
     }
 
-    /**
-     * Checks if the entity's current position is a valid location to spawn this entity.
-     */
     public boolean getCanSpawnHere()
     {
         return true;
     }
 
-    /**
-     * Checks that the entity is not colliding with any blocks / liquids
-     */
     public boolean isNotColliding()
     {
-        return this.world.checkNoEntityCollision(this.getEntityBoundingBox(), this);
+        return this.world.checkNoEntityCollision(this.getBoundingBox(), this);
     }
 
     /**
@@ -41,9 +35,6 @@ public abstract class EntityWaterMob extends EntityLiving implements IAnimals
         return 120;
     }
 
-    /**
-     * Determines if an entity can be despawned, used on idle far away entities
-     */
     protected boolean canDespawn()
     {
         return true;
@@ -60,12 +51,12 @@ public abstract class EntityWaterMob extends EntityLiving implements IAnimals
     /**
      * Gets called every tick from main Entity class
      */
-    public void onEntityUpdate()
+    public void baseTick()
     {
         int i = this.getAir();
-        super.onEntityUpdate();
+        super.baseTick();
 
-        if (this.isEntityAlive() && !this.isInWater())
+        if (this.isAlive() && !this.isInWater())
         {
             --i;
             this.setAir(i);

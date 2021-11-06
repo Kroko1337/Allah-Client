@@ -8,21 +8,18 @@ public class RenderElderGuardian extends RenderGuardian
 {
     private static final ResourceLocation GUARDIAN_ELDER_TEXTURE = new ResourceLocation("textures/entity/guardian_elder.png");
 
-    public RenderElderGuardian(RenderManager p_i47209_1_)
+    public RenderElderGuardian(RenderManager renderManagerIn)
     {
-        super(p_i47209_1_);
+        super(renderManagerIn);
     }
 
-    /**
-     * Allows the render to do state modifications necessary before the model is rendered.
-     */
     protected void preRenderCallback(EntityGuardian entitylivingbaseIn, float partialTickTime)
     {
         GlStateManager.scale(2.35F, 2.35F, 2.35F);
     }
 
     /**
-     * Returns the location of an entity's texture. Doesn't seem to be called unless you call Render.bindEntityTexture.
+     * Returns the location of an entity's texture.
      */
     protected ResourceLocation getEntityTexture(EntityGuardian entity)
     {

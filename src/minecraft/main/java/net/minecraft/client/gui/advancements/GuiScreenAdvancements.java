@@ -32,10 +32,6 @@ public class GuiScreenAdvancements extends GuiScreen implements ClientAdvancemen
         this.clientAdvancementManager = p_i47383_1_;
     }
 
-    /**
-     * Adds the buttons (and other controls) to the screen in question. Called when the GUI is displayed and when the
-     * window resizes, the buttonList is cleared beforehand.
-     */
     public void initGui()
     {
         this.tabs.clear();
@@ -52,9 +48,6 @@ public class GuiScreenAdvancements extends GuiScreen implements ClientAdvancemen
         }
     }
 
-    /**
-     * Called when the screen is unloaded. Used to disable keyboard repeat events
-     */
     public void onGuiClosed()
     {
         this.clientAdvancementManager.setListener((ClientAdvancementManager.IListener)null);
@@ -66,9 +59,6 @@ public class GuiScreenAdvancements extends GuiScreen implements ClientAdvancemen
         }
     }
 
-    /**
-     * Called when the mouse is clicked. Args : mouseX, mouseY, clickedButton
-     */
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
     {
         if (mouseButton == 0)
@@ -89,10 +79,6 @@ public class GuiScreenAdvancements extends GuiScreen implements ClientAdvancemen
         super.mouseClicked(mouseX, mouseY, mouseButton);
     }
 
-    /**
-     * Fired when a key is typed (except F11 which toggles full screen). This is the equivalent of
-     * KeyListener.keyTyped(KeyEvent e). Args : character (character on the key), keyCode (lwjgl Keyboard key code)
-     */
     protected void keyTyped(char typedChar, int keyCode) throws IOException
     {
         if (keyCode == this.mc.gameSettings.keyBindAdvancements.getKeyCode())
@@ -106,9 +92,6 @@ public class GuiScreenAdvancements extends GuiScreen implements ClientAdvancemen
         }
     }
 
-    /**
-     * Draws the screen and all the components in it.
-     */
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         int i = (this.width - 252) / 2;
@@ -249,19 +232,19 @@ public class GuiScreenAdvancements extends GuiScreen implements ClientAdvancemen
     {
     }
 
-    public void onUpdateAdvancementProgress(Advancement p_191933_1_, AdvancementProgress p_191933_2_)
+    public void onUpdateAdvancementProgress(Advancement advancementIn, AdvancementProgress progress)
     {
-        GuiAdvancement guiadvancement = this.getAdvancementGui(p_191933_1_);
+        GuiAdvancement guiadvancement = this.getAdvancementGui(advancementIn);
 
         if (guiadvancement != null)
         {
-            guiadvancement.getAdvancementProgress(p_191933_2_);
+            guiadvancement.setAdvancementProgress(progress);
         }
     }
 
-    public void setSelectedTab(@Nullable Advancement p_193982_1_)
+    public void setSelectedTab(@Nullable Advancement advancementIn)
     {
-        this.selectedTab = this.tabs.get(p_193982_1_);
+        this.selectedTab = this.tabs.get(advancementIn);
     }
 
     public void advancementsCleared()

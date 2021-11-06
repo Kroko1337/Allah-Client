@@ -6,13 +6,8 @@ import net.minecraft.util.math.MathHelper;
 
 public class EntityAILeapAtTarget extends EntityAIBase
 {
-    /** The entity that is leaping. */
     EntityLiving leaper;
-
-    /** The entity that the leaper is leaping towards. */
     EntityLivingBase leapTarget;
-
-    /** The entity's motionY after leaping. */
     float leapMotionY;
 
     public EntityAILeapAtTarget(EntityLiving leapingEntity, float leapMotionYIn)
@@ -23,7 +18,8 @@ public class EntityAILeapAtTarget extends EntityAIBase
     }
 
     /**
-     * Returns whether the EntityAIBase should begin execution.
+     * Returns whether execution should begin. You can also read and cache any state necessary for execution in this
+     * method as well.
      */
     public boolean shouldExecute()
     {
@@ -35,7 +31,7 @@ public class EntityAILeapAtTarget extends EntityAIBase
         }
         else
         {
-            double d0 = this.leaper.getDistanceSqToEntity(this.leapTarget);
+            double d0 = this.leaper.getDistanceSq(this.leapTarget);
 
             if (d0 >= 4.0D && d0 <= 16.0D)
             {

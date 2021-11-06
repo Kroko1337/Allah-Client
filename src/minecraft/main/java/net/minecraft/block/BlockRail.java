@@ -16,7 +16,7 @@ public class BlockRail extends BlockRailBase
     protected BlockRail()
     {
         super(false);
-        this.setDefaultState(this.blockState.getBaseState().withProperty(SHAPE, BlockRailBase.EnumRailDirection.NORTH_SOUTH));
+        this.setDefaultState(this.stateContainer.getBaseState().withProperty(SHAPE, BlockRailBase.EnumRailDirection.NORTH_SOUTH));
     }
 
     protected void updateState(IBlockState state, World worldIn, BlockPos pos, Block blockIn)
@@ -32,20 +32,14 @@ public class BlockRail extends BlockRailBase
         return SHAPE;
     }
 
-    /**
-     * Convert the given metadata into a BlockState for this Block
-     */
     public IBlockState getStateFromMeta(int meta)
     {
         return this.getDefaultState().withProperty(SHAPE, BlockRailBase.EnumRailDirection.byMetadata(meta));
     }
 
-    /**
-     * Convert the BlockState into the correct metadata value
-     */
     public int getMetaFromState(IBlockState state)
     {
-        return ((BlockRailBase.EnumRailDirection)state.getValue(SHAPE)).getMetadata();
+        return ((BlockRailBase.EnumRailDirection)state.get(SHAPE)).getMetadata();
     }
 
     @SuppressWarnings("incomplete-switch")
@@ -53,13 +47,15 @@ public class BlockRail extends BlockRailBase
     /**
      * Returns the blockstate with the given rotation from the passed blockstate. If inapplicable, returns the passed
      * blockstate.
+     * @deprecated call via {@link IBlockState#withRotation(Rotation)} whenever possible. Implementing/overriding is
+     * fine.
      */
-    public IBlockState withRotation(IBlockState state, Rotation rot)
+    public IBlockState rotate(IBlockState state, Rotation rot)
     {
         switch (rot)
         {
             case CLOCKWISE_180:
-                switch ((BlockRailBase.EnumRailDirection)state.getValue(SHAPE))
+                switch ((BlockRailBase.EnumRailDirection)state.get(SHAPE))
                 {
                     case ASCENDING_EAST:
                         return state.withProperty(SHAPE, BlockRailBase.EnumRailDirection.ASCENDING_WEST);
@@ -87,7 +83,7 @@ public class BlockRail extends BlockRailBase
                 }
 
             case COUNTERCLOCKWISE_90:
-                switch ((BlockRailBase.EnumRailDirection)state.getValue(SHAPE))
+                switch ((BlockRailBase.EnumRailDirection)state.get(SHAPE))
                 {
                     case ASCENDING_EAST:
                         return state.withProperty(SHAPE, BlockRailBase.EnumRailDirection.ASCENDING_NORTH);
@@ -121,7 +117,7 @@ public class BlockRail extends BlockRailBase
                 }
 
             case CLOCKWISE_90:
-                switch ((BlockRailBase.EnumRailDirection)state.getValue(SHAPE))
+                switch ((BlockRailBase.EnumRailDirection)state.get(SHAPE))
                 {
                     case ASCENDING_EAST:
                         return state.withProperty(SHAPE, BlockRailBase.EnumRailDirection.ASCENDING_SOUTH);
@@ -164,10 +160,11 @@ public class BlockRail extends BlockRailBase
     /**
      * Returns the blockstate with the given mirror of the passed blockstate. If inapplicable, returns the passed
      * blockstate.
+     * @deprecated call via {@link IBlockState#withMirror(Mirror)} whenever possible. Implementing/overriding is fine.
      */
-    public IBlockState withMirror(IBlockState state, Mirror mirrorIn)
+    public IBlockState mirror(IBlockState state, Mirror mirrorIn)
     {
-        BlockRailBase.EnumRailDirection blockrailbase$enumraildirection = (BlockRailBase.EnumRailDirection)state.getValue(SHAPE);
+        BlockRailBase.EnumRailDirection blockrailbase$enumraildirection = (BlockRailBase.EnumRailDirection)state.get(SHAPE);
 
         switch (mirrorIn)
         {
@@ -193,7 +190,7 @@ public class BlockRail extends BlockRailBase
                         return state.withProperty(SHAPE, BlockRailBase.EnumRailDirection.SOUTH_EAST);
 
                     default:
-                        return super.withMirror(state, mirrorIn);
+                        return super.mirror(state, mirrorIn);
                 }
 
             case FRONT_BACK:
@@ -224,7 +221,7 @@ public class BlockRail extends BlockRailBase
                 }
         }
 
-        return super.withMirror(state, mirrorIn);
+        return super.mirror(state, mirrorIn);
     }
 
     protected BlockStateContainer createBlockState()

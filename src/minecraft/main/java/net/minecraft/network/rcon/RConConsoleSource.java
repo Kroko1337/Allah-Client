@@ -7,7 +7,6 @@ import net.minecraft.world.World;
 
 public class RConConsoleSource implements ICommandSender
 {
-    /** RCon string buffer for log. */
     private final StringBuffer buffer = new StringBuffer();
     private final MinecraftServer server;
 
@@ -16,9 +15,6 @@ public class RConConsoleSource implements ICommandSender
         this.server = serverIn;
     }
 
-    /**
-     * Get the name of this object. For players this returns their username
-     */
     public String getName()
     {
         return "Rcon";
@@ -32,9 +28,6 @@ public class RConConsoleSource implements ICommandSender
         this.buffer.append(component.getUnformattedText());
     }
 
-    /**
-     * Returns {@code true} if the CommandSender is allowed to execute the command, {@code false} if not
-     */
     public boolean canUseCommand(int permLevel, String commandName)
     {
         return true;
@@ -49,9 +42,6 @@ public class RConConsoleSource implements ICommandSender
         return this.server.getEntityWorld();
     }
 
-    /**
-     * Returns true if the command sender should be sent feedback about executed commands
-     */
     public boolean sendCommandFeedback()
     {
         return true;

@@ -10,14 +10,12 @@ import net.minecraft.util.ResourceLocation;
 public class RenderGiantZombie extends RenderLiving<EntityGiantZombie>
 {
     private static final ResourceLocation ZOMBIE_TEXTURES = new ResourceLocation("textures/entity/zombie/zombie.png");
-
-    /** Scale of the model to use */
     private final float scale;
 
-    public RenderGiantZombie(RenderManager p_i47206_1_, float p_i47206_2_)
+    public RenderGiantZombie(RenderManager renderManagerIn, float scaleIn)
     {
-        super(p_i47206_1_, new ModelZombie(), 0.5F * p_i47206_2_);
-        this.scale = p_i47206_2_;
+        super(renderManagerIn, new ModelZombie(), 0.5F * scaleIn);
+        this.scale = scaleIn;
         this.addLayer(new LayerHeldItem(this));
         this.addLayer(new LayerBipedArmor(this)
         {
@@ -34,16 +32,13 @@ public class RenderGiantZombie extends RenderLiving<EntityGiantZombie>
         GlStateManager.translate(0.0F, 0.1875F, 0.0F);
     }
 
-    /**
-     * Allows the render to do state modifications necessary before the model is rendered.
-     */
     protected void preRenderCallback(EntityGiantZombie entitylivingbaseIn, float partialTickTime)
     {
         GlStateManager.scale(this.scale, this.scale, this.scale);
     }
 
     /**
-     * Returns the location of an entity's texture. Doesn't seem to be called unless you call Render.bindEntityTexture.
+     * Returns the location of an entity's texture.
      */
     protected ResourceLocation getEntityTexture(EntityGiantZombie entity)
     {

@@ -37,7 +37,7 @@ public class LayerCustomHead implements LayerRenderer<EntityLivingBase>
         if (!itemstack.isEmpty())
         {
             Item item = itemstack.getItem();
-            Minecraft minecraft = Minecraft.getMinecraft();
+            Minecraft minecraft = Minecraft.getInstance();
             GlStateManager.pushMatrix();
 
             if (entitylivingbaseIn.isSneaking())
@@ -71,21 +71,21 @@ public class LayerCustomHead implements LayerRenderer<EntityLivingBase>
 
                 GameProfile gameprofile = null;
 
-                if (itemstack.hasTagCompound())
+                if (itemstack.hasTag())
                 {
-                    NBTTagCompound nbttagcompound = itemstack.getTagCompound();
+                    NBTTagCompound nbttagcompound = itemstack.getTag();
 
-                    if (nbttagcompound.hasKey("SkullOwner", 10))
+                    if (nbttagcompound.contains("SkullOwner", 10))
                     {
-                        gameprofile = NBTUtil.readGameProfileFromNBT(nbttagcompound.getCompoundTag("SkullOwner"));
+                        gameprofile = NBTUtil.readGameProfile(nbttagcompound.getCompound("SkullOwner"));
                     }
-                    else if (nbttagcompound.hasKey("SkullOwner", 8))
+                    else if (nbttagcompound.contains("SkullOwner", 8))
                     {
                         String s = nbttagcompound.getString("SkullOwner");
 
                         if (!StringUtils.isBlank(s))
                         {
-                            gameprofile = TileEntitySkull.updateGameprofile(new GameProfile((UUID)null, s));
+                            gameprofile = TileEntitySkull.updateGameProfile(new GameProfile((UUID)null, s));
                             nbttagcompound.setTag("SkullOwner", NBTUtil.writeGameProfile(new NBTTagCompound(), gameprofile));
                         }
                     }
@@ -105,7 +105,7 @@ public class LayerCustomHead implements LayerRenderer<EntityLivingBase>
                     GlStateManager.translate(0.0F, 0.1875F, 0.0F);
                 }
 
-                minecraft.getItemRenderer().renderItem(entitylivingbaseIn, itemstack, ItemCameraTransforms.TransformType.HEAD);
+                minecraft.getFirstPersonRenderer().renderItem(entitylivingbaseIn, itemstack, ItemCameraTransforms.TransformType.HEAD);
             }
 
             GlStateManager.popMatrix();

@@ -8,14 +8,11 @@ import net.minecraft.world.World;
 
 public class BehaviorDefaultDispenseItem implements IBehaviorDispenseItem
 {
-    /**
-     * Dispenses the specified ItemStack from a dispenser.
-     */
     public final ItemStack dispense(IBlockSource source, ItemStack stack)
     {
         ItemStack itemstack = this.dispenseStack(source, stack);
         this.playDispenseSound(source);
-        this.spawnDispenseParticles(source, (EnumFacing)source.getBlockState().getValue(BlockDispenser.FACING));
+        this.spawnDispenseParticles(source, (EnumFacing)source.getBlockState().get(BlockDispenser.FACING));
         return itemstack;
     }
 
@@ -24,9 +21,9 @@ public class BehaviorDefaultDispenseItem implements IBehaviorDispenseItem
      */
     protected ItemStack dispenseStack(IBlockSource source, ItemStack stack)
     {
-        EnumFacing enumfacing = (EnumFacing)source.getBlockState().getValue(BlockDispenser.FACING);
+        EnumFacing enumfacing = (EnumFacing)source.getBlockState().get(BlockDispenser.FACING);
         IPosition iposition = BlockDispenser.getDispensePosition(source);
-        ItemStack itemstack = stack.splitStack(1);
+        ItemStack itemstack = stack.split(1);
         doDispense(source.getWorld(), itemstack, 6, enumfacing, iposition);
         return stack;
     }
@@ -48,13 +45,13 @@ public class BehaviorDefaultDispenseItem implements IBehaviorDispenseItem
 
         EntityItem entityitem = new EntityItem(worldIn, d0, d1, d2, stack);
         double d3 = worldIn.rand.nextDouble() * 0.1D + 0.2D;
-        entityitem.motionX = (double)facing.getFrontOffsetX() * d3;
+        entityitem.motionX = (double)facing.getXOffset() * d3;
         entityitem.motionY = 0.20000000298023224D;
-        entityitem.motionZ = (double)facing.getFrontOffsetZ() * d3;
+        entityitem.motionZ = (double)facing.getZOffset() * d3;
         entityitem.motionX += worldIn.rand.nextGaussian() * 0.007499999832361937D * (double)speed;
         entityitem.motionY += worldIn.rand.nextGaussian() * 0.007499999832361937D * (double)speed;
         entityitem.motionZ += worldIn.rand.nextGaussian() * 0.007499999832361937D * (double)speed;
-        worldIn.spawnEntity(entityitem);
+        worldIn.addEntity0(entityitem);
     }
 
     /**
@@ -75,6 +72,6 @@ public class BehaviorDefaultDispenseItem implements IBehaviorDispenseItem
 
     private int getWorldEventDataFrom(EnumFacing facingIn)
     {
-        return facingIn.getFrontOffsetX() + 1 + (facingIn.getFrontOffsetZ() + 1) * 3;
+        return facingIn.getXOffset() + 1 + (facingIn.getZOffset() + 1) * 3;
     }
 }

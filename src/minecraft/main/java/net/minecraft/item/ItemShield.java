@@ -35,10 +35,10 @@ public class ItemShield extends Item
 
     public String getItemStackDisplayName(ItemStack stack)
     {
-        if (stack.getSubCompound("BlockEntityTag") != null)
+        if (stack.getChildTag("BlockEntityTag") != null)
         {
             EnumDyeColor enumdyecolor = TileEntityBanner.getColor(stack);
-            return I18n.translateToLocal("item.shield." + enumdyecolor.getUnlocalizedName() + ".name");
+            return I18n.translateToLocal("item.shield." + enumdyecolor.getTranslationKey() + ".name");
         }
         else
         {
@@ -57,7 +57,7 @@ public class ItemShield extends Item
     /**
      * returns the action that specifies what animation to play when the items is being used
      */
-    public EnumAction getItemUseAction(ItemStack stack)
+    public EnumAction getUseAction(ItemStack stack)
     {
         return EnumAction.BLOCK;
     }
@@ -65,7 +65,7 @@ public class ItemShield extends Item
     /**
      * How long it takes to use or consume an item
      */
-    public int getMaxItemUseDuration(ItemStack stack)
+    public int getUseDuration(ItemStack stack)
     {
         return 72000;
     }

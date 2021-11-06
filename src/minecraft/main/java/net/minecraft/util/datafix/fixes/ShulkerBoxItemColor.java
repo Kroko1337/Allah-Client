@@ -14,33 +14,33 @@ public class ShulkerBoxItemColor implements IFixableData
 
     public NBTTagCompound fixTagCompound(NBTTagCompound compound)
     {
-        if ("minecraft:shulker_box".equals(compound.getString("id")) && compound.hasKey("tag", 10))
+        if ("minecraft:shulker_box".equals(compound.getString("id")) && compound.contains("tag", 10))
         {
-            NBTTagCompound nbttagcompound = compound.getCompoundTag("tag");
+            NBTTagCompound nbttagcompound = compound.getCompound("tag");
 
-            if (nbttagcompound.hasKey("BlockEntityTag", 10))
+            if (nbttagcompound.contains("BlockEntityTag", 10))
             {
-                NBTTagCompound nbttagcompound1 = nbttagcompound.getCompoundTag("BlockEntityTag");
+                NBTTagCompound nbttagcompound1 = nbttagcompound.getCompound("BlockEntityTag");
 
-                if (nbttagcompound1.getTagList("Items", 10).hasNoTags())
+                if (nbttagcompound1.getList("Items", 10).isEmpty())
                 {
-                    nbttagcompound1.removeTag("Items");
+                    nbttagcompound1.remove("Items");
                 }
 
-                int i = nbttagcompound1.getInteger("Color");
-                nbttagcompound1.removeTag("Color");
+                int i = nbttagcompound1.getInt("Color");
+                nbttagcompound1.remove("Color");
 
-                if (nbttagcompound1.hasNoTags())
+                if (nbttagcompound1.isEmpty())
                 {
-                    nbttagcompound.removeTag("BlockEntityTag");
+                    nbttagcompound.remove("BlockEntityTag");
                 }
 
-                if (nbttagcompound.hasNoTags())
+                if (nbttagcompound.isEmpty())
                 {
-                    compound.removeTag("tag");
+                    compound.remove("tag");
                 }
 
-                compound.setString("id", NAMES_BY_COLOR[i % 16]);
+                compound.putString("id", NAMES_BY_COLOR[i % 16]);
             }
         }
 

@@ -5,13 +5,8 @@ import net.minecraft.entity.Entity;
 
 public class ModelEnderCrystal extends ModelBase
 {
-    /** The cube model for the Ender Crystal. */
     private final ModelRenderer cube;
-
-    /** The glass model for the Ender Crystal. */
     private final ModelRenderer glass = new ModelRenderer(this, "glass");
-
-    /** The base model for the Ender Crystal. */
     private ModelRenderer base;
 
     public ModelEnderCrystal(float p_i1170_1_, boolean renderBase)
@@ -27,9 +22,6 @@ public class ModelEnderCrystal extends ModelBase
         }
     }
 
-    /**
-     * Sets the models various rotation angles then renders the model.
-     */
     public void render(Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale)
     {
         GlStateManager.pushMatrix();

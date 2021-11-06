@@ -21,7 +21,7 @@ public class LayerMooshroomMushroom implements LayerRenderer<EntityMooshroom>
     {
         if (!entitylivingbaseIn.isChild() && !entitylivingbaseIn.isInvisible())
         {
-            BlockRendererDispatcher blockrendererdispatcher = Minecraft.getMinecraft().getBlockRendererDispatcher();
+            BlockRendererDispatcher blockrendererdispatcher = Minecraft.getInstance().getBlockRendererDispatcher();
             this.mooshroomRenderer.bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
             GlStateManager.enableCull();
             GlStateManager.cullFace(GlStateManager.CullFace.FRONT);
@@ -41,7 +41,7 @@ public class LayerMooshroomMushroom implements LayerRenderer<EntityMooshroom>
             GlStateManager.popMatrix();
             GlStateManager.popMatrix();
             GlStateManager.pushMatrix();
-            this.mooshroomRenderer.getMainModel().head.postRender(0.0625F);
+            this.mooshroomRenderer.getMainModel().headModel.postRender(0.0625F);
             GlStateManager.scale(1.0F, -1.0F, 1.0F);
             GlStateManager.translate(0.0F, 0.7F, -0.2F);
             GlStateManager.rotate(12.0F, 0.0F, 1.0F, 0.0F);

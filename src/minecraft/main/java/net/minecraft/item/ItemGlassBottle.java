@@ -30,11 +30,11 @@ public class ItemGlassBottle extends Item
 
     public ActionResult<ItemStack> onItemRightClick(World worldIn, EntityPlayer playerIn, EnumHand handIn)
     {
-        List<EntityAreaEffectCloud> list = worldIn.<EntityAreaEffectCloud>getEntitiesWithinAABB(EntityAreaEffectCloud.class, playerIn.getEntityBoundingBox().grow(2.0D), new Predicate<EntityAreaEffectCloud>()
+        List<EntityAreaEffectCloud> list = worldIn.<EntityAreaEffectCloud>getEntitiesWithinAABB(EntityAreaEffectCloud.class, playerIn.getBoundingBox().grow(2.0D), new Predicate<EntityAreaEffectCloud>()
         {
             public boolean apply(@Nullable EntityAreaEffectCloud p_apply_1_)
             {
-                return p_apply_1_ != null && p_apply_1_.isEntityAlive() && p_apply_1_.getOwner() instanceof EntityDragon;
+                return p_apply_1_ != null && p_apply_1_.isAlive() && p_apply_1_.getOwner() instanceof EntityDragon;
             }
         });
         ItemStack itemstack = playerIn.getHeldItem(handIn);
@@ -68,7 +68,7 @@ public class ItemGlassBottle extends Item
                     if (worldIn.getBlockState(blockpos).getMaterial() == Material.WATER)
                     {
                         worldIn.playSound(playerIn, playerIn.posX, playerIn.posY, playerIn.posZ, SoundEvents.ITEM_BOTTLE_FILL, SoundCategory.NEUTRAL, 1.0F, 1.0F);
-                        return new ActionResult(EnumActionResult.SUCCESS, this.turnBottleIntoItem(itemstack, playerIn, PotionUtils.addPotionToItemStack(new ItemStack(Items.POTIONITEM), PotionTypes.WATER)));
+                        return new ActionResult(EnumActionResult.SUCCESS, this.turnBottleIntoItem(itemstack, playerIn, PotionUtils.addPotionToItemStack(new ItemStack(Items.POTION), PotionTypes.WATER)));
                     }
                 }
 
@@ -77,12 +77,12 @@ public class ItemGlassBottle extends Item
         }
     }
 
-    protected ItemStack turnBottleIntoItem(ItemStack p_185061_1_, EntityPlayer player, ItemStack stack)
+    protected ItemStack turnBottleIntoItem(ItemStack bottleStack, EntityPlayer player, ItemStack stack)
     {
-        p_185061_1_.shrink(1);
+        bottleStack.shrink(1);
         player.addStat(StatList.getObjectUseStats(this));
 
-        if (p_185061_1_.isEmpty())
+        if (bottleStack.isEmpty())
         {
             return stack;
         }
@@ -93,7 +93,7 @@ public class ItemGlassBottle extends Item
                 player.dropItem(stack, false);
             }
 
-            return p_185061_1_;
+            return bottleStack;
         }
     }
 }

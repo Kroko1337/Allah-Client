@@ -7,9 +7,6 @@ import net.minecraft.client.resources.I18n;
 
 public class GuiYesNo extends GuiScreen
 {
-    /**
-     * A reference to the screen object that created this. Used for navigating between screens.
-     */
     protected GuiYesNoCallback parentScreen;
     protected String messageLine1;
     private final String messageLine2;
@@ -43,10 +40,6 @@ public class GuiYesNo extends GuiScreen
         this.parentButtonClickedId = parentButtonClickedIdIn;
     }
 
-    /**
-     * Adds the buttons (and other controls) to the screen in question. Called when the GUI is displayed and when the
-     * window resizes, the buttonList is cleared beforehand.
-     */
     public void initGui()
     {
         this.buttonList.add(new GuiOptionButton(0, this.width / 2 - 155, this.height / 6 + 96, this.confirmButtonText));
@@ -55,17 +48,11 @@ public class GuiYesNo extends GuiScreen
         this.listLines.addAll(this.fontRenderer.listFormattedStringToWidth(this.messageLine2, this.width - 50));
     }
 
-    /**
-     * Called by the controls from the buttonList when activated. (Mouse pressed for buttons)
-     */
     protected void actionPerformed(GuiButton button) throws IOException
     {
         this.parentScreen.confirmClicked(button.id == 0, this.parentButtonClickedId);
     }
 
-    /**
-     * Draws the screen and all the components in it.
-     */
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         this.drawDefaultBackground();
@@ -94,9 +81,6 @@ public class GuiYesNo extends GuiScreen
         }
     }
 
-    /**
-     * Called from the main game loop to update the screen.
-     */
     public void updateScreen()
     {
         super.updateScreen();

@@ -7,7 +7,6 @@ import java.util.Objects;
 
 public class NBTTagString extends NBTBase
 {
-    /** The string value for the tag (cannot be empty). */
     private String data;
 
     public NBTTagString()
@@ -57,10 +56,7 @@ public class NBTTagString extends NBTBase
         return new NBTTagString(this.data);
     }
 
-    /**
-     * Return whether this compound has no tags.
-     */
-    public boolean hasNoTags()
+    public boolean isEmpty()
     {
         return this.data.isEmpty();
     }

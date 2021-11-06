@@ -4,9 +4,9 @@ import net.minecraft.inventory.EntityEquipmentSlot;
 
 public class EnchantmentVanishingCurse extends Enchantment
 {
-    public EnchantmentVanishingCurse(Enchantment.Rarity p_i47252_1_, EntityEquipmentSlot... p_i47252_2_)
+    public EnchantmentVanishingCurse(Enchantment.Rarity rarityIn, EntityEquipmentSlot... slots)
     {
-        super(p_i47252_1_, EnumEnchantmentType.ALL, p_i47252_2_);
+        super(rarityIn, EnumEnchantmentType.ALL, slots);
         this.setName("vanishing_curse");
     }
 
@@ -18,9 +18,6 @@ public class EnchantmentVanishingCurse extends Enchantment
         return 25;
     }
 
-    /**
-     * Returns the maximum value of enchantability nedded on the enchantment level passed.
-     */
     public int getMaxEnchantability(int enchantmentLevel)
     {
         return 50;

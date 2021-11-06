@@ -10,27 +10,13 @@ import net.minecraft.util.ResourceLocation;
 public class GuiButton extends Gui
 {
     protected static final ResourceLocation BUTTON_TEXTURES = new ResourceLocation("textures/gui/widgets.png");
-
-    /** Button width in pixels */
     protected int width;
-
-    /** Button height in pixels */
     protected int height;
-
-    /** The x position of this control. */
     public int x;
-
-    /** The y position of this control. */
     public int y;
-
-    /** The string displayed on this control. */
     public String displayString;
     public int id;
-
-    /** True if this control is enabled, false to disable. */
     public boolean enabled;
-
-    /** Hides the button completely if false. */
     public boolean visible;
     protected boolean hovered;
 
@@ -53,10 +39,6 @@ public class GuiButton extends Gui
         this.displayString = buttonText;
     }
 
-    /**
-     * Returns 0 if the button is disabled, 1 if the mouse is NOT hovering over this button and 2 if it IS hovering over
-     * this button.
-     */
     protected int getHoverState(boolean mouseOver)
     {
         int i = 1;
@@ -73,9 +55,6 @@ public class GuiButton extends Gui
         return i;
     }
 
-    /**
-     * Draws this button to the screen.
-     */
     public void drawButton(Minecraft mc, int mouseX, int mouseY, float partialTicks)
     {
         if (this.visible)
@@ -106,32 +85,19 @@ public class GuiButton extends Gui
         }
     }
 
-    /**
-     * Fired when the mouse button is dragged. Equivalent of MouseListener.mouseDragged(MouseEvent e).
-     */
     protected void mouseDragged(Minecraft mc, int mouseX, int mouseY)
     {
     }
 
-    /**
-     * Fired when the mouse button is released. Equivalent of MouseListener.mouseReleased(MouseEvent e).
-     */
     public void mouseReleased(int mouseX, int mouseY)
     {
     }
 
-    /**
-     * Returns true if the mouse has been pressed on this control. Equivalent of MouseListener.mousePressed(MouseEvent
-     * e).
-     */
     public boolean mousePressed(Minecraft mc, int mouseX, int mouseY)
     {
         return this.enabled && this.visible && mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
     }
 
-    /**
-     * Whether the mouse cursor is currently over the button.
-     */
     public boolean isMouseOver()
     {
         return this.hovered;
@@ -143,7 +109,7 @@ public class GuiButton extends Gui
 
     public void playPressSound(SoundHandler soundHandlerIn)
     {
-        soundHandlerIn.playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+        soundHandlerIn.play(PositionedSoundRecord.master(SoundEvents.UI_BUTTON_CLICK, 1.0F));
     }
 
     public int getButtonWidth()

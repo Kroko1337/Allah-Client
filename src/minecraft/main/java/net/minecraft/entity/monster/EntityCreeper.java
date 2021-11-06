@@ -40,20 +40,9 @@ public class EntityCreeper extends EntityMob
     private static final DataParameter<Integer> STATE = EntityDataManager.<Integer>createKey(EntityCreeper.class, DataSerializers.VARINT);
     private static final DataParameter<Boolean> POWERED = EntityDataManager.<Boolean>createKey(EntityCreeper.class, DataSerializers.BOOLEAN);
     private static final DataParameter<Boolean> IGNITED = EntityDataManager.<Boolean>createKey(EntityCreeper.class, DataSerializers.BOOLEAN);
-
-    /**
-     * Time when this creeper was last in an active state (Messed up code here, probably causes creeper animation to go
-     * weird)
-     */
     private int lastActiveTime;
-
-    /**
-     * The amount of time since the creeper was close enough to the player to ignite
-     */
     private int timeSinceIgnited;
     private int fuseTime = 30;
-
-    /** Explosion radius for this creeper. */
     private int explosionRadius = 3;
     private int droppedSkulls;
 
@@ -63,23 +52,23 @@ public class EntityCreeper extends EntityMob
         this.setSize(0.6F, 1.7F);
     }
 
-    protected void initEntityAI()
+    protected void registerGoals()
     {
-        this.tasks.addTask(1, new EntityAISwimming(this));
-        this.tasks.addTask(2, new EntityAICreeperSwell(this));
-        this.tasks.addTask(3, new EntityAIAvoidEntity(this, EntityOcelot.class, 6.0F, 1.0D, 1.2D));
-        this.tasks.addTask(4, new EntityAIAttackMelee(this, 1.0D, false));
-        this.tasks.addTask(5, new EntityAIWanderAvoidWater(this, 0.8D));
-        this.tasks.addTask(6, new EntityAIWatchClosest(this, EntityPlayer.class, 8.0F));
-        this.tasks.addTask(6, new EntityAILookIdle(this));
-        this.targetTasks.addTask(1, new EntityAINearestAttackableTarget(this, EntityPlayer.class, true));
-        this.targetTasks.addTask(2, new EntityAIHurtByTarget(this, false, new Class[0]));
+        this.goalSelector.addGoal(1, new EntityAISwimming(this));
+        this.goalSelector.addGoal(2, new EntityAICreeperSwell(this));
+        this.goalSelector.addGoal(3, new EntityAIAvoidEntity(this, EntityOcelot.class, 6.0F, 1.0D, 1.2D));
+        this.goalSelector.addGoal(4, new EntityAIAttackMelee(this, 1.0D, false));
+        this.goalSelector.addGoal(5, new EntityAIWanderAvoidWater(this, 0.8D));
+        this.goalSelector.addGoal(6, new EntityAIWatchClosest(this, EntityPlayer.class, 8.0F));
+        this.goalSelector.addGoal(6, new EntityAILookIdle(this));
+        this.targetSelector.addGoal(1, new EntityAINearestAttackableTarget(this, EntityPlayer.class, true));
+        this.targetSelector.addGoal(2, new EntityAIHurtByTarget(this, false, new Class[0]));
     }
 
-    protected void applyEntityAttributes()
+    protected void registerAttributes()
     {
-        super.applyEntityAttributes();
-        this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.25D);
+        super.registerAttributes();
+        this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.25D);
     }
 
     /**
@@ -101,9 +90,9 @@ public class EntityCreeper extends EntityMob
         }
     }
 
-    protected void entityInit()
+    protected void registerData()
     {
-        super.entityInit();
+        super.registerData();
         this.dataManager.register(STATE, Integer.valueOf(-1));
         this.dataManager.register(POWERED, Boolean.valueOf(false));
         this.dataManager.register(IGNITED, Boolean.valueOf(false));
@@ -114,37 +103,34 @@ public class EntityCreeper extends EntityMob
         EntityLiving.registerFixesMob(fixer, EntityCreeper.class);
     }
 
-    /**
-     * (abstract) Protected helper method to write subclass entity data to NBT.
-     */
     public void writeEntityToNBT(NBTTagCompound compound)
     {
         super.writeEntityToNBT(compound);
 
         if (((Boolean)this.dataManager.get(POWERED)).booleanValue())
         {
-            compound.setBoolean("powered", true);
+            compound.putBoolean("powered", true);
         }
 
-        compound.setShort("Fuse", (short)this.fuseTime);
-        compound.setByte("ExplosionRadius", (byte)this.explosionRadius);
-        compound.setBoolean("ignited", this.hasIgnited());
+        compound.putShort("Fuse", (short)this.fuseTime);
+        compound.putByte("ExplosionRadius", (byte)this.explosionRadius);
+        compound.putBoolean("ignited", this.hasIgnited());
     }
 
     /**
      * (abstract) Protected helper method to read subclass entity data from NBT.
      */
-    public void readEntityFromNBT(NBTTagCompound compound)
+    public void readAdditional(NBTTagCompound compound)
     {
-        super.readEntityFromNBT(compound);
+        super.readAdditional(compound);
         this.dataManager.set(POWERED, Boolean.valueOf(compound.getBoolean("powered")));
 
-        if (compound.hasKey("Fuse", 99))
+        if (compound.contains("Fuse", 99))
         {
             this.fuseTime = compound.getShort("Fuse");
         }
 
-        if (compound.hasKey("ExplosionRadius", 99))
+        if (compound.contains("ExplosionRadius", 99))
         {
             this.explosionRadius = compound.getByte("ExplosionRadius");
         }
@@ -158,9 +144,9 @@ public class EntityCreeper extends EntityMob
     /**
      * Called to update the entity's position/logic.
      */
-    public void onUpdate()
+    public void tick()
     {
-        if (this.isEntityAlive())
+        if (this.isAlive())
         {
             this.lastActiveTime = this.timeSinceIgnited;
 
@@ -190,7 +176,7 @@ public class EntityCreeper extends EntityMob
             }
         }
 
-        super.onUpdate();
+        super.tick();
     }
 
     protected SoundEvent getHurtSound(DamageSource damageSourceIn)
@@ -232,9 +218,6 @@ public class EntityCreeper extends EntityMob
         return true;
     }
 
-    /**
-     * Returns true if the creeper is powered by a lightning bolt.
-     */
     public boolean getPowered()
     {
         return ((Boolean)this.dataManager.get(POWERED)).booleanValue();
@@ -243,9 +226,9 @@ public class EntityCreeper extends EntityMob
     /**
      * Params: (Float)Render tick. Returns the intensity of the creeper's flash when it is ignited.
      */
-    public float getCreeperFlashIntensity(float p_70831_1_)
+    public float getCreeperFlashIntensity(float partialTicks)
     {
-        return ((float)this.lastActiveTime + (float)(this.timeSinceIgnited - this.lastActiveTime) * p_70831_1_) / (float)(this.fuseTime - 2);
+        return ((float)this.lastActiveTime + (float)(this.timeSinceIgnited - this.lastActiveTime) * partialTicks) / (float)(this.fuseTime - 2);
     }
 
     @Nullable
@@ -310,7 +293,7 @@ public class EntityCreeper extends EntityMob
             float f = this.getPowered() ? 2.0F : 1.0F;
             this.dead = true;
             this.world.createExplosion(this, this.posX, this.posY, this.posZ, (float)this.explosionRadius * f, flag);
-            this.setDead();
+            this.remove();
             this.spawnLingeringCloud();
         }
     }
@@ -333,7 +316,7 @@ public class EntityCreeper extends EntityMob
                 entityareaeffectcloud.addEffect(new PotionEffect(potioneffect));
             }
 
-            this.world.spawnEntity(entityareaeffectcloud);
+            this.world.addEntity0(entityareaeffectcloud);
         }
     }
 

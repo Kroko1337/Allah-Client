@@ -76,7 +76,7 @@ public class AdvancementRewards
 
         if (flag)
         {
-            player.inventoryContainer.detectAndSendChanges();
+            player.container.detectAndSendChanges();
         }
 
         if (this.recipes.length > 0)
@@ -84,7 +84,7 @@ public class AdvancementRewards
             player.unlockRecipes(this.recipes);
         }
 
-        final MinecraftServer minecraftserver = player.mcServer;
+        final MinecraftServer minecraftserver = player.server;
         FunctionObject functionobject = this.function.get(minecraftserver.getFunctionManager());
 
         if (functionobject != null)

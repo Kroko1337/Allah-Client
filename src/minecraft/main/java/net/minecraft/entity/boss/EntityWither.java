@@ -61,8 +61,6 @@ public class EntityWither extends EntityMob implements IRangedAttackMob
     private final float[] yRotOHeads = new float[2];
     private final int[] nextHeadUpdate = new int[2];
     private final int[] idleHeadUpdates = new int[2];
-
-    /** Time before the Wither tries to break blocks */
     private int blockBreakCounter;
     private final BossInfoServer bossInfo = (BossInfoServer)(new BossInfoServer(this.getDisplayName(), BossInfo.Color.PURPLE, BossInfo.Overlay.PROGRESS)).setDarkenSky(true);
     private static final Predicate<Entity> NOT_UNDEAD = new Predicate<Entity>()
@@ -83,21 +81,21 @@ public class EntityWither extends EntityMob implements IRangedAttackMob
         this.experienceValue = 50;
     }
 
-    protected void initEntityAI()
+    protected void registerGoals()
     {
-        this.tasks.addTask(0, new EntityWither.AIDoNothing());
-        this.tasks.addTask(1, new EntityAISwimming(this));
-        this.tasks.addTask(2, new EntityAIAttackRanged(this, 1.0D, 40, 20.0F));
-        this.tasks.addTask(5, new EntityAIWanderAvoidWater(this, 1.0D));
-        this.tasks.addTask(6, new EntityAIWatchClosest(this, EntityPlayer.class, 8.0F));
-        this.tasks.addTask(7, new EntityAILookIdle(this));
-        this.targetTasks.addTask(1, new EntityAIHurtByTarget(this, false, new Class[0]));
-        this.targetTasks.addTask(2, new EntityAINearestAttackableTarget(this, EntityLiving.class, 0, false, false, NOT_UNDEAD));
+        this.goalSelector.addGoal(0, new EntityWither.AIDoNothing());
+        this.goalSelector.addGoal(1, new EntityAISwimming(this));
+        this.goalSelector.addGoal(2, new EntityAIAttackRanged(this, 1.0D, 40, 20.0F));
+        this.goalSelector.addGoal(5, new EntityAIWanderAvoidWater(this, 1.0D));
+        this.goalSelector.addGoal(6, new EntityAIWatchClosest(this, EntityPlayer.class, 8.0F));
+        this.goalSelector.addGoal(7, new EntityAILookIdle(this));
+        this.targetSelector.addGoal(1, new EntityAIHurtByTarget(this, false, new Class[0]));
+        this.targetSelector.addGoal(2, new EntityAINearestAttackableTarget(this, EntityLiving.class, 0, false, false, NOT_UNDEAD));
     }
 
-    protected void entityInit()
+    protected void registerData()
     {
-        super.entityInit();
+        super.registerData();
         this.dataManager.register(FIRST_HEAD_TARGET, Integer.valueOf(0));
         this.dataManager.register(SECOND_HEAD_TARGET, Integer.valueOf(0));
         this.dataManager.register(THIRD_HEAD_TARGET, Integer.valueOf(0));
@@ -109,22 +107,19 @@ public class EntityWither extends EntityMob implements IRangedAttackMob
         EntityLiving.registerFixesMob(fixer, EntityWither.class);
     }
 
-    /**
-     * (abstract) Protected helper method to write subclass entity data to NBT.
-     */
     public void writeEntityToNBT(NBTTagCompound compound)
     {
         super.writeEntityToNBT(compound);
-        compound.setInteger("Invul", this.getInvulTime());
+        compound.putInt("Invul", this.getInvulTime());
     }
 
     /**
      * (abstract) Protected helper method to read subclass entity data from NBT.
      */
-    public void readEntityFromNBT(NBTTagCompound compound)
+    public void readAdditional(NBTTagCompound compound)
     {
-        super.readEntityFromNBT(compound);
-        this.setInvulTime(compound.getInteger("Invul"));
+        super.readAdditional(compound);
+        this.setInvulTime(compound.getInt("Invul"));
 
         if (this.hasCustomName())
         {
@@ -132,9 +127,6 @@ public class EntityWither extends EntityMob implements IRangedAttackMob
         }
     }
 
-    /**
-     * Sets the custom name tag for this entity
-     */
     public void setCustomNameTag(String name)
     {
         super.setCustomNameTag(name);
@@ -160,7 +152,7 @@ public class EntityWither extends EntityMob implements IRangedAttackMob
      * Called frequently so the entity can update its state every tick as required. For example, zombies and skeletons
      * use this to react to sunlight and start to burn.
      */
-    public void onLivingUpdate()
+    public void livingTick()
     {
         this.motionY *= 0.6000000238418579D;
 
@@ -198,7 +190,7 @@ public class EntityWither extends EntityMob implements IRangedAttackMob
             this.rotationYaw = (float)MathHelper.atan2(this.motionZ, this.motionX) * (180F / (float)Math.PI) - 90.0F;
         }
 
-        super.onLivingUpdate();
+        super.livingTick();
 
         for (int i = 0; i < 2; ++i)
         {
@@ -313,9 +305,9 @@ public class EntityWither extends EntityMob implements IRangedAttackMob
                     {
                         Entity entity = this.world.getEntityByID(k1);
 
-                        if (entity != null && entity.isEntityAlive() && this.getDistanceSqToEntity(entity) <= 900.0D && this.canEntityBeSeen(entity))
+                        if (entity != null && entity.isAlive() && this.getDistanceSq(entity) <= 900.0D && this.canEntityBeSeen(entity))
                         {
-                            if (entity instanceof EntityPlayer && ((EntityPlayer)entity).capabilities.disableDamage)
+                            if (entity instanceof EntityPlayer && ((EntityPlayer)entity).abilities.disableDamage)
                             {
                                 this.updateWatchedTargetId(i, 0);
                             }
@@ -333,17 +325,17 @@ public class EntityWither extends EntityMob implements IRangedAttackMob
                     }
                     else
                     {
-                        List<EntityLivingBase> list = this.world.<EntityLivingBase>getEntitiesWithinAABB(EntityLivingBase.class, this.getEntityBoundingBox().grow(20.0D, 8.0D, 20.0D), Predicates.and(NOT_UNDEAD, EntitySelectors.NOT_SPECTATING));
+                        List<EntityLivingBase> list = this.world.<EntityLivingBase>getEntitiesWithinAABB(EntityLivingBase.class, this.getBoundingBox().grow(20.0D, 8.0D, 20.0D), Predicates.and(NOT_UNDEAD, EntitySelectors.NOT_SPECTATING));
 
                         for (int j2 = 0; j2 < 10 && !list.isEmpty(); ++j2)
                         {
                             EntityLivingBase entitylivingbase = list.get(this.rand.nextInt(list.size()));
 
-                            if (entitylivingbase != this && entitylivingbase.isEntityAlive() && this.canEntityBeSeen(entitylivingbase))
+                            if (entitylivingbase != this && entitylivingbase.isAlive() && this.canEntityBeSeen(entitylivingbase))
                             {
                                 if (entitylivingbase instanceof EntityPlayer)
                                 {
-                                    if (!((EntityPlayer)entitylivingbase).capabilities.disableDamage)
+                                    if (!((EntityPlayer)entitylivingbase).abilities.disableDamage)
                                     {
                                         this.updateWatchedTargetId(i, entitylivingbase.getEntityId());
                                     }
@@ -433,9 +425,6 @@ public class EntityWither extends EntityMob implements IRangedAttackMob
         this.setHealth(this.getMaxHealth() / 3.0F);
     }
 
-    /**
-     * Sets the Entity inside a web block.
-     */
     public void setInWeb()
     {
     }
@@ -531,13 +520,13 @@ public class EntityWither extends EntityMob implements IRangedAttackMob
 
         if (invulnerable)
         {
-            entitywitherskull.setInvulnerable(true);
+            entitywitherskull.setSkullInvulnerable(true);
         }
 
         entitywitherskull.posY = d1;
         entitywitherskull.posX = d0;
         entitywitherskull.posZ = d2;
-        this.world.spawnEntity(entitywitherskull);
+        this.world.addEntity0(entitywitherskull);
     }
 
     /**
@@ -553,7 +542,7 @@ public class EntityWither extends EntityMob implements IRangedAttackMob
      */
     public boolean attackEntityFrom(DamageSource source, float amount)
     {
-        if (this.isEntityInvulnerable(source))
+        if (this.isInvulnerableTo(source))
         {
             return false;
         }
@@ -603,9 +592,6 @@ public class EntityWither extends EntityMob implements IRangedAttackMob
         }
     }
 
-    /**
-     * Drop 0-2 items of this living's type
-     */
     protected void dropFewItems(boolean wasRecentlyHit, int lootingModifier)
     {
         EntityItem entityitem = this.dropItem(Items.NETHER_STAR, 1);
@@ -619,7 +605,7 @@ public class EntityWither extends EntityMob implements IRangedAttackMob
     /**
      * Makes the entity despawn if requirements are reached
      */
-    protected void despawnEntity()
+    protected void checkDespawn()
     {
         this.idleTime = 0;
     }
@@ -633,20 +619,17 @@ public class EntityWither extends EntityMob implements IRangedAttackMob
     {
     }
 
-    /**
-     * adds a PotionEffect to the entity
-     */
     public void addPotionEffect(PotionEffect potioneffectIn)
     {
     }
 
-    protected void applyEntityAttributes()
+    protected void registerAttributes()
     {
-        super.applyEntityAttributes();
-        this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(300.0D);
-        this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.6000000238418579D);
-        this.getEntityAttribute(SharedMonsterAttributes.FOLLOW_RANGE).setBaseValue(40.0D);
-        this.getEntityAttribute(SharedMonsterAttributes.ARMOR).setBaseValue(4.0D);
+        super.registerAttributes();
+        this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(300.0D);
+        this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.6000000238418579D);
+        this.getAttribute(SharedMonsterAttributes.FOLLOW_RANGE).setBaseValue(40.0D);
+        this.getAttribute(SharedMonsterAttributes.ARMOR).setBaseValue(4.0D);
     }
 
     public float getHeadYRotation(int p_82207_1_)
@@ -685,18 +668,11 @@ public class EntityWither extends EntityMob implements IRangedAttackMob
         this.dataManager.set(HEAD_TARGETS[targetOffset], Integer.valueOf(newId));
     }
 
-    /**
-     * Returns whether the wither is armored with its boss armor or not by checking whether its health is below half of
-     * its maximum.
-     */
     public boolean isArmored()
     {
         return this.getHealth() <= this.getMaxHealth() / 2.0F;
     }
 
-    /**
-     * Get this Entity's EnumCreatureAttribute
-     */
     public EnumCreatureAttribute getCreatureAttribute()
     {
         return EnumCreatureAttribute.UNDEAD;

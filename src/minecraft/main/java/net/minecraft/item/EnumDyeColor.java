@@ -27,7 +27,7 @@ public enum EnumDyeColor implements IStringSerializable
     private final int meta;
     private final int dyeDamage;
     private final String name;
-    private final String unlocalizedName;
+    private final String translationKey;
     private final int colorValue;
     private final float[] colorComponentValues;
     private final TextFormatting chatColor;
@@ -37,7 +37,7 @@ public enum EnumDyeColor implements IStringSerializable
         this.meta = metaIn;
         this.dyeDamage = dyeDamageIn;
         this.name = nameIn;
-        this.unlocalizedName = unlocalizedNameIn;
+        this.translationKey = unlocalizedNameIn;
         this.colorValue = colorValueIn;
         this.chatColor = chatColorIn;
         int i = (colorValueIn & 16711680) >> 16;
@@ -61,9 +61,9 @@ public enum EnumDyeColor implements IStringSerializable
         return this.name;
     }
 
-    public String getUnlocalizedName()
+    public String getTranslationKey()
     {
-        return this.unlocalizedName;
+        return this.translationKey;
     }
 
     public int getColorValue()
@@ -71,6 +71,10 @@ public enum EnumDyeColor implements IStringSerializable
         return this.colorValue;
     }
 
+    /**
+     * Gets an array containing 3 floats ranging from 0.0 to 1.0: the red, green, and blue components of the
+     * corresponding color.
+     */
     public float[] getColorComponentValues()
     {
         return this.colorComponentValues;
@@ -98,7 +102,7 @@ public enum EnumDyeColor implements IStringSerializable
 
     public String toString()
     {
-        return this.unlocalizedName;
+        return this.translationKey;
     }
 
     public String getName()

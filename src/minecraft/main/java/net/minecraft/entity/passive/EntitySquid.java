@@ -21,23 +21,11 @@ public class EntitySquid extends EntityWaterMob
     public float prevSquidPitch;
     public float squidYaw;
     public float prevSquidYaw;
-
-    /**
-     * appears to be rotation in radians; we already have pitch & yaw, so this completes the triumvirate.
-     */
     public float squidRotation;
-
-    /** previous squidRotation in radians */
     public float prevSquidRotation;
-
-    /** angle of the tentacles in radians */
     public float tentacleAngle;
-
-    /** the last calculated angle of the tentacles in radians */
     public float lastTentacleAngle;
     private float randomMotionSpeed;
-
-    /** change in squidRotation in radians. */
     private float rotationVelocity;
     private float rotateSpeed;
     private float randomMotionVecX;
@@ -57,15 +45,15 @@ public class EntitySquid extends EntityWaterMob
         EntityLiving.registerFixesMob(fixer, EntitySquid.class);
     }
 
-    protected void initEntityAI()
+    protected void registerGoals()
     {
-        this.tasks.addTask(0, new EntitySquid.AIMoveRandom(this));
+        this.goalSelector.addGoal(0, new EntitySquid.AIMoveRandom(this));
     }
 
-    protected void applyEntityAttributes()
+    protected void registerAttributes()
     {
-        super.applyEntityAttributes();
-        this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(10.0D);
+        super.registerAttributes();
+        this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(10.0D);
     }
 
     public float getEyeHeight()
@@ -96,10 +84,6 @@ public class EntitySquid extends EntityWaterMob
         return 0.4F;
     }
 
-    /**
-     * returns if this entity triggers Block.onEntityWalking on the blocks they walk on. used for spiders and wolves to
-     * prevent them from trampling crops
-     */
     protected boolean canTriggerWalking()
     {
         return false;
@@ -115,9 +99,9 @@ public class EntitySquid extends EntityWaterMob
      * Called frequently so the entity can update its state every tick as required. For example, zombies and skeletons
      * use this to react to sunlight and start to burn.
      */
-    public void onLivingUpdate()
+    public void livingTick()
     {
-        super.onLivingUpdate();
+        super.livingTick();
         this.prevSquidPitch = this.squidPitch;
         this.prevSquidYaw = this.squidYaw;
         this.prevSquidRotation = this.squidRotation;
@@ -205,14 +189,11 @@ public class EntitySquid extends EntityWaterMob
         }
     }
 
-    public void travel(float p_191986_1_, float p_191986_2_, float p_191986_3_)
+    public void travel(float strafe, float vertical, float forward)
     {
         this.move(MoverType.SELF, this.motionX, this.motionY, this.motionZ);
     }
 
-    /**
-     * Checks if the entity's current position is a valid location to spawn this entity.
-     */
     public boolean getCanSpawnHere()
     {
         return this.posY > 45.0D && this.posY < (double)this.world.getSeaLevel() && super.getCanSpawnHere();
@@ -259,7 +240,7 @@ public class EntitySquid extends EntityWaterMob
             return true;
         }
 
-        public void updateTask()
+        public void tick()
         {
             int i = this.squid.getIdleTime();
 

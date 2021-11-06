@@ -22,11 +22,11 @@ public class BlockRendererDispatcher implements IResourceManagerReloadListener
     private final ChestRenderer chestRenderer = new ChestRenderer();
     private final BlockFluidRenderer fluidRenderer;
 
-    public BlockRendererDispatcher(BlockModelShapes p_i46577_1_, BlockColors p_i46577_2_)
+    public BlockRendererDispatcher(BlockModelShapes shapes, BlockColors colors)
     {
-        this.blockModelShapes = p_i46577_1_;
-        this.blockModelRenderer = new BlockModelRenderer(p_i46577_2_);
-        this.fluidRenderer = new BlockFluidRenderer(p_i46577_2_);
+        this.blockModelShapes = shapes;
+        this.blockModelRenderer = new BlockModelRenderer(colors);
+        this.fluidRenderer = new BlockFluidRenderer(colors);
     }
 
     public BlockModelShapes getBlockModelShapes()
@@ -39,13 +39,13 @@ public class BlockRendererDispatcher implements IResourceManagerReloadListener
         if (state.getRenderType() == EnumBlockRenderType.MODEL)
         {
             state = state.getActualState(blockAccess, pos);
-            IBakedModel ibakedmodel = this.blockModelShapes.getModelForState(state);
-            IBakedModel ibakedmodel1 = (new SimpleBakedModel.Builder(state, ibakedmodel, texture, pos)).makeBakedModel();
+            IBakedModel ibakedmodel = this.blockModelShapes.getModel(state);
+            IBakedModel ibakedmodel1 = (new SimpleBakedModel.Builder(state, ibakedmodel, texture, pos)).build();
             this.blockModelRenderer.renderModel(blockAccess, ibakedmodel1, state, pos, Tessellator.getInstance().getBuffer(), true);
         }
     }
 
-    public boolean renderBlock(IBlockState state, BlockPos pos, IBlockAccess blockAccess, BufferBuilder worldRendererIn)
+    public boolean renderBlock(IBlockState state, BlockPos pos, IBlockAccess blockAccess, BufferBuilder bufferBuilderIn)
     {
         try
         {
@@ -72,13 +72,13 @@ public class BlockRendererDispatcher implements IResourceManagerReloadListener
                 switch (enumblockrendertype)
                 {
                     case MODEL:
-                        return this.blockModelRenderer.renderModel(blockAccess, this.getModelForState(state), state, pos, worldRendererIn, true);
+                        return this.blockModelRenderer.renderModel(blockAccess, this.getModelForState(state), state, pos, bufferBuilderIn, true);
 
                     case ENTITYBLOCK_ANIMATED:
                         return false;
 
                     case LIQUID:
-                        return this.fluidRenderer.renderFluid(blockAccess, state, pos, worldRendererIn);
+                        return this.fluidRenderer.renderFluid(blockAccess, state, pos, bufferBuilderIn);
 
                     default:
                         return false;
@@ -101,7 +101,7 @@ public class BlockRendererDispatcher implements IResourceManagerReloadListener
 
     public IBakedModel getModelForState(IBlockState state)
     {
-        return this.blockModelShapes.getModelForState(state);
+        return this.blockModelShapes.getModel(state);
     }
 
     @SuppressWarnings("incomplete-switch")

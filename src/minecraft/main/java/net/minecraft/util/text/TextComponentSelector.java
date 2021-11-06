@@ -33,14 +33,14 @@ public class TextComponentSelector extends TextComponentBase
     /**
      * Creates a copy of this component.  Almost a deep copy, except the style is shallow-copied.
      */
-    public TextComponentSelector createCopy()
+    public TextComponentSelector shallowCopy()
     {
         TextComponentSelector textcomponentselector = new TextComponentSelector(this.selector);
         textcomponentselector.setStyle(this.getStyle().createShallowCopy());
 
         for (ITextComponent itextcomponent : this.getSiblings())
         {
-            textcomponentselector.appendSibling(itextcomponent.createCopy());
+            textcomponentselector.appendSibling(itextcomponent.shallowCopy());
         }
 
         return textcomponentselector;

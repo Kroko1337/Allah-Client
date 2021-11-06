@@ -25,14 +25,14 @@ import org.apache.logging.log4j.Logger;
 public class StatisticsManagerServer extends StatisticsManager
 {
     private static final Logger LOGGER = LogManager.getLogger();
-    private final MinecraftServer mcServer;
+    private final MinecraftServer server;
     private final File statsFile;
     private final Set<StatBase> dirty = Sets.<StatBase>newHashSet();
     private int lastStatRequest = -300;
 
     public StatisticsManagerServer(MinecraftServer serverIn, File statsFileIn)
     {
-        this.mcServer = serverIn;
+        this.server = serverIn;
         this.statsFile = statsFileIn;
     }
 
@@ -71,9 +71,9 @@ public class StatisticsManagerServer extends StatisticsManager
     /**
      * Triggers the logging of an achievement and attempts to announce to server
      */
-    public void unlockAchievement(EntityPlayer playerIn, StatBase statIn, int p_150873_3_)
+    public void setValue(EntityPlayer playerIn, StatBase statIn, int p_150873_3_)
     {
-        super.unlockAchievement(playerIn, statIn, p_150873_3_);
+        super.setValue(playerIn, statIn, p_150873_3_);
         this.dirty.add(statIn);
     }
 
@@ -184,7 +184,7 @@ public class StatisticsManagerServer extends StatisticsManager
 
     public void sendStats(EntityPlayerMP player)
     {
-        int i = this.mcServer.getTickCounter();
+        int i = this.server.getTickCounter();
         Map<StatBase, Integer> map = Maps.<StatBase, Integer>newHashMap();
 
         if (i - this.lastStatRequest > 300)
@@ -193,7 +193,7 @@ public class StatisticsManagerServer extends StatisticsManager
 
             for (StatBase statbase : this.getDirty())
             {
-                map.put(statbase, Integer.valueOf(this.readStat(statbase)));
+                map.put(statbase, Integer.valueOf(this.getValue(statbase)));
             }
         }
 

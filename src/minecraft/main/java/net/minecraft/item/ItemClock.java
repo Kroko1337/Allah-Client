@@ -34,7 +34,7 @@ public class ItemClock extends Item
                 {
                     double d0;
 
-                    if (worldIn.provider.isSurfaceWorld())
+                    if (worldIn.dimension.isSurfaceWorld())
                     {
                         d0 = (double)worldIn.getCelestialAngle(1.0F);
                     }
@@ -49,9 +49,9 @@ public class ItemClock extends Item
             }
             private double wobble(World p_185087_1_, double p_185087_2_)
             {
-                if (p_185087_1_.getTotalWorldTime() != this.lastUpdateTick)
+                if (p_185087_1_.getGameTime() != this.lastUpdateTick)
                 {
-                    this.lastUpdateTick = p_185087_1_.getTotalWorldTime();
+                    this.lastUpdateTick = p_185087_1_.getGameTime();
                     double d0 = p_185087_2_ - this.rotation;
                     d0 = MathHelper.positiveModulo(d0 + 0.5D, 1.0D) - 0.5D;
                     this.rota += d0 * 0.1D;

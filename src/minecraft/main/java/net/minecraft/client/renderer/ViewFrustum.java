@@ -142,11 +142,11 @@ public class ViewFrustum
     }
 
     @Nullable
-    public RenderChunk getRenderChunk(BlockPos pos)
+    protected RenderChunk getRenderChunk(BlockPos pos)
     {
-        int i = pos.getX() >> 4;
-        int j = pos.getY() >> 4;
-        int k = pos.getZ() >> 4;
+        int i = MathHelper.intFloorDiv(pos.getX(), 16);
+        int j = MathHelper.intFloorDiv(pos.getY(), 16);
+        int k = MathHelper.intFloorDiv(pos.getZ(), 16);
 
         if (j >= 0 && j < this.countChunksY)
         {

@@ -2,10 +2,6 @@ package net.minecraft.world.chunk;
 
 public class NibbleArray
 {
-    /**
-     * Byte array of data stored in this holder. Possibly a light map or some chunk data. Data is accessed in 4-bit
-     * pieces.
-     */
     private final byte[] data;
 
     public NibbleArray()

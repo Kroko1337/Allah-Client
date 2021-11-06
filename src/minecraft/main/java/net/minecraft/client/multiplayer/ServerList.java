@@ -13,8 +13,6 @@ import org.apache.logging.log4j.Logger;
 public class ServerList
 {
     private static final Logger LOGGER = LogManager.getLogger();
-
-    /** The Minecraft instance. */
     private final Minecraft mc;
     private final List<ServerData> servers = Lists.<ServerData>newArrayList();
 
@@ -33,18 +31,18 @@ public class ServerList
         try
         {
             this.servers.clear();
-            NBTTagCompound nbttagcompound = CompressedStreamTools.read(new File(this.mc.mcDataDir, "servers.dat"));
+            NBTTagCompound nbttagcompound = CompressedStreamTools.read(new File(this.mc.gameDir, "servers.dat"));
 
             if (nbttagcompound == null)
             {
                 return;
             }
 
-            NBTTagList nbttaglist = nbttagcompound.getTagList("servers", 10);
+            NBTTagList nbttaglist = nbttagcompound.getList("servers", 10);
 
             for (int i = 0; i < nbttaglist.tagCount(); ++i)
             {
-                this.servers.add(ServerData.getServerDataFromNBTCompound(nbttaglist.getCompoundTagAt(i)));
+                this.servers.add(ServerData.getServerDataFromNBTCompound(nbttaglist.getCompound(i)));
             }
         }
         catch (Exception exception)
@@ -70,7 +68,7 @@ public class ServerList
 
             NBTTagCompound nbttagcompound = new NBTTagCompound();
             nbttagcompound.setTag("servers", nbttaglist);
-            CompressedStreamTools.safeWrite(nbttagcompound, new File(this.mc.mcDataDir, "servers.dat"));
+            CompressedStreamTools.safeWrite(nbttagcompound, new File(this.mc.gameDir, "servers.dat"));
         }
         catch (Exception exception)
         {
@@ -86,9 +84,6 @@ public class ServerList
         return this.servers.get(index);
     }
 
-    /**
-     * Removes the ServerData instance stored for the given index in the list.
-     */
     public void removeServerData(int index)
     {
         this.servers.remove(index);
@@ -128,7 +123,7 @@ public class ServerList
 
     public static void saveSingleServer(ServerData server)
     {
-        ServerList serverlist = new ServerList(Minecraft.getMinecraft());
+        ServerList serverlist = new ServerList(Minecraft.getInstance());
         serverlist.loadServerList();
 
         for (int i = 0; i < serverlist.countServers(); ++i)

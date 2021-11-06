@@ -19,7 +19,7 @@ public class BiomeMesa extends Biome
 {
     protected static final IBlockState COARSE_DIRT = Blocks.DIRT.getDefaultState().withProperty(BlockDirt.VARIANT, BlockDirt.DirtType.COARSE_DIRT);
     protected static final IBlockState GRASS = Blocks.GRASS.getDefaultState();
-    protected static final IBlockState HARDENED_CLAY = Blocks.HARDENED_CLAY.getDefaultState();
+    protected static final IBlockState HARDENED_CLAY = Blocks.TERRACOTTA.getDefaultState();
     protected static final IBlockState STAINED_HARDENED_CLAY = Blocks.STAINED_HARDENED_CLAY.getDefaultState();
     protected static final IBlockState ORANGE_STAINED_HARDENED_CLAY = STAINED_HARDENED_CLAY.withProperty(BlockColored.COLOR, EnumDyeColor.ORANGE);
     protected static final IBlockState RED_SAND = Blocks.SAND.getDefaultState().withProperty(BlockSand.VARIANT, BlockSand.EnumType.RED_SAND);
@@ -52,9 +52,6 @@ public class BiomeMesa extends Biome
         }
     }
 
-    /**
-     * Allocate a new BiomeDecorator for this BiomeGenBase
-     */
     protected BiomeDecorator createBiomeDecorator()
     {
         return new BiomeMesa.Decorator();

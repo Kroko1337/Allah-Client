@@ -14,15 +14,12 @@ public class BlockGlass extends BlockBreakable
         this.setCreativeTab(CreativeTabs.BUILDING_BLOCKS);
     }
 
-    /**
-     * Returns the quantity of items to drop on block destruction.
-     */
     public int quantityDropped(Random random)
     {
         return 0;
     }
 
-    public BlockRenderLayer getBlockLayer()
+    public BlockRenderLayer getRenderLayer()
     {
         return BlockRenderLayer.CUTOUT;
     }

@@ -31,7 +31,7 @@ public class RenderSkeleton extends RenderBiped<AbstractSkeleton>
     }
 
     /**
-     * Returns the location of an entity's texture. Doesn't seem to be called unless you call Render.bindEntityTexture.
+     * Returns the location of an entity's texture.
      */
     protected ResourceLocation getEntityTexture(AbstractSkeleton entity)
     {

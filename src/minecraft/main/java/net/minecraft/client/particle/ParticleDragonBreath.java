@@ -21,23 +21,23 @@ public class ParticleDragonBreath extends Particle
         this.particleBlue = MathHelper.nextFloat(this.rand, 0.8235294F, 0.9764706F);
         this.particleScale *= 0.75F;
         this.oSize = this.particleScale;
-        this.particleMaxAge = (int)(20.0D / ((double)this.rand.nextFloat() * 0.8D + 0.2D));
+        this.maxAge = (int)(20.0D / ((double)this.rand.nextFloat() * 0.8D + 0.2D));
         this.hasHitGround = false;
     }
 
-    public void onUpdate()
+    public void tick()
     {
         this.prevPosX = this.posX;
         this.prevPosY = this.posY;
         this.prevPosZ = this.posZ;
 
-        if (this.particleAge++ >= this.particleMaxAge)
+        if (this.age++ >= this.maxAge)
         {
             this.setExpired();
         }
         else
         {
-            this.setParticleTextureIndex(3 * this.particleAge / this.particleMaxAge + 5);
+            this.setParticleTextureIndex(3 * this.age / this.maxAge + 5);
 
             if (this.onGround)
             {
@@ -68,12 +68,9 @@ public class ParticleDragonBreath extends Particle
         }
     }
 
-    /**
-     * Renders the particle
-     */
     public void renderParticle(BufferBuilder buffer, Entity entityIn, float partialTicks, float rotationX, float rotationZ, float rotationYZ, float rotationXY, float rotationXZ)
     {
-        this.particleScale = this.oSize * MathHelper.clamp(((float)this.particleAge + partialTicks) / (float)this.particleMaxAge * 32.0F, 0.0F, 1.0F);
+        this.particleScale = this.oSize * MathHelper.clamp(((float)this.age + partialTicks) / (float)this.maxAge * 32.0F, 0.0F, 1.0F);
         super.renderParticle(buffer, entityIn, partialTicks, rotationX, rotationZ, rotationYZ, rotationXY, rotationXZ);
     }
 

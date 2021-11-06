@@ -29,7 +29,7 @@ public class RecipeList
     {
         for (int i = 0; i < this.recipes.size(); ++i)
         {
-            this.inBook.set(i, book.containsRecipe(this.recipes.get(i)));
+            this.inBook.set(i, book.isUnlocked(this.recipes.get(i)));
         }
     }
 
@@ -38,7 +38,7 @@ public class RecipeList
         for (int i = 0; i < this.recipes.size(); ++i)
         {
             IRecipe irecipe = this.recipes.get(i);
-            boolean flag = irecipe.canFit(width, height) && book.containsRecipe(irecipe);
+            boolean flag = irecipe.canFit(width, height) && book.isUnlocked(irecipe);
             this.canFit.set(i, flag);
             this.craftable.set(i, flag && handler.canCraft(irecipe, (IntList)null));
         }
@@ -64,13 +64,13 @@ public class RecipeList
         return this.recipes;
     }
 
-    public List<IRecipe> getRecipes(boolean p_194208_1_)
+    public List<IRecipe> getRecipes(boolean onlyCraftable)
     {
         List<IRecipe> list = Lists.<IRecipe>newArrayList();
 
         for (int i = this.inBook.nextSetBit(0); i >= 0; i = this.inBook.nextSetBit(i + 1))
         {
-            if ((p_194208_1_ ? this.craftable : this.canFit).get(i))
+            if ((onlyCraftable ? this.craftable : this.canFit).get(i))
             {
                 list.add(this.recipes.get(i));
             }

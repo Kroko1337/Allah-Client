@@ -12,7 +12,7 @@ public class MapColor
     public static final MapColor AIR = new MapColor(0, 0);
     public static final MapColor GRASS = new MapColor(1, 8368696);
     public static final MapColor SAND = new MapColor(2, 16247203);
-    public static final MapColor CLOTH = new MapColor(3, 13092807);
+    public static final MapColor WOOL = new MapColor(3, 13092807);
     public static final MapColor TNT = new MapColor(4, 16711680);
     public static final MapColor ICE = new MapColor(5, 10526975);
     public static final MapColor IRON = new MapColor(6, 10987431);
@@ -45,27 +45,23 @@ public class MapColor
     public static final MapColor EMERALD = new MapColor(33, 55610);
     public static final MapColor OBSIDIAN = new MapColor(34, 8476209);
     public static final MapColor NETHERRACK = new MapColor(35, 7340544);
-    public static final MapColor WHITE_STAINED_HARDENED_CLAY = new MapColor(36, 13742497);
-    public static final MapColor ORANGE_STAINED_HARDENED_CLAY = new MapColor(37, 10441252);
-    public static final MapColor MAGENTA_STAINED_HARDENED_CLAY = new MapColor(38, 9787244);
-    public static final MapColor LIGHT_BLUE_STAINED_HARDENED_CLAY = new MapColor(39, 7367818);
-    public static final MapColor YELLOW_STAINED_HARDENED_CLAY = new MapColor(40, 12223780);
-    public static final MapColor LIME_STAINED_HARDENED_CLAY = new MapColor(41, 6780213);
-    public static final MapColor PINK_STAINED_HARDENED_CLAY = new MapColor(42, 10505550);
-    public static final MapColor GRAY_STAINED_HARDENED_CLAY = new MapColor(43, 3746083);
+    public static final MapColor WHITE_TERRACOTTA = new MapColor(36, 13742497);
+    public static final MapColor ORANGE_TERRACOTTA = new MapColor(37, 10441252);
+    public static final MapColor MAGENTA_TERRACOTTA = new MapColor(38, 9787244);
+    public static final MapColor LIGHT_BLUE_TERRACOTTA = new MapColor(39, 7367818);
+    public static final MapColor YELLOW_TERRACOTTA = new MapColor(40, 12223780);
+    public static final MapColor LIME_TERRACOTTA = new MapColor(41, 6780213);
+    public static final MapColor PINK_TERRACOTTA = new MapColor(42, 10505550);
+    public static final MapColor GRAY_TERRACOTTA = new MapColor(43, 3746083);
     public static final MapColor SILVER_STAINED_HARDENED_CLAY = new MapColor(44, 8874850);
-    public static final MapColor CYAN_STAINED_HARDENED_CLAY = new MapColor(45, 5725276);
-    public static final MapColor PURPLE_STAINED_HARDENED_CLAY = new MapColor(46, 8014168);
-    public static final MapColor BLUE_STAINED_HARDENED_CLAY = new MapColor(47, 4996700);
-    public static final MapColor BROWN_STAINED_HARDENED_CLAY = new MapColor(48, 4993571);
-    public static final MapColor GREEN_STAINED_HARDENED_CLAY = new MapColor(49, 5001770);
-    public static final MapColor RED_STAINED_HARDENED_CLAY = new MapColor(50, 9321518);
-    public static final MapColor BLACK_STAINED_HARDENED_CLAY = new MapColor(51, 2430480);
-
-    /** Holds the color in RGB value that will be rendered on maps. */
-    public int colorValue;
-
-    /** Holds the index of the color used on map. */
+    public static final MapColor CYAN_TERRACOTTA = new MapColor(45, 5725276);
+    public static final MapColor PURPLE_TERRACOTTA = new MapColor(46, 8014168);
+    public static final MapColor BLUE_TERRACOTTA = new MapColor(47, 4996700);
+    public static final MapColor BROWN_TERRACOTTA = new MapColor(48, 4993571);
+    public static final MapColor GREEN_TERRACOTTA = new MapColor(49, 5001770);
+    public static final MapColor RED_TERRACOTTA = new MapColor(50, 9321518);
+    public static final MapColor BLACK_TERRACOTTA = new MapColor(51, 2430480);
+    public final int colorValue;
     public final int colorIndex;
 
     private MapColor(int index, int color)

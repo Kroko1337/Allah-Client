@@ -30,11 +30,11 @@ public enum TutorialSteps
         return this.name;
     }
 
-    public static TutorialSteps getTutorial(String tutorialName)
+    public static TutorialSteps byName(String name)
     {
         for (TutorialSteps tutorialsteps : values())
         {
-            if (tutorialsteps.name.equals(tutorialName))
+            if (tutorialsteps.name.equals(name))
             {
                 return tutorialsteps;
             }

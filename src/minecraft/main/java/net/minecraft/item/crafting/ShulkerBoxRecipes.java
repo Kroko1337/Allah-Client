@@ -72,9 +72,9 @@ public class ShulkerBoxRecipes
 
             ItemStack itemstack3 = BlockShulkerBox.getColoredItemStack(EnumDyeColor.byDyeDamage(itemstack1.getMetadata()));
 
-            if (itemstack.hasTagCompound())
+            if (itemstack.hasTag())
             {
-                itemstack3.setTagCompound(itemstack.getTagCompound().copy());
+                itemstack3.setTag(itemstack.getTag().copy());
             }
 
             return itemstack3;
@@ -102,7 +102,7 @@ public class ShulkerBoxRecipes
             return nonnulllist;
         }
 
-        public boolean isHidden()
+        public boolean isDynamic()
         {
             return true;
         }

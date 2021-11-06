@@ -34,7 +34,7 @@ public class ItemBow extends Item
                 }
                 else
                 {
-                    return entityIn.getActiveItemStack().getItem() != Items.BOW ? 0.0F : (float)(stack.getMaxItemUseDuration() - entityIn.getItemInUseCount()) / 20.0F;
+                    return entityIn.getActiveItemStack().getItem() != Items.BOW ? 0.0F : (float)(stack.getUseDuration() - entityIn.getItemInUseCount()) / 20.0F;
                 }
             }
         });
@@ -86,7 +86,7 @@ public class ItemBow extends Item
         if (entityLiving instanceof EntityPlayer)
         {
             EntityPlayer entityplayer = (EntityPlayer)entityLiving;
-            boolean flag = entityplayer.capabilities.isCreativeMode || EnchantmentHelper.getEnchantmentLevel(Enchantments.INFINITY, stack) > 0;
+            boolean flag = entityplayer.abilities.isCreativeMode || EnchantmentHelper.getEnchantmentLevel(Enchantments.INFINITY, stack) > 0;
             ItemStack itemstack = this.findAmmo(entityplayer);
 
             if (!itemstack.isEmpty() || flag)
@@ -96,7 +96,7 @@ public class ItemBow extends Item
                     itemstack = new ItemStack(Items.ARROW);
                 }
 
-                int i = this.getMaxItemUseDuration(stack) - timeLeft;
+                int i = this.getUseDuration(stack) - timeLeft;
                 float f = getArrowVelocity(i);
 
                 if ((double)f >= 0.1D)
@@ -107,7 +107,7 @@ public class ItemBow extends Item
                     {
                         ItemArrow itemarrow = (ItemArrow)(itemstack.getItem() instanceof ItemArrow ? itemstack.getItem() : Items.ARROW);
                         EntityArrow entityarrow = itemarrow.createArrow(worldIn, itemstack, entityplayer);
-                        entityarrow.setAim(entityplayer, entityplayer.rotationPitch, entityplayer.rotationYaw, 0.0F, f * 3.0F, 1.0F);
+                        entityarrow.shoot(entityplayer, entityplayer.rotationPitch, entityplayer.rotationYaw, 0.0F, f * 3.0F, 1.0F);
 
                         if (f == 1.0F)
                         {
@@ -135,17 +135,17 @@ public class ItemBow extends Item
 
                         stack.damageItem(1, entityplayer);
 
-                        if (flag1 || entityplayer.capabilities.isCreativeMode && (itemstack.getItem() == Items.SPECTRAL_ARROW || itemstack.getItem() == Items.TIPPED_ARROW))
+                        if (flag1 || entityplayer.abilities.isCreativeMode && (itemstack.getItem() == Items.SPECTRAL_ARROW || itemstack.getItem() == Items.TIPPED_ARROW))
                         {
                             entityarrow.pickupStatus = EntityArrow.PickupStatus.CREATIVE_ONLY;
                         }
 
-                        worldIn.spawnEntity(entityarrow);
+                        worldIn.addEntity0(entityarrow);
                     }
 
-                    worldIn.playSound((EntityPlayer)null, entityplayer.posX, entityplayer.posY, entityplayer.posZ, SoundEvents.ENTITY_ARROW_SHOOT, SoundCategory.PLAYERS, 1.0F, 1.0F / (itemRand.nextFloat() * 0.4F + 1.2F) + f * 0.5F);
+                    worldIn.playSound((EntityPlayer)null, entityplayer.posX, entityplayer.posY, entityplayer.posZ, SoundEvents.ENTITY_ARROW_SHOOT, SoundCategory.PLAYERS, 1.0F, 1.0F / (random.nextFloat() * 0.4F + 1.2F) + f * 0.5F);
 
-                    if (!flag1 && !entityplayer.capabilities.isCreativeMode)
+                    if (!flag1 && !entityplayer.abilities.isCreativeMode)
                     {
                         itemstack.shrink(1);
 
@@ -180,7 +180,7 @@ public class ItemBow extends Item
     /**
      * How long it takes to use or consume an item
      */
-    public int getMaxItemUseDuration(ItemStack stack)
+    public int getUseDuration(ItemStack stack)
     {
         return 72000;
     }
@@ -188,7 +188,7 @@ public class ItemBow extends Item
     /**
      * returns the action that specifies what animation to play when the items is being used
      */
-    public EnumAction getItemUseAction(ItemStack stack)
+    public EnumAction getUseAction(ItemStack stack)
     {
         return EnumAction.BOW;
     }
@@ -198,7 +198,7 @@ public class ItemBow extends Item
         ItemStack itemstack = playerIn.getHeldItem(handIn);
         boolean flag = !this.findAmmo(playerIn).isEmpty();
 
-        if (!playerIn.capabilities.isCreativeMode && !flag)
+        if (!playerIn.abilities.isCreativeMode && !flag)
         {
             return flag ? new ActionResult(EnumActionResult.PASS, itemstack) : new ActionResult(EnumActionResult.FAIL, itemstack);
         }

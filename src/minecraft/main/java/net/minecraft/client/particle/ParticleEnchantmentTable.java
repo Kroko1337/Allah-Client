@@ -30,7 +30,7 @@ public class ParticleEnchantmentTable extends Particle
         this.particleRed = 0.9F * f;
         this.particleGreen = 0.9F * f;
         this.particleBlue = f;
-        this.particleMaxAge = (int)(Math.random() * 10.0D) + 30;
+        this.maxAge = (int)(Math.random() * 10.0D) + 30;
         this.setParticleTextureIndex((int)(Math.random() * 26.0D + 1.0D + 224.0D));
     }
 
@@ -40,10 +40,10 @@ public class ParticleEnchantmentTable extends Particle
         this.resetPositionToBB();
     }
 
-    public int getBrightnessForRender(float p_189214_1_)
+    public int getBrightnessForRender(float partialTick)
     {
-        int i = super.getBrightnessForRender(p_189214_1_);
-        float f = (float)this.particleAge / (float)this.particleMaxAge;
+        int i = super.getBrightnessForRender(partialTick);
+        float f = (float)this.age / (float)this.maxAge;
         f = f * f;
         f = f * f;
         int j = i & 255;
@@ -58,12 +58,12 @@ public class ParticleEnchantmentTable extends Particle
         return j | k << 16;
     }
 
-    public void onUpdate()
+    public void tick()
     {
         this.prevPosX = this.posX;
         this.prevPosY = this.posY;
         this.prevPosZ = this.posZ;
-        float f = (float)this.particleAge / (float)this.particleMaxAge;
+        float f = (float)this.age / (float)this.maxAge;
         f = 1.0F - f;
         float f1 = 1.0F - f;
         f1 = f1 * f1;
@@ -72,7 +72,7 @@ public class ParticleEnchantmentTable extends Particle
         this.posY = this.coordY + this.motionY * (double)f - (double)(f1 * 1.2F);
         this.posZ = this.coordZ + this.motionZ * (double)f;
 
-        if (this.particleAge++ >= this.particleMaxAge)
+        if (this.age++ >= this.maxAge)
         {
             this.setExpired();
         }

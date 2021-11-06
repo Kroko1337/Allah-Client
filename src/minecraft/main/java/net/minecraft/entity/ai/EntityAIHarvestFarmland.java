@@ -14,12 +14,9 @@ import net.minecraft.world.World;
 
 public class EntityAIHarvestFarmland extends EntityAIMoveToBlock
 {
-    /** Villager that is harvesting */
     private final EntityVillager villager;
     private boolean hasFarmItem;
     private boolean wantsToReapStuff;
-
-    /** 0 => harvest, 1 => replant, -1 => none */
     private int currentTask;
 
     public EntityAIHarvestFarmland(EntityVillager villagerIn, double speedIn)
@@ -29,7 +26,8 @@ public class EntityAIHarvestFarmland extends EntityAIMoveToBlock
     }
 
     /**
-     * Returns whether the EntityAIBase should begin execution.
+     * Returns whether execution should begin. You can also read and cache any state necessary for execution in this
+     * method as well.
      */
     public boolean shouldExecute()
     {
@@ -59,10 +57,10 @@ public class EntityAIHarvestFarmland extends EntityAIMoveToBlock
     /**
      * Keep ticking a continuous task that has already been started
      */
-    public void updateTask()
+    public void tick()
     {
-        super.updateTask();
-        this.villager.getLookHelper().setLookPosition((double)this.destinationBlock.getX() + 0.5D, (double)(this.destinationBlock.getY() + 1), (double)this.destinationBlock.getZ() + 0.5D, 10.0F, (float)this.villager.getVerticalFaceSpeed());
+        super.tick();
+        this.villager.getLookController().setLookPosition((double)this.destinationBlock.getX() + 0.5D, (double)(this.destinationBlock.getY() + 1), (double)this.destinationBlock.getZ() + 0.5D, 10.0F, (float)this.villager.getVerticalFaceSpeed());
 
         if (this.getIsAboveDestination())
         {

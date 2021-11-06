@@ -25,23 +25,20 @@ public class ItemRecord extends Item
     private final SoundEvent sound;
     private final String displayName;
 
-    protected ItemRecord(String p_i46742_1_, SoundEvent soundIn)
+    protected ItemRecord(String recordName, SoundEvent soundIn)
     {
-        this.displayName = "item.record." + p_i46742_1_ + ".desc";
+        this.displayName = "item.record." + recordName + ".desc";
         this.sound = soundIn;
         this.maxStackSize = 1;
         this.setCreativeTab(CreativeTabs.MISC);
         RECORDS.put(this.sound, this);
     }
 
-    /**
-     * Called when a Block is right-clicked with this Item
-     */
     public EnumActionResult onItemUse(EntityPlayer player, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
         IBlockState iblockstate = worldIn.getBlockState(pos);
 
-        if (iblockstate.getBlock() == Blocks.JUKEBOX && !((Boolean)iblockstate.getValue(BlockJukebox.HAS_RECORD)).booleanValue())
+        if (iblockstate.getBlock() == Blocks.JUKEBOX && !((Boolean)iblockstate.get(BlockJukebox.HAS_RECORD)).booleanValue())
         {
             if (!worldIn.isRemote)
             {
@@ -49,7 +46,7 @@ public class ItemRecord extends Item
                 ((BlockJukebox)Blocks.JUKEBOX).insertRecord(worldIn, pos, iblockstate, itemstack);
                 worldIn.playEvent((EntityPlayer)null, 1010, pos, Item.getIdFromItem(this));
                 itemstack.shrink(1);
-                player.addStat(StatList.RECORD_PLAYED);
+                player.addStat(StatList.PLAY_RECORD);
             }
 
             return EnumActionResult.SUCCESS;

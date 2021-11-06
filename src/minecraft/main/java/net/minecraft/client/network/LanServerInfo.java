@@ -6,8 +6,6 @@ public class LanServerInfo
 {
     private final String lanServerMotd;
     private final String lanServerIpPort;
-
-    /** Last time this LanServer was seen. */
     private long timeLastSeen;
 
     public LanServerInfo(String p_i47130_1_, String p_i47130_2_)

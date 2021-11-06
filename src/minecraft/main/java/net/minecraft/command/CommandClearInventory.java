@@ -14,33 +14,21 @@ import net.minecraft.util.text.TextComponentTranslation;
 
 public class CommandClearInventory extends CommandBase
 {
-    /**
-     * Gets the name of the command
-     */
     public String getName()
     {
         return "clear";
     }
 
-    /**
-     * Gets the usage string for the command.
-     */
     public String getUsage(ICommandSender sender)
     {
         return "commands.clear.usage";
     }
 
-    /**
-     * Return the required permission level for this command.
-     */
     public int getRequiredPermissionLevel()
     {
         return 2;
     }
 
-    /**
-     * Callback for when the command is executed
-     */
     public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
     {
         EntityPlayerMP entityplayermp = args.length == 0 ? getCommandSenderAsPlayer(sender) : getPlayer(server, sender, args[0]);
@@ -68,9 +56,9 @@ public class CommandClearInventory extends CommandBase
         else
         {
             int k = entityplayermp.inventory.clearMatchingItems(item, i, j, nbttagcompound);
-            entityplayermp.inventoryContainer.detectAndSendChanges();
+            entityplayermp.container.detectAndSendChanges();
 
-            if (!entityplayermp.capabilities.isCreativeMode)
+            if (!entityplayermp.abilities.isCreativeMode)
             {
                 entityplayermp.updateHeldItem();
             }
@@ -103,13 +91,10 @@ public class CommandClearInventory extends CommandBase
         }
         else
         {
-            return args.length == 2 ? getListOfStringsMatchingLastWord(args, Item.REGISTRY.getKeys()) : Collections.emptyList();
+            return args.length == 2 ? getListOfStringsMatchingLastWord(args, Item.REGISTRY.keySet()) : Collections.emptyList();
         }
     }
 
-    /**
-     * Return whether the specified command parameter index is a username parameter.
-     */
     public boolean isUsernameIndex(String[] args, int index)
     {
         return index == 0;

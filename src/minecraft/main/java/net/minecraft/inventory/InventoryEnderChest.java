@@ -20,7 +20,7 @@ public class InventoryEnderChest extends InventoryBasic
         this.associatedChest = chestTileEntity;
     }
 
-    public void loadInventoryFromNBT(NBTTagList p_70486_1_)
+    public void read(NBTTagList p_70486_1_)
     {
         for (int i = 0; i < this.getSizeInventory(); ++i)
         {
@@ -29,7 +29,7 @@ public class InventoryEnderChest extends InventoryBasic
 
         for (int k = 0; k < p_70486_1_.tagCount(); ++k)
         {
-            NBTTagCompound nbttagcompound = p_70486_1_.getCompoundTagAt(k);
+            NBTTagCompound nbttagcompound = p_70486_1_.getCompound(k);
             int j = nbttagcompound.getByte("Slot") & 255;
 
             if (j >= 0 && j < this.getSizeInventory())
@@ -39,7 +39,7 @@ public class InventoryEnderChest extends InventoryBasic
         }
     }
 
-    public NBTTagList saveInventoryToNBT()
+    public NBTTagList write()
     {
         NBTTagList nbttaglist = new NBTTagList();
 
@@ -50,8 +50,8 @@ public class InventoryEnderChest extends InventoryBasic
             if (!itemstack.isEmpty())
             {
                 NBTTagCompound nbttagcompound = new NBTTagCompound();
-                nbttagcompound.setByte("Slot", (byte)i);
-                itemstack.writeToNBT(nbttagcompound);
+                nbttagcompound.putByte("Slot", (byte)i);
+                itemstack.write(nbttagcompound);
                 nbttaglist.appendTag(nbttagcompound);
             }
         }

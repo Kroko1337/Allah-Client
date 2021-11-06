@@ -14,12 +14,8 @@ public class ChunkCache implements IBlockAccess
 {
     protected int chunkX;
     protected int chunkZ;
-    protected Chunk[][] chunkArray;
-
-    /** set by !chunk.getAreLevelsEmpty */
+    protected Chunk[][] chunks;
     protected boolean empty;
-
-    /** Reference to the World object. */
     protected World world;
 
     public ChunkCache(World worldIn, BlockPos posFromIn, BlockPos posToIn, int subIn)
@@ -29,14 +25,14 @@ public class ChunkCache implements IBlockAccess
         this.chunkZ = posFromIn.getZ() - subIn >> 4;
         int i = posToIn.getX() + subIn >> 4;
         int j = posToIn.getZ() + subIn >> 4;
-        this.chunkArray = new Chunk[i - this.chunkX + 1][j - this.chunkZ + 1];
+        this.chunks = new Chunk[i - this.chunkX + 1][j - this.chunkZ + 1];
         this.empty = true;
 
         for (int k = this.chunkX; k <= i; ++k)
         {
             for (int l = this.chunkZ; l <= j; ++l)
             {
-                this.chunkArray[k - this.chunkX][l - this.chunkZ] = worldIn.getChunkFromChunkCoords(k, l);
+                this.chunks[k - this.chunkX][l - this.chunkZ] = worldIn.getChunk(k, l);
             }
         }
 
@@ -44,7 +40,7 @@ public class ChunkCache implements IBlockAccess
         {
             for (int j1 = posFromIn.getZ() >> 4; j1 <= posToIn.getZ() >> 4; ++j1)
             {
-                Chunk chunk = this.chunkArray[i1 - this.chunkX][j1 - this.chunkZ];
+                Chunk chunk = this.chunks[i1 - this.chunkX][j1 - this.chunkZ];
 
                 if (chunk != null && !chunk.isEmptyBetween(posFromIn.getY(), posToIn.getY()))
                 {
@@ -54,9 +50,6 @@ public class ChunkCache implements IBlockAccess
         }
     }
 
-    /**
-     * set by !chunk.getAreLevelsEmpty
-     */
     public boolean isEmpty()
     {
         return this.empty;
@@ -69,11 +62,11 @@ public class ChunkCache implements IBlockAccess
     }
 
     @Nullable
-    public TileEntity getTileEntity(BlockPos pos, Chunk.EnumCreateEntityType p_190300_2_)
+    public TileEntity getTileEntity(BlockPos pos, Chunk.EnumCreateEntityType createType)
     {
         int i = (pos.getX() >> 4) - this.chunkX;
         int j = (pos.getZ() >> 4) - this.chunkZ;
-        return this.chunkArray[i][j].getTileEntity(pos, p_190300_2_);
+        return this.chunks[i][j].getTileEntity(pos, createType);
     }
 
     public int getCombinedLight(BlockPos pos, int lightValue)
@@ -96,9 +89,9 @@ public class ChunkCache implements IBlockAccess
             int i = (pos.getX() >> 4) - this.chunkX;
             int j = (pos.getZ() >> 4) - this.chunkZ;
 
-            if (i >= 0 && i < this.chunkArray.length && j >= 0 && j < this.chunkArray[i].length)
+            if (i >= 0 && i < this.chunks.length && j >= 0 && j < this.chunks[i].length)
             {
-                Chunk chunk = this.chunkArray[i][j];
+                Chunk chunk = this.chunks[i][j];
 
                 if (chunk != null)
                 {
@@ -114,12 +107,12 @@ public class ChunkCache implements IBlockAccess
     {
         int i = (pos.getX() >> 4) - this.chunkX;
         int j = (pos.getZ() >> 4) - this.chunkZ;
-        return this.chunkArray[i][j].getBiome(pos, this.world.getBiomeProvider());
+        return this.chunks[i][j].getBiome(pos, this.world.getBiomeProvider());
     }
 
     private int getLightForExt(EnumSkyBlock type, BlockPos pos)
     {
-        if (type == EnumSkyBlock.SKY && !this.world.provider.hasSkyLight())
+        if (type == EnumSkyBlock.SKY && !this.world.dimension.hasSkyLight())
         {
             return 0;
         }
@@ -150,7 +143,7 @@ public class ChunkCache implements IBlockAccess
             {
                 int i = (pos.getX() >> 4) - this.chunkX;
                 int j = (pos.getZ() >> 4) - this.chunkZ;
-                return this.chunkArray[i][j].getLightFor(type, pos);
+                return this.chunks[i][j].getLightFor(type, pos);
             }
         }
         else
@@ -174,7 +167,7 @@ public class ChunkCache implements IBlockAccess
         {
             int i = (pos.getX() >> 4) - this.chunkX;
             int j = (pos.getZ() >> 4) - this.chunkZ;
-            return this.chunkArray[i][j].getLightFor(type, pos);
+            return this.chunks[i][j].getLightFor(type, pos);
         }
         else
         {

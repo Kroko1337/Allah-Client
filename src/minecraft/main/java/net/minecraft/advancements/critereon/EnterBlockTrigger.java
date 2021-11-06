@@ -82,7 +82,7 @@ public class EnterBlockTrigger implements ICriterionTrigger<EnterBlockTrigger.In
                 throw new JsonSyntaxException("Unknown block type '" + resourcelocation + "'");
             }
 
-            block = Block.REGISTRY.getObject(resourcelocation);
+            block = Block.REGISTRY.getOrDefault(resourcelocation);
         }
 
         Map < IProperty<?>, Object > map = null;
@@ -94,7 +94,7 @@ public class EnterBlockTrigger implements ICriterionTrigger<EnterBlockTrigger.In
                 throw new JsonSyntaxException("Can't define block state without a specific block type");
             }
 
-            BlockStateContainer blockstatecontainer = block.getBlockState();
+            BlockStateContainer blockstatecontainer = block.getStateContainer();
 
             for (Entry<String, JsonElement> entry : JsonUtils.getJsonObject(json, "state").entrySet())
             {
@@ -102,7 +102,7 @@ public class EnterBlockTrigger implements ICriterionTrigger<EnterBlockTrigger.In
 
                 if (iproperty == null)
                 {
-                    throw new JsonSyntaxException("Unknown block state property '" + (String)entry.getKey() + "' for block '" + Block.REGISTRY.getNameForObject(block) + "'");
+                    throw new JsonSyntaxException("Unknown block state property '" + (String)entry.getKey() + "' for block '" + Block.REGISTRY.getKey(block) + "'");
                 }
 
                 String s = JsonUtils.getString(entry.getValue(), entry.getKey());
@@ -110,7 +110,7 @@ public class EnterBlockTrigger implements ICriterionTrigger<EnterBlockTrigger.In
 
                 if (!optional.isPresent())
                 {
-                    throw new JsonSyntaxException("Invalid block state value '" + s + "' for property '" + (String)entry.getKey() + "' on block '" + Block.REGISTRY.getNameForObject(block) + "'");
+                    throw new JsonSyntaxException("Invalid block state value '" + s + "' for property '" + (String)entry.getKey() + "' on block '" + Block.REGISTRY.getKey(block) + "'");
                 }
 
                 if (map == null)
@@ -159,7 +159,7 @@ public class EnterBlockTrigger implements ICriterionTrigger<EnterBlockTrigger.In
                 {
                     for (Entry < IProperty<?>, Object > entry : this.properties.entrySet())
                     {
-                        if (state.getValue(entry.getKey()) != entry.getValue())
+                        if (state.get(entry.getKey()) != entry.getValue())
                         {
                             return false;
                         }

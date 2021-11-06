@@ -29,9 +29,6 @@ public interface IMerchant
      */
     void verifySellingItem(ItemStack stack);
 
-    /**
-     * Get the formatted ChatComponent that will be used for the sender's username in chat
-     */
     ITextComponent getDisplayName();
 
     World getWorld();

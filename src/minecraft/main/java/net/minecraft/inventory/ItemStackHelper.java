@@ -10,7 +10,7 @@ public class ItemStackHelper
 {
     public static ItemStack getAndSplit(List<ItemStack> stacks, int index, int amount)
     {
-        return index >= 0 && index < stacks.size() && !((ItemStack)stacks.get(index)).isEmpty() && amount > 0 ? ((ItemStack)stacks.get(index)).splitStack(amount) : ItemStack.EMPTY;
+        return index >= 0 && index < stacks.size() && !((ItemStack)stacks.get(index)).isEmpty() && amount > 0 ? ((ItemStack)stacks.get(index)).split(amount) : ItemStack.EMPTY;
     }
 
     public static ItemStack getAndRemove(List<ItemStack> stacks, int index)
@@ -34,13 +34,13 @@ public class ItemStackHelper
             if (!itemstack.isEmpty())
             {
                 NBTTagCompound nbttagcompound = new NBTTagCompound();
-                nbttagcompound.setByte("Slot", (byte)i);
-                itemstack.writeToNBT(nbttagcompound);
+                nbttagcompound.putByte("Slot", (byte)i);
+                itemstack.write(nbttagcompound);
                 nbttaglist.appendTag(nbttagcompound);
             }
         }
 
-        if (!nbttaglist.hasNoTags() || saveEmpty)
+        if (!nbttaglist.isEmpty() || saveEmpty)
         {
             tag.setTag("Items", nbttaglist);
         }
@@ -50,11 +50,11 @@ public class ItemStackHelper
 
     public static void loadAllItems(NBTTagCompound tag, NonNullList<ItemStack> list)
     {
-        NBTTagList nbttaglist = tag.getTagList("Items", 10);
+        NBTTagList nbttaglist = tag.getList("Items", 10);
 
         for (int i = 0; i < nbttaglist.tagCount(); ++i)
         {
-            NBTTagCompound nbttagcompound = nbttaglist.getCompoundTagAt(i);
+            NBTTagCompound nbttagcompound = nbttaglist.getCompound(i);
             int j = nbttagcompound.getByte("Slot") & 255;
 
             if (j >= 0 && j < list.size())

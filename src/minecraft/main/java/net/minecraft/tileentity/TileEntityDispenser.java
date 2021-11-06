@@ -74,9 +74,6 @@ public class TileEntityDispenser extends TileEntityLockableLoot
         return -1;
     }
 
-    /**
-     * Get the name of this object. For players this returns their username
-     */
     public String getName()
     {
         return this.hasCustomName() ? this.customName : "container.dispenser";
@@ -87,9 +84,9 @@ public class TileEntityDispenser extends TileEntityLockableLoot
         fixer.registerWalker(FixTypes.BLOCK_ENTITY, new ItemStackDataLists(TileEntityDispenser.class, new String[] {"Items"}));
     }
 
-    public void readFromNBT(NBTTagCompound compound)
+    public void read(NBTTagCompound compound)
     {
-        super.readFromNBT(compound);
+        super.read(compound);
         this.stacks = NonNullList.<ItemStack>withSize(this.getSizeInventory(), ItemStack.EMPTY);
 
         if (!this.checkLootAndRead(compound))
@@ -97,15 +94,15 @@ public class TileEntityDispenser extends TileEntityLockableLoot
             ItemStackHelper.loadAllItems(compound, this.stacks);
         }
 
-        if (compound.hasKey("CustomName", 8))
+        if (compound.contains("CustomName", 8))
         {
             this.customName = compound.getString("CustomName");
         }
     }
 
-    public NBTTagCompound writeToNBT(NBTTagCompound compound)
+    public NBTTagCompound write(NBTTagCompound compound)
     {
-        super.writeToNBT(compound);
+        super.write(compound);
 
         if (!this.checkLootAndWrite(compound))
         {
@@ -114,7 +111,7 @@ public class TileEntityDispenser extends TileEntityLockableLoot
 
         if (this.hasCustomName())
         {
-            compound.setString("CustomName", this.customName);
+            compound.putString("CustomName", this.customName);
         }
 
         return compound;

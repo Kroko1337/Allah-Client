@@ -28,25 +28,15 @@ import net.minecraft.world.WorldServer;
 
 public class PlayerInteractionManager
 {
-    /** The world object that this object is connected to. */
     public World world;
-
-    /** The EntityPlayerMP object that this object is connected to. */
     public EntityPlayerMP player;
     private GameType gameType = GameType.NOT_SET;
-
-    /** True if the player is destroying a block */
     private boolean isDestroyingBlock;
     private int initialDamage;
-    private BlockPos destroyPos = BlockPos.ORIGIN;
-    private int curblockDamage;
-
-    /**
-     * Set to true when the "finished destroying block" packet is received but the block wasn't fully damaged yet. The
-     * block will not be destroyed while this is false.
-     */
+    private BlockPos destroyPos = BlockPos.ZERO;
+    private int ticks;
     private boolean receivedFinishDiggingPacket;
-    private BlockPos delayedDestroyPos = BlockPos.ORIGIN;
+    private BlockPos delayedDestroyPos = BlockPos.ZERO;
     private int initialBlockDamage;
     private int durabilityRemainingOnBlock = -1;
 
@@ -58,9 +48,9 @@ public class PlayerInteractionManager
     public void setGameType(GameType type)
     {
         this.gameType = type;
-        type.configurePlayerCapabilities(this.player.capabilities);
+        type.configurePlayerCapabilities(this.player.abilities);
         this.player.sendPlayerAbilities();
-        this.player.mcServer.getPlayerList().sendPacketToAllPlayers(new SPacketPlayerListItem(SPacketPlayerListItem.Action.UPDATE_GAME_MODE, new EntityPlayerMP[] {this.player}));
+        this.player.server.getPlayerList().sendPacketToAllPlayers(new SPacketPlayerListItem(SPacketPlayerListItem.Action.UPDATE_GAME_MODE, new EntityPlayerMP[] {this.player}));
         this.world.updateAllPlayersSleepingFlag();
     }
 
@@ -95,13 +85,13 @@ public class PlayerInteractionManager
         this.setGameType(this.gameType);
     }
 
-    public void updateBlockRemoving()
+    public void tick()
     {
-        ++this.curblockDamage;
+        ++this.ticks;
 
         if (this.receivedFinishDiggingPacket)
         {
-            int i = this.curblockDamage - this.initialBlockDamage;
+            int i = this.ticks - this.initialBlockDamage;
             IBlockState iblockstate = this.world.getBlockState(this.delayedDestroyPos);
 
             if (iblockstate.getMaterial() == Material.AIR)
@@ -138,7 +128,7 @@ public class PlayerInteractionManager
             }
             else
             {
-                int k = this.curblockDamage - this.initialDamage;
+                int k = this.ticks - this.initialDamage;
                 float f1 = iblockstate1.getPlayerRelativeBlockHardness(this.player, this.player.world, this.delayedDestroyPos) * (float)(k + 1);
                 int l = (int)(f1 * 10.0F);
 
@@ -151,10 +141,6 @@ public class PlayerInteractionManager
         }
     }
 
-    /**
-     * If not creative, it calls sendBlockBreakProgress until the block is broken first. tryHarvestBlock can also be the
-     * result of this call.
-     */
     public void onBlockClicked(BlockPos pos, EnumFacing side)
     {
         if (this.isCreative())
@@ -169,7 +155,7 @@ public class PlayerInteractionManager
             IBlockState iblockstate = this.world.getBlockState(pos);
             Block block = iblockstate.getBlock();
 
-            if (this.gameType.isAdventure())
+            if (this.gameType.hasLimitedInteractions())
             {
                 if (this.gameType == GameType.SPECTATOR)
                 {
@@ -193,7 +179,7 @@ public class PlayerInteractionManager
             }
 
             this.world.extinguishFire((EntityPlayer)null, pos, side);
-            this.initialDamage = this.curblockDamage;
+            this.initialDamage = this.ticks;
             float f = 1.0F;
 
             if (iblockstate.getMaterial() != Material.AIR)
@@ -221,7 +207,7 @@ public class PlayerInteractionManager
     {
         if (pos.equals(this.destroyPos))
         {
-            int i = this.curblockDamage - this.initialDamage;
+            int i = this.ticks - this.initialDamage;
             IBlockState iblockstate = this.world.getBlockState(pos);
 
             if (iblockstate.getMaterial() != Material.AIR)
@@ -245,18 +231,12 @@ public class PlayerInteractionManager
         }
     }
 
-    /**
-     * Stops the block breaking process
-     */
     public void cancelDestroyingBlock()
     {
         this.isDestroyingBlock = false;
         this.world.sendBlockBreakProgress(this.player.getEntityId(), this.destroyPos, -1);
     }
 
-    /**
-     * Removes a block and triggers the appropriate events
-     */
     private boolean removeBlock(BlockPos pos)
     {
         IBlockState iblockstate = this.world.getBlockState(pos);
@@ -265,7 +245,7 @@ public class PlayerInteractionManager
 
         if (flag)
         {
-            iblockstate.getBlock().onBlockDestroyedByPlayer(this.world, pos, iblockstate);
+            iblockstate.getBlock().onPlayerDestroy(this.world, pos, iblockstate);
         }
 
         return flag;
@@ -293,7 +273,7 @@ public class PlayerInteractionManager
             }
             else
             {
-                if (this.gameType.isAdventure())
+                if (this.gameType.hasLimitedInteractions())
                 {
                     if (this.gameType == GameType.SPECTATOR)
                     {
@@ -362,11 +342,11 @@ public class PlayerInteractionManager
             ActionResult<ItemStack> actionresult = stack.useItemRightClick(worldIn, player, hand);
             ItemStack itemstack = actionresult.getResult();
 
-            if (itemstack == stack && itemstack.getCount() == i && itemstack.getMaxItemUseDuration() <= 0 && itemstack.getMetadata() == j)
+            if (itemstack == stack && itemstack.getCount() == i && itemstack.getUseDuration() <= 0 && itemstack.getMetadata() == j)
             {
                 return actionresult.getType();
             }
-            else if (actionresult.getType() == EnumActionResult.FAIL && itemstack.getMaxItemUseDuration() > 0 && !player.isHandActive())
+            else if (actionresult.getType() == EnumActionResult.FAIL && itemstack.getUseDuration() > 0 && !player.isHandActive())
             {
                 return actionresult.getType();
             }
@@ -378,7 +358,7 @@ public class PlayerInteractionManager
                 {
                     itemstack.setCount(i);
 
-                    if (itemstack.isItemStackDamageable())
+                    if (itemstack.isDamageable())
                     {
                         itemstack.setItemDamage(j);
                     }
@@ -391,7 +371,7 @@ public class PlayerInteractionManager
 
                 if (!player.isHandActive())
                 {
-                    ((EntityPlayerMP)player).sendContainerToPlayer(player.inventoryContainer);
+                    ((EntityPlayerMP)player).sendContainerToPlayer(player.container);
                 }
 
                 return actionresult.getType();

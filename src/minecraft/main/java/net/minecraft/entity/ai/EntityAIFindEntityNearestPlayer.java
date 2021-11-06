@@ -19,15 +19,9 @@ import org.apache.logging.log4j.Logger;
 public class EntityAIFindEntityNearestPlayer extends EntityAIBase
 {
     private static final Logger LOGGER = LogManager.getLogger();
-
-    /** The entity that use this AI */
     private final EntityLiving entityLiving;
     private final Predicate<Entity> predicate;
-
-    /** Used to compare two entities */
     private final EntityAINearestAttackableTarget.Sorter sorter;
-
-    /** The current target */
     private EntityLivingBase entityTarget;
 
     public EntityAIFindEntityNearestPlayer(EntityLiving entityLivingIn)
@@ -47,7 +41,7 @@ public class EntityAIFindEntityNearestPlayer extends EntityAIBase
                 {
                     return false;
                 }
-                else if (((EntityPlayer)p_apply_1_).capabilities.disableDamage)
+                else if (((EntityPlayer)p_apply_1_).abilities.disableDamage)
                 {
                     return false;
                 }
@@ -72,7 +66,7 @@ public class EntityAIFindEntityNearestPlayer extends EntityAIBase
                         d0 *= (double)(0.7F * f);
                     }
 
-                    return (double)p_apply_1_.getDistanceToEntity(EntityAIFindEntityNearestPlayer.this.entityLiving) > d0 ? false : EntityAITarget.isSuitableTarget(EntityAIFindEntityNearestPlayer.this.entityLiving, (EntityLivingBase)p_apply_1_, false, true);
+                    return (double)p_apply_1_.getDistance(EntityAIFindEntityNearestPlayer.this.entityLiving) > d0 ? false : EntityAITarget.isSuitableTarget(EntityAIFindEntityNearestPlayer.this.entityLiving, (EntityLivingBase)p_apply_1_, false, true);
                 }
             }
         };
@@ -80,12 +74,13 @@ public class EntityAIFindEntityNearestPlayer extends EntityAIBase
     }
 
     /**
-     * Returns whether the EntityAIBase should begin execution.
+     * Returns whether execution should begin. You can also read and cache any state necessary for execution in this
+     * method as well.
      */
     public boolean shouldExecute()
     {
         double d0 = this.maxTargetRange();
-        List<EntityPlayer> list = this.entityLiving.world.<EntityPlayer>getEntitiesWithinAABB(EntityPlayer.class, this.entityLiving.getEntityBoundingBox().grow(d0, 4.0D, d0), this.predicate);
+        List<EntityPlayer> list = this.entityLiving.world.<EntityPlayer>getEntitiesWithinAABB(EntityPlayer.class, this.entityLiving.getBoundingBox().grow(d0, 4.0D, d0), this.predicate);
         Collections.sort(list, this.sorter);
 
         if (list.isEmpty())
@@ -110,11 +105,11 @@ public class EntityAIFindEntityNearestPlayer extends EntityAIBase
         {
             return false;
         }
-        else if (!entitylivingbase.isEntityAlive())
+        else if (!entitylivingbase.isAlive())
         {
             return false;
         }
-        else if (entitylivingbase instanceof EntityPlayer && ((EntityPlayer)entitylivingbase).capabilities.disableDamage)
+        else if (entitylivingbase instanceof EntityPlayer && ((EntityPlayer)entitylivingbase).abilities.disableDamage)
         {
             return false;
         }
@@ -131,7 +126,7 @@ public class EntityAIFindEntityNearestPlayer extends EntityAIBase
             {
                 double d0 = this.maxTargetRange();
 
-                if (this.entityLiving.getDistanceSqToEntity(entitylivingbase) > d0 * d0)
+                if (this.entityLiving.getDistanceSq(entitylivingbase) > d0 * d0)
                 {
                     return false;
                 }
@@ -161,12 +156,9 @@ public class EntityAIFindEntityNearestPlayer extends EntityAIBase
         super.startExecuting();
     }
 
-    /**
-     * Return the max target range of the entiity (16 by default)
-     */
     protected double maxTargetRange()
     {
-        IAttributeInstance iattributeinstance = this.entityLiving.getEntityAttribute(SharedMonsterAttributes.FOLLOW_RANGE);
-        return iattributeinstance == null ? 16.0D : iattributeinstance.getAttributeValue();
+        IAttributeInstance iattributeinstance = this.entityLiving.getAttribute(SharedMonsterAttributes.FOLLOW_RANGE);
+        return iattributeinstance == null ? 16.0D : iattributeinstance.getValue();
     }
 }

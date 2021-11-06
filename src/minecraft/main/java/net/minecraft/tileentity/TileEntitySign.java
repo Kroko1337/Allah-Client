@@ -21,24 +21,19 @@ import net.minecraft.world.World;
 public class TileEntitySign extends TileEntity
 {
     public final ITextComponent[] signText = new ITextComponent[] {new TextComponentString(""), new TextComponentString(""), new TextComponentString(""), new TextComponentString("")};
-
-    /**
-     * The index of the line currently being edited. Only used on client side, but defined on both. Note this is only
-     * really used when the > < are going to be visible.
-     */
     public int lineBeingEdited = -1;
     private boolean isEditable = true;
     private EntityPlayer player;
     private final CommandResultStats stats = new CommandResultStats();
 
-    public NBTTagCompound writeToNBT(NBTTagCompound compound)
+    public NBTTagCompound write(NBTTagCompound compound)
     {
-        super.writeToNBT(compound);
+        super.write(compound);
 
         for (int i = 0; i < 4; ++i)
         {
-            String s = ITextComponent.Serializer.componentToJson(this.signText[i]);
-            compound.setString("Text" + (i + 1), s);
+            String s = ITextComponent.Serializer.toJson(this.signText[i]);
+            compound.putString("Text" + (i + 1), s);
         }
 
         this.stats.writeStatsToNBT(compound);
@@ -50,10 +45,10 @@ public class TileEntitySign extends TileEntity
         this.setWorld(worldIn);
     }
 
-    public void readFromNBT(NBTTagCompound compound)
+    public void read(NBTTagCompound compound)
     {
         this.isEditable = false;
-        super.readFromNBT(compound);
+        super.read(compound);
         ICommandSender icommandsender = new ICommandSender()
         {
             public String getName()
@@ -78,14 +73,14 @@ public class TileEntitySign extends TileEntity
             }
             public MinecraftServer getServer()
             {
-                return TileEntitySign.this.world.getMinecraftServer();
+                return TileEntitySign.this.world.getServer();
             }
         };
 
         for (int i = 0; i < 4; ++i)
         {
             String s = compound.getString("Text" + (i + 1));
-            ITextComponent itextcomponent = ITextComponent.Serializer.jsonToComponent(s);
+            ITextComponent itextcomponent = ITextComponent.Serializer.fromJson(s);
 
             try
             {
@@ -101,16 +96,33 @@ public class TileEntitySign extends TileEntity
     }
 
     @Nullable
+
+    /**
+     * Retrieves packet to send to the client whenever this Tile Entity is resynced via World.notifyBlockUpdate. For
+     * modded TE's, this packet comes back to you clientside in {@link #onDataPacket}
+     */
     public SPacketUpdateTileEntity getUpdatePacket()
     {
         return new SPacketUpdateTileEntity(this.pos, 9, this.getUpdateTag());
     }
 
+    /**
+     * Get an NBT compound to sync to the client with SPacketChunkData, used for initial loading of the chunk or when
+     * many blocks change at once. This compound comes back to you clientside in {@link handleUpdateTag}
+     */
     public NBTTagCompound getUpdateTag()
     {
-        return this.writeToNBT(new NBTTagCompound());
+        return this.write(new NBTTagCompound());
     }
 
+    /**
+     * Checks if players can use this tile entity to access operator (permission level 2) commands either directly or
+     * indirectly, such as give or setblock. A similar method exists for entities at {@link
+     * net.minecraft.entity.Entity#ignoreItemEntityData()}.<p>For example, {@link
+     * net.minecraft.tileentity.TileEntitySign#onlyOpsCanSetNbt() signs} (player right-clicking) and {@link
+     * net.minecraft.tileentity.TileEntityCommandBlock#onlyOpsCanSetNbt() command blocks} are considered
+     * accessible.</p>@return true if this block entity offers ways for unauthorized players to use restricted commands
+     */
     public boolean onlyOpsCanSetNbt()
     {
         return true;
@@ -187,7 +199,7 @@ public class TileEntitySign extends TileEntity
             {
                 if (TileEntitySign.this.world != null && !TileEntitySign.this.world.isRemote)
                 {
-                    TileEntitySign.this.stats.setCommandStatForSender(TileEntitySign.this.world.getMinecraftServer(), this, type, amount);
+                    TileEntitySign.this.stats.setCommandStatForSender(TileEntitySign.this.world.getServer(), this, type, amount);
                 }
             }
             public MinecraftServer getServer()

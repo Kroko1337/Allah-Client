@@ -10,9 +10,9 @@ public class ParticleSpit extends ParticleExplosion
         this.particleGravity = 0.5F;
     }
 
-    public void onUpdate()
+    public void tick()
     {
-        super.onUpdate();
+        super.tick();
         this.motionY -= 0.004D + 0.04D * (double)this.particleGravity;
     }
 

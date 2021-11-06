@@ -11,7 +11,6 @@ import net.minecraft.world.WorldType;
 
 public class DerivedWorldInfo extends WorldInfo
 {
-    /** Instance of WorldInfo. */
     private final WorldInfo delegate;
 
     public DerivedWorldInfo(WorldInfo worldInfoIn)
@@ -59,17 +58,17 @@ public class DerivedWorldInfo extends WorldInfo
         return this.delegate.getSpawnZ();
     }
 
-    public long getWorldTotalTime()
+    public long getGameTime()
     {
-        return this.delegate.getWorldTotalTime();
+        return this.delegate.getGameTime();
     }
 
     /**
      * Get current world time
      */
-    public long getWorldTime()
+    public long getDayTime()
     {
-        return this.delegate.getWorldTime();
+        return this.delegate.getDayTime();
     }
 
     public long getSizeOnDisk()
@@ -170,14 +169,14 @@ public class DerivedWorldInfo extends WorldInfo
     {
     }
 
-    public void setWorldTotalTime(long time)
+    public void setGameTime(long time)
     {
     }
 
     /**
      * Set current world time
      */
-    public void setWorldTime(long time)
+    public void setDayTime(long time)
     {
     }
 
@@ -235,17 +234,17 @@ public class DerivedWorldInfo extends WorldInfo
     /**
      * Returns true if hardcore mode is enabled, otherwise false
      */
-    public boolean isHardcoreModeEnabled()
+    public boolean isHardcore()
     {
-        return this.delegate.isHardcoreModeEnabled();
+        return this.delegate.isHardcore();
     }
 
-    public WorldType getTerrainType()
+    public WorldType getGenerator()
     {
-        return this.delegate.getTerrainType();
+        return this.delegate.getGenerator();
     }
 
-    public void setTerrainType(WorldType type)
+    public void setGenerator(WorldType type)
     {
     }
 
@@ -272,7 +271,7 @@ public class DerivedWorldInfo extends WorldInfo
     /**
      * Sets the initialization status of the World.
      */
-    public void setServerInitialized(boolean initializedIn)
+    public void setInitialized(boolean initializedIn)
     {
     }
 

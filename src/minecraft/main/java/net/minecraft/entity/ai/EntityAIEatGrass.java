@@ -13,7 +13,7 @@ import net.minecraft.world.World;
 
 public class EntityAIEatGrass extends EntityAIBase
 {
-    private static final Predicate<IBlockState> IS_TALL_GRASS = BlockStateMatcher.forBlock(Blocks.TALLGRASS).where(BlockTallGrass.TYPE, Predicates.equalTo(BlockTallGrass.EnumType.GRASS));
+    private static final Predicate<IBlockState> IS_GRASS = BlockStateMatcher.forBlock(Blocks.TALLGRASS).where(BlockTallGrass.TYPE, Predicates.equalTo(BlockTallGrass.EnumType.GRASS));
 
     /** The entity owner of this AITask */
     private final EntityLiving grassEaterEntity;
@@ -32,7 +32,8 @@ public class EntityAIEatGrass extends EntityAIBase
     }
 
     /**
-     * Returns whether the EntityAIBase should begin execution.
+     * Returns whether execution should begin. You can also read and cache any state necessary for execution in this
+     * method as well.
      */
     public boolean shouldExecute()
     {
@@ -44,7 +45,7 @@ public class EntityAIEatGrass extends EntityAIBase
         {
             BlockPos blockpos = new BlockPos(this.grassEaterEntity.posX, this.grassEaterEntity.posY, this.grassEaterEntity.posZ);
 
-            if (IS_TALL_GRASS.apply(this.entityWorld.getBlockState(blockpos)))
+            if (IS_GRASS.apply(this.entityWorld.getBlockState(blockpos)))
             {
                 return true;
             }
@@ -62,7 +63,7 @@ public class EntityAIEatGrass extends EntityAIBase
     {
         this.eatingGrassTimer = 40;
         this.entityWorld.setEntityState(this.grassEaterEntity, (byte)10);
-        this.grassEaterEntity.getNavigator().clearPathEntity();
+        this.grassEaterEntity.getNavigator().clearPath();
     }
 
     /**
@@ -92,7 +93,7 @@ public class EntityAIEatGrass extends EntityAIBase
     /**
      * Keep ticking a continuous task that has already been started
      */
-    public void updateTask()
+    public void tick()
     {
         this.eatingGrassTimer = Math.max(0, this.eatingGrassTimer - 1);
 
@@ -100,7 +101,7 @@ public class EntityAIEatGrass extends EntityAIBase
         {
             BlockPos blockpos = new BlockPos(this.grassEaterEntity.posX, this.grassEaterEntity.posY, this.grassEaterEntity.posZ);
 
-            if (IS_TALL_GRASS.apply(this.entityWorld.getBlockState(blockpos)))
+            if (IS_GRASS.apply(this.entityWorld.getBlockState(blockpos)))
             {
                 if (this.entityWorld.getGameRules().getBoolean("mobGriefing"))
                 {

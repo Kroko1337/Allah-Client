@@ -60,21 +60,15 @@ public class BlockSkull extends BlockContainer
 
     protected BlockSkull()
     {
-        super(Material.CIRCUITS);
-        this.setDefaultState(this.blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH).withProperty(NODROP, Boolean.valueOf(false)));
+        super(Material.MISCELLANEOUS);
+        this.setDefaultState(this.stateContainer.getBaseState().withProperty(FACING, EnumFacing.NORTH).withProperty(NODROP, Boolean.valueOf(false)));
     }
 
-    /**
-     * Gets the localized name of this block. Used for the statistics page.
-     */
     public String getLocalizedName()
     {
         return I18n.translateToLocal("tile.skull.skeleton.name");
     }
 
-    /**
-     * Used to determine ambient occlusion and culling when rebuilding chunks for render
-     */
     public boolean isOpaqueCube(IBlockState state)
     {
         return false;
@@ -92,7 +86,7 @@ public class BlockSkull extends BlockContainer
 
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
     {
-        switch ((EnumFacing)state.getValue(FACING))
+        switch ((EnumFacing)state.get(FACING))
         {
             case UP:
             default:
@@ -112,18 +106,11 @@ public class BlockSkull extends BlockContainer
         }
     }
 
-    /**
-     * Called by ItemBlocks just before a block is actually set in the world, to allow for adjustments to the
-     * IBlockstate
-     */
     public IBlockState getStateForPlacement(World worldIn, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer)
     {
         return this.getDefaultState().withProperty(FACING, placer.getHorizontalFacing()).withProperty(NODROP, Boolean.valueOf(false));
     }
 
-    /**
-     * Returns a new instance of a block's tile entity class. Called on placing the block.
-     */
     public TileEntity createNewTileEntity(World worldIn, int meta)
     {
         return new TileEntitySkull();
@@ -142,9 +129,6 @@ public class BlockSkull extends BlockContainer
         return new ItemStack(Items.SKULL, 1, i);
     }
 
-    /**
-     * Spawns this Block's drops into the World as EntityItems.
-     */
     public void dropBlockAsItemWithChance(World worldIn, BlockPos pos, IBlockState state, float chance, int fortune)
     {
     }
@@ -155,7 +139,7 @@ public class BlockSkull extends BlockContainer
      */
     public void onBlockHarvested(World worldIn, BlockPos pos, IBlockState state, EntityPlayer player)
     {
-        if (player.capabilities.isCreativeMode)
+        if (player.abilities.isCreativeMode)
         {
             state = state.withProperty(NODROP, Boolean.valueOf(true));
             worldIn.setBlockState(pos, state, 4);
@@ -164,14 +148,11 @@ public class BlockSkull extends BlockContainer
         super.onBlockHarvested(worldIn, pos, state, player);
     }
 
-    /**
-     * Called serverside after this block is replaced with another in Chunk, but before the Tile Entity is updated
-     */
     public void breakBlock(World worldIn, BlockPos pos, IBlockState state)
     {
         if (!worldIn.isRemote)
         {
-            if (!((Boolean)state.getValue(NODROP)).booleanValue())
+            if (!((Boolean)state.get(NODROP)).booleanValue())
             {
                 TileEntity tileentity = worldIn.getTileEntity(pos);
 
@@ -182,10 +163,10 @@ public class BlockSkull extends BlockContainer
 
                     if (tileentityskull.getSkullType() == 3 && tileentityskull.getPlayerProfile() != null)
                     {
-                        itemstack.setTagCompound(new NBTTagCompound());
+                        itemstack.setTag(new NBTTagCompound());
                         NBTTagCompound nbttagcompound = new NBTTagCompound();
                         NBTUtil.writeGameProfile(nbttagcompound, tileentityskull.getPlayerProfile());
-                        itemstack.getTagCompound().setTag("SkullOwner", nbttagcompound);
+                        itemstack.getTag().setTag("SkullOwner", nbttagcompound);
                     }
 
                     spawnAsEntity(worldIn, pos, itemstack);
@@ -196,9 +177,6 @@ public class BlockSkull extends BlockContainer
         }
     }
 
-    /**
-     * Get the Item that this Block should drop when harvested.
-     */
     public Item getItemDropped(IBlockState state, Random rand, int fortune)
     {
         return Items.SKULL;
@@ -247,12 +225,12 @@ public class BlockSkull extends BlockContainer
                 entitywither.renderYawOffset = blockpattern$patternhelper.getForwards().getAxis() == EnumFacing.Axis.X ? 0.0F : 90.0F;
                 entitywither.ignite();
 
-                for (EntityPlayerMP entityplayermp : worldIn.getEntitiesWithinAABB(EntityPlayerMP.class, entitywither.getEntityBoundingBox().grow(50.0D)))
+                for (EntityPlayerMP entityplayermp : worldIn.getEntitiesWithinAABB(EntityPlayerMP.class, entitywither.getBoundingBox().grow(50.0D)))
                 {
                     CriteriaTriggers.SUMMONED_ENTITY.trigger(entityplayermp, entitywither);
                 }
 
-                worldIn.spawnEntity(entitywither);
+                worldIn.addEntity0(entitywither);
 
                 for (int l = 0; l < 120; ++l)
                 {
@@ -271,23 +249,17 @@ public class BlockSkull extends BlockContainer
         }
     }
 
-    /**
-     * Convert the given metadata into a BlockState for this Block
-     */
     public IBlockState getStateFromMeta(int meta)
     {
-        return this.getDefaultState().withProperty(FACING, EnumFacing.getFront(meta & 7)).withProperty(NODROP, Boolean.valueOf((meta & 8) > 0));
+        return this.getDefaultState().withProperty(FACING, EnumFacing.byIndex(meta & 7)).withProperty(NODROP, Boolean.valueOf((meta & 8) > 0));
     }
 
-    /**
-     * Convert the BlockState into the correct metadata value
-     */
     public int getMetaFromState(IBlockState state)
     {
         int i = 0;
-        i = i | ((EnumFacing)state.getValue(FACING)).getIndex();
+        i = i | ((EnumFacing)state.get(FACING)).getIndex();
 
-        if (((Boolean)state.getValue(NODROP)).booleanValue())
+        if (((Boolean)state.get(NODROP)).booleanValue())
         {
             i |= 8;
         }
@@ -298,19 +270,22 @@ public class BlockSkull extends BlockContainer
     /**
      * Returns the blockstate with the given rotation from the passed blockstate. If inapplicable, returns the passed
      * blockstate.
+     * @deprecated call via {@link IBlockState#withRotation(Rotation)} whenever possible. Implementing/overriding is
+     * fine.
      */
-    public IBlockState withRotation(IBlockState state, Rotation rot)
+    public IBlockState rotate(IBlockState state, Rotation rot)
     {
-        return state.withProperty(FACING, rot.rotate((EnumFacing)state.getValue(FACING)));
+        return state.withProperty(FACING, rot.rotate((EnumFacing)state.get(FACING)));
     }
 
     /**
      * Returns the blockstate with the given mirror of the passed blockstate. If inapplicable, returns the passed
      * blockstate.
+     * @deprecated call via {@link IBlockState#withMirror(Mirror)} whenever possible. Implementing/overriding is fine.
      */
-    public IBlockState withMirror(IBlockState state, Mirror mirrorIn)
+    public IBlockState mirror(IBlockState state, Mirror mirrorIn)
     {
-        return state.withRotation(mirrorIn.toRotation((EnumFacing)state.getValue(FACING)));
+        return state.rotate(mirrorIn.toRotation((EnumFacing)state.get(FACING)));
     }
 
     protected BlockStateContainer createBlockState()
@@ -338,7 +313,7 @@ public class BlockSkull extends BlockContainer
         return this.witherPattern;
     }
 
-    public BlockFaceShape getBlockFaceShape(IBlockAccess p_193383_1_, IBlockState p_193383_2_, BlockPos p_193383_3_, EnumFacing p_193383_4_)
+    public BlockFaceShape getBlockFaceShape(IBlockAccess worldIn, IBlockState state, BlockPos pos, EnumFacing face)
     {
         return BlockFaceShape.UNDEFINED;
     }

@@ -15,33 +15,21 @@ import net.minecraft.util.math.BlockPos;
 
 public class AdvancementCommand extends CommandBase
 {
-    /**
-     * Gets the name of the command
-     */
     public String getName()
     {
         return "advancement";
     }
 
-    /**
-     * Return the required permission level for this command.
-     */
     public int getRequiredPermissionLevel()
     {
         return 2;
     }
 
-    /**
-     * Gets the usage string for the command.
-     */
     public String getUsage(ICommandSender sender)
     {
         return "commands.advancement.usage";
     }
 
-    /**
-     * Callback for when the command is executed
-     */
     public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
     {
         if (args.length < 1)
@@ -60,14 +48,14 @@ public class AdvancementCommand extends CommandBase
                 }
 
                 EntityPlayerMP entityplayermp = getPlayer(server, sender, args[1]);
-                AdvancementCommand.Mode advancementcommand$actiontype$mode = AdvancementCommand.Mode.byName(args[2]);
+                AdvancementCommand.Mode advancementcommand$mode = AdvancementCommand.Mode.byName(args[2]);
 
-                if (advancementcommand$actiontype$mode == null)
+                if (advancementcommand$mode == null)
                 {
                     throw advancementcommand$actiontype.wrongUsage();
                 }
 
-                this.perform(server, sender, args, entityplayermp, advancementcommand$actiontype, advancementcommand$actiontype$mode);
+                this.perform(server, sender, args, entityplayermp, advancementcommand$actiontype, advancementcommand$mode);
             }
             else
             {
@@ -93,21 +81,21 @@ public class AdvancementCommand extends CommandBase
         }
     }
 
-    private void perform(MinecraftServer p_193516_1_, ICommandSender p_193516_2_, String[] p_193516_3_, EntityPlayerMP p_193516_4_, AdvancementCommand.ActionType p_193516_5_, AdvancementCommand.Mode p_193516_6_) throws CommandException
+    private void perform(MinecraftServer server, ICommandSender sender, String[] args, EntityPlayerMP player, AdvancementCommand.ActionType p_193516_5_, AdvancementCommand.Mode p_193516_6_) throws CommandException
     {
         if (p_193516_6_ == AdvancementCommand.Mode.EVERYTHING)
         {
-            if (p_193516_3_.length == 3)
+            if (args.length == 3)
             {
-                int j = p_193516_5_.perform(p_193516_4_, p_193516_1_.getAdvancementManager().getAdvancements());
+                int j = p_193516_5_.perform(player, server.getAdvancementManager().getAdvancements());
 
                 if (j == 0)
                 {
-                    throw p_193516_6_.fail(p_193516_5_, p_193516_4_.getName());
+                    throw p_193516_6_.fail(p_193516_5_, player.getName());
                 }
                 else
                 {
-                    p_193516_6_.success(p_193516_2_, this, p_193516_5_, p_193516_4_.getName(), j);
+                    p_193516_6_.success(sender, this, p_193516_5_, player.getName(), j);
                 }
             }
             else
@@ -115,46 +103,46 @@ public class AdvancementCommand extends CommandBase
                 throw p_193516_6_.usage(p_193516_5_);
             }
         }
-        else if (p_193516_3_.length < 4)
+        else if (args.length < 4)
         {
             throw p_193516_6_.usage(p_193516_5_);
         }
         else
         {
-            Advancement advancement = findAdvancement(p_193516_1_, p_193516_3_[3]);
+            Advancement advancement = findAdvancement(server, args[3]);
 
-            if (p_193516_6_ == AdvancementCommand.Mode.ONLY && p_193516_3_.length == 5)
+            if (p_193516_6_ == AdvancementCommand.Mode.ONLY && args.length == 5)
             {
-                String s = p_193516_3_[4];
+                String s = args[4];
 
                 if (!advancement.getCriteria().keySet().contains(s))
                 {
-                    throw new CommandException("commands.advancement.criterionNotFound", new Object[] {advancement.getId(), p_193516_3_[4]});
+                    throw new CommandException("commands.advancement.criterionNotFound", new Object[] {advancement.getId(), args[4]});
                 }
 
-                if (!p_193516_5_.performCriterion(p_193516_4_, advancement, s))
+                if (!p_193516_5_.performCriterion(player, advancement, s))
                 {
-                    throw new CommandException(p_193516_5_.baseTranslationKey + ".criterion.failed", new Object[] {advancement.getId(), p_193516_4_.getName(), s});
+                    throw new CommandException(p_193516_5_.baseTranslationKey + ".criterion.failed", new Object[] {advancement.getId(), player.getName(), s});
                 }
 
-                notifyCommandListener(p_193516_2_, this, p_193516_5_.baseTranslationKey + ".criterion.success", new Object[] {advancement.getId(), p_193516_4_.getName(), s});
+                notifyCommandListener(sender, this, p_193516_5_.baseTranslationKey + ".criterion.success", new Object[] {advancement.getId(), player.getName(), s});
             }
             else
             {
-                if (p_193516_3_.length != 4)
+                if (args.length != 4)
                 {
                     throw p_193516_6_.usage(p_193516_5_);
                 }
 
                 List<Advancement> list = this.getAdvancements(advancement, p_193516_6_);
-                int i = p_193516_5_.perform(p_193516_4_, list);
+                int i = p_193516_5_.perform(player, list);
 
                 if (i == 0)
                 {
-                    throw p_193516_6_.fail(p_193516_5_, advancement.getId(), p_193516_4_.getName());
+                    throw p_193516_6_.fail(p_193516_5_, advancement.getId(), player.getName());
                 }
 
-                p_193516_6_.success(p_193516_2_, this, p_193516_5_, advancement.getId(), p_193516_4_.getName(), i);
+                p_193516_6_.success(sender, this, p_193516_5_, advancement.getId(), player.getName(), i);
             }
         }
     }
@@ -245,16 +233,16 @@ public class AdvancementCommand extends CommandBase
                     return getListOfStringsMatchingLastWord(args, AdvancementCommand.Mode.NAMES);
                 }
 
-                AdvancementCommand.Mode advancementcommand$actiontype$mode = AdvancementCommand.Mode.byName(args[2]);
+                AdvancementCommand.Mode advancementcommand$mode = AdvancementCommand.Mode.byName(args[2]);
 
-                if (advancementcommand$actiontype$mode != null && advancementcommand$actiontype$mode != AdvancementCommand.Mode.EVERYTHING)
+                if (advancementcommand$mode != null && advancementcommand$mode != AdvancementCommand.Mode.EVERYTHING)
                 {
                     if (args.length == 4)
                     {
                         return getListOfStringsMatchingLastWord(args, this.getAdvancementNames(server));
                     }
 
-                    if (args.length == 5 && advancementcommand$actiontype$mode == AdvancementCommand.Mode.ONLY)
+                    if (args.length == 5 && advancementcommand$mode == AdvancementCommand.Mode.ONLY)
                     {
                         Advancement advancement = server.getAdvancementManager().getAdvancement(new ResourceLocation(args[3]));
 
@@ -305,9 +293,6 @@ public class AdvancementCommand extends CommandBase
         return list;
     }
 
-    /**
-     * Return whether the specified command parameter index is a username parameter.
-     */
     public boolean isUsernameIndex(String[] args, int index)
     {
         return args.length > 1 && ("grant".equals(args[0]) || "revoke".equals(args[0]) || "test".equals(args[0])) && index == 1;
@@ -466,11 +451,11 @@ public class AdvancementCommand extends CommandBase
         @Nullable
         static AdvancementCommand.Mode byName(String nameIn)
         {
-            for (AdvancementCommand.Mode advancementcommand$actiontype$mode : values())
+            for (AdvancementCommand.Mode advancementcommand$mode : values())
             {
-                if (advancementcommand$actiontype$mode.name.equals(nameIn))
+                if (advancementcommand$mode.name.equals(nameIn))
                 {
-                    return advancementcommand$actiontype$mode;
+                    return advancementcommand$mode;
                 }
             }
 

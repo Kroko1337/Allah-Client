@@ -19,7 +19,7 @@ public class ParticleFirework
     {
         public Particle createParticle(int particleID, World worldIn, double xCoordIn, double yCoordIn, double zCoordIn, double xSpeedIn, double ySpeedIn, double zSpeedIn, int... p_178902_15_)
         {
-            ParticleFirework.Spark particlefirework$spark = new ParticleFirework.Spark(worldIn, xCoordIn, yCoordIn, zCoordIn, xSpeedIn, ySpeedIn, zSpeedIn, Minecraft.getMinecraft().effectRenderer);
+            ParticleFirework.Spark particlefirework$spark = new ParticleFirework.Spark(worldIn, xCoordIn, yCoordIn, zCoordIn, xSpeedIn, ySpeedIn, zSpeedIn, Minecraft.getInstance().particles);
             particlefirework$spark.setAlphaF(0.99F);
             return particlefirework$spark;
         }
@@ -30,7 +30,7 @@ public class ParticleFirework
         protected Overlay(World p_i46466_1_, double p_i46466_2_, double p_i46466_4_, double p_i46466_6_)
         {
             super(p_i46466_1_, p_i46466_2_, p_i46466_4_, p_i46466_6_);
-            this.particleMaxAge = 4;
+            this.maxAge = 4;
         }
 
         public void renderParticle(BufferBuilder buffer, Entity entityIn, float partialTicks, float rotationX, float rotationZ, float rotationYZ, float rotationXY, float rotationXZ)
@@ -39,8 +39,8 @@ public class ParticleFirework
             float f1 = 0.5F;
             float f2 = 0.125F;
             float f3 = 0.375F;
-            float f4 = 7.1F * MathHelper.sin(((float)this.particleAge + partialTicks - 1.0F) * 0.25F * (float)Math.PI);
-            this.setAlphaF(0.6F - ((float)this.particleAge + partialTicks - 1.0F) * 0.25F * 0.5F);
+            float f4 = 7.1F * MathHelper.sin(((float)this.age + partialTicks - 1.0F) * 0.25F * (float)Math.PI);
+            this.setAlphaF(0.6F - ((float)this.age + partialTicks - 1.0F) * 0.25F * 0.5F);
             float f5 = (float)(this.prevPosX + (this.posX - this.prevPosX) * (double)partialTicks - interpPosX);
             float f6 = (float)(this.prevPosY + (this.posY - this.prevPosY) * (double)partialTicks - interpPosY);
             float f7 = (float)(this.prevPosZ + (this.posZ - this.prevPosZ) * (double)partialTicks - interpPosZ);
@@ -72,7 +72,7 @@ public class ParticleFirework
             this.motionZ = p_i46465_12_;
             this.effectRenderer = p_i46465_14_;
             this.particleScale *= 0.75F;
-            this.particleMaxAge = 48 + this.rand.nextInt(12);
+            this.maxAge = 48 + this.rand.nextInt(12);
         }
 
         public void setTrail(boolean trailIn)
@@ -92,22 +92,22 @@ public class ParticleFirework
 
         public void renderParticle(BufferBuilder buffer, Entity entityIn, float partialTicks, float rotationX, float rotationZ, float rotationYZ, float rotationXY, float rotationXZ)
         {
-            if (!this.twinkle || this.particleAge < this.particleMaxAge / 3 || (this.particleAge + this.particleMaxAge) / 3 % 2 == 0)
+            if (!this.twinkle || this.age < this.maxAge / 3 || (this.age + this.maxAge) / 3 % 2 == 0)
             {
                 super.renderParticle(buffer, entityIn, partialTicks, rotationX, rotationZ, rotationYZ, rotationXY, rotationXZ);
             }
         }
 
-        public void onUpdate()
+        public void tick()
         {
-            super.onUpdate();
+            super.tick();
 
-            if (this.trail && this.particleAge < this.particleMaxAge / 2 && (this.particleAge + this.particleMaxAge) % 2 == 0)
+            if (this.trail && this.age < this.maxAge / 2 && (this.age + this.maxAge) % 2 == 0)
             {
                 ParticleFirework.Spark particlefirework$spark = new ParticleFirework.Spark(this.world, this.posX, this.posY, this.posZ, 0.0D, 0.0D, 0.0D, this.effectRenderer);
                 particlefirework$spark.setAlphaF(0.99F);
-                particlefirework$spark.setRBGColorF(this.particleRed, this.particleGreen, this.particleBlue);
-                particlefirework$spark.particleAge = particlefirework$spark.particleMaxAge / 2;
+                particlefirework$spark.setColor(this.particleRed, this.particleGreen, this.particleBlue);
+                particlefirework$spark.age = particlefirework$spark.maxAge / 2;
 
                 if (this.hasFadeColour)
                 {
@@ -137,28 +137,28 @@ public class ParticleFirework
             this.motionY = p_i46464_10_;
             this.motionZ = p_i46464_12_;
             this.manager = p_i46464_14_;
-            this.particleMaxAge = 8;
+            this.maxAge = 8;
 
             if (p_i46464_15_ != null)
             {
-                this.fireworkExplosions = p_i46464_15_.getTagList("Explosions", 10);
+                this.fireworkExplosions = p_i46464_15_.getList("Explosions", 10);
 
-                if (this.fireworkExplosions.hasNoTags())
+                if (this.fireworkExplosions.isEmpty())
                 {
                     this.fireworkExplosions = null;
                 }
                 else
                 {
-                    this.particleMaxAge = this.fireworkExplosions.tagCount() * 2 - 1;
+                    this.maxAge = this.fireworkExplosions.tagCount() * 2 - 1;
 
                     for (int i = 0; i < this.fireworkExplosions.tagCount(); ++i)
                     {
-                        NBTTagCompound nbttagcompound = this.fireworkExplosions.getCompoundTagAt(i);
+                        NBTTagCompound nbttagcompound = this.fireworkExplosions.getCompound(i);
 
                         if (nbttagcompound.getBoolean("Flicker"))
                         {
                             this.twinkle = true;
-                            this.particleMaxAge += 15;
+                            this.maxAge += 15;
                             break;
                         }
                     }
@@ -170,7 +170,7 @@ public class ParticleFirework
         {
         }
 
-        public void onUpdate()
+        public void tick()
         {
             if (this.fireworkAge == 0 && this.fireworkExplosions != null)
             {
@@ -185,7 +185,7 @@ public class ParticleFirework
                 {
                     for (int i = 0; i < this.fireworkExplosions.tagCount(); ++i)
                     {
-                        NBTTagCompound nbttagcompound = this.fireworkExplosions.getCompoundTagAt(i);
+                        NBTTagCompound nbttagcompound = this.fireworkExplosions.getCompound(i);
 
                         if (nbttagcompound.getByte("Type") == 1)
                         {
@@ -199,11 +199,11 @@ public class ParticleFirework
 
                 if (flag1)
                 {
-                    soundevent1 = flag ? SoundEvents.ENTITY_FIREWORK_LARGE_BLAST_FAR : SoundEvents.ENTITY_FIREWORK_LARGE_BLAST;
+                    soundevent1 = flag ? SoundEvents.ENTITY_FIREWORK_ROCKET_LARGE_BLAST_FAR : SoundEvents.ENTITY_FIREWORK_ROCKET_LARGE_BLAST;
                 }
                 else
                 {
-                    soundevent1 = flag ? SoundEvents.ENTITY_FIREWORK_BLAST_FAR : SoundEvents.ENTITY_FIREWORK_BLAST;
+                    soundevent1 = flag ? SoundEvents.ENTITY_FIREWORK_ROCKET_BLAST_FAR : SoundEvents.ENTITY_FIREWORK_ROCKET_BLAST;
                 }
 
                 this.world.playSound(this.posX, this.posY, this.posZ, soundevent1, SoundCategory.AMBIENT, 20.0F, 0.95F + this.rand.nextFloat() * 0.1F, true);
@@ -212,7 +212,7 @@ public class ParticleFirework
             if (this.fireworkAge % 2 == 0 && this.fireworkExplosions != null && this.fireworkAge / 2 < this.fireworkExplosions.tagCount())
             {
                 int k = this.fireworkAge / 2;
-                NBTTagCompound nbttagcompound1 = this.fireworkExplosions.getCompoundTagAt(k);
+                NBTTagCompound nbttagcompound1 = this.fireworkExplosions.getCompound(k);
                 int l = nbttagcompound1.getByte("Type");
                 boolean flag4 = nbttagcompound1.getBoolean("Trail");
                 boolean flag2 = nbttagcompound1.getBoolean("Flicker");
@@ -250,18 +250,18 @@ public class ParticleFirework
                 float f1 = (float)((j & 65280) >> 8) / 255.0F;
                 float f2 = (float)((j & 255) >> 0) / 255.0F;
                 ParticleFirework.Overlay particlefirework$overlay = new ParticleFirework.Overlay(this.world, this.posX, this.posY, this.posZ);
-                particlefirework$overlay.setRBGColorF(f, f1, f2);
+                particlefirework$overlay.setColor(f, f1, f2);
                 this.manager.addEffect(particlefirework$overlay);
             }
 
             ++this.fireworkAge;
 
-            if (this.fireworkAge > this.particleMaxAge)
+            if (this.fireworkAge > this.maxAge)
             {
                 if (this.twinkle)
                 {
                     boolean flag3 = this.isFarFromCamera();
-                    SoundEvent soundevent = flag3 ? SoundEvents.ENTITY_FIREWORK_TWINKLE_FAR : SoundEvents.ENTITY_FIREWORK_TWINKLE;
+                    SoundEvent soundevent = flag3 ? SoundEvents.ENTITY_FIREWORK_ROCKET_TWINKLE_FAR : SoundEvents.ENTITY_FIREWORK_ROCKET_TWINKLE;
                     this.world.playSound(this.posX, this.posY, this.posZ, soundevent, SoundCategory.AMBIENT, 20.0F, 0.9F + this.rand.nextFloat() * 0.15F, true);
                 }
 
@@ -271,7 +271,7 @@ public class ParticleFirework
 
         private boolean isFarFromCamera()
         {
-            Minecraft minecraft = Minecraft.getMinecraft();
+            Minecraft minecraft = Minecraft.getInstance();
             return minecraft == null || minecraft.getRenderViewEntity() == null || minecraft.getRenderViewEntity().getDistanceSq(this.posX, this.posY, this.posZ) >= 256.0D;
         }
 

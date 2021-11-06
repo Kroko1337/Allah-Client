@@ -16,7 +16,7 @@ public class TileEntityStructureRenderer extends TileEntitySpecialRenderer<TileE
 {
     public void render(TileEntityStructure te, double x, double y, double z, float partialTicks, int destroyStage, float alpha)
     {
-        if (Minecraft.getMinecraft().player.canUseCommandBlock() || Minecraft.getMinecraft().player.isSpectator())
+        if (Minecraft.getInstance().player.canUseCommandBlock() || Minecraft.getInstance().player.isSpectator())
         {
             super.render(te, x, y, z, partialTicks, destroyStage, alpha);
             BlockPos blockpos = te.getPosition();

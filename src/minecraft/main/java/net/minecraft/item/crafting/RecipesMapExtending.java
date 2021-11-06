@@ -99,16 +99,20 @@ public class RecipesMapExtending extends ShapedRecipes
         itemstack = itemstack.copy();
         itemstack.setCount(1);
 
-        if (itemstack.getTagCompound() == null)
+        if (itemstack.getTag() == null)
         {
-            itemstack.setTagCompound(new NBTTagCompound());
+            itemstack.setTag(new NBTTagCompound());
         }
 
-        itemstack.getTagCompound().setInteger("map_scale_direction", 1);
+        itemstack.getTag().putInt("map_scale_direction", 1);
         return itemstack;
     }
 
-    public boolean isHidden()
+    /**
+     * If true, this recipe does not appear in the recipe book and does not respect recipe unlocking (and the
+     * doLimitedCrafting gamerule)
+     */
+    public boolean isDynamic()
     {
         return true;
     }

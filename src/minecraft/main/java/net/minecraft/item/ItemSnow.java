@@ -23,9 +23,6 @@ public class ItemSnow extends ItemBlock
         this.setMaxDamage(0);
     }
 
-    /**
-     * Called when a Block is right-clicked with this Item
-     */
     public EnumActionResult onItemUse(EntityPlayer player, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
         ItemStack itemstack = player.getHeldItem(hand);
@@ -45,7 +42,7 @@ public class ItemSnow extends ItemBlock
 
             if (block == this.block)
             {
-                int i = ((Integer)iblockstate.getValue(BlockSnow.LAYERS)).intValue();
+                int i = ((Integer)iblockstate.get(BlockSnow.LAYERS)).intValue();
 
                 if (i < 8)
                 {
@@ -76,10 +73,6 @@ public class ItemSnow extends ItemBlock
         }
     }
 
-    /**
-     * Converts the given ItemStack damage value into a metadata value to be placed in the world when this Item is
-     * placed as a Block (mostly used with ItemBlocks).
-     */
     public int getMetadata(int damage)
     {
         return damage;

@@ -17,13 +17,7 @@ public class LanguageMap
      * Pattern that matches numeric variable placeholders in a resource string, such as "%d", "%3$d", "%.2f"
      */
     private static final Pattern NUMERIC_VARIABLE_PATTERN = Pattern.compile("%(\\d+\\$)?[\\d\\.]*[df]");
-
-    /**
-     * A Splitter that splits a string on the first "=".  For example, "a=b=c" would split into ["a", "b=c"].
-     */
     private static final Splitter EQUAL_SIGN_SPLITTER = Splitter.on('=').limit(2);
-
-    /** Is the private singleton instance of StringTranslate. */
     private static final LanguageMap instance = new LanguageMap();
     private final Map<String, String> languageList = Maps.<String, String>newHashMap();
 
@@ -87,9 +81,6 @@ public class LanguageMap
         return this.tryTranslateKey(key);
     }
 
-    /**
-     * Translate a key to current language applying String.format()
-     */
     public synchronized String translateKeyFormat(String key, Object... format)
     {
         String s = this.tryTranslateKey(key);
@@ -113,9 +104,6 @@ public class LanguageMap
         return s == null ? key : s;
     }
 
-    /**
-     * Returns true if the passed key is in the translation table.
-     */
     public synchronized boolean isKeyTranslated(String key)
     {
         return this.languageList.containsKey(key);

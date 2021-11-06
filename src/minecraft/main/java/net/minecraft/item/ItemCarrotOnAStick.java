@@ -19,18 +19,11 @@ public class ItemCarrotOnAStick extends Item
         this.setMaxDamage(25);
     }
 
-    /**
-     * Returns True is the item is renderer in full 3D when hold.
-     */
     public boolean isFull3D()
     {
         return true;
     }
 
-    /**
-     * Returns true if this item should be rotated by 180 degrees around the Y axis when being held in an entities
-     * hands.
-     */
     public boolean shouldRotateAroundWhenRendering()
     {
         return true;
@@ -46,7 +39,7 @@ public class ItemCarrotOnAStick extends Item
         }
         else
         {
-            if (playerIn.isRiding() && playerIn.getRidingEntity() instanceof EntityPig)
+            if (playerIn.isPassenger() && playerIn.getRidingEntity() instanceof EntityPig)
             {
                 EntityPig entitypig = (EntityPig)playerIn.getRidingEntity();
 
@@ -57,7 +50,7 @@ public class ItemCarrotOnAStick extends Item
                     if (itemstack.isEmpty())
                     {
                         ItemStack itemstack1 = new ItemStack(Items.FISHING_ROD);
-                        itemstack1.setTagCompound(itemstack.getTagCompound());
+                        itemstack1.setTag(itemstack.getTag());
                         return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, itemstack1);
                     }
 

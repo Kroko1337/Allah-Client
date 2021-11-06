@@ -6,34 +6,11 @@ import net.minecraft.util.EnumFacing;
 
 public class AxisAlignedBB
 {
-    /**
-     * The minimum X coordinate of this bounding box. Guaranteed to always be less than or equal to {@link #maxX}.
-     */
     public final double minX;
-
-    /**
-     * The minimum Y coordinate of this bounding box. Guaranteed to always be less than or equal to {@link #maxY}.
-     */
     public final double minY;
-
-    /**
-     * The minimum Y coordinate of this bounding box. Guaranteed to always be less than or equal to {@link #maxZ}.
-     */
     public final double minZ;
-
-    /**
-     * The maximum X coordinate of this bounding box. Guaranteed to always be greater than or equal to {@link #minX}.
-     */
     public final double maxX;
-
-    /**
-     * The maximum Y coordinate of this bounding box. Guaranteed to always be greater than or equal to {@link #minY}.
-     */
     public final double maxY;
-
-    /**
-     * The maximum Z coordinate of this bounding box. Guaranteed to always be greater than or equal to {@link #minZ}.
-     */
     public final double maxZ;
 
     public AxisAlignedBB(double x1, double y1, double z1, double x2, double y2, double z2)
@@ -61,10 +38,6 @@ public class AxisAlignedBB
         this(min.x, min.y, min.z, max.x, max.y, max.z);
     }
 
-    /**
-     * Helper method that returns a new {@link AxisAlignedBB} with the given value for {@link #maxY} and all other
-     * values taken from this bounding box.
-     */
     public AxisAlignedBB setMaxY(double y2)
     {
         return new AxisAlignedBB(this.minX, this.minY, this.minZ, this.maxX, y2, this.maxZ);
@@ -318,14 +291,14 @@ public class AxisAlignedBB
         return this.grow(value, value, value);
     }
 
-    public AxisAlignedBB intersect(AxisAlignedBB p_191500_1_)
+    public AxisAlignedBB intersect(AxisAlignedBB other)
     {
-        double d0 = Math.max(this.minX, p_191500_1_.minX);
-        double d1 = Math.max(this.minY, p_191500_1_.minY);
-        double d2 = Math.max(this.minZ, p_191500_1_.minZ);
-        double d3 = Math.min(this.maxX, p_191500_1_.maxX);
-        double d4 = Math.min(this.maxY, p_191500_1_.maxY);
-        double d5 = Math.min(this.maxZ, p_191500_1_.maxZ);
+        double d0 = Math.max(this.minX, other.minX);
+        double d1 = Math.max(this.minY, other.minY);
+        double d2 = Math.max(this.minZ, other.minZ);
+        double d3 = Math.min(this.maxX, other.maxX);
+        double d4 = Math.min(this.maxY, other.maxY);
+        double d5 = Math.min(this.maxZ, other.maxZ);
         return new AxisAlignedBB(d0, d1, d2, d3, d4, d5);
     }
 
@@ -353,16 +326,11 @@ public class AxisAlignedBB
         return new AxisAlignedBB(this.minX + (double)pos.getX(), this.minY + (double)pos.getY(), this.minZ + (double)pos.getZ(), this.maxX + (double)pos.getX(), this.maxY + (double)pos.getY(), this.maxZ + (double)pos.getZ());
     }
 
-    public AxisAlignedBB offset(Vec3d p_191194_1_)
+    public AxisAlignedBB offset(Vec3d vec)
     {
-        return this.offset(p_191194_1_.x, p_191194_1_.y, p_191194_1_.z);
+        return this.offset(vec.x, vec.y, vec.z);
     }
 
-    /**
-     * if instance and the argument bounding boxes overlap in the Y and Z dimensions, calculate the offset between them
-     * in the X dimension.  return var2 if the bounding boxes do not overlap or if var2 is closer to 0 then the
-     * calculated offset.  Otherwise return the calculated offset.
-     */
     public double calculateXOffset(AxisAlignedBB other, double offsetX)
     {
         if (other.maxY > this.minY && other.minY < this.maxY && other.maxZ > this.minZ && other.minZ < this.maxZ)
@@ -394,11 +362,6 @@ public class AxisAlignedBB
         }
     }
 
-    /**
-     * if instance and the argument bounding boxes overlap in the X and Z dimensions, calculate the offset between them
-     * in the Y dimension.  return var2 if the bounding boxes do not overlap or if var2 is closer to 0 then the
-     * calculated offset.  Otherwise return the calculated offset.
-     */
     public double calculateYOffset(AxisAlignedBB other, double offsetY)
     {
         if (other.maxX > this.minX && other.minX < this.maxX && other.maxZ > this.minZ && other.minZ < this.maxZ)
@@ -430,11 +393,6 @@ public class AxisAlignedBB
         }
     }
 
-    /**
-     * if instance and the argument bounding boxes overlap in the Y and X dimensions, calculate the offset between them
-     * in the Z dimension.  return var2 if the bounding boxes do not overlap or if var2 is closer to 0 then the
-     * calculated offset.  Otherwise return the calculated offset.
-     */
     public double calculateZOffset(AxisAlignedBB other, double offsetZ)
     {
         if (other.maxX > this.minX && other.minX < this.maxX && other.maxY > this.minY && other.minY < this.maxY)

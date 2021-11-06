@@ -42,7 +42,7 @@ public class EntityLargeFireball extends EntityFireball
 
             boolean flag = this.world.getGameRules().getBoolean("mobGriefing");
             this.world.newExplosion((Entity)null, this.posX, this.posY, this.posZ, (float)this.explosionPower, flag, flag);
-            this.setDead();
+            this.remove();
         }
     }
 
@@ -51,25 +51,22 @@ public class EntityLargeFireball extends EntityFireball
         EntityFireball.registerFixesFireball(fixer, "Fireball");
     }
 
-    /**
-     * (abstract) Protected helper method to write subclass entity data to NBT.
-     */
     public void writeEntityToNBT(NBTTagCompound compound)
     {
         super.writeEntityToNBT(compound);
-        compound.setInteger("ExplosionPower", this.explosionPower);
+        compound.putInt("ExplosionPower", this.explosionPower);
     }
 
     /**
      * (abstract) Protected helper method to read subclass entity data from NBT.
      */
-    public void readEntityFromNBT(NBTTagCompound compound)
+    public void readAdditional(NBTTagCompound compound)
     {
-        super.readEntityFromNBT(compound);
+        super.readAdditional(compound);
 
-        if (compound.hasKey("ExplosionPower", 99))
+        if (compound.contains("ExplosionPower", 99))
         {
-            this.explosionPower = compound.getInteger("ExplosionPower");
+            this.explosionPower = compound.getInt("ExplosionPower");
         }
     }
 }

@@ -22,11 +22,11 @@ public class DemoPlayerInteractionManager extends PlayerInteractionManager
         super(worldIn);
     }
 
-    public void updateBlockRemoving()
+    public void tick()
     {
-        super.updateBlockRemoving();
+        super.tick();
         ++this.gameModeTicks;
-        long i = this.world.getTotalWorldTime();
+        long i = this.world.getGameTime();
         long j = i / 24000L + 1L;
 
         if (!this.displayedIntro && this.gameModeTicks > 20)
@@ -82,10 +82,6 @@ public class DemoPlayerInteractionManager extends PlayerInteractionManager
         }
     }
 
-    /**
-     * If not creative, it calls sendBlockBreakProgress until the block is broken first. tryHarvestBlock can also be the
-     * result of this call.
-     */
     public void onBlockClicked(BlockPos pos, EnumFacing side)
     {
         if (this.demoTimeExpired)

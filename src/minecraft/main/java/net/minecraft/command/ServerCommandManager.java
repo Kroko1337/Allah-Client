@@ -116,9 +116,6 @@ public class ServerCommandManager extends CommandHandler implements ICommandList
         CommandBase.setCommandListener(this);
     }
 
-    /**
-     * Send an informative message to the server operators
-     */
     public void notifyListener(ICommandSender sender, ICommand command, int flags, String translationKey, Object... translationArgs)
     {
         boolean flag = true;

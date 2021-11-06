@@ -16,9 +16,6 @@ public class OverlayChatListener implements IChatListener
     /**
      * Called whenever this listener receives a chat message, if this listener is registered to the given type in {@link
      * net.minecraft.client.gui.GuiIngame#chatListeners chatListeners}
-     *  
-     * @param chatTypeIn The type of chat message
-     * @param message The chat message.
      */
     public void say(ChatType chatTypeIn, ITextComponent message)
     {

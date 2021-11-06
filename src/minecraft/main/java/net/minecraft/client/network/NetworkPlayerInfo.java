@@ -24,8 +24,6 @@ public class NetworkPlayerInfo
     private final GameProfile gameProfile;
     Map<Type, ResourceLocation> playerTextures = Maps.newEnumMap(Type.class);
     private GameType gameType;
-
-    /** Player response time to server in milliseconds */
     private int responseTime;
     private boolean playerTexturesLoaded;
     private String skinType;
@@ -118,7 +116,7 @@ public class NetworkPlayerInfo
     @Nullable
     public ScorePlayerTeam getPlayerTeam()
     {
-        return Minecraft.getMinecraft().world.getScoreboard().getPlayersTeam(this.getGameProfile().getName());
+        return Minecraft.getInstance().world.getScoreboard().getPlayersTeam(this.getGameProfile().getName());
     }
 
     protected void loadPlayerTextures()
@@ -128,7 +126,7 @@ public class NetworkPlayerInfo
             if (!this.playerTexturesLoaded)
             {
                 this.playerTexturesLoaded = true;
-                Minecraft.getMinecraft().getSkinManager().loadProfileTextures(this.gameProfile, new SkinManager.SkinAvailableCallback()
+                Minecraft.getInstance().getSkinManager().loadProfileTextures(this.gameProfile, new SkinManager.SkinAvailableCallback()
                 {
                     public void skinAvailable(Type typeIn, ResourceLocation location, MinecraftProfileTexture profileTexture)
                     {

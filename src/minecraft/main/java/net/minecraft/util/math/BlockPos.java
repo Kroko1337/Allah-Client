@@ -17,7 +17,7 @@ public class BlockPos extends Vec3i
     private static final Logger LOGGER = LogManager.getLogger();
 
     /** An immutable block pos with zero as all coordinates. */
-    public static final BlockPos ORIGIN = new BlockPos(0, 0, 0);
+    public static final BlockPos ZERO = new BlockPos(0, 0, 0);
     private static final int NUM_X_BITS = 1 + MathHelper.log2(MathHelper.smallestEncompassingPowerOfTwo(30000000));
     private static final int NUM_Z_BITS = NUM_X_BITS;
     private static final int NUM_Y_BITS = 64 - NUM_X_BITS - NUM_Z_BITS;
@@ -193,7 +193,7 @@ public class BlockPos extends Vec3i
      */
     public BlockPos offset(EnumFacing facing, int n)
     {
-        return n == 0 ? this : new BlockPos(this.getX() + facing.getFrontOffsetX() * n, this.getY() + facing.getFrontOffsetY() * n, this.getZ() + facing.getFrontOffsetZ() * n);
+        return n == 0 ? this : new BlockPos(this.getX() + facing.getXOffset() * n, this.getY() + facing.getYOffset() * n, this.getZ() + facing.getZOffset() * n);
     }
 
     public BlockPos rotate(Rotation rotationIn)
@@ -223,17 +223,11 @@ public class BlockPos extends Vec3i
         return new BlockPos(this.getY() * vec.getZ() - this.getZ() * vec.getY(), this.getZ() * vec.getX() - this.getX() * vec.getZ(), this.getX() * vec.getY() - this.getY() * vec.getX());
     }
 
-    /**
-     * Serialize this BlockPos into a long value
-     */
     public long toLong()
     {
         return ((long)this.getX() & X_MASK) << X_SHIFT | ((long)this.getY() & Y_MASK) << Y_SHIFT | ((long)this.getZ() & Z_MASK) << 0;
     }
 
-    /**
-     * Create a BlockPos from a serialized long value (created by toLong)
-     */
     public static BlockPos fromLong(long serialized)
     {
         int i = (int)(serialized << 64 - X_SHIFT - NUM_X_BITS >> 64 - NUM_X_BITS);
@@ -247,7 +241,7 @@ public class BlockPos extends Vec3i
         return getAllInBox(Math.min(from.getX(), to.getX()), Math.min(from.getY(), to.getY()), Math.min(from.getZ(), to.getZ()), Math.max(from.getX(), to.getX()), Math.max(from.getY(), to.getY()), Math.max(from.getZ(), to.getZ()));
     }
 
-    public static Iterable<BlockPos> getAllInBox(final int p_191532_0_, final int p_191532_1_, final int p_191532_2_, final int p_191532_3_, final int p_191532_4_, final int p_191532_5_)
+    public static Iterable<BlockPos> getAllInBox(final int x1, final int y1, final int z1, final int x2, final int y2, final int z2)
     {
         return new Iterable<BlockPos>()
         {
@@ -264,30 +258,30 @@ public class BlockPos extends Vec3i
                         if (this.first)
                         {
                             this.first = false;
-                            this.lastPosX = p_191532_0_;
-                            this.lastPosY = p_191532_1_;
-                            this.lastPosZ = p_191532_2_;
-                            return new BlockPos(p_191532_0_, p_191532_1_, p_191532_2_);
+                            this.lastPosX = x1;
+                            this.lastPosY = y1;
+                            this.lastPosZ = z1;
+                            return new BlockPos(x1, y1, z1);
                         }
-                        else if (this.lastPosX == p_191532_3_ && this.lastPosY == p_191532_4_ && this.lastPosZ == p_191532_5_)
+                        else if (this.lastPosX == x2 && this.lastPosY == y2 && this.lastPosZ == z2)
                         {
                             return (BlockPos)this.endOfData();
                         }
                         else
                         {
-                            if (this.lastPosX < p_191532_3_)
+                            if (this.lastPosX < x2)
                             {
                                 ++this.lastPosX;
                             }
-                            else if (this.lastPosY < p_191532_4_)
+                            else if (this.lastPosY < y2)
                             {
-                                this.lastPosX = p_191532_0_;
+                                this.lastPosX = x1;
                                 ++this.lastPosY;
                             }
-                            else if (this.lastPosZ < p_191532_5_)
+                            else if (this.lastPosZ < z2)
                             {
-                                this.lastPosX = p_191532_0_;
-                                this.lastPosY = p_191532_1_;
+                                this.lastPosX = x1;
+                                this.lastPosY = y1;
                                 ++this.lastPosZ;
                             }
 
@@ -312,10 +306,10 @@ public class BlockPos extends Vec3i
 
     public static Iterable<BlockPos.MutableBlockPos> getAllInBoxMutable(BlockPos from, BlockPos to)
     {
-        return mutablesBetween(Math.min(from.getX(), to.getX()), Math.min(from.getY(), to.getY()), Math.min(from.getZ(), to.getZ()), Math.max(from.getX(), to.getX()), Math.max(from.getY(), to.getY()), Math.max(from.getZ(), to.getZ()));
+        return getAllInBoxMutable(Math.min(from.getX(), to.getX()), Math.min(from.getY(), to.getY()), Math.min(from.getZ(), to.getZ()), Math.max(from.getX(), to.getX()), Math.max(from.getY(), to.getY()), Math.max(from.getZ(), to.getZ()));
     }
 
-    public static Iterable<BlockPos.MutableBlockPos> mutablesBetween(final int p_191531_0_, final int p_191531_1_, final int p_191531_2_, final int p_191531_3_, final int p_191531_4_, final int p_191531_5_)
+    public static Iterable<BlockPos.MutableBlockPos> getAllInBoxMutable(final int x1, final int y1, final int z1, final int x2, final int y2, final int z2)
     {
         return new Iterable<BlockPos.MutableBlockPos>()
         {
@@ -328,28 +322,28 @@ public class BlockPos extends Vec3i
                     {
                         if (this.pos == null)
                         {
-                            this.pos = new BlockPos.MutableBlockPos(p_191531_0_, p_191531_1_, p_191531_2_);
+                            this.pos = new BlockPos.MutableBlockPos(x1, y1, z1);
                             return this.pos;
                         }
-                        else if (this.pos.x == p_191531_3_ && this.pos.y == p_191531_4_ && this.pos.z == p_191531_5_)
+                        else if (this.pos.x == x2 && this.pos.y == y2 && this.pos.z == z2)
                         {
                             return (BlockPos.MutableBlockPos)this.endOfData();
                         }
                         else
                         {
-                            if (this.pos.x < p_191531_3_)
+                            if (this.pos.x < x2)
                             {
                                 ++this.pos.x;
                             }
-                            else if (this.pos.y < p_191531_4_)
+                            else if (this.pos.y < y2)
                             {
-                                this.pos.x = p_191531_0_;
+                                this.pos.x = x1;
                                 ++this.pos.y;
                             }
-                            else if (this.pos.z < p_191531_5_)
+                            else if (this.pos.z < z2)
                             {
-                                this.pos.x = p_191531_0_;
-                                this.pos.y = p_191531_1_;
+                                this.pos.x = x1;
+                                this.pos.y = y1;
                                 ++this.pos.z;
                             }
 
@@ -448,9 +442,9 @@ public class BlockPos extends Vec3i
             return this.move(facing, 1);
         }
 
-        public BlockPos.MutableBlockPos move(EnumFacing facing, int p_189534_2_)
+        public BlockPos.MutableBlockPos move(EnumFacing facing, int n)
         {
-            return this.setPos(this.x + facing.getFrontOffsetX() * p_189534_2_, this.y + facing.getFrontOffsetY() * p_189534_2_, this.z + facing.getFrontOffsetZ() * p_189534_2_);
+            return this.setPos(this.x + facing.getXOffset() * n, this.y + facing.getYOffset() * n, this.z + facing.getZOffset() * n);
         }
 
         public void setY(int yIn)
@@ -553,9 +547,9 @@ public class BlockPos extends Vec3i
             return (BlockPos.PooledMutableBlockPos)super.move(facing);
         }
 
-        public BlockPos.PooledMutableBlockPos move(EnumFacing facing, int p_189534_2_)
+        public BlockPos.PooledMutableBlockPos move(EnumFacing facing, int n)
         {
-            return (BlockPos.PooledMutableBlockPos)super.move(facing, p_189534_2_);
+            return (BlockPos.PooledMutableBlockPos)super.move(facing, n);
         }
     }
 }

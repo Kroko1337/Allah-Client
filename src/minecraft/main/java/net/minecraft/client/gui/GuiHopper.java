@@ -12,25 +12,18 @@ public class GuiHopper extends GuiContainer
 {
     /** The ResourceLocation containing the gui texture for the hopper */
     private static final ResourceLocation HOPPER_GUI_TEXTURE = new ResourceLocation("textures/gui/container/hopper.png");
-
-    /** The player inventory currently bound to this GUI instance */
     private final IInventory playerInventory;
-
-    /** The hopper inventory bound to this GUI instance */
     private final IInventory hopperInventory;
 
     public GuiHopper(InventoryPlayer playerInv, IInventory hopperInv)
     {
-        super(new ContainerHopper(playerInv, hopperInv, Minecraft.getMinecraft().player));
+        super(new ContainerHopper(playerInv, hopperInv, Minecraft.getInstance().player));
         this.playerInventory = playerInv;
         this.hopperInventory = hopperInv;
         this.allowUserInput = false;
         this.ySize = 133;
     }
 
-    /**
-     * Draws the screen and all the components in it.
-     */
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         this.drawDefaultBackground();

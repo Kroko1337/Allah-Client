@@ -7,13 +7,13 @@ import net.minecraft.network.play.INetHandlerPlayServer;
 
 public class CPacketKeepAlive implements Packet<INetHandlerPlayServer>
 {
-    private int key;
+    private long key;
 
     public CPacketKeepAlive()
     {
     }
 
-    public CPacketKeepAlive(int idIn)
+    public CPacketKeepAlive(long idIn)
     {
         this.key = idIn;
     }
@@ -31,7 +31,7 @@ public class CPacketKeepAlive implements Packet<INetHandlerPlayServer>
      */
     public void readPacketData(PacketBuffer buf) throws IOException
     {
-        this.key = buf.readVarInt();
+        this.key = buf.readLong();
     }
 
     /**
@@ -39,10 +39,10 @@ public class CPacketKeepAlive implements Packet<INetHandlerPlayServer>
      */
     public void writePacketData(PacketBuffer buf) throws IOException
     {
-        buf.writeVarInt(this.key);
+        buf.writeLong(this.key);
     }
 
-    public int getKey()
+    public long getKey()
     {
         return this.key;
     }

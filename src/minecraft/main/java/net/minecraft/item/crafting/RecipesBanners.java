@@ -84,12 +84,12 @@ public class RecipesBanners
                     }
                 }
 
-                NBTTagCompound nbttagcompound1 = itemstack.getOrCreateSubCompound("BlockEntityTag");
+                NBTTagCompound nbttagcompound1 = itemstack.getOrCreateChildTag("BlockEntityTag");
                 NBTTagList nbttaglist;
 
-                if (nbttagcompound1.hasKey("Patterns", 9))
+                if (nbttagcompound1.contains("Patterns", 9))
                 {
-                    nbttaglist = nbttagcompound1.getTagList("Patterns", 10);
+                    nbttaglist = nbttagcompound1.getList("Patterns", 10);
                 }
                 else
                 {
@@ -98,8 +98,8 @@ public class RecipesBanners
                 }
 
                 NBTTagCompound nbttagcompound = new NBTTagCompound();
-                nbttagcompound.setString("Pattern", bannerpattern.getHashname());
-                nbttagcompound.setInteger("Color", k);
+                nbttagcompound.putString("Pattern", bannerpattern.getHashname());
+                nbttagcompound.putInt("Color", k);
                 nbttaglist.appendTag(nbttagcompound);
             }
 
@@ -230,7 +230,7 @@ public class RecipesBanners
             return null;
         }
 
-        public boolean isHidden()
+        public boolean isDynamic()
         {
             return true;
         }
@@ -345,7 +345,7 @@ public class RecipesBanners
                     {
                         nonnulllist.set(i, new ItemStack(itemstack.getItem().getContainerItem()));
                     }
-                    else if (itemstack.hasTagCompound() && TileEntityBanner.getPatterns(itemstack) > 0)
+                    else if (itemstack.hasTag() && TileEntityBanner.getPatterns(itemstack) > 0)
                     {
                         ItemStack itemstack1 = itemstack.copy();
                         itemstack1.setCount(1);
@@ -357,7 +357,7 @@ public class RecipesBanners
             return nonnulllist;
         }
 
-        public boolean isHidden()
+        public boolean isDynamic()
         {
             return true;
         }

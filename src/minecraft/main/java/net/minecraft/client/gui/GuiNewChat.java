@@ -28,7 +28,7 @@ public class GuiNewChat extends Gui
         this.mc = mcIn;
     }
 
-    public void drawChat(int updateCounter)
+    public void render(int updateCounter)
     {
         if (this.mc.gameSettings.chatVisibility != EntityPlayer.EnumChatVisibility.HIDDEN)
         {
@@ -117,13 +117,15 @@ public class GuiNewChat extends Gui
 
     /**
      * Clears the chat.
+     *  
+     * @param clearSentMsgHistory Whether or not to clear the user's sent message history
      */
-    public void clearChatMessages(boolean p_146231_1_)
+    public void clearChatMessages(boolean clearSentMsgHistory)
     {
         this.drawnChatLines.clear();
         this.chatLines.clear();
 
-        if (p_146231_1_)
+        if (clearSentMsgHistory)
         {
             this.sentMessages.clear();
         }
@@ -139,7 +141,7 @@ public class GuiNewChat extends Gui
      */
     public void printChatMessageWithOptionalDeletion(ITextComponent chatComponent, int chatLineId)
     {
-        this.setChatLine(chatComponent, chatLineId, this.mc.ingameGUI.getUpdateCounter(), false);
+        this.setChatLine(chatComponent, chatLineId, this.mc.ingameGUI.getTicks(), false);
         LOGGER.info("[CHAT] {}", (Object)chatComponent.getUnformattedText().replaceAll("\r", "\\\\r").replaceAll("\n", "\\\\n"));
     }
 
@@ -218,9 +220,6 @@ public class GuiNewChat extends Gui
         this.isScrolled = false;
     }
 
-    /**
-     * Scrolls the chat by the given number of lines.
-     */
     public void scroll(int amount)
     {
         this.scrollPos += amount;
@@ -239,10 +238,6 @@ public class GuiNewChat extends Gui
     }
 
     @Nullable
-
-    /**
-     * Gets the chat component under the mouse
-     */
     public ITextComponent getChatComponent(int mouseX, int mouseY)
     {
         if (!this.getChatOpen())
@@ -349,9 +344,6 @@ public class GuiNewChat extends Gui
         return calculateChatboxHeight(this.getChatOpen() ? this.mc.gameSettings.chatHeightFocused : this.mc.gameSettings.chatHeightUnfocused);
     }
 
-    /**
-     * Returns the chatscale from mc.gameSettings.chatScale
-     */
     public float getChatScale()
     {
         return this.mc.gameSettings.chatScale;

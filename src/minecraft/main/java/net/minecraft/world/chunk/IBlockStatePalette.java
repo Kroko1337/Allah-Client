@@ -13,7 +13,7 @@ public interface IBlockStatePalette
     /**
      * Gets the block state by the palette id.
      */
-    IBlockState getBlockState(int indexKey);
+    IBlockState get(int indexKey);
 
     void read(PacketBuffer buf);
 

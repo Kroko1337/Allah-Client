@@ -12,13 +12,8 @@ import net.minecraft.world.World;
 
 public class EntityEnderEye extends Entity
 {
-    /** 'x' location the eye should float towards. */
     private double targetX;
-
-    /** 'y' location the eye should float towards. */
     private double targetY;
-
-    /** 'z' location the eye should float towards. */
     private double targetZ;
     private int despawnTimer;
     private boolean shatterOrDrop;
@@ -29,7 +24,7 @@ public class EntityEnderEye extends Entity
         this.setSize(0.25F, 0.25F);
     }
 
-    protected void entityInit()
+    protected void registerData()
     {
     }
 
@@ -38,7 +33,7 @@ public class EntityEnderEye extends Entity
      */
     public boolean isInRangeToRenderDist(double distance)
     {
-        double d0 = this.getEntityBoundingBox().getAverageEdgeLength() * 4.0D;
+        double d0 = this.getBoundingBox().getAverageEdgeLength() * 4.0D;
 
         if (Double.isNaN(d0))
         {
@@ -105,12 +100,12 @@ public class EntityEnderEye extends Entity
     /**
      * Called to update the entity's position/logic.
      */
-    public void onUpdate()
+    public void tick()
     {
         this.lastTickPosX = this.posX;
         this.lastTickPosY = this.posY;
         this.lastTickPosZ = this.posZ;
-        super.onUpdate();
+        super.tick();
         this.posX += this.motionX;
         this.posY += this.motionY;
         this.posZ += this.motionZ;
@@ -188,12 +183,12 @@ public class EntityEnderEye extends Entity
 
             if (this.despawnTimer > 80 && !this.world.isRemote)
             {
-                this.playSound(SoundEvents.ENTITY_ENDEREYE_DEATH, 1.0F, 1.0F);
-                this.setDead();
+                this.playSound(SoundEvents.ENTITY_ENDER_EYE_DEATH, 1.0F, 1.0F);
+                this.remove();
 
                 if (this.shatterOrDrop)
                 {
-                    this.world.spawnEntity(new EntityItem(this.world, this.posX, this.posY, this.posZ, new ItemStack(Items.ENDER_EYE)));
+                    this.world.addEntity0(new EntityItem(this.world, this.posX, this.posY, this.posZ, new ItemStack(Items.ENDER_EYE)));
                 }
                 else
                 {
@@ -203,9 +198,6 @@ public class EntityEnderEye extends Entity
         }
     }
 
-    /**
-     * (abstract) Protected helper method to write subclass entity data to NBT.
-     */
     public void writeEntityToNBT(NBTTagCompound compound)
     {
     }
@@ -213,7 +205,7 @@ public class EntityEnderEye extends Entity
     /**
      * (abstract) Protected helper method to read subclass entity data from NBT.
      */
-    public void readEntityFromNBT(NBTTagCompound compound)
+    public void readAdditional(NBTTagCompound compound)
     {
     }
 

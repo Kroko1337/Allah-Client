@@ -151,12 +151,12 @@ public class PotionHelper
 
     public static void init()
     {
-        addContainer(Items.POTIONITEM);
+        addContainer(Items.POTION);
         addContainer(Items.SPLASH_POTION);
         addContainer(Items.LINGERING_POTION);
-        addContainerRecipe(Items.POTIONITEM, Items.GUNPOWDER, Items.SPLASH_POTION);
+        addContainerRecipe(Items.POTION, Items.GUNPOWDER, Items.SPLASH_POTION);
         addContainerRecipe(Items.SPLASH_POTION, Items.DRAGON_BREATH, Items.LINGERING_POTION);
-        addMix(PotionTypes.WATER, Items.SPECKLED_MELON, PotionTypes.MUNDANE);
+        addMix(PotionTypes.WATER, Items.GLISTERING_MELON_SLICE, PotionTypes.MUNDANE);
         addMix(PotionTypes.WATER, Items.GHAST_TEAR, PotionTypes.MUNDANE);
         addMix(PotionTypes.WATER, Items.RABBIT_FOOT, PotionTypes.MUNDANE);
         addMix(PotionTypes.WATER, Items.BLAZE_POWDER, PotionTypes.MUNDANE);
@@ -186,7 +186,7 @@ public class PotionHelper
         addMix(PotionTypes.SWIFTNESS, Items.GLOWSTONE_DUST, PotionTypes.STRONG_SWIFTNESS);
         addMix(PotionTypes.AWKWARD, Ingredient.fromStacks(new ItemStack(Items.FISH, 1, ItemFishFood.FishType.PUFFERFISH.getMetadata())), PotionTypes.WATER_BREATHING);
         addMix(PotionTypes.WATER_BREATHING, Items.REDSTONE, PotionTypes.LONG_WATER_BREATHING);
-        addMix(PotionTypes.AWKWARD, Items.SPECKLED_MELON, PotionTypes.HEALING);
+        addMix(PotionTypes.AWKWARD, Items.GLISTERING_MELON_SLICE, PotionTypes.HEALING);
         addMix(PotionTypes.HEALING, Items.GLOWSTONE_DUST, PotionTypes.STRONG_HEALING);
         addMix(PotionTypes.HEALING, Items.FERMENTED_SPIDER_EYE, PotionTypes.HARMING);
         addMix(PotionTypes.STRONG_HEALING, Items.FERMENTED_SPIDER_EYE, PotionTypes.STRONG_HARMING);
@@ -217,9 +217,9 @@ public class PotionHelper
         POTION_ITEMS.add(Ingredient.fromItems(p_193354_0_));
     }
 
-    private static void addMix(PotionType p_193357_0_, Item p_193357_1_, PotionType p_193357_2_)
+    private static void addMix(PotionType potionEntry, Item potionIngredient, PotionType potionResult)
     {
-        addMix(p_193357_0_, Ingredient.fromItems(p_193357_1_), p_193357_2_);
+        addMix(potionEntry, Ingredient.fromItems(potionIngredient), potionResult);
     }
 
     private static void addMix(PotionType p_193356_0_, Ingredient p_193356_1_, PotionType p_193356_2_)
@@ -233,11 +233,11 @@ public class PotionHelper
         final Ingredient reagent;
         final T output;
 
-        public MixPredicate(T p_i47570_1_, Ingredient p_i47570_2_, T p_i47570_3_)
+        public MixPredicate(T inputIn, Ingredient reagentIn, T outputIn)
         {
-            this.input = p_i47570_1_;
-            this.reagent = p_i47570_2_;
-            this.output = p_i47570_3_;
+            this.input = inputIn;
+            this.reagent = reagentIn;
+            this.output = outputIn;
         }
     }
 }

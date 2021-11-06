@@ -18,8 +18,5 @@ public interface IPlayerFileData
      */
     NBTTagCompound readPlayerData(EntityPlayer player);
 
-    /**
-     * Returns an array of usernames for which player.dat exists for.
-     */
     String[] getAvailablePlayerDat();
 }

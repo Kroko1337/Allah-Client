@@ -28,12 +28,12 @@ public class EntitySkeletonHorse extends AbstractHorse
         super(worldIn);
     }
 
-    protected void applyEntityAttributes()
+    protected void registerAttributes()
     {
-        super.applyEntityAttributes();
-        this.getEntityAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(15.0D);
-        this.getEntityAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.20000000298023224D);
-        this.getEntityAttribute(JUMP_STRENGTH).setBaseValue(this.getModifiedJumpStrength());
+        super.registerAttributes();
+        this.getAttribute(SharedMonsterAttributes.MAX_HEALTH).setBaseValue(15.0D);
+        this.getAttribute(SharedMonsterAttributes.MOVEMENT_SPEED).setBaseValue(0.20000000298023224D);
+        this.getAttribute(JUMP_STRENGTH).setBaseValue(this.getModifiedJumpStrength());
     }
 
     protected SoundEvent getAmbientSound()
@@ -54,9 +54,6 @@ public class EntitySkeletonHorse extends AbstractHorse
         return SoundEvents.ENTITY_SKELETON_HORSE_HURT;
     }
 
-    /**
-     * Get this Entity's EnumCreatureAttribute
-     */
     public EnumCreatureAttribute getCreatureAttribute()
     {
         return EnumCreatureAttribute.UNDEAD;
@@ -80,13 +77,13 @@ public class EntitySkeletonHorse extends AbstractHorse
      * Called frequently so the entity can update its state every tick as required. For example, zombies and skeletons
      * use this to react to sunlight and start to burn.
      */
-    public void onLivingUpdate()
+    public void livingTick()
     {
-        super.onLivingUpdate();
+        super.livingTick();
 
         if (this.isTrap() && this.skeletonTrapTime++ >= 18000)
         {
-            this.setDead();
+            this.remove();
         }
     }
 
@@ -95,24 +92,21 @@ public class EntitySkeletonHorse extends AbstractHorse
         AbstractHorse.registerFixesAbstractHorse(fixer, EntitySkeletonHorse.class);
     }
 
-    /**
-     * (abstract) Protected helper method to write subclass entity data to NBT.
-     */
     public void writeEntityToNBT(NBTTagCompound compound)
     {
         super.writeEntityToNBT(compound);
-        compound.setBoolean("SkeletonTrap", this.isTrap());
-        compound.setInteger("SkeletonTrapTime", this.skeletonTrapTime);
+        compound.putBoolean("SkeletonTrap", this.isTrap());
+        compound.putInt("SkeletonTrapTime", this.skeletonTrapTime);
     }
 
     /**
      * (abstract) Protected helper method to read subclass entity data from NBT.
      */
-    public void readEntityFromNBT(NBTTagCompound compound)
+    public void readAdditional(NBTTagCompound compound)
     {
-        super.readEntityFromNBT(compound);
+        super.readAdditional(compound);
         this.setTrap(compound.getBoolean("SkeletonTrap"));
-        this.skeletonTrapTime = compound.getInteger("SkeletonTrapTime");
+        this.skeletonTrapTime = compound.getInt("SkeletonTrapTime");
     }
 
     public boolean isTrap()
@@ -128,11 +122,11 @@ public class EntitySkeletonHorse extends AbstractHorse
 
             if (trap)
             {
-                this.tasks.addTask(1, this.skeletonTrapAI);
+                this.goalSelector.addGoal(1, this.skeletonTrapAI);
             }
             else
             {
-                this.tasks.removeTask(this.skeletonTrapAI);
+                this.goalSelector.removeGoal(this.skeletonTrapAI);
             }
         }
     }

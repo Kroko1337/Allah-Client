@@ -16,28 +16,36 @@ public class TileEntityBed extends TileEntity
         this.setColor(EnumDyeColor.byMetadata(p_193051_1_.getMetadata()));
     }
 
-    public void readFromNBT(NBTTagCompound compound)
+    public void read(NBTTagCompound compound)
     {
-        super.readFromNBT(compound);
+        super.read(compound);
 
-        if (compound.hasKey("color"))
+        if (compound.contains("color"))
         {
-            this.color = EnumDyeColor.byMetadata(compound.getInteger("color"));
+            this.color = EnumDyeColor.byMetadata(compound.getInt("color"));
         }
     }
 
-    public NBTTagCompound writeToNBT(NBTTagCompound compound)
+    public NBTTagCompound write(NBTTagCompound compound)
     {
-        super.writeToNBT(compound);
-        compound.setInteger("color", this.color.getMetadata());
+        super.write(compound);
+        compound.putInt("color", this.color.getMetadata());
         return compound;
     }
 
+    /**
+     * Get an NBT compound to sync to the client with SPacketChunkData, used for initial loading of the chunk or when
+     * many blocks change at once. This compound comes back to you clientside in {@link handleUpdateTag}
+     */
     public NBTTagCompound getUpdateTag()
     {
-        return this.writeToNBT(new NBTTagCompound());
+        return this.write(new NBTTagCompound());
     }
 
+    /**
+     * Retrieves packet to send to the client whenever this Tile Entity is resynced via World.notifyBlockUpdate. For
+     * modded TE's, this packet comes back to you clientside in {@link #onDataPacket}
+     */
     public SPacketUpdateTileEntity getUpdatePacket()
     {
         return new SPacketUpdateTileEntity(this.pos, 11, this.getUpdateTag());

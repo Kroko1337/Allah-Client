@@ -7,13 +7,13 @@ import net.minecraft.world.ColorizerGrass;
 
 public class GrassColorReloadListener implements IResourceManagerReloadListener
 {
-    private static final ResourceLocation LOC_GRASS_PNG = new ResourceLocation("textures/colormap/grass.png");
+    private static final ResourceLocation GRASS_LOCATION = new ResourceLocation("textures/colormap/grass.png");
 
     public void onResourceManagerReload(IResourceManager resourceManager)
     {
         try
         {
-            ColorizerGrass.setGrassBiomeColorizer(TextureUtil.readImageData(resourceManager, LOC_GRASS_PNG));
+            ColorizerGrass.setGrassBiomeColorizer(TextureUtil.readImageData(resourceManager, GRASS_LOCATION));
         }
         catch (IOException var3)
         {

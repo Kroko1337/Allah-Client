@@ -27,10 +27,6 @@ public final class WorldEntitySpawner
     private static final int MOB_COUNT_DIV = (int)Math.pow(17.0D, 2.0D);
     private final Set<ChunkPos> eligibleChunksForSpawning = Sets.<ChunkPos>newHashSet();
 
-    /**
-     * adds all chunks within the spawn radius of the players to eligibleChunksForSpawning. pars: the world,
-     * hostileCreatures, passiveCreatures. returns number of eligible chunks.
-     */
     public int findChunksForSpawning(WorldServer worldServerIn, boolean spawnHostileMobs, boolean spawnPeacefulMobs, boolean spawnOnSetTickRate)
     {
         if (!spawnHostileMobs && !spawnPeacefulMobs)
@@ -157,11 +153,11 @@ public final class WorldEntitySpawner
                                                     if (entityliving.isNotColliding())
                                                     {
                                                         ++j2;
-                                                        worldServerIn.spawnEntity(entityliving);
+                                                        worldServerIn.addEntity0(entityliving);
                                                     }
                                                     else
                                                     {
-                                                        entityliving.setDead();
+                                                        entityliving.remove();
                                                     }
 
                                                     if (j2 >= entityliving.getMaxSpawnedInChunk())
@@ -187,7 +183,7 @@ public final class WorldEntitySpawner
 
     private static BlockPos getRandomChunkPosition(World worldIn, int x, int z)
     {
-        Chunk chunk = worldIn.getChunkFromChunkCoords(x, z);
+        Chunk chunk = worldIn.getChunk(x, z);
         int i = x * 16 + worldIn.rand.nextInt(16);
         int j = z * 16 + worldIn.rand.nextInt(16);
         int k = MathHelper.roundUp(chunk.getHeight(new BlockPos(i, 0, j)) + 1, 16);
@@ -250,9 +246,9 @@ public final class WorldEntitySpawner
     /**
      * Called during chunk generation to spawn initial creatures.
      */
-    public static void performWorldGenSpawning(World worldIn, Biome biomeIn, int p_77191_2_, int p_77191_3_, int p_77191_4_, int p_77191_5_, Random randomIn)
+    public static void performWorldGenSpawning(World worldIn, Biome biomeIn, int centerX, int centerZ, int diameterX, int diameterZ, Random randomIn)
     {
-        List<Biome.SpawnListEntry> list = biomeIn.getSpawnableList(EnumCreatureType.CREATURE);
+        List<Biome.SpawnListEntry> list = biomeIn.getSpawns(EnumCreatureType.CREATURE);
 
         if (!list.isEmpty())
         {
@@ -261,8 +257,8 @@ public final class WorldEntitySpawner
                 Biome.SpawnListEntry biome$spawnlistentry = (Biome.SpawnListEntry)WeightedRandom.getRandomItem(worldIn.rand, list);
                 int i = biome$spawnlistentry.minGroupCount + randomIn.nextInt(1 + biome$spawnlistentry.maxGroupCount - biome$spawnlistentry.minGroupCount);
                 IEntityLivingData ientitylivingdata = null;
-                int j = p_77191_2_ + randomIn.nextInt(p_77191_4_);
-                int k = p_77191_3_ + randomIn.nextInt(p_77191_5_);
+                int j = centerX + randomIn.nextInt(diameterX);
+                int k = centerZ + randomIn.nextInt(diameterZ);
                 int l = j;
                 int i1 = k;
 
@@ -289,14 +285,14 @@ public final class WorldEntitySpawner
                             }
 
                             entityliving.setLocationAndAngles((double)((float)j + 0.5F), (double)blockpos.getY(), (double)((float)k + 0.5F), randomIn.nextFloat() * 360.0F, 0.0F);
-                            worldIn.spawnEntity(entityliving);
+                            worldIn.addEntity0(entityliving);
                             ientitylivingdata = entityliving.onInitialSpawn(worldIn.getDifficultyForLocation(new BlockPos(entityliving)), ientitylivingdata);
                             flag = true;
                         }
 
                         j += randomIn.nextInt(5) - randomIn.nextInt(5);
 
-                        for (k += randomIn.nextInt(5) - randomIn.nextInt(5); j < p_77191_2_ || j >= p_77191_2_ + p_77191_4_ || k < p_77191_3_ || k >= p_77191_3_ + p_77191_4_; k = i1 + randomIn.nextInt(5) - randomIn.nextInt(5))
+                        for (k += randomIn.nextInt(5) - randomIn.nextInt(5); j < centerX || j >= centerX + diameterX || k < centerZ || k >= centerZ + diameterX; k = i1 + randomIn.nextInt(5) - randomIn.nextInt(5))
                         {
                             j = l + randomIn.nextInt(5) - randomIn.nextInt(5);
                         }

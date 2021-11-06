@@ -6,8 +6,6 @@ import net.minecraft.entity.passive.EntityTameable;
 public class EntityAISit extends EntityAIBase
 {
     private final EntityTameable tameable;
-
-    /** If the EntityTameable is sitting. */
     private boolean isSitting;
 
     public EntityAISit(EntityTameable entityIn)
@@ -17,7 +15,8 @@ public class EntityAISit extends EntityAIBase
     }
 
     /**
-     * Returns whether the EntityAIBase should begin execution.
+     * Returns whether execution should begin. You can also read and cache any state necessary for execution in this
+     * method as well.
      */
     public boolean shouldExecute()
     {
@@ -43,7 +42,7 @@ public class EntityAISit extends EntityAIBase
             }
             else
             {
-                return this.tameable.getDistanceSqToEntity(entitylivingbase) < 144.0D && entitylivingbase.getRevengeTarget() != null ? false : this.isSitting;
+                return this.tameable.getDistanceSq(entitylivingbase) < 144.0D && entitylivingbase.getRevengeTarget() != null ? false : this.isSitting;
             }
         }
     }
@@ -53,7 +52,7 @@ public class EntityAISit extends EntityAIBase
      */
     public void startExecuting()
     {
-        this.tameable.getNavigator().clearPathEntity();
+        this.tameable.getNavigator().clearPath();
         this.tameable.setSitting(true);
     }
 

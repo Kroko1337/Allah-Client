@@ -31,32 +31,32 @@ public class TileEntityEndGateway extends TileEntityEndPortal implements ITickab
     private BlockPos exitPortal;
     private boolean exactTeleport;
 
-    public NBTTagCompound writeToNBT(NBTTagCompound compound)
+    public NBTTagCompound write(NBTTagCompound compound)
     {
-        super.writeToNBT(compound);
-        compound.setLong("Age", this.age);
+        super.write(compound);
+        compound.putLong("Age", this.age);
 
         if (this.exitPortal != null)
         {
-            compound.setTag("ExitPortal", NBTUtil.createPosTag(this.exitPortal));
+            compound.setTag("ExitPortal", NBTUtil.writeBlockPos(this.exitPortal));
         }
 
         if (this.exactTeleport)
         {
-            compound.setBoolean("ExactTeleport", this.exactTeleport);
+            compound.putBoolean("ExactTeleport", this.exactTeleport);
         }
 
         return compound;
     }
 
-    public void readFromNBT(NBTTagCompound compound)
+    public void read(NBTTagCompound compound)
     {
-        super.readFromNBT(compound);
+        super.read(compound);
         this.age = compound.getLong("Age");
 
-        if (compound.hasKey("ExitPortal", 10))
+        if (compound.contains("ExitPortal", 10))
         {
-            this.exitPortal = NBTUtil.getPosFromTag(compound.getCompoundTag("ExitPortal"));
+            this.exitPortal = NBTUtil.readBlockPos(compound.getCompound("ExitPortal"));
         }
 
         this.exactTeleport = compound.getBoolean("ExactTeleport");
@@ -67,10 +67,7 @@ public class TileEntityEndGateway extends TileEntityEndPortal implements ITickab
         return 65536.0D;
     }
 
-    /**
-     * Like the old updateEntity(), except more generic.
-     */
-    public void update()
+    public void tick()
     {
         boolean flag = this.isSpawning();
         boolean flag1 = this.isCoolingDown();
@@ -122,14 +119,23 @@ public class TileEntityEndGateway extends TileEntityEndPortal implements ITickab
     }
 
     @Nullable
+
+    /**
+     * Retrieves packet to send to the client whenever this Tile Entity is resynced via World.notifyBlockUpdate. For
+     * modded TE's, this packet comes back to you clientside in {@link #onDataPacket}
+     */
     public SPacketUpdateTileEntity getUpdatePacket()
     {
         return new SPacketUpdateTileEntity(this.pos, 8, this.getUpdateTag());
     }
 
+    /**
+     * Get an NBT compound to sync to the client with SPacketChunkData, used for initial loading of the chunk or when
+     * many blocks change at once. This compound comes back to you clientside in {@link handleUpdateTag}
+     */
     public NBTTagCompound getUpdateTag()
     {
-        return this.writeToNBT(new NBTTagCompound());
+        return this.write(new NBTTagCompound());
     }
 
     public void triggerCooldown()
@@ -142,6 +148,10 @@ public class TileEntityEndGateway extends TileEntityEndPortal implements ITickab
         }
     }
 
+    /**
+     * See {@link Block#eventReceived} for more information. This must return true serverside before it is called
+     * clientside.
+     */
     public boolean receiveClientEvent(int id, int type)
     {
         if (id == 1)
@@ -161,7 +171,7 @@ public class TileEntityEndGateway extends TileEntityEndPortal implements ITickab
         {
             this.teleportCooldown = 100;
 
-            if (this.exitPortal == null && this.world.provider instanceof WorldProviderEnd)
+            if (this.exitPortal == null && this.world.dimension instanceof WorldProviderEnd)
             {
                 this.findExitPortal();
             }
@@ -250,7 +260,7 @@ public class TileEntityEndGateway extends TileEntityEndPortal implements ITickab
 
     private static Chunk getChunk(World worldIn, Vec3d vec3)
     {
-        return worldIn.getChunkFromChunkCoords(MathHelper.floor(vec3.x / 16.0D), MathHelper.floor(vec3.z / 16.0D));
+        return worldIn.getChunk(MathHelper.floor(vec3.x / 16.0D), MathHelper.floor(vec3.z / 16.0D));
     }
 
     @Nullable
@@ -298,9 +308,9 @@ public class TileEntityEndGateway extends TileEntityEndPortal implements ITickab
         }
     }
 
-    public boolean shouldRenderFace(EnumFacing p_184313_1_)
+    public boolean shouldRenderFace(EnumFacing face)
     {
-        return this.getBlockType().getDefaultState().shouldSideBeRendered(this.world, this.getPos(), p_184313_1_);
+        return this.getBlockType().getDefaultState().shouldSideBeRendered(this.world, this.getPos(), face);
     }
 
     public int getParticleAmount()

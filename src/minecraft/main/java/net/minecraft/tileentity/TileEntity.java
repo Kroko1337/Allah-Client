@@ -26,22 +26,20 @@ public abstract class TileEntity
 
     /** the instance of the world the tile entity is in. */
     protected World world;
-    protected BlockPos pos = BlockPos.ORIGIN;
-    protected boolean tileEntityInvalid;
+    protected BlockPos pos = BlockPos.ZERO;
+    protected boolean removed;
     private int blockMetadata = -1;
-
-    /** the Block type that this TileEntity is contained within */
     protected Block blockType;
 
-    private static void register(String p_190560_0_, Class <? extends TileEntity > p_190560_1_)
+    private static void register(String id, Class <? extends TileEntity > clazz)
     {
-        REGISTRY.putObject(new ResourceLocation(p_190560_0_), p_190560_1_);
+        REGISTRY.putObject(new ResourceLocation(id), clazz);
     }
 
     @Nullable
-    public static ResourceLocation getKey(Class <? extends TileEntity > p_190559_0_)
+    public static ResourceLocation getKey(Class <? extends TileEntity > clazz)
     {
-        return REGISTRY.getNameForObject(p_190559_0_);
+        return REGISTRY.getKey(clazz);
     }
 
     /**
@@ -52,9 +50,6 @@ public abstract class TileEntity
         return this.world;
     }
 
-    /**
-     * Sets the worldObj for this tileEntity.
-     */
     public void setWorld(World worldIn)
     {
         this.world = worldIn;
@@ -68,19 +63,19 @@ public abstract class TileEntity
         return this.world != null;
     }
 
-    public void readFromNBT(NBTTagCompound compound)
+    public void read(NBTTagCompound compound)
     {
-        this.pos = new BlockPos(compound.getInteger("x"), compound.getInteger("y"), compound.getInteger("z"));
+        this.pos = new BlockPos(compound.getInt("x"), compound.getInt("y"), compound.getInt("z"));
     }
 
-    public NBTTagCompound writeToNBT(NBTTagCompound compound)
+    public NBTTagCompound write(NBTTagCompound compound)
     {
         return this.writeInternal(compound);
     }
 
     private NBTTagCompound writeInternal(NBTTagCompound compound)
     {
-        ResourceLocation resourcelocation = REGISTRY.getNameForObject(this.getClass());
+        ResourceLocation resourcelocation = REGISTRY.getKey(this.getClass());
 
         if (resourcelocation == null)
         {
@@ -88,10 +83,10 @@ public abstract class TileEntity
         }
         else
         {
-            compound.setString("id", resourcelocation.toString());
-            compound.setInteger("x", this.pos.getX());
-            compound.setInteger("y", this.pos.getY());
-            compound.setInteger("z", this.pos.getZ());
+            compound.putString("id", resourcelocation.toString());
+            compound.putInt("x", this.pos.getX());
+            compound.putInt("y", this.pos.getY());
+            compound.putInt("z", this.pos.getZ());
             return compound;
         }
     }
@@ -104,7 +99,7 @@ public abstract class TileEntity
 
         try
         {
-            Class <? extends TileEntity > oclass = (Class)REGISTRY.getObject(new ResourceLocation(s));
+            Class <? extends TileEntity > oclass = (Class)REGISTRY.getOrDefault(new ResourceLocation(s));
 
             if (oclass != null)
             {
@@ -121,7 +116,7 @@ public abstract class TileEntity
             try
             {
                 tileentity.setWorldCreate(worldIn);
-                tileentity.readFromNBT(compound);
+                tileentity.read(compound);
             }
             catch (Throwable throwable)
             {
@@ -192,9 +187,6 @@ public abstract class TileEntity
         return this.pos;
     }
 
-    /**
-     * Gets the block type at the location of this entity (client-only).
-     */
     public Block getBlockType()
     {
         if (this.blockType == null && this.world != null)
@@ -206,27 +198,36 @@ public abstract class TileEntity
     }
 
     @Nullable
+
+    /**
+     * Retrieves packet to send to the client whenever this Tile Entity is resynced via World.notifyBlockUpdate. For
+     * modded TE's, this packet comes back to you clientside in {@link #onDataPacket}
+     */
     public SPacketUpdateTileEntity getUpdatePacket()
     {
         return null;
     }
 
+    /**
+     * Get an NBT compound to sync to the client with SPacketChunkData, used for initial loading of the chunk or when
+     * many blocks change at once. This compound comes back to you clientside in {@link handleUpdateTag}
+     */
     public NBTTagCompound getUpdateTag()
     {
         return this.writeInternal(new NBTTagCompound());
     }
 
-    public boolean isInvalid()
+    public boolean isRemoved()
     {
-        return this.tileEntityInvalid;
+        return this.removed;
     }
 
     /**
      * invalidates a tile entity
      */
-    public void invalidate()
+    public void remove()
     {
-        this.tileEntityInvalid = true;
+        this.removed = true;
     }
 
     /**
@@ -234,9 +235,13 @@ public abstract class TileEntity
      */
     public void validate()
     {
-        this.tileEntityInvalid = false;
+        this.removed = false;
     }
 
+    /**
+     * See {@link Block#eventReceived} for more information. This must return true serverside before it is called
+     * clientside.
+     */
     public boolean receiveClientEvent(int id, int type)
     {
         return false;
@@ -254,7 +259,7 @@ public abstract class TileEntity
         {
             public String call() throws Exception
             {
-                return TileEntity.REGISTRY.getNameForObject(TileEntity.this.getClass()) + " // " + TileEntity.this.getClass().getCanonicalName();
+                return TileEntity.REGISTRY.getKey(TileEntity.this.getClass()) + " // " + TileEntity.this.getClass().getCanonicalName();
             }
         });
 
@@ -269,7 +274,7 @@ public abstract class TileEntity
 
                     try
                     {
-                        return String.format("ID #%d (%s // %s)", i, Block.getBlockById(i).getUnlocalizedName(), Block.getBlockById(i).getClass().getCanonicalName());
+                        return String.format("ID #%d (%s // %s)", i, Block.getBlockById(i).getTranslationKey(), Block.getBlockById(i).getClass().getCanonicalName());
                     }
                     catch (Throwable var3)
                     {
@@ -303,16 +308,20 @@ public abstract class TileEntity
         this.pos = posIn.toImmutable();
     }
 
+    /**
+     * Checks if players can use this tile entity to access operator (permission level 2) commands either directly or
+     * indirectly, such as give or setblock. A similar method exists for entities at {@link
+     * net.minecraft.entity.Entity#ignoreItemEntityData()}.<p>For example, {@link
+     * net.minecraft.tileentity.TileEntitySign#onlyOpsCanSetNbt() signs} (player right-clicking) and {@link
+     * net.minecraft.tileentity.TileEntityCommandBlock#onlyOpsCanSetNbt() command blocks} are considered
+     * accessible.</p>@return true if this block entity offers ways for unauthorized players to use restricted commands
+     */
     public boolean onlyOpsCanSetNbt()
     {
         return false;
     }
 
     @Nullable
-
-    /**
-     * Get the formatted ChatComponent that will be used for the sender's username in chat
-     */
     public ITextComponent getDisplayName()
     {
         return null;

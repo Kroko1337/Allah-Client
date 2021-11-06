@@ -34,10 +34,6 @@ public class ItemMultiTexture extends ItemBlock
         });
     }
 
-    /**
-     * Converts the given ItemStack damage value into a metadata value to be placed in the world when this Item is
-     * placed as a Block (mostly used with ItemBlocks).
-     */
     public int getMetadata(int damage)
     {
         return damage;
@@ -47,9 +43,9 @@ public class ItemMultiTexture extends ItemBlock
      * Returns the unlocalized name of this item. This version accepts an ItemStack so different stacks can have
      * different names based on their damage or NBT.
      */
-    public String getUnlocalizedName(ItemStack stack)
+    public String getTranslationKey(ItemStack stack)
     {
-        return super.getUnlocalizedName() + "." + this.nameFunction.apply(stack);
+        return super.getTranslationKey() + "." + this.nameFunction.apply(stack);
     }
 
     public interface Mapper

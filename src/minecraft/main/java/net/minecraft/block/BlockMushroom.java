@@ -68,9 +68,6 @@ public class BlockMushroom extends BlockBush implements IGrowable
         return super.canPlaceBlockAt(worldIn, pos) && this.canBlockStay(worldIn, pos, this.getDefaultState());
     }
 
-    /**
-     * Return true if the block can sustain a Bush
-     */
     protected boolean canSustainBush(IBlockState state)
     {
         return state.isFullBlock();
@@ -86,7 +83,7 @@ public class BlockMushroom extends BlockBush implements IGrowable
             {
                 return true;
             }
-            else if (iblockstate.getBlock() == Blocks.DIRT && iblockstate.getValue(BlockDirt.VARIANT) == BlockDirt.DirtType.PODZOL)
+            else if (iblockstate.getBlock() == Blocks.DIRT && iblockstate.get(BlockDirt.VARIANT) == BlockDirt.DirtType.PODZOL)
             {
                 return true;
             }

@@ -30,33 +30,30 @@ public class ParticleSnowShovel extends Particle
         this.particleScale *= 0.75F;
         this.particleScale *= p_i1228_14_;
         this.snowDigParticleScale = this.particleScale;
-        this.particleMaxAge = (int)(8.0D / (Math.random() * 0.8D + 0.2D));
-        this.particleMaxAge = (int)((float)this.particleMaxAge * p_i1228_14_);
+        this.maxAge = (int)(8.0D / (Math.random() * 0.8D + 0.2D));
+        this.maxAge = (int)((float)this.maxAge * p_i1228_14_);
     }
 
-    /**
-     * Renders the particle
-     */
     public void renderParticle(BufferBuilder buffer, Entity entityIn, float partialTicks, float rotationX, float rotationZ, float rotationYZ, float rotationXY, float rotationXZ)
     {
-        float f = ((float)this.particleAge + partialTicks) / (float)this.particleMaxAge * 32.0F;
+        float f = ((float)this.age + partialTicks) / (float)this.maxAge * 32.0F;
         f = MathHelper.clamp(f, 0.0F, 1.0F);
         this.particleScale = this.snowDigParticleScale * f;
         super.renderParticle(buffer, entityIn, partialTicks, rotationX, rotationZ, rotationYZ, rotationXY, rotationXZ);
     }
 
-    public void onUpdate()
+    public void tick()
     {
         this.prevPosX = this.posX;
         this.prevPosY = this.posY;
         this.prevPosZ = this.posZ;
 
-        if (this.particleAge++ >= this.particleMaxAge)
+        if (this.age++ >= this.maxAge)
         {
             this.setExpired();
         }
 
-        this.setParticleTextureIndex(7 - this.particleAge * 8 / this.particleMaxAge);
+        this.setParticleTextureIndex(7 - this.age * 8 / this.maxAge);
         this.motionY -= 0.03D;
         this.move(this.motionX, this.motionY, this.motionZ);
         this.motionX *= 0.9900000095367432D;

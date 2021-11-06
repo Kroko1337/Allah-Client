@@ -31,14 +31,8 @@ public class InventoryPlayer implements IInventory
     public final NonNullList<ItemStack> armorInventory = NonNullList.<ItemStack>withSize(4, ItemStack.EMPTY);
     public final NonNullList<ItemStack> offHandInventory = NonNullList.<ItemStack>withSize(1, ItemStack.EMPTY);
     private final List<NonNullList<ItemStack>> allInventories;
-
-    /** The index of the currently held item (0-8). */
     public int currentItem;
-
-    /** The player whose inventory this is. */
     public EntityPlayer player;
-
-    /** The stack currently held by the mouse cursor */
     private ItemStack itemStack;
     private int timesChanged;
 
@@ -162,7 +156,7 @@ public class InventoryPlayer implements IInventory
         {
             ItemStack itemstack = this.mainInventory.get(i);
 
-            if (!((ItemStack)this.mainInventory.get(i)).isEmpty() && this.stackEqualExact(p_194014_1_, this.mainInventory.get(i)) && !((ItemStack)this.mainInventory.get(i)).isItemDamaged() && !itemstack.isItemEnchanted() && !itemstack.hasDisplayName())
+            if (!((ItemStack)this.mainInventory.get(i)).isEmpty() && this.stackEqualExact(p_194014_1_, this.mainInventory.get(i)) && !((ItemStack)this.mainInventory.get(i)).isDamaged() && !itemstack.isEnchanted() && !itemstack.hasDisplayName())
             {
                 return i;
             }
@@ -187,7 +181,7 @@ public class InventoryPlayer implements IInventory
         {
             int l = (this.currentItem + k) % 9;
 
-            if (!((ItemStack)this.mainInventory.get(l)).isItemEnchanted())
+            if (!((ItemStack)this.mainInventory.get(l)).isEnchanted())
             {
                 return l;
             }
@@ -196,9 +190,6 @@ public class InventoryPlayer implements IInventory
         return this.currentItem;
     }
 
-    /**
-     * Switch the current item to the next one or the previous one
-     */
     public void changeCurrentItem(int direction)
     {
         if (direction > 0)
@@ -222,14 +213,6 @@ public class InventoryPlayer implements IInventory
         }
     }
 
-    /**
-     * Removes matching items from the inventory.
-     * @param itemIn The item to match, null ignores.
-     * @param metadataIn The metadata to match, -1 ignores.
-     * @param removeCount The number of items to remove. If less than 1, removes all matching items.
-     * @param itemNBT The NBT data to match, null ignores.
-     * @return The number of items removed from the inventory.
-     */
     public int clearMatchingItems(@Nullable Item itemIn, int metadataIn, int removeCount, @Nullable NBTTagCompound itemNBT)
     {
         int i = 0;
@@ -238,7 +221,7 @@ public class InventoryPlayer implements IInventory
         {
             ItemStack itemstack = this.getStackInSlot(j);
 
-            if (!itemstack.isEmpty() && (itemIn == null || itemstack.getItem() == itemIn) && (metadataIn <= -1 || itemstack.getMetadata() == metadataIn) && (itemNBT == null || NBTUtil.areNBTEquals(itemNBT, itemstack.getTagCompound(), true)))
+            if (!itemstack.isEmpty() && (itemIn == null || itemstack.getItem() == itemIn) && (metadataIn <= -1 || itemstack.getMetadata() == metadataIn) && (itemNBT == null || NBTUtil.areNBTEquals(itemNBT, itemstack.getTag(), true)))
             {
                 int k = removeCount <= 0 ? itemstack.getCount() : Math.min(removeCount - i, itemstack.getCount());
                 i += k;
@@ -272,7 +255,7 @@ public class InventoryPlayer implements IInventory
                 return i;
             }
 
-            if (itemNBT != null && !NBTUtil.areNBTEquals(itemNBT, this.itemStack.getTagCompound(), true))
+            if (itemNBT != null && !NBTUtil.areNBTEquals(itemNBT, this.itemStack.getTag(), true))
             {
                 return i;
             }
@@ -325,9 +308,9 @@ public class InventoryPlayer implements IInventory
         {
             itemstack = new ItemStack(item, 0, p_191973_2_.getMetadata());
 
-            if (p_191973_2_.hasTagCompound())
+            if (p_191973_2_.hasTag())
             {
-                itemstack.setTagCompound(p_191973_2_.getTagCompound().copy());
+                itemstack.setTag(p_191973_2_.getTag().copy());
             }
 
             this.setInventorySlotContents(p_191973_1_, itemstack);
@@ -359,7 +342,8 @@ public class InventoryPlayer implements IInventory
     }
 
     /**
-     * stores an itemstack in the users inventory
+     * Stores a stack in the player's inventory. It first tries to place it in the selected slot in the player's hotbar,
+     * then the offhand slot, then any available/empty slot in the player's inventory.
      */
     public int storeItemStack(ItemStack itemStackIn)
     {
@@ -389,7 +373,7 @@ public class InventoryPlayer implements IInventory
      * Decrement the number of animations remaining. Only called on client side. This is used to handle the animation of
      * receiving a block.
      */
-    public void decrementAnimations()
+    public void tick()
     {
         for (NonNullList<ItemStack> nonnulllist : this.allInventories)
         {
@@ -397,23 +381,28 @@ public class InventoryPlayer implements IInventory
             {
                 if (!((ItemStack)nonnulllist.get(i)).isEmpty())
                 {
-                    ((ItemStack)nonnulllist.get(i)).updateAnimation(this.player.world, this.player, i, this.currentItem == i);
+                    ((ItemStack)nonnulllist.get(i)).inventoryTick(this.player.world, this.player, i, this.currentItem == i);
                 }
             }
         }
     }
 
     /**
-     * Adds the item stack to the inventory, returns false if it is impossible.
+     * Adds the stack to the first empty slot in the player's inventory. Returns {@code false} if it's not possible to
+     * place the entire stack in the inventory.
      */
     public boolean addItemStackToInventory(ItemStack itemStackIn)
     {
         return this.add(-1, itemStackIn);
     }
 
-    public boolean add(int p_191971_1_, final ItemStack p_191971_2_)
+    /**
+     * Adds the stack to the specified slot in the player's inventory. Returns {@code false} if it's not possible to
+     * place the entire stack in the inventory.
+     */
+    public boolean add(int slotIn, final ItemStack stack)
     {
-        if (p_191971_2_.isEmpty())
+        if (stack.isEmpty())
         {
             return false;
         }
@@ -421,23 +410,23 @@ public class InventoryPlayer implements IInventory
         {
             try
             {
-                if (p_191971_2_.isItemDamaged())
+                if (stack.isDamaged())
                 {
-                    if (p_191971_1_ == -1)
+                    if (slotIn == -1)
                     {
-                        p_191971_1_ = this.getFirstEmptyStack();
+                        slotIn = this.getFirstEmptyStack();
                     }
 
-                    if (p_191971_1_ >= 0)
+                    if (slotIn >= 0)
                     {
-                        this.mainInventory.set(p_191971_1_, p_191971_2_.copy());
-                        ((ItemStack)this.mainInventory.get(p_191971_1_)).setAnimationsToGo(5);
-                        p_191971_2_.setCount(0);
+                        this.mainInventory.set(slotIn, stack.copy());
+                        ((ItemStack)this.mainInventory.get(slotIn)).setAnimationsToGo(5);
+                        stack.setCount(0);
                         return true;
                     }
-                    else if (this.player.capabilities.isCreativeMode)
+                    else if (this.player.abilities.isCreativeMode)
                     {
-                        p_191971_2_.setCount(0);
+                        stack.setCount(0);
                         return true;
                     }
                     else
@@ -451,31 +440,31 @@ public class InventoryPlayer implements IInventory
 
                     while (true)
                     {
-                        i = p_191971_2_.getCount();
+                        i = stack.getCount();
 
-                        if (p_191971_1_ == -1)
+                        if (slotIn == -1)
                         {
-                            p_191971_2_.setCount(this.storePartialItemStack(p_191971_2_));
+                            stack.setCount(this.storePartialItemStack(stack));
                         }
                         else
                         {
-                            p_191971_2_.setCount(this.addResource(p_191971_1_, p_191971_2_));
+                            stack.setCount(this.addResource(slotIn, stack));
                         }
 
-                        if (p_191971_2_.isEmpty() || p_191971_2_.getCount() >= i)
+                        if (stack.isEmpty() || stack.getCount() >= i)
                         {
                             break;
                         }
                     }
 
-                    if (p_191971_2_.getCount() == i && this.player.capabilities.isCreativeMode)
+                    if (stack.getCount() == i && this.player.abilities.isCreativeMode)
                     {
-                        p_191971_2_.setCount(0);
+                        stack.setCount(0);
                         return true;
                     }
                     else
                     {
-                        return p_191971_2_.getCount() < i;
+                        return stack.getCount() < i;
                     }
                 }
             }
@@ -483,13 +472,13 @@ public class InventoryPlayer implements IInventory
             {
                 CrashReport crashreport = CrashReport.makeCrashReport(throwable, "Adding item to inventory");
                 CrashReportCategory crashreportcategory = crashreport.makeCategory("Item being added");
-                crashreportcategory.addCrashSection("Item ID", Integer.valueOf(Item.getIdFromItem(p_191971_2_.getItem())));
-                crashreportcategory.addCrashSection("Item data", Integer.valueOf(p_191971_2_.getMetadata()));
+                crashreportcategory.addDetail("Item ID", Integer.valueOf(Item.getIdFromItem(stack.getItem())));
+                crashreportcategory.addDetail("Item data", Integer.valueOf(stack.getMetadata()));
                 crashreportcategory.addDetail("Item name", new ICrashReportDetail<String>()
                 {
                     public String call() throws Exception
                     {
-                        return p_191971_2_.getDisplayName();
+                        return stack.getDisplayName();
                     }
                 });
                 throw new ReportedException(crashreport);
@@ -497,13 +486,13 @@ public class InventoryPlayer implements IInventory
         }
     }
 
-    public void placeItemBackInInventory(World p_191975_1_, ItemStack p_191975_2_)
+    public void placeItemBackInInventory(World worldIn, ItemStack stack)
     {
-        if (!p_191975_1_.isRemote)
+        if (!worldIn.isRemote)
         {
-            while (!p_191975_2_.isEmpty())
+            while (!stack.isEmpty())
             {
-                int i = this.storeItemStack(p_191975_2_);
+                int i = this.storeItemStack(stack);
 
                 if (i == -1)
                 {
@@ -512,13 +501,13 @@ public class InventoryPlayer implements IInventory
 
                 if (i == -1)
                 {
-                    this.player.dropItem(p_191975_2_, false);
+                    this.player.dropItem(stack, false);
                     break;
                 }
 
-                int j = p_191975_2_.getMaxStackSize() - this.getStackInSlot(i).getCount();
+                int j = stack.getMaxStackSize() - this.getStackInSlot(i).getCount();
 
-                if (this.add(i, p_191975_2_.splitStack(j)))
+                if (this.add(i, stack.split(j)))
                 {
                     ((EntityPlayerMP)this.player).connection.sendPacket(new SPacketSetSlot(-2, i, this.getStackInSlot(i)));
                 }
@@ -616,13 +605,13 @@ public class InventoryPlayer implements IInventory
         }
     }
 
-    public float getStrVsBlock(IBlockState state)
+    public float getDestroySpeed(IBlockState state)
     {
         float f = 1.0F;
 
         if (!((ItemStack)this.mainInventory.get(this.currentItem)).isEmpty())
         {
-            f *= ((ItemStack)this.mainInventory.get(this.currentItem)).getStrVsBlock(state);
+            f *= ((ItemStack)this.mainInventory.get(this.currentItem)).getDestroySpeed(state);
         }
 
         return f;
@@ -632,15 +621,15 @@ public class InventoryPlayer implements IInventory
      * Writes the inventory out as a list of compound tags. This is where the slot indices are used (+100 for armor, +80
      * for crafting).
      */
-    public NBTTagList writeToNBT(NBTTagList nbtTagListIn)
+    public NBTTagList write(NBTTagList nbtTagListIn)
     {
         for (int i = 0; i < this.mainInventory.size(); ++i)
         {
             if (!((ItemStack)this.mainInventory.get(i)).isEmpty())
             {
                 NBTTagCompound nbttagcompound = new NBTTagCompound();
-                nbttagcompound.setByte("Slot", (byte)i);
-                ((ItemStack)this.mainInventory.get(i)).writeToNBT(nbttagcompound);
+                nbttagcompound.putByte("Slot", (byte)i);
+                ((ItemStack)this.mainInventory.get(i)).write(nbttagcompound);
                 nbtTagListIn.appendTag(nbttagcompound);
             }
         }
@@ -650,8 +639,8 @@ public class InventoryPlayer implements IInventory
             if (!((ItemStack)this.armorInventory.get(j)).isEmpty())
             {
                 NBTTagCompound nbttagcompound1 = new NBTTagCompound();
-                nbttagcompound1.setByte("Slot", (byte)(j + 100));
-                ((ItemStack)this.armorInventory.get(j)).writeToNBT(nbttagcompound1);
+                nbttagcompound1.putByte("Slot", (byte)(j + 100));
+                ((ItemStack)this.armorInventory.get(j)).write(nbttagcompound1);
                 nbtTagListIn.appendTag(nbttagcompound1);
             }
         }
@@ -661,8 +650,8 @@ public class InventoryPlayer implements IInventory
             if (!((ItemStack)this.offHandInventory.get(k)).isEmpty())
             {
                 NBTTagCompound nbttagcompound2 = new NBTTagCompound();
-                nbttagcompound2.setByte("Slot", (byte)(k + 150));
-                ((ItemStack)this.offHandInventory.get(k)).writeToNBT(nbttagcompound2);
+                nbttagcompound2.putByte("Slot", (byte)(k + 150));
+                ((ItemStack)this.offHandInventory.get(k)).write(nbttagcompound2);
                 nbtTagListIn.appendTag(nbttagcompound2);
             }
         }
@@ -673,7 +662,7 @@ public class InventoryPlayer implements IInventory
     /**
      * Reads from the given tag list and fills the slots in the inventory with the correct items.
      */
-    public void readFromNBT(NBTTagList nbtTagListIn)
+    public void read(NBTTagList nbtTagListIn)
     {
         this.mainInventory.clear();
         this.armorInventory.clear();
@@ -681,7 +670,7 @@ public class InventoryPlayer implements IInventory
 
         for (int i = 0; i < nbtTagListIn.tagCount(); ++i)
         {
-            NBTTagCompound nbttagcompound = nbtTagListIn.getCompoundTagAt(i);
+            NBTTagCompound nbttagcompound = nbtTagListIn.getCompound(i);
             int j = nbttagcompound.getByte("Slot") & 255;
             ItemStack itemstack = new ItemStack(nbttagcompound);
 
@@ -761,25 +750,16 @@ public class InventoryPlayer implements IInventory
         return list == null ? ItemStack.EMPTY : (ItemStack)list.get(index);
     }
 
-    /**
-     * Get the name of this object. For players this returns their username
-     */
     public String getName()
     {
         return "container.inventory";
     }
 
-    /**
-     * Returns true if this thing is named
-     */
     public boolean hasCustomName()
     {
         return false;
     }
 
-    /**
-     * Get the formatted ChatComponent that will be used for the sender's username in chat
-     */
     public ITextComponent getDisplayName()
     {
         return (ITextComponent)(this.hasCustomName() ? new TextComponentString(this.getName()) : new TextComponentTranslation(this.getName(), new Object[0]));
@@ -892,13 +872,13 @@ public class InventoryPlayer implements IInventory
      */
     public boolean isUsableByPlayer(EntityPlayer player)
     {
-        if (this.player.isDead)
+        if (this.player.removed)
         {
             return false;
         }
         else
         {
-            return player.getDistanceSqToEntity(this.player) <= 64.0D;
+            return player.getDistanceSq(this.player) <= 64.0D;
         }
     }
 

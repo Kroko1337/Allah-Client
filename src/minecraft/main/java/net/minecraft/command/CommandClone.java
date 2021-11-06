@@ -20,33 +20,21 @@ import net.minecraft.world.gen.structure.StructureBoundingBox;
 
 public class CommandClone extends CommandBase
 {
-    /**
-     * Gets the name of the command
-     */
     public String getName()
     {
         return "clone";
     }
 
-    /**
-     * Return the required permission level for this command.
-     */
     public int getRequiredPermissionLevel()
     {
         return 2;
     }
 
-    /**
-     * Gets the usage string for the command.
-     */
     public String getUsage(ICommandSender sender)
     {
         return "commands.clone.usage";
     }
 
-    /**
-     * Callback for when the command is executed
-     */
     public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
     {
         if (args.length < 9)
@@ -136,7 +124,7 @@ public class CommandClone extends CommandBase
 
                                             if (tileentity != null)
                                             {
-                                                NBTTagCompound nbttagcompound = tileentity.writeToNBT(new NBTTagCompound());
+                                                NBTTagCompound nbttagcompound = tileentity.write(new NBTTagCompound());
                                                 list1.add(new CommandClone.StaticCloneData(blockpos5, iblockstate, nbttagcompound));
                                                 deque.addLast(blockpos4);
                                             }
@@ -209,10 +197,10 @@ public class CommandClone extends CommandBase
 
                                 if (commandclone$staticclonedata2.nbt != null && tileentity3 != null)
                                 {
-                                    commandclone$staticclonedata2.nbt.setInteger("x", commandclone$staticclonedata2.pos.getX());
-                                    commandclone$staticclonedata2.nbt.setInteger("y", commandclone$staticclonedata2.pos.getY());
-                                    commandclone$staticclonedata2.nbt.setInteger("z", commandclone$staticclonedata2.pos.getZ());
-                                    tileentity3.readFromNBT(commandclone$staticclonedata2.nbt);
+                                    commandclone$staticclonedata2.nbt.putInt("x", commandclone$staticclonedata2.pos.getX());
+                                    commandclone$staticclonedata2.nbt.putInt("y", commandclone$staticclonedata2.pos.getY());
+                                    commandclone$staticclonedata2.nbt.putInt("z", commandclone$staticclonedata2.pos.getZ());
+                                    tileentity3.read(commandclone$staticclonedata2.nbt);
                                     tileentity3.markDirty();
                                 }
 
@@ -233,7 +221,7 @@ public class CommandClone extends CommandBase
                                     if (structureboundingbox.isVecInside(nextticklistentry.position))
                                     {
                                         BlockPos blockpos8 = nextticklistentry.position.add(blockpos3);
-                                        world.scheduleBlockUpdate(blockpos8, nextticklistentry.getBlock(), (int)(nextticklistentry.scheduledTime - world.getWorldInfo().getWorldTotalTime()), nextticklistentry.priority);
+                                        world.scheduleBlockUpdate(blockpos8, nextticklistentry.getTarget(), (int)(nextticklistentry.scheduledTime - world.getWorldInfo().getGameTime()), nextticklistentry.priority);
                                     }
                                 }
                             }
@@ -286,7 +274,7 @@ public class CommandClone extends CommandBase
         }
         else
         {
-            return args.length == 12 && "filtered".equals(args[9]) ? getListOfStringsMatchingLastWord(args, Block.REGISTRY.getKeys()) : Collections.emptyList();
+            return args.length == 12 && "filtered".equals(args[9]) ? getListOfStringsMatchingLastWord(args, Block.REGISTRY.keySet()) : Collections.emptyList();
         }
     }
 

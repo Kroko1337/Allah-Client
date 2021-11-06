@@ -11,7 +11,7 @@ import net.minecraft.world.World;
 
 public class SPacketBlockChange implements Packet<INetHandlerPlayClient>
 {
-    private BlockPos blockPosition;
+    private BlockPos pos;
     private IBlockState blockState;
 
     public SPacketBlockChange()
@@ -20,7 +20,7 @@ public class SPacketBlockChange implements Packet<INetHandlerPlayClient>
 
     public SPacketBlockChange(World worldIn, BlockPos posIn)
     {
-        this.blockPosition = posIn;
+        this.pos = posIn;
         this.blockState = worldIn.getBlockState(posIn);
     }
 
@@ -29,7 +29,7 @@ public class SPacketBlockChange implements Packet<INetHandlerPlayClient>
      */
     public void readPacketData(PacketBuffer buf) throws IOException
     {
-        this.blockPosition = buf.readBlockPos();
+        this.pos = buf.readBlockPos();
         this.blockState = Block.BLOCK_STATE_IDS.getByValue(buf.readVarInt());
     }
 
@@ -38,7 +38,7 @@ public class SPacketBlockChange implements Packet<INetHandlerPlayClient>
      */
     public void writePacketData(PacketBuffer buf) throws IOException
     {
-        buf.writeBlockPos(this.blockPosition);
+        buf.writeBlockPos(this.pos);
         buf.writeVarInt(Block.BLOCK_STATE_IDS.get(this.blockState));
     }
 
@@ -55,8 +55,8 @@ public class SPacketBlockChange implements Packet<INetHandlerPlayClient>
         return this.blockState;
     }
 
-    public BlockPos getBlockPosition()
+    public BlockPos getPos()
     {
-        return this.blockPosition;
+        return this.pos;
     }
 }

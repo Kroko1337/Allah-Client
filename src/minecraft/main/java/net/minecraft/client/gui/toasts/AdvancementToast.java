@@ -68,12 +68,12 @@ public class AdvancementToast implements IToast
 
                 if (displayinfo.getFrame() == FrameType.CHALLENGE)
                 {
-                    toastGui.getMinecraft().getSoundHandler().playSound(PositionedSoundRecord.getRecord(SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, 1.0F, 1.0F));
+                    toastGui.getMinecraft().getSoundHandler().play(PositionedSoundRecord.master(SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, 1.0F, 1.0F));
                 }
             }
 
             RenderHelper.enableGUIStandardItemLighting();
-            toastGui.getMinecraft().getRenderItem().renderItemAndEffectIntoGUI((EntityLivingBase)null, displayinfo.getIcon(), 8, 8);
+            toastGui.getMinecraft().getItemRenderer().renderItemAndEffectIntoGUI((EntityLivingBase)null, displayinfo.getIcon(), 8, 8);
             return delta >= 5000L ? IToast.Visibility.HIDE : IToast.Visibility.SHOW;
         }
         else

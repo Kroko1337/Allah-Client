@@ -13,14 +13,8 @@ import net.minecraft.util.math.BlockPos;
 public abstract class EntityAIDoorInteract extends EntityAIBase
 {
     protected EntityLiving entity;
-    protected BlockPos doorPosition = BlockPos.ORIGIN;
-
-    /** The wooden door block */
+    protected BlockPos doorPosition = BlockPos.ZERO;
     protected BlockDoor doorBlock;
-
-    /**
-     * If is true then the Entity has stopped Door Interaction and compoleted the task.
-     */
     boolean hasStoppedDoorInteraction;
     float entityPositionX;
     float entityPositionZ;
@@ -36,11 +30,12 @@ public abstract class EntityAIDoorInteract extends EntityAIBase
     }
 
     /**
-     * Returns whether the EntityAIBase should begin execution.
+     * Returns whether execution should begin. You can also read and cache any state necessary for execution in this
+     * method as well.
      */
     public boolean shouldExecute()
     {
-        if (!this.entity.isCollidedHorizontally)
+        if (!this.entity.collidedHorizontally)
         {
             return false;
         }
@@ -99,7 +94,7 @@ public abstract class EntityAIDoorInteract extends EntityAIBase
     /**
      * Keep ticking a continuous task that has already been started
      */
-    public void updateTask()
+    public void tick()
     {
         float f = (float)((double)((float)this.doorPosition.getX() + 0.5F) - this.entity.posX);
         float f1 = (float)((double)((float)this.doorPosition.getZ() + 0.5F) - this.entity.posZ);

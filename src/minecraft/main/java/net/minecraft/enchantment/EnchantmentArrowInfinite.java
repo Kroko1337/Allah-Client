@@ -18,9 +18,6 @@ public class EnchantmentArrowInfinite extends Enchantment
         return 20;
     }
 
-    /**
-     * Returns the maximum value of enchantability nedded on the enchantment level passed.
-     */
     public int getMaxEnchantability(int enchantmentLevel)
     {
         return 50;

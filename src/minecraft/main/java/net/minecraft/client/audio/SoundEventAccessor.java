@@ -59,9 +59,9 @@ public class SoundEventAccessor implements ISoundEventAccessor<Sound>
         }
     }
 
-    public void addSound(ISoundEventAccessor<Sound> p_188715_1_)
+    public void addSound(ISoundEventAccessor<Sound> accessor)
     {
-        this.accessorList.add(p_188715_1_);
+        this.accessorList.add(accessor);
     }
 
     public ResourceLocation getLocation()

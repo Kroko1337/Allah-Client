@@ -24,28 +24,31 @@ public class GuiWinGame extends GuiScreen
 {
     private static final Logger LOGGER = LogManager.getLogger();
     private static final ResourceLocation MINECRAFT_LOGO = new ResourceLocation("textures/gui/title/minecraft.png");
+    private static final ResourceLocation MINECRAFT_EDITION = new ResourceLocation("textures/gui/title/edition.png");
     private static final ResourceLocation VIGNETTE_TEXTURE = new ResourceLocation("textures/misc/vignette.png");
     private final boolean poem;
     private final Runnable onFinished;
     private float time;
     private List<String> lines;
     private int totalScrollLength;
-    private final float scrollSpeed = 0.5F;
+    private float scrollSpeed = 0.5F;
 
     public GuiWinGame(boolean poemIn, Runnable onFinishedIn)
     {
         this.poem = poemIn;
         this.onFinished = onFinishedIn;
+
+        if (!poemIn)
+        {
+            this.scrollSpeed = 0.75F;
+        }
     }
 
-    /**
-     * Called from the main game loop to update the screen.
-     */
     public void updateScreen()
     {
-        this.mc.getMusicTicker().update();
-        this.mc.getSoundHandler().update();
-        float f = (float)(this.totalScrollLength + this.height + this.height + 24) / 0.5F;
+        this.mc.getMusicTicker().tick();
+        this.mc.getSoundHandler().tick();
+        float f = (float)(this.totalScrollLength + this.height + this.height + 24) / this.scrollSpeed;
 
         if (this.time > f)
         {
@@ -53,10 +56,6 @@ public class GuiWinGame extends GuiScreen
         }
     }
 
-    /**
-     * Fired when a key is typed (except F11 which toggles full screen). This is the equivalent of
-     * KeyListener.keyTyped(KeyEvent e). Args : character (character on the key), keyCode (lwjgl Keyboard key code)
-     */
     protected void keyTyped(char typedChar, int keyCode) throws IOException
     {
         if (keyCode == 1)
@@ -71,18 +70,11 @@ public class GuiWinGame extends GuiScreen
         this.mc.displayGuiScreen((GuiScreen)null);
     }
 
-    /**
-     * Returns true if this GUI should pause the game when it is displayed in single-player
-     */
     public boolean doesGuiPauseGame()
     {
         return true;
     }
 
-    /**
-     * Adds the buttons (and other controls) to the screen in question. Called when the GUI is displayed and when the
-     * window resizes, the buttonList is cleared beforehand.
-     */
     public void initGui()
     {
         if (this.lines == null)
@@ -153,18 +145,18 @@ public class GuiWinGame extends GuiScreen
         }
     }
 
-    private void drawWinGameScreen(int p_146575_1_, int p_146575_2_, float p_146575_3_)
+    private void drawWinGameScreen(int mouseX, int mouseY, float partialTicks)
     {
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder bufferbuilder = tessellator.getBuffer();
         this.mc.getTextureManager().bindTexture(Gui.OPTIONS_BACKGROUND);
         bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX_COLOR);
         int i = this.width;
-        float f = -this.time * 0.5F * 0.5F;
-        float f1 = (float)this.height - this.time * 0.5F * 0.5F;
+        float f = -this.time * 0.5F * this.scrollSpeed;
+        float f1 = (float)this.height - this.time * 0.5F * this.scrollSpeed;
         float f2 = 0.015625F;
         float f3 = this.time * 0.02F;
-        float f4 = (float)(this.totalScrollLength + this.height + this.height + 24) / 0.5F;
+        float f4 = (float)(this.totalScrollLength + this.height + this.height + 24) / this.scrollSpeed;
         float f5 = (f4 - 20.0F - this.time) * 0.005F;
 
         if (f5 < f3)
@@ -186,9 +178,6 @@ public class GuiWinGame extends GuiScreen
         tessellator.draw();
     }
 
-    /**
-     * Draws the screen and all the components in it.
-     */
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
         this.drawWinGameScreen(mouseX, mouseY, partialTicks);
@@ -198,7 +187,7 @@ public class GuiWinGame extends GuiScreen
         int j = this.width / 2 - 137;
         int k = this.height + 50;
         this.time += partialTicks;
-        float f = -this.time * 0.5F;
+        float f = -this.time * this.scrollSpeed;
         GlStateManager.pushMatrix();
         GlStateManager.translate(0.0F, f, 0.0F);
         this.mc.getTextureManager().bindTexture(MINECRAFT_LOGO);
@@ -206,6 +195,8 @@ public class GuiWinGame extends GuiScreen
         GlStateManager.enableAlpha();
         this.drawTexturedModalRect(j, k, 0, 0, 155, 44);
         this.drawTexturedModalRect(j + 155, k, 0, 45, 155, 44);
+        this.mc.getTextureManager().bindTexture(MINECRAFT_EDITION);
+        drawModalRectWithCustomSizedTexture(j + 88, k + 37, 0.0F, 0.0F, 98, 14, 128.0F, 16.0F);
         GlStateManager.disableAlpha();
         int l = k + 100;
 
@@ -231,7 +222,7 @@ public class GuiWinGame extends GuiScreen
                 }
                 else
                 {
-                    this.fontRenderer.fontRandom.setSeed((long)((float)((long)i1 * 4238972211L) + this.time / 4.0F));
+                    this.fontRenderer.random.setSeed((long)((float)((long)i1 * 4238972211L) + this.time / 4.0F));
                     this.fontRenderer.drawStringWithShadow(s, (float)j, (float)l, 16777215);
                 }
             }

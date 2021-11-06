@@ -7,7 +7,7 @@ public class ResourcePackListEntryDefault extends ResourcePackListEntryServer
 {
     public ResourcePackListEntryDefault(GuiScreenResourcePacks resourcePacksGUIIn)
     {
-        super(resourcePacksGUIIn, Minecraft.getMinecraft().getResourcePackRepository().rprDefaultResourcePack);
+        super(resourcePacksGUIIn, Minecraft.getInstance().getResourcePackRepository().rprDefaultResourcePack);
     }
 
     protected String getResourcePackName()

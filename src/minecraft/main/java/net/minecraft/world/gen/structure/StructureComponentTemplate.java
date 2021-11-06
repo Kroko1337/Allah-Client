@@ -41,28 +41,21 @@ public abstract class StructureComponentTemplate extends StructureComponent
         this.setBoundingBoxFromTemplate();
     }
 
-    /**
-     * (abstract) Helper method to write subclass data to NBT
-     */
     protected void writeStructureToNBT(NBTTagCompound tagCompound)
     {
-        tagCompound.setInteger("TPX", this.templatePosition.getX());
-        tagCompound.setInteger("TPY", this.templatePosition.getY());
-        tagCompound.setInteger("TPZ", this.templatePosition.getZ());
+        tagCompound.putInt("TPX", this.templatePosition.getX());
+        tagCompound.putInt("TPY", this.templatePosition.getY());
+        tagCompound.putInt("TPZ", this.templatePosition.getZ());
     }
 
     /**
      * (abstract) Helper method to read subclass data from NBT
      */
-    protected void readStructureFromNBT(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
+    protected void readAdditional(NBTTagCompound tagCompound, TemplateManager p_143011_2_)
     {
-        this.templatePosition = new BlockPos(tagCompound.getInteger("TPX"), tagCompound.getInteger("TPY"), tagCompound.getInteger("TPZ"));
+        this.templatePosition = new BlockPos(tagCompound.getInt("TPX"), tagCompound.getInt("TPY"), tagCompound.getInt("TPZ"));
     }
 
-    /**
-     * second Part of Structure generating, this for example places Spiderwebs, Mob Spawners, it closes Mineshafts at
-     * the end, it adds Fences...
-     */
     public boolean addComponentParts(World worldIn, Random randomIn, StructureBoundingBox structureBoundingBoxIn)
     {
         this.placeSettings.setBoundingBox(structureBoundingBoxIn);
@@ -112,7 +105,7 @@ public abstract class StructureComponentTemplate extends StructureComponent
                 break;
 
             case FRONT_BACK:
-                BlockPos blockpos2 = BlockPos.ORIGIN;
+                BlockPos blockpos2 = BlockPos.ZERO;
 
                 if (rotation != Rotation.CLOCKWISE_90 && rotation != Rotation.COUNTERCLOCKWISE_90)
                 {
@@ -134,7 +127,7 @@ public abstract class StructureComponentTemplate extends StructureComponent
                 break;
 
             case LEFT_RIGHT:
-                BlockPos blockpos1 = BlockPos.ORIGIN;
+                BlockPos blockpos1 = BlockPos.ZERO;
 
                 if (rotation != Rotation.CLOCKWISE_90 && rotation != Rotation.COUNTERCLOCKWISE_90)
                 {

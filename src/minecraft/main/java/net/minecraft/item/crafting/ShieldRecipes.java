@@ -43,7 +43,7 @@ public class ShieldRecipes
                             return false;
                         }
 
-                        if (itemstack2.getSubCompound("BlockEntityTag") != null)
+                        if (itemstack2.getChildTag("BlockEntityTag") != null)
                         {
                             return false;
                         }
@@ -91,9 +91,9 @@ public class ShieldRecipes
             }
             else
             {
-                NBTTagCompound nbttagcompound = itemstack.getSubCompound("BlockEntityTag");
+                NBTTagCompound nbttagcompound = itemstack.getChildTag("BlockEntityTag");
                 NBTTagCompound nbttagcompound1 = nbttagcompound == null ? new NBTTagCompound() : nbttagcompound.copy();
-                nbttagcompound1.setInteger("Base", itemstack.getMetadata() & 15);
+                nbttagcompound1.putInt("Base", itemstack.getMetadata() & 15);
                 itemstack1.setTagInfo("BlockEntityTag", nbttagcompound1);
                 return itemstack1;
             }
@@ -121,7 +121,7 @@ public class ShieldRecipes
             return nonnulllist;
         }
 
-        public boolean isHidden()
+        public boolean isDynamic()
         {
             return true;
         }

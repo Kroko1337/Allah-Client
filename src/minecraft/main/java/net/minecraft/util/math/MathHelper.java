@@ -6,32 +6,13 @@ import java.util.UUID;
 public class MathHelper
 {
     public static final float SQRT_2 = sqrt(2.0F);
-    private static final int SIN_BITS = 12;
-    private static final int SIN_MASK = 4095;
-    private static final int SIN_COUNT = 4096;
-    public static final float PI = (float)Math.PI;
-    public static final float PI2 = ((float)Math.PI * 2F);
-    public static final float PId2 = ((float)Math.PI / 2F);
-    private static final float radFull = ((float)Math.PI * 2F);
-    private static final float degFull = 360.0F;
-    private static final float radToIndex = 651.8986F;
-    private static final float degToIndex = 11.377778F;
-    public static final float deg2Rad = 0.017453292F;
-    private static final float[] SIN_TABLE_FAST = new float[4096];
-    public static boolean fastMath = false;
-
-    /**
-     * A table of sin values computed from 0 (inclusive) to 2*pi (exclusive), with steps of 2*PI / 65536.
-     */
     private static final float[] SIN_TABLE = new float[65536];
     private static final Random RANDOM = new Random();
 
     /**
-     * Though it looks like an array, this is really more like a mapping.  Key (index of this array) is the upper 5 bits
-     * of the result of multiplying a 32-bit unsigned integer by the B(2, 5) De Bruijn sequence 0x077CB531.  Value
-     * (value stored in the array) is the unique index (from the right) of the leftmost one-bit in a 32-bit unsigned
-     * integer that can cause the upper 5 bits to get that value.  Used for highly optimized "find the log-base-2 of
-     * this number" calculations.
+     * Though it looks like an array, this is really more like a mapping. Key (index of this array) is the upper 5 bits
+     * of the result of multiplying a 32-bit unsigned integer by the B(2, 5) De Bruijn sequence 0x077CB531. Value (value
+     * stored in the array) is the unique index (from the right) of the leftmo
      */
     private static final int[] MULTIPLY_DE_BRUIJN_BIT_POSITION;
     private static final double FRAC_BIAS;
@@ -43,7 +24,7 @@ public class MathHelper
      */
     public static float sin(float value)
     {
-        return fastMath ? SIN_TABLE_FAST[(int)(value * 651.8986F) & 4095] : SIN_TABLE[(int)(value * 10430.378F) & 65535];
+        return SIN_TABLE[(int)(value * 10430.378F) & 65535];
     }
 
     /**
@@ -51,7 +32,7 @@ public class MathHelper
      */
     public static float cos(float value)
     {
-        return fastMath ? SIN_TABLE_FAST[(int)((value + ((float)Math.PI / 2F)) * 651.8986F) & 4095] : SIN_TABLE[(int)(value * 10430.378F + 16384.0F) & 65535];
+        return SIN_TABLE[(int)(value * 10430.378F + 16384.0F) & 65535];
     }
 
     public static float sqrt(float value)
@@ -188,30 +169,30 @@ public class MathHelper
     /**
      * Maximum of the absolute value of two numbers.
      */
-    public static double absMax(double p_76132_0_, double p_76132_2_)
+    public static double absMax(double x, double y)
     {
-        if (p_76132_0_ < 0.0D)
+        if (x < 0.0D)
         {
-            p_76132_0_ = -p_76132_0_;
+            x = -x;
         }
 
-        if (p_76132_2_ < 0.0D)
+        if (y < 0.0D)
         {
-            p_76132_2_ = -p_76132_2_;
+            y = -y;
         }
 
-        return p_76132_0_ > p_76132_2_ ? p_76132_0_ : p_76132_2_;
+        return x > y ? x : y;
     }
 
     /**
      * Buckets an integer with specifed bucket sizes.
      */
-    public static int intFloorDiv(int p_76137_0_, int p_76137_1_)
+    public static int intFloorDiv(int x, int y)
     {
-        return p_76137_0_ < 0 ? -((-p_76137_0_ - 1) / p_76137_1_) - 1 : p_76137_0_ / p_76137_1_;
+        return x < 0 ? -((-x - 1) / y) - 1 : x / y;
     }
 
-    public static int getInt(Random random, int minimum, int maximum)
+    public static int nextInt(Random random, int minimum, int maximum)
     {
         return minimum >= maximum ? minimum : random.nextInt(maximum - minimum + 1) + minimum;
     }
@@ -238,14 +219,14 @@ public class MathHelper
         return (double)i / (double)values.length;
     }
 
-    public static boolean epsilonEquals(float p_180185_0_, float p_180185_1_)
+    public static boolean epsilonEquals(float x, float y)
     {
-        return abs(p_180185_1_ - p_180185_0_) < 1.0E-5F;
+        return abs(y - x) < 1.0E-5F;
     }
 
-    public static int normalizeAngle(int p_180184_0_, int p_180184_1_)
+    public static int normalizeAngle(int x, int y)
     {
-        return (p_180184_0_ % p_180184_1_ + p_180184_1_) % p_180184_1_;
+        return (x % y + y) % y;
     }
 
     public static float positiveModulo(float numerator, float denominator)
@@ -301,7 +282,7 @@ public class MathHelper
     /**
      * Adjust the angle so that his value is in range [-180;180[
      */
-    public static int clampAngle(int angle)
+    public static int wrapDegrees(int angle)
     {
         angle = angle % 360;
 
@@ -341,9 +322,6 @@ public class MathHelper
         return Math.max(max, getInt(value, defaultValue));
     }
 
-    /**
-     * parses the string as double or returns the second parameter if it fails.
-     */
     public static double getDouble(String value, double defaultValue)
     {
         try
@@ -444,9 +422,9 @@ public class MathHelper
      */
     public static int rgb(int rIn, int gIn, int bIn)
     {
-        int i = (rIn << 8) + gIn;
-        i = (i << 8) + bIn;
-        return i;
+        int lvt_3_1_ = (rIn << 8) + gIn;
+        lvt_3_1_ = (lvt_3_1_ << 8) + bIn;
+        return lvt_3_1_;
     }
 
     public static int multiplyColor(int p_180188_0_, int p_180188_1_)
@@ -567,14 +545,18 @@ public class MathHelper
         }
     }
 
-    public static double fastInvSqrt(double p_181161_0_)
+    /**
+     * Computes 1/sqrt(n) using <a href="https://en.wikipedia.org/wiki/Fast_inverse_square_root">the fast inverse square
+     * root</a> with a constant of 0x5FE6EB50C7B537AA.
+     */
+    public static double fastInvSqrt(double number)
     {
-        double d0 = 0.5D * p_181161_0_;
-        long i = Double.doubleToRawLongBits(p_181161_0_);
+        double d0 = 0.5D * number;
+        long i = Double.doubleToRawLongBits(number);
         i = 6910469410427058090L - (i >> 1);
-        p_181161_0_ = Double.longBitsToDouble(i);
-        p_181161_0_ = p_181161_0_ * (1.5D - d0 * p_181161_0_ * p_181161_0_);
-        return p_181161_0_;
+        number = Double.longBitsToDouble(i);
+        number = number * (1.5D - d0 * number * number);
+        return number;
     }
 
     public static int hsvToRGB(float hue, float saturation, float value)
@@ -653,27 +635,17 @@ public class MathHelper
             SIN_TABLE[i] = (float)Math.sin((double)i * Math.PI * 2.0D / 65536.0D);
         }
 
-        for (int j = 0; j < 4096; ++j)
-        {
-            SIN_TABLE_FAST[j] = (float)Math.sin((double)(((float)j + 0.5F) / 4096.0F * ((float)Math.PI * 2F)));
-        }
-
-        for (int k = 0; k < 360; k += 90)
-        {
-            SIN_TABLE_FAST[(int)((float)k * 11.377778F) & 4095] = (float)Math.sin((double)((float)k * 0.017453292F));
-        }
-
         MULTIPLY_DE_BRUIJN_BIT_POSITION = new int[] {0, 1, 28, 2, 29, 14, 24, 3, 30, 22, 20, 15, 25, 17, 4, 8, 31, 27, 13, 23, 21, 19, 16, 7, 26, 12, 18, 6, 11, 5, 10, 9};
         FRAC_BIAS = Double.longBitsToDouble(4805340802404319232L);
         ASINE_TAB = new double[257];
         COS_TAB = new double[257];
 
-        for (int l = 0; l < 257; ++l)
+        for (int j = 0; j < 257; ++j)
         {
-            double d0 = (double)l / 256.0D;
+            double d0 = (double)j / 256.0D;
             double d1 = Math.asin(d0);
-            COS_TAB[l] = Math.cos(d1);
-            ASINE_TAB[l] = d1;
+            COS_TAB[j] = Math.cos(d1);
+            ASINE_TAB[j] = d1;
         }
     }
 }

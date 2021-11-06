@@ -8,15 +8,15 @@ import net.minecraft.world.World;
 public class ItemMapBase extends Item
 {
     /**
-     * false for all Items except sub-classes of ItemMapBase
+     * Returns {@code true} if this is a complex item.
      */
-    public boolean isMap()
+    public boolean isComplex()
     {
         return true;
     }
 
     @Nullable
-    public Packet<?> createMapDataPacket(ItemStack stack, World worldIn, EntityPlayer player)
+    public Packet<?> getUpdatePacket(ItemStack stack, World worldIn, EntityPlayer player)
     {
         return null;
     }

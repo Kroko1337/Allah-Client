@@ -9,7 +9,7 @@ import net.minecraft.world.World;
 
 public class WorldGenEndPodium extends WorldGenerator
 {
-    public static final BlockPos END_PODIUM_LOCATION = BlockPos.ORIGIN;
+    public static final BlockPos END_PODIUM_LOCATION = BlockPos.ZERO;
     public static final BlockPos END_PODIUM_CHUNK_POS = new BlockPos(END_PODIUM_LOCATION.getX() - 4 & -16, 0, END_PODIUM_LOCATION.getZ() - 4 & -16);
     private final boolean activePortal;
 

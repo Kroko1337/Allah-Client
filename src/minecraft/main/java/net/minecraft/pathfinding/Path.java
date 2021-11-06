@@ -7,16 +7,11 @@ import net.minecraft.util.math.Vec3d;
 
 public class Path
 {
-    /** The actual points in the path */
     private final PathPoint[] points;
     private PathPoint[] openSet = new PathPoint[0];
     private PathPoint[] closedSet = new PathPoint[0];
     private PathPoint target;
-
-    /** PathEntity Array Index the Entity is currently targeting */
     private int currentPathIndex;
-
-    /** The total length of the path */
     private int pathLength;
 
     public Path(PathPoint[] pathpoints)

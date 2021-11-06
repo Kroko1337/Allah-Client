@@ -28,7 +28,7 @@ public class BlockIce extends BlockBreakable
         this.setCreativeTab(CreativeTabs.BUILDING_BLOCKS);
     }
 
-    public BlockRenderLayer getBlockLayer()
+    public BlockRenderLayer getRenderLayer()
     {
         return BlockRenderLayer.TRANSLUCENT;
     }
@@ -48,7 +48,7 @@ public class BlockIce extends BlockBreakable
         }
         else
         {
-            if (worldIn.provider.doesWaterVaporize())
+            if (worldIn.dimension.doesWaterVaporize())
             {
                 worldIn.setBlockToAir(pos);
                 return;
@@ -65,9 +65,6 @@ public class BlockIce extends BlockBreakable
         }
     }
 
-    /**
-     * Returns the quantity of items to drop on block destruction.
-     */
     public int quantityDropped(Random random)
     {
         return 0;
@@ -83,7 +80,7 @@ public class BlockIce extends BlockBreakable
 
     protected void turnIntoWater(World worldIn, BlockPos pos)
     {
-        if (worldIn.provider.doesWaterVaporize())
+        if (worldIn.dimension.doesWaterVaporize())
         {
             worldIn.setBlockToAir(pos);
         }
@@ -95,7 +92,10 @@ public class BlockIce extends BlockBreakable
         }
     }
 
-    public EnumPushReaction getMobilityFlag(IBlockState state)
+    /**
+     * @deprecated call via {@link IBlockState#getMobilityFlag()} whenever possible. Implementing/overriding is fine.
+     */
+    public EnumPushReaction getPushReaction(IBlockState state)
     {
         return EnumPushReaction.NORMAL;
     }

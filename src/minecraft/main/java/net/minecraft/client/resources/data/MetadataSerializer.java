@@ -13,10 +13,6 @@ public class MetadataSerializer
 {
     private final IRegistry < String, MetadataSerializer.Registration <? extends IMetadataSection >> metadataSectionSerializerRegistry = new RegistrySimple < String, MetadataSerializer.Registration <? extends IMetadataSection >> ();
     private final GsonBuilder gsonBuilder = new GsonBuilder();
-
-    /**
-     * Cached Gson instance. Set to null when more sections are registered, and then re-created from the builder.
-     */
     private Gson gson;
 
     public MetadataSerializer()
@@ -49,7 +45,7 @@ public class MetadataSerializer
         }
         else
         {
-            MetadataSerializer.Registration<?> registration = (MetadataSerializer.Registration)this.metadataSectionSerializerRegistry.getObject(sectionName);
+            MetadataSerializer.Registration<?> registration = (MetadataSerializer.Registration)this.metadataSectionSerializerRegistry.getOrDefault(sectionName);
 
             if (registration == null)
             {
@@ -62,9 +58,6 @@ public class MetadataSerializer
         }
     }
 
-    /**
-     * Returns a Gson instance with type adapters registered for metadata sections.
-     */
     private Gson getGson()
     {
         if (this.gson == null)

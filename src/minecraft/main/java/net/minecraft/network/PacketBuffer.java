@@ -182,12 +182,12 @@ public class PacketBuffer extends ByteBuf
 
     public ITextComponent readTextComponent() throws IOException
     {
-        return ITextComponent.Serializer.jsonToComponent(this.readString(32767));
+        return ITextComponent.Serializer.fromJson(this.readString(32767));
     }
 
     public PacketBuffer writeTextComponent(ITextComponent component)
     {
-        return this.writeString(ITextComponent.Serializer.componentToJson(component));
+        return this.writeString(ITextComponent.Serializer.toJson(component));
     }
 
     public <T extends Enum<T>> T readEnumValue(Class<T> enumClass)
@@ -363,9 +363,9 @@ public class PacketBuffer extends ByteBuf
             this.writeShort(stack.getMetadata());
             NBTTagCompound nbttagcompound = null;
 
-            if (stack.getItem().isDamageable() || stack.getItem().getShareTag())
+            if (stack.getItem().isDamageable() || stack.getItem().shouldSyncTag())
             {
-                nbttagcompound = stack.getTagCompound();
+                nbttagcompound = stack.getTag();
             }
 
             this.writeCompoundTag(nbttagcompound);
@@ -390,7 +390,7 @@ public class PacketBuffer extends ByteBuf
             int j = this.readByte();
             int k = this.readShort();
             ItemStack itemstack = new ItemStack(Item.getItemById(i), j, k);
-            itemstack.setTagCompound(this.readCompoundTag());
+            itemstack.setTag(this.readCompoundTag());
             return itemstack;
         }
     }

@@ -175,7 +175,7 @@ public class CompressedStreamTools
         else
         {
             input.readUTF();
-            NBTBase nbtbase = NBTBase.createNewByType(b0);
+            NBTBase nbtbase = NBTBase.create(b0);
 
             try
             {
@@ -186,7 +186,7 @@ public class CompressedStreamTools
             {
                 CrashReport crashreport = CrashReport.makeCrashReport(ioexception, "Loading NBT data");
                 CrashReportCategory crashreportcategory = crashreport.makeCategory("NBT Tag");
-                crashreportcategory.addCrashSection("Tag type", Byte.valueOf(b0));
+                crashreportcategory.addDetail("Tag type", Byte.valueOf(b0));
                 throw new ReportedException(crashreport);
             }
         }

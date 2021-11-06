@@ -13,9 +13,9 @@ public class RenderEvoker extends RenderLiving<EntityMob>
 {
     private static final ResourceLocation EVOKER_ILLAGER = new ResourceLocation("textures/entity/illager/evoker.png");
 
-    public RenderEvoker(RenderManager p_i47207_1_)
+    public RenderEvoker(RenderManager renderManagerIn)
     {
-        super(p_i47207_1_, new ModelIllager(0.0F, 0.0F, 64, 64), 0.5F);
+        super(renderManagerIn, new ModelIllager(0.0F, 0.0F, 64, 64), 0.5F);
         this.addLayer(new LayerHeldItem(this)
         {
             public void doRenderLayer(EntityLivingBase entitylivingbaseIn, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch, float scale)
@@ -33,16 +33,13 @@ public class RenderEvoker extends RenderLiving<EntityMob>
     }
 
     /**
-     * Returns the location of an entity's texture. Doesn't seem to be called unless you call Render.bindEntityTexture.
+     * Returns the location of an entity's texture.
      */
     protected ResourceLocation getEntityTexture(EntityMob entity)
     {
         return EVOKER_ILLAGER;
     }
 
-    /**
-     * Allows the render to do state modifications necessary before the model is rendered.
-     */
     protected void preRenderCallback(EntityMob entitylivingbaseIn, float partialTickTime)
     {
         float f = 0.9375F;

@@ -21,7 +21,7 @@ public abstract class TileEntityLockableLoot extends TileEntityLockable implemen
 
     protected boolean checkLootAndRead(NBTTagCompound compound)
     {
-        if (compound.hasKey("LootTable", 8))
+        if (compound.contains("LootTable", 8))
         {
             this.lootTable = new ResourceLocation(compound.getString("LootTable"));
             this.lootTableSeed = compound.getLong("LootTableSeed");
@@ -37,11 +37,11 @@ public abstract class TileEntityLockableLoot extends TileEntityLockable implemen
     {
         if (this.lootTable != null)
         {
-            compound.setString("LootTable", this.lootTable.toString());
+            compound.putString("LootTable", this.lootTable.toString());
 
             if (this.lootTableSeed != 0L)
             {
-                compound.setLong("LootTableSeed", this.lootTableSeed);
+                compound.putLong("LootTableSeed", this.lootTableSeed);
             }
 
             return true;
@@ -85,15 +85,12 @@ public abstract class TileEntityLockableLoot extends TileEntityLockable implemen
         return this.lootTable;
     }
 
-    public void setLootTable(ResourceLocation p_189404_1_, long p_189404_2_)
+    public void setLootTable(ResourceLocation lootTableIn, long seedIn)
     {
-        this.lootTable = p_189404_1_;
-        this.lootTableSeed = p_189404_2_;
+        this.lootTable = lootTableIn;
+        this.lootTableSeed = seedIn;
     }
 
-    /**
-     * Returns true if this thing is named
-     */
     public boolean hasCustomName()
     {
         return this.customName != null && !this.customName.isEmpty();

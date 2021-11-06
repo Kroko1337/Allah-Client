@@ -16,10 +16,10 @@ public class ElderGuardianSplit implements IFixableData
         {
             if (compound.getBoolean("Elder"))
             {
-                compound.setString("id", "ElderGuardian");
+                compound.putString("id", "ElderGuardian");
             }
 
-            compound.removeTag("Elder");
+            compound.remove("Elder");
         }
 
         return compound;

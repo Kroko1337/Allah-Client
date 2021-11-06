@@ -48,7 +48,7 @@ public class BlockStatePaletteLinear implements IBlockStatePalette
     /**
      * Gets the block state by the palette id.
      */
-    public IBlockState getBlockState(int indexKey)
+    public IBlockState get(int indexKey)
     {
         return indexKey >= 0 && indexKey < this.arraySize ? this.states[indexKey] : null;
     }

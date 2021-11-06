@@ -9,12 +9,12 @@ import net.minecraft.util.text.ITextComponent;
 
 public class NetHandlerHandshakeMemory implements INetHandlerHandshakeServer
 {
-    private final MinecraftServer mcServer;
+    private final MinecraftServer server;
     private final NetworkManager networkManager;
 
     public NetHandlerHandshakeMemory(MinecraftServer mcServerIn, NetworkManager networkManagerIn)
     {
-        this.mcServer = mcServerIn;
+        this.server = mcServerIn;
         this.networkManager = networkManagerIn;
     }
 
@@ -26,7 +26,7 @@ public class NetHandlerHandshakeMemory implements INetHandlerHandshakeServer
     public void processHandshake(C00Handshake packetIn)
     {
         this.networkManager.setConnectionState(packetIn.getRequestedState());
-        this.networkManager.setNetHandler(new NetHandlerLoginServer(this.mcServer, this.networkManager));
+        this.networkManager.setNetHandler(new NetHandlerLoginServer(this.server, this.networkManager));
     }
 
     /**

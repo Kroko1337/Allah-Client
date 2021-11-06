@@ -22,23 +22,18 @@ import net.minecraft.world.World;
 
 public class ContainerEnchantment extends Container
 {
-    /** SlotEnchantmentTable object with ItemStack to be enchanted */
     public IInventory tableInventory;
-
-    /** current world (for bookshelf counting) */
-    private final World worldPointer;
+    private final World world;
     private final BlockPos position;
     private final Random rand;
     public int xpSeed;
-
-    /** 3-member array storing the enchantment levels of each slot */
     public int[] enchantLevels;
     public int[] enchantClue;
     public int[] worldClue;
 
     public ContainerEnchantment(InventoryPlayer playerInv, World worldIn)
     {
-        this(playerInv, worldIn, BlockPos.ORIGIN);
+        this(playerInv, worldIn, BlockPos.ZERO);
     }
 
     public ContainerEnchantment(InventoryPlayer playerInv, World worldIn, BlockPos pos)
@@ -59,10 +54,10 @@ public class ContainerEnchantment extends Container
         this.enchantLevels = new int[3];
         this.enchantClue = new int[] { -1, -1, -1};
         this.worldClue = new int[] { -1, -1, -1};
-        this.worldPointer = worldIn;
+        this.world = worldIn;
         this.position = pos;
         this.xpSeed = playerInv.player.getXPSeed();
-        this.addSlotToContainer(new Slot(this.tableInventory, 0, 15, 47)
+        this.addSlot(new Slot(this.tableInventory, 0, 15, 47)
         {
             public boolean isItemValid(ItemStack stack)
             {
@@ -73,7 +68,7 @@ public class ContainerEnchantment extends Container
                 return 1;
             }
         });
-        this.addSlotToContainer(new Slot(this.tableInventory, 1, 35, 47)
+        this.addSlot(new Slot(this.tableInventory, 1, 35, 47)
         {
             public boolean isItemValid(ItemStack stack)
             {
@@ -85,13 +80,13 @@ public class ContainerEnchantment extends Container
         {
             for (int j = 0; j < 9; ++j)
             {
-                this.addSlotToContainer(new Slot(playerInv, j + i * 9 + 9, 8 + j * 18, 84 + i * 18));
+                this.addSlot(new Slot(playerInv, j + i * 9 + 9, 8 + j * 18, 84 + i * 18));
             }
         }
 
         for (int k = 0; k < 9; ++k)
         {
-            this.addSlotToContainer(new Slot(playerInv, k, 8 + k * 18, 142));
+            this.addSlot(new Slot(playerInv, k, 8 + k * 18, 142));
         }
     }
 
@@ -162,9 +157,9 @@ public class ContainerEnchantment extends Container
         {
             ItemStack itemstack = inventoryIn.getStackInSlot(0);
 
-            if (!itemstack.isEmpty() && itemstack.isItemEnchantable())
+            if (!itemstack.isEmpty() && itemstack.isEnchantable())
             {
-                if (!this.worldPointer.isRemote)
+                if (!this.world.isRemote)
                 {
                     int l = 0;
 
@@ -172,36 +167,36 @@ public class ContainerEnchantment extends Container
                     {
                         for (int k = -1; k <= 1; ++k)
                         {
-                            if ((j != 0 || k != 0) && this.worldPointer.isAirBlock(this.position.add(k, 0, j)) && this.worldPointer.isAirBlock(this.position.add(k, 1, j)))
+                            if ((j != 0 || k != 0) && this.world.isAirBlock(this.position.add(k, 0, j)) && this.world.isAirBlock(this.position.add(k, 1, j)))
                             {
-                                if (this.worldPointer.getBlockState(this.position.add(k * 2, 0, j * 2)).getBlock() == Blocks.BOOKSHELF)
+                                if (this.world.getBlockState(this.position.add(k * 2, 0, j * 2)).getBlock() == Blocks.BOOKSHELF)
                                 {
                                     ++l;
                                 }
 
-                                if (this.worldPointer.getBlockState(this.position.add(k * 2, 1, j * 2)).getBlock() == Blocks.BOOKSHELF)
+                                if (this.world.getBlockState(this.position.add(k * 2, 1, j * 2)).getBlock() == Blocks.BOOKSHELF)
                                 {
                                     ++l;
                                 }
 
                                 if (k != 0 && j != 0)
                                 {
-                                    if (this.worldPointer.getBlockState(this.position.add(k * 2, 0, j)).getBlock() == Blocks.BOOKSHELF)
+                                    if (this.world.getBlockState(this.position.add(k * 2, 0, j)).getBlock() == Blocks.BOOKSHELF)
                                     {
                                         ++l;
                                     }
 
-                                    if (this.worldPointer.getBlockState(this.position.add(k * 2, 1, j)).getBlock() == Blocks.BOOKSHELF)
+                                    if (this.world.getBlockState(this.position.add(k * 2, 1, j)).getBlock() == Blocks.BOOKSHELF)
                                     {
                                         ++l;
                                     }
 
-                                    if (this.worldPointer.getBlockState(this.position.add(k, 0, j * 2)).getBlock() == Blocks.BOOKSHELF)
+                                    if (this.world.getBlockState(this.position.add(k, 0, j * 2)).getBlock() == Blocks.BOOKSHELF)
                                     {
                                         ++l;
                                     }
 
-                                    if (this.worldPointer.getBlockState(this.position.add(k, 1, j * 2)).getBlock() == Blocks.BOOKSHELF)
+                                    if (this.world.getBlockState(this.position.add(k, 1, j * 2)).getBlock() == Blocks.BOOKSHELF)
                                     {
                                         ++l;
                                     }
@@ -263,13 +258,13 @@ public class ContainerEnchantment extends Container
         ItemStack itemstack1 = this.tableInventory.getStackInSlot(1);
         int i = id + 1;
 
-        if ((itemstack1.isEmpty() || itemstack1.getCount() < i) && !playerIn.capabilities.isCreativeMode)
+        if ((itemstack1.isEmpty() || itemstack1.getCount() < i) && !playerIn.abilities.isCreativeMode)
         {
             return false;
         }
-        else if (this.enchantLevels[id] > 0 && !itemstack.isEmpty() && (playerIn.experienceLevel >= i && playerIn.experienceLevel >= this.enchantLevels[id] || playerIn.capabilities.isCreativeMode))
+        else if (this.enchantLevels[id] > 0 && !itemstack.isEmpty() && (playerIn.experienceLevel >= i && playerIn.experienceLevel >= this.enchantLevels[id] || playerIn.abilities.isCreativeMode))
         {
-            if (!this.worldPointer.isRemote)
+            if (!this.world.isRemote)
             {
                 List<EnchantmentData> list = this.getEnchantmentList(itemstack, id, this.enchantLevels[id]);
 
@@ -298,7 +293,7 @@ public class ContainerEnchantment extends Container
                         }
                     }
 
-                    if (!playerIn.capabilities.isCreativeMode)
+                    if (!playerIn.abilities.isCreativeMode)
                     {
                         itemstack1.shrink(i);
 
@@ -308,7 +303,7 @@ public class ContainerEnchantment extends Container
                         }
                     }
 
-                    playerIn.addStat(StatList.ITEM_ENCHANTED);
+                    playerIn.addStat(StatList.ENCHANT_ITEM);
 
                     if (playerIn instanceof EntityPlayerMP)
                     {
@@ -318,7 +313,7 @@ public class ContainerEnchantment extends Container
                     this.tableInventory.markDirty();
                     this.xpSeed = playerIn.getXPSeed();
                     this.onCraftMatrixChanged(this.tableInventory);
-                    this.worldPointer.playSound((EntityPlayer)null, this.position, SoundEvents.BLOCK_ENCHANTMENT_TABLE_USE, SoundCategory.BLOCKS, 1.0F, this.worldPointer.rand.nextFloat() * 0.1F + 0.9F);
+                    this.world.playSound((EntityPlayer)null, this.position, SoundEvents.BLOCK_ENCHANTMENT_TABLE_USE, SoundCategory.BLOCKS, 1.0F, this.world.rand.nextFloat() * 0.1F + 0.9F);
                 }
             }
 
@@ -356,7 +351,7 @@ public class ContainerEnchantment extends Container
     {
         super.onContainerClosed(playerIn);
 
-        if (!this.worldPointer.isRemote)
+        if (!this.world.isRemote)
         {
             this.clearContainer(playerIn, playerIn.world, this.tableInventory);
         }
@@ -367,7 +362,7 @@ public class ContainerEnchantment extends Container
      */
     public boolean canInteractWith(EntityPlayer playerIn)
     {
-        if (this.worldPointer.getBlockState(this.position).getBlock() != Blocks.ENCHANTING_TABLE)
+        if (this.world.getBlockState(this.position).getBlock() != Blocks.ENCHANTING_TABLE)
         {
             return false;
         }
@@ -419,7 +414,7 @@ public class ContainerEnchantment extends Container
                     return ItemStack.EMPTY;
                 }
 
-                if (itemstack1.hasTagCompound() && itemstack1.getCount() == 1)
+                if (itemstack1.hasTag() && itemstack1.getCount() == 1)
                 {
                     ((Slot)this.inventorySlots.get(0)).putStack(itemstack1.copy());
                     itemstack1.setCount(0);

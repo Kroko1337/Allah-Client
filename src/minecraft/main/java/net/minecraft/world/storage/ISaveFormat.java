@@ -8,14 +8,8 @@ import net.minecraft.util.IProgressUpdate;
 
 public interface ISaveFormat
 {
-    /**
-     * Returns the name of the save format.
-     */
     String getName();
 
-    /**
-     * Returns back a loader for the specified save directory
-     */
     ISaveHandler getSaveLoader(String saveName, boolean storePlayerdata);
 
     List<WorldSummary> getSaveList() throws AnvilConverterException;
@@ -59,5 +53,8 @@ public interface ISaveFormat
      */
     boolean canLoadWorld(String saveName);
 
-    File getFile(String p_186352_1_, String p_186352_2_);
+    /**
+     * Gets a file within the given world.
+     */
+    File getFile(String saveName, String filePath);
 }

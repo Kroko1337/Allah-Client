@@ -28,32 +28,29 @@ public class TileEntityEnchantmentTable extends TileEntity implements ITickable,
     private static final Random rand = new Random();
     private String customName;
 
-    public NBTTagCompound writeToNBT(NBTTagCompound compound)
+    public NBTTagCompound write(NBTTagCompound compound)
     {
-        super.writeToNBT(compound);
+        super.write(compound);
 
         if (this.hasCustomName())
         {
-            compound.setString("CustomName", this.customName);
+            compound.putString("CustomName", this.customName);
         }
 
         return compound;
     }
 
-    public void readFromNBT(NBTTagCompound compound)
+    public void read(NBTTagCompound compound)
     {
-        super.readFromNBT(compound);
+        super.read(compound);
 
-        if (compound.hasKey("CustomName", 8))
+        if (compound.contains("CustomName", 8))
         {
             this.customName = compound.getString("CustomName");
         }
     }
 
-    /**
-     * Like the old updateEntity(), except more generic.
-     */
-    public void update()
+    public void tick()
     {
         this.bookSpreadPrev = this.bookSpread;
         this.bookRotationPrev = this.bookRotation;
@@ -130,17 +127,11 @@ public class TileEntityEnchantmentTable extends TileEntity implements ITickable,
         this.pageFlip += this.flipA;
     }
 
-    /**
-     * Get the name of this object. For players this returns their username
-     */
     public String getName()
     {
         return this.hasCustomName() ? this.customName : "container.enchant";
     }
 
-    /**
-     * Returns true if this thing is named
-     */
     public boolean hasCustomName()
     {
         return this.customName != null && !this.customName.isEmpty();
@@ -151,9 +142,6 @@ public class TileEntityEnchantmentTable extends TileEntity implements ITickable,
         this.customName = customNameIn;
     }
 
-    /**
-     * Get the formatted ChatComponent that will be used for the sender's username in chat
-     */
     public ITextComponent getDisplayName()
     {
         return (ITextComponent)(this.hasCustomName() ? new TextComponentString(this.getName()) : new TextComponentTranslation(this.getName(), new Object[0]));

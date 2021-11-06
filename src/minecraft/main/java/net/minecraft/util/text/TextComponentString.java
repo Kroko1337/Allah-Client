@@ -32,14 +32,14 @@ public class TextComponentString extends TextComponentBase
     /**
      * Creates a copy of this component.  Almost a deep copy, except the style is shallow-copied.
      */
-    public TextComponentString createCopy()
+    public TextComponentString shallowCopy()
     {
         TextComponentString textcomponentstring = new TextComponentString(this.text);
         textcomponentstring.setStyle(this.getStyle().createShallowCopy());
 
         for (ITextComponent itextcomponent : this.getSiblings())
         {
-            textcomponentstring.appendSibling(itextcomponent.createCopy());
+            textcomponentstring.appendSibling(itextcomponent.shallowCopy());
         }
 
         return textcomponentstring;

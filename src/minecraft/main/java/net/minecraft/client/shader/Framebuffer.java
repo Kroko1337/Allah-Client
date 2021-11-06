@@ -183,13 +183,13 @@ public class Framebuffer
         }
     }
 
-    public void bindFramebuffer(boolean p_147610_1_)
+    public void bindFramebuffer(boolean setViewportIn)
     {
         if (OpenGlHelper.isFramebufferEnabled())
         {
             OpenGlHelper.glBindFramebuffer(OpenGlHelper.GL_FRAMEBUFFER, this.framebufferObject);
 
-            if (p_147610_1_)
+            if (setViewportIn)
             {
                 GlStateManager.viewport(0, 0, this.framebufferWidth, this.framebufferHeight);
             }

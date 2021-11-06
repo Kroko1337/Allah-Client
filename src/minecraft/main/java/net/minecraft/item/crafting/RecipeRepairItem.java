@@ -75,8 +75,8 @@ public class RecipeRepairItem implements IRecipe
             if (itemstack2.getItem() == itemstack3.getItem() && itemstack2.getCount() == 1 && itemstack3.getCount() == 1 && itemstack2.getItem().isDamageable())
             {
                 Item item = itemstack2.getItem();
-                int j = item.getMaxDamage() - itemstack2.getItemDamage();
-                int k = item.getMaxDamage() - itemstack3.getItemDamage();
+                int j = item.getMaxDamage() - itemstack2.getDamage();
+                int k = item.getMaxDamage() - itemstack3.getDamage();
                 int l = j + k + item.getMaxDamage() * 5 / 100;
                 int i1 = item.getMaxDamage() - l;
 
@@ -92,6 +92,10 @@ public class RecipeRepairItem implements IRecipe
         return ItemStack.EMPTY;
     }
 
+    /**
+     * Get the result of this recipe, usually for display purposes (e.g. recipe book). If your recipe has more than one
+     * possible result (e.g. it's dynamic and depends on its inputs), then return an empty stack.
+     */
     public ItemStack getRecipeOutput()
     {
         return ItemStack.EMPTY;
@@ -114,7 +118,11 @@ public class RecipeRepairItem implements IRecipe
         return nonnulllist;
     }
 
-    public boolean isHidden()
+    /**
+     * If true, this recipe does not appear in the recipe book and does not respect recipe unlocking (and the
+     * doLimitedCrafting gamerule)
+     */
+    public boolean isDynamic()
     {
         return true;
     }

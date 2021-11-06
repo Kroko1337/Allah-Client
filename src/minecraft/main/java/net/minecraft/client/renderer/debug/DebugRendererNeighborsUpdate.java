@@ -20,34 +20,34 @@ public class DebugRendererNeighborsUpdate implements DebugRenderer.IDebugRendere
     private final Minecraft minecraft;
     private final Map<Long, Map<BlockPos, Integer>> lastUpdate = Maps.newTreeMap(Ordering.natural().reverse());
 
-    DebugRendererNeighborsUpdate(Minecraft p_i47365_1_)
+    DebugRendererNeighborsUpdate(Minecraft minecraftIn)
     {
-        this.minecraft = p_i47365_1_;
+        this.minecraft = minecraftIn;
     }
 
-    public void addUpdate(long p_191553_1_, BlockPos p_191553_3_)
+    public void addUpdate(long worldTime, BlockPos pos)
     {
-        Map<BlockPos, Integer> map = (Map)this.lastUpdate.get(Long.valueOf(p_191553_1_));
+        Map<BlockPos, Integer> map = (Map)this.lastUpdate.get(Long.valueOf(worldTime));
 
         if (map == null)
         {
             map = Maps.<BlockPos, Integer>newHashMap();
-            this.lastUpdate.put(Long.valueOf(p_191553_1_), map);
+            this.lastUpdate.put(Long.valueOf(worldTime), map);
         }
 
-        Integer integer = map.get(p_191553_3_);
+        Integer integer = map.get(pos);
 
         if (integer == null)
         {
             integer = Integer.valueOf(0);
         }
 
-        map.put(p_191553_3_, Integer.valueOf(integer.intValue() + 1));
+        map.put(pos, Integer.valueOf(integer.intValue() + 1));
     }
 
     public void render(float partialTicks, long finishTimeNano)
     {
-        long i = this.minecraft.world.getTotalWorldTime();
+        long i = this.minecraft.world.getGameTime();
         EntityPlayer entityplayer = this.minecraft.player;
         double d0 = entityplayer.lastTickPosX + (entityplayer.posX - entityplayer.lastTickPosX) * (double)partialTicks;
         double d1 = entityplayer.lastTickPosY + (entityplayer.posY - entityplayer.lastTickPosY) * (double)partialTicks;
@@ -84,7 +84,7 @@ public class DebugRendererNeighborsUpdate implements DebugRenderer.IDebugRendere
 
                     if (set.add(blockpos))
                     {
-                        RenderGlobal.drawSelectionBoundingBox((new AxisAlignedBB(BlockPos.ORIGIN)).grow(0.002D).shrink(0.0025D * (double)k).offset((double)blockpos.getX(), (double)blockpos.getY(), (double)blockpos.getZ()).offset(-d0, -d1, -d2), 1.0F, 1.0F, 1.0F, 1.0F);
+                        RenderGlobal.drawSelectionBoundingBox((new AxisAlignedBB(BlockPos.ZERO)).grow(0.002D).shrink(0.0025D * (double)k).offset((double)blockpos.getX(), (double)blockpos.getY(), (double)blockpos.getZ()).offset(-d0, -d1, -d2), 1.0F, 1.0F, 1.0F, 1.0F);
                         map.put(blockpos, integer);
                     }
                 }

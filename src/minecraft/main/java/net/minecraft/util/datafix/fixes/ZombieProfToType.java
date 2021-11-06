@@ -17,15 +17,15 @@ public class ZombieProfToType implements IFixableData
     {
         if ("Zombie".equals(compound.getString("id")) && compound.getBoolean("IsVillager"))
         {
-            if (!compound.hasKey("ZombieType", 99))
+            if (!compound.contains("ZombieType", 99))
             {
                 int i = -1;
 
-                if (compound.hasKey("VillagerProfession", 99))
+                if (compound.contains("VillagerProfession", 99))
                 {
                     try
                     {
-                        i = this.getVillagerProfession(compound.getInteger("VillagerProfession"));
+                        i = this.getVillagerProfession(compound.getInt("VillagerProfession"));
                     }
                     catch (RuntimeException var4)
                     {
@@ -38,10 +38,10 @@ public class ZombieProfToType implements IFixableData
                     i = this.getVillagerProfession(RANDOM.nextInt(6));
                 }
 
-                compound.setInteger("ZombieType", i);
+                compound.putInt("ZombieType", i);
             }
 
-            compound.removeTag("IsVillager");
+            compound.remove("IsVillager");
         }
 
         return compound;

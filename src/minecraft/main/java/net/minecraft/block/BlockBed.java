@@ -42,17 +42,19 @@ public class BlockBed extends BlockHorizontal implements ITileEntityProvider
 
     public BlockBed()
     {
-        super(Material.CLOTH);
-        this.setDefaultState(this.blockState.getBaseState().withProperty(PART, BlockBed.EnumPartType.FOOT).withProperty(OCCUPIED, Boolean.valueOf(false)));
-        this.isBlockContainer = true;
+        super(Material.WOOL);
+        this.setDefaultState(this.stateContainer.getBaseState().withProperty(PART, BlockBed.EnumPartType.FOOT).withProperty(OCCUPIED, Boolean.valueOf(false)));
+        this.hasTileEntity = true;
     }
 
     /**
      * Get the MapColor for this Block and the given BlockState
+     * @deprecated call via {@link IBlockState#getMapColor(IBlockAccess,BlockPos)} whenever possible.
+     * Implementing/overriding is fine.
      */
-    public MapColor getMapColor(IBlockState state, IBlockAccess worldIn, BlockPos pos)
+    public MapColor getMaterialColor(IBlockState state, IBlockAccess worldIn, BlockPos pos)
     {
-        if (state.getValue(PART) == BlockBed.EnumPartType.FOOT)
+        if (state.get(PART) == BlockBed.EnumPartType.FOOT)
         {
             TileEntity tileentity = worldIn.getTileEntity(pos);
 
@@ -63,12 +65,9 @@ public class BlockBed extends BlockHorizontal implements ITileEntityProvider
             }
         }
 
-        return MapColor.CLOTH;
+        return MapColor.WOOL;
     }
 
-    /**
-     * Called when the block is right clicked by a player.
-     */
     public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
         if (worldIn.isRemote)
@@ -77,9 +76,9 @@ public class BlockBed extends BlockHorizontal implements ITileEntityProvider
         }
         else
         {
-            if (state.getValue(PART) != BlockBed.EnumPartType.HEAD)
+            if (state.get(PART) != BlockBed.EnumPartType.HEAD)
             {
-                pos = pos.offset((EnumFacing)state.getValue(FACING));
+                pos = pos.offset((EnumFacing)state.get(HORIZONTAL_FACING));
                 state = worldIn.getBlockState(pos);
 
                 if (state.getBlock() != this)
@@ -88,9 +87,9 @@ public class BlockBed extends BlockHorizontal implements ITileEntityProvider
                 }
             }
 
-            if (worldIn.provider.canRespawnHere() && worldIn.getBiome(pos) != Biomes.HELL)
+            if (worldIn.dimension.canRespawnHere() && worldIn.getBiome(pos) != Biomes.NETHER)
             {
-                if (((Boolean)state.getValue(OCCUPIED)).booleanValue())
+                if (((Boolean)state.get(OCCUPIED)).booleanValue())
                 {
                     EntityPlayer entityplayer = this.getPlayerInBed(worldIn, pos);
 
@@ -133,7 +132,7 @@ public class BlockBed extends BlockHorizontal implements ITileEntityProvider
             else
             {
                 worldIn.setBlockToAir(pos);
-                BlockPos blockpos = pos.offset(((EnumFacing)state.getValue(FACING)).getOpposite());
+                BlockPos blockpos = pos.offset(((EnumFacing)state.get(HORIZONTAL_FACING)).getOpposite());
 
                 if (worldIn.getBlockState(blockpos).getBlock() == this)
                 {
@@ -151,7 +150,7 @@ public class BlockBed extends BlockHorizontal implements ITileEntityProvider
     {
         for (EntityPlayer entityplayer : worldIn.playerEntities)
         {
-            if (entityplayer.isPlayerSleeping() && entityplayer.bedLocation.equals(pos))
+            if (entityplayer.isSleeping() && entityplayer.bedLocation.equals(pos))
             {
                 return entityplayer;
             }
@@ -165,9 +164,6 @@ public class BlockBed extends BlockHorizontal implements ITileEntityProvider
         return false;
     }
 
-    /**
-     * Used to determine ambient occlusion and culling when rebuilding chunks for render
-     */
     public boolean isOpaqueCube(IBlockState state)
     {
         return false;
@@ -202,16 +198,11 @@ public class BlockBed extends BlockHorizontal implements ITileEntityProvider
         }
     }
 
-    /**
-     * Called when a neighboring block was changed and marks that this state should perform any checks during a neighbor
-     * change. Cases may include when redstone power is updated, cactus blocks popping off due to a neighboring solid
-     * block, etc.
-     */
     public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos)
     {
-        EnumFacing enumfacing = (EnumFacing)state.getValue(FACING);
+        EnumFacing enumfacing = (EnumFacing)state.get(HORIZONTAL_FACING);
 
-        if (state.getValue(PART) == BlockBed.EnumPartType.FOOT)
+        if (state.get(PART) == BlockBed.EnumPartType.FOOT)
         {
             if (worldIn.getBlockState(pos.offset(enumfacing)).getBlock() != this)
             {
@@ -229,12 +220,9 @@ public class BlockBed extends BlockHorizontal implements ITileEntityProvider
         }
     }
 
-    /**
-     * Get the Item that this Block should drop when harvested.
-     */
     public Item getItemDropped(IBlockState state, Random rand, int fortune)
     {
-        return state.getValue(PART) == BlockBed.EnumPartType.FOOT ? Items.AIR : Items.BED;
+        return state.get(PART) == BlockBed.EnumPartType.FOOT ? Items.AIR : Items.BED;
     }
 
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
@@ -248,21 +236,17 @@ public class BlockBed extends BlockHorizontal implements ITileEntityProvider
     }
 
     @Nullable
-
-    /**
-     * Returns a safe BlockPos to disembark the bed
-     */
     public static BlockPos getSafeExitLocation(World worldIn, BlockPos pos, int tries)
     {
-        EnumFacing enumfacing = (EnumFacing)worldIn.getBlockState(pos).getValue(FACING);
+        EnumFacing enumfacing = (EnumFacing)worldIn.getBlockState(pos).get(HORIZONTAL_FACING);
         int i = pos.getX();
         int j = pos.getY();
         int k = pos.getZ();
 
         for (int l = 0; l <= 1; ++l)
         {
-            int i1 = i - enumfacing.getFrontOffsetX() * l - 1;
-            int j1 = k - enumfacing.getFrontOffsetZ() * l - 1;
+            int i1 = i - enumfacing.getXOffset() * l - 1;
+            int j1 = k - enumfacing.getZOffset() * l - 1;
             int k1 = i1 + 2;
             int l1 = j1 + 2;
 
@@ -293,12 +277,9 @@ public class BlockBed extends BlockHorizontal implements ITileEntityProvider
         return worldIn.getBlockState(pos.down()).isTopSolid() && !worldIn.getBlockState(pos).getMaterial().isSolid() && !worldIn.getBlockState(pos.up()).getMaterial().isSolid();
     }
 
-    /**
-     * Spawns this Block's drops into the World as EntityItems.
-     */
     public void dropBlockAsItemWithChance(World worldIn, BlockPos pos, IBlockState state, float chance, int fortune)
     {
-        if (state.getValue(PART) == BlockBed.EnumPartType.HEAD)
+        if (state.get(PART) == BlockBed.EnumPartType.HEAD)
         {
             TileEntity tileentity = worldIn.getTileEntity(pos);
             EnumDyeColor enumdyecolor = tileentity instanceof TileEntityBed ? ((TileEntityBed)tileentity).getColor() : EnumDyeColor.RED;
@@ -306,12 +287,15 @@ public class BlockBed extends BlockHorizontal implements ITileEntityProvider
         }
     }
 
-    public EnumPushReaction getMobilityFlag(IBlockState state)
+    /**
+     * @deprecated call via {@link IBlockState#getMobilityFlag()} whenever possible. Implementing/overriding is fine.
+     */
+    public EnumPushReaction getPushReaction(IBlockState state)
     {
         return EnumPushReaction.DESTROY;
     }
 
-    public BlockRenderLayer getBlockLayer()
+    public BlockRenderLayer getRenderLayer()
     {
         return BlockRenderLayer.CUTOUT;
     }
@@ -319,6 +303,7 @@ public class BlockBed extends BlockHorizontal implements ITileEntityProvider
     /**
      * The type of render function called. MODEL for mixed tesr and static model, MODELBLOCK_ANIMATED for TESR-only,
      * LIQUID for vanilla liquids, INVISIBLE to skip all rendering
+     * @deprecated call via {@link IBlockState#getRenderType()} whenever possible. Implementing/overriding is fine.
      */
     public EnumBlockRenderType getRenderType(IBlockState state)
     {
@@ -329,9 +314,9 @@ public class BlockBed extends BlockHorizontal implements ITileEntityProvider
     {
         BlockPos blockpos = pos;
 
-        if (state.getValue(PART) == BlockBed.EnumPartType.FOOT)
+        if (state.get(PART) == BlockBed.EnumPartType.FOOT)
         {
-            blockpos = pos.offset((EnumFacing)state.getValue(FACING));
+            blockpos = pos.offset((EnumFacing)state.get(HORIZONTAL_FACING));
         }
 
         TileEntity tileentity = worldIn.getTileEntity(blockpos);
@@ -345,9 +330,9 @@ public class BlockBed extends BlockHorizontal implements ITileEntityProvider
      */
     public void onBlockHarvested(World worldIn, BlockPos pos, IBlockState state, EntityPlayer player)
     {
-        if (player.capabilities.isCreativeMode && state.getValue(PART) == BlockBed.EnumPartType.FOOT)
+        if (player.abilities.isCreativeMode && state.get(PART) == BlockBed.EnumPartType.FOOT)
         {
-            BlockPos blockpos = pos.offset((EnumFacing)state.getValue(FACING));
+            BlockPos blockpos = pos.offset((EnumFacing)state.get(HORIZONTAL_FACING));
 
             if (worldIn.getBlockState(blockpos).getBlock() == this)
             {
@@ -362,7 +347,7 @@ public class BlockBed extends BlockHorizontal implements ITileEntityProvider
      */
     public void harvestBlock(World worldIn, EntityPlayer player, BlockPos pos, IBlockState state, TileEntity te, ItemStack stack)
     {
-        if (state.getValue(PART) == BlockBed.EnumPartType.HEAD && te instanceof TileEntityBed)
+        if (state.get(PART) == BlockBed.EnumPartType.HEAD && te instanceof TileEntityBed)
         {
             TileEntityBed tileentitybed = (TileEntityBed)te;
             ItemStack itemstack = tileentitybed.getItemStack();
@@ -374,37 +359,27 @@ public class BlockBed extends BlockHorizontal implements ITileEntityProvider
         }
     }
 
-    /**
-     * Called serverside after this block is replaced with another in Chunk, but before the Tile Entity is updated
-     */
     public void breakBlock(World worldIn, BlockPos pos, IBlockState state)
     {
         super.breakBlock(worldIn, pos, state);
         worldIn.removeTileEntity(pos);
     }
 
-    /**
-     * Convert the given metadata into a BlockState for this Block
-     */
     public IBlockState getStateFromMeta(int meta)
     {
-        EnumFacing enumfacing = EnumFacing.getHorizontal(meta);
-        return (meta & 8) > 0 ? this.getDefaultState().withProperty(PART, BlockBed.EnumPartType.HEAD).withProperty(FACING, enumfacing).withProperty(OCCUPIED, Boolean.valueOf((meta & 4) > 0)) : this.getDefaultState().withProperty(PART, BlockBed.EnumPartType.FOOT).withProperty(FACING, enumfacing);
+        EnumFacing enumfacing = EnumFacing.byHorizontalIndex(meta);
+        return (meta & 8) > 0 ? this.getDefaultState().withProperty(PART, BlockBed.EnumPartType.HEAD).withProperty(HORIZONTAL_FACING, enumfacing).withProperty(OCCUPIED, Boolean.valueOf((meta & 4) > 0)) : this.getDefaultState().withProperty(PART, BlockBed.EnumPartType.FOOT).withProperty(HORIZONTAL_FACING, enumfacing);
     }
 
-    /**
-     * Get the actual Block state of this Block at the given position. This applies properties not visible in the
-     * metadata, such as fence connections.
-     */
     public IBlockState getActualState(IBlockState state, IBlockAccess worldIn, BlockPos pos)
     {
-        if (state.getValue(PART) == BlockBed.EnumPartType.FOOT)
+        if (state.get(PART) == BlockBed.EnumPartType.FOOT)
         {
-            IBlockState iblockstate = worldIn.getBlockState(pos.offset((EnumFacing)state.getValue(FACING)));
+            IBlockState iblockstate = worldIn.getBlockState(pos.offset((EnumFacing)state.get(HORIZONTAL_FACING)));
 
             if (iblockstate.getBlock() == this)
             {
-                state = state.withProperty(OCCUPIED, iblockstate.getValue(OCCUPIED));
+                state = state.withProperty(OCCUPIED, iblockstate.get(OCCUPIED));
             }
         }
 
@@ -414,34 +389,34 @@ public class BlockBed extends BlockHorizontal implements ITileEntityProvider
     /**
      * Returns the blockstate with the given rotation from the passed blockstate. If inapplicable, returns the passed
      * blockstate.
+     * @deprecated call via {@link IBlockState#withRotation(Rotation)} whenever possible. Implementing/overriding is
+     * fine.
      */
-    public IBlockState withRotation(IBlockState state, Rotation rot)
+    public IBlockState rotate(IBlockState state, Rotation rot)
     {
-        return state.withProperty(FACING, rot.rotate((EnumFacing)state.getValue(FACING)));
+        return state.withProperty(HORIZONTAL_FACING, rot.rotate((EnumFacing)state.get(HORIZONTAL_FACING)));
     }
 
     /**
      * Returns the blockstate with the given mirror of the passed blockstate. If inapplicable, returns the passed
      * blockstate.
+     * @deprecated call via {@link IBlockState#withMirror(Mirror)} whenever possible. Implementing/overriding is fine.
      */
-    public IBlockState withMirror(IBlockState state, Mirror mirrorIn)
+    public IBlockState mirror(IBlockState state, Mirror mirrorIn)
     {
-        return state.withRotation(mirrorIn.toRotation((EnumFacing)state.getValue(FACING)));
+        return state.rotate(mirrorIn.toRotation((EnumFacing)state.get(HORIZONTAL_FACING)));
     }
 
-    /**
-     * Convert the BlockState into the correct metadata value
-     */
     public int getMetaFromState(IBlockState state)
     {
         int i = 0;
-        i = i | ((EnumFacing)state.getValue(FACING)).getHorizontalIndex();
+        i = i | ((EnumFacing)state.get(HORIZONTAL_FACING)).getHorizontalIndex();
 
-        if (state.getValue(PART) == BlockBed.EnumPartType.HEAD)
+        if (state.get(PART) == BlockBed.EnumPartType.HEAD)
         {
             i |= 8;
 
-            if (((Boolean)state.getValue(OCCUPIED)).booleanValue())
+            if (((Boolean)state.get(OCCUPIED)).booleanValue())
             {
                 i |= 4;
             }
@@ -450,19 +425,16 @@ public class BlockBed extends BlockHorizontal implements ITileEntityProvider
         return i;
     }
 
-    public BlockFaceShape getBlockFaceShape(IBlockAccess p_193383_1_, IBlockState p_193383_2_, BlockPos p_193383_3_, EnumFacing p_193383_4_)
+    public BlockFaceShape getBlockFaceShape(IBlockAccess worldIn, IBlockState state, BlockPos pos, EnumFacing face)
     {
         return BlockFaceShape.UNDEFINED;
     }
 
     protected BlockStateContainer createBlockState()
     {
-        return new BlockStateContainer(this, new IProperty[] {FACING, PART, OCCUPIED});
+        return new BlockStateContainer(this, new IProperty[] {HORIZONTAL_FACING, PART, OCCUPIED});
     }
 
-    /**
-     * Returns a new instance of a block's tile entity class. Called on placing the block.
-     */
     public TileEntity createNewTileEntity(World worldIn, int meta)
     {
         return new TileEntityBed();

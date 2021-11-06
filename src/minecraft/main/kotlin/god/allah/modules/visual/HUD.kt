@@ -10,7 +10,7 @@ import god.allah.events.Render2DEvent
 import org.lwjgl.input.Keyboard
 
 @ModuleInfo("HUD", Category.VISUAL, defaultKey = Keyboard.KEY_V)
-class Speed : Module() {
+class HUD : Module() {
 
 
     @EventInfo

@@ -2,6 +2,7 @@ package net.minecraft.network;
 
 import com.google.common.collect.Queues;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import god.allah.events.PacketEvent;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelException;
@@ -170,6 +171,8 @@ public class NetworkManager extends SimpleChannelInboundHandler < Packet<? >>
 
     public void sendPacket(Packet<?> packetIn)
     {
+        if(new PacketEvent(packetIn).onFire().getCanceled()) return;
+
         if (this.isChannelOpen())
         {
             this.flushOutboundQueue();

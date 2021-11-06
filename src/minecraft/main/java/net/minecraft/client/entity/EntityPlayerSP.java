@@ -2,6 +2,8 @@ package net.minecraft.client.entity;
 
 import java.util.List;
 import javax.annotation.Nullable;
+
+import god.allah.events.UpdateEvent;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.ElytraSound;
@@ -235,6 +237,7 @@ public class EntityPlayerSP extends AbstractClientPlayer
     {
         if (this.world.isBlockLoaded(new BlockPos(this.posX, 0.0D, this.posZ)))
         {
+            new UpdateEvent().onFire();
             super.onUpdate();
 
             if (this.isRiding())

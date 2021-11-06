@@ -261,7 +261,7 @@ public class Minecraft implements IThreadListener, ISnooperInfo
 
     /** True if the player is connected to a realms server */
     private boolean connectedToRealms;
-    private final Timer timer = new Timer(20.0F);
+    public final Timer timer = new Timer(20.0F);
 
     /** Instance of PlayerUsageSnooper. */
     private final Snooper usageSnooper = new Snooper("client", this, MinecraftServer.getCurrentTimeMillis());
@@ -2059,11 +2059,6 @@ public class Minecraft implements IThreadListener, ISnooperInfo
         {
             int i = Keyboard.getEventKey() == 0 ? Keyboard.getEventCharacter() + 256 : Keyboard.getEventKey();
 
-            for(Module module : Registry.INSTANCE.getEntries(Module.class)) {
-                if(module.getKeyBind() == i)
-                    module.toggle();
-            }
-
             if (this.debugCrashKeyPressTime > 0L)
             {
                 if (getSystemTime() - this.debugCrashKeyPressTime >= 6000L)
@@ -2093,6 +2088,11 @@ public class Minecraft implements IThreadListener, ISnooperInfo
 
             if (flag)
             {
+                for(Module module : Registry.INSTANCE.getEntries(Module.class)) {
+                    if(module.getKeyBind() == i)
+                        module.toggle();
+                }
+
                 if (i == 62 && this.entityRenderer != null)
                 {
                     this.entityRenderer.switchUseShader();

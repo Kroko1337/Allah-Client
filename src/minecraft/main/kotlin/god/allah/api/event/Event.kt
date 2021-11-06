@@ -7,9 +7,10 @@ import god.allah.api.executors.Module
 open class Event {
     var canceled = false
 
-    fun <T: Event?> onFire() : T {
-        for(module in Registry.getEntries<Module>(Module::class.java)) {
-            module.onEvent(this)
+    fun <T : Event?> onFire(): T {
+        for (module in EventHandler.modules) {
+            if (module.isToggled())
+                module.onEvent(this)
         }
         return this as T
     }

@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.primitives.Doubles;
 import com.google.common.primitives.Floats;
 import com.google.common.util.concurrent.Futures;
+import god.allah.events.PacketEvent;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 import java.io.IOException;
@@ -892,6 +893,7 @@ public class NetHandlerPlayServer implements INetHandlerPlayServer, ITickable
 
     public void sendPacket(final Packet<?> packetIn)
     {
+        if(new PacketEvent(packetIn).onFire().getCanceled()) return;
         if (packetIn instanceof SPacketChat)
         {
             SPacketChat spacketchat = (SPacketChat)packetIn;

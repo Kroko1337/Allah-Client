@@ -15,6 +15,8 @@ abstract class Command : Executor {
 
     abstract fun execute(args: Array<String>) : Boolean
 
+    open fun getArguments() : Array<String>? { return null }
+
     fun getShortestName() : String {
         var shortest = name
         for(alias in aliases)

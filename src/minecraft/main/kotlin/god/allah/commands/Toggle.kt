@@ -23,4 +23,8 @@ class Toggle : Command() {
         }
         return false
     }
+
+    override fun getArguments(): Array<String> {
+        return arrayOf("[Module]")
+    }
 }

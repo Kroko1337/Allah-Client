@@ -7,11 +7,11 @@ import net.minecraft.client.Minecraft
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.item.EntityItemFrame
-import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.src.Reflector
 import net.minecraft.util.EntitySelectors
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.math.*
+import org.apache.commons.lang3.RandomUtils
 import kotlin.math.hypot
 
 
@@ -23,13 +23,19 @@ fun getBestVector(look: Vec3d, axisAlignedBB: AxisAlignedBB): Vec3d {
     )
 }
 
+private var heuristicsX = 0.0
+private var heuristicsY = 0.0
+private var heuristicsZ = 0.0
+
+
 fun getRotation(
     player: Entity,
     target: Entity,
     prevYaw: Float,
     prevPitch: Float,
     bestVector: Boolean,
-    mouseSensitivity: Boolean = true
+    mouseSensitivity: Boolean = true,
+    heuristics: Boolean = true
 ): Array<Float> {
     val eyeX = player.posX
     val eyeY = player.posY + player.eyeHeight
@@ -39,13 +45,34 @@ fun getRotation(
     var y = target.posY + target.eyeHeight - eyeY
     var z = target.posZ - eyeZ
 
+    val minX: Double = target.boundingBox.minX - target.posX
+    val maxX: Double = target.boundingBox.maxX - target.posX
+    val minY: Double = target.boundingBox.minY - target.posY
+    val maxY: Double = target.boundingBox.maxY - target.posY
+    val minZ: Double = target.boundingBox.minZ - target.posZ
+    val maxZ: Double = target.boundingBox.maxZ - target.posZ
+
     if (bestVector) {
-        val bestVec =
-            getBestVector(player.getPositionEyes(Wrapper.mc.timer.renderPartialTicks), target.entityBoundingBox)
-        x = bestVec.x - eyeX;
-        y = bestVec.y - eyeY;
-        z = bestVec.z - eyeZ;
+        val bestVec = getBestVector(player.getPositionEyes(Wrapper.mc.timer.renderPartialTicks), target.entityBoundingBox)
+        x = bestVec.x - eyeX
+        y = bestVec.y - eyeY
+        z = bestVec.z - eyeZ
     }
+
+
+    val randomFactor= 400 + RandomUtils.nextInt(10, 30)
+    if (heuristics) {
+        heuristicsX = getRandomSin(minX, maxX, randomFactor.toDouble()) + Math.random() / 750.0
+        heuristicsY = getRandomSin(minY, maxY, randomFactor.toDouble()) + Math.random() / 750.0
+        heuristicsZ = getRandomSin(minZ, maxZ, randomFactor.toDouble()) + Math.random() / 950.0
+    } else {
+        heuristicsX = 0.0
+        heuristicsY = 0.0
+        heuristicsZ = 0.0
+    }
+    x += heuristicsX
+    y += heuristicsY / 6
+    z += heuristicsZ
 
     if (target !is EntityLivingBase)
         y = (target.entityBoundingBox.minY + target.entityBoundingBox.maxY) / 2.0
@@ -69,6 +96,7 @@ fun getRotation(
         z += zMultiplication * sprintMultiplication
     }
 
+
     val angle = MathHelper.sqrt(x * x + z * z).toDouble()
     val yawAngle = (MathHelper.atan2(z, x) * (180.0 / Math.PI)).toFloat() - 90.0f
     val pitchAngle = (-(MathHelper.atan2(y, angle) * (180.0 / Math.PI))).toFloat()
@@ -91,6 +119,7 @@ fun getRotation(
     val angles = setAngles(prevYaw, prevPitch, f2, f3)
     return arrayOf(angles[0], MathHelper.clamp(angles[1], -90.0F, 90.0F))
 }
+
 
 fun setAngles(currentYaw: Float, currentPitch: Float, yaw: Float, pitch: Float): Array<Float> {
     var currentYaw = currentYaw
@@ -192,7 +221,15 @@ fun rayCastedEntity(range: Double, yaw: Float, pitch: Float, partialTicks: Float
     return pointedEntity
 }
 
-fun getLook(entity: Entity, yaw: Float, pitch: Float, partialTicks: Float = 1F, prevPitch: Float = 0.0F, prevYaw: Float = 0.0F): Vec3d {
+
+fun getLook(
+    entity: Entity,
+    yaw: Float,
+    pitch: Float,
+    partialTicks: Float = 1F,
+    prevPitch: Float = 0.0F,
+    prevYaw: Float = 0.0F
+): Vec3d {
     return if (partialTicks == 1.0f) {
         entity.getVectorForRotation(pitch, yaw)
     } else {

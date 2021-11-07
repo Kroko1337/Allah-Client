@@ -57,6 +57,10 @@ class KillAura : Module() {
     @Value("No near rotate")
     private var noNearRotate = CheckBox(true)
 
+    @Value("Heuristics")
+    private var heuristics = CheckBox(true)
+
+
     @Value("Reset Rotation")
     private var resetRotation = CheckBox(true)
 
@@ -76,8 +80,7 @@ class KillAura : Module() {
             is RotationEvent -> {
                 if (target != null && mc.inGameHasFocus) {
                     if (mc.objectMouseOver.entityHit == null || player.getDistance(target) > 0.5 || !noNearRotate.value) {
-                        val rotation =
-                            getRotation(player, target!!, yaw, pitch, bestVector.value, mouseSensitivity.value)
+                        val rotation = getRotation(player, target!!, yaw, pitch, bestVector.value, mouseSensitivity.value, heuristics.value)
                         event.yaw = rotation[0]
                         event.pitch = rotation[1]
                         yaw = rotation[0]

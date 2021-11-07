@@ -1,11 +1,9 @@
 package god.allah.api.event
 
-import god.allah.api.Executor
 import god.allah.api.Registry
 import god.allah.api.executors.Module
 import org.reflections.Reflections
 import org.reflections.scanners.MethodAnnotationsScanner
-import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 

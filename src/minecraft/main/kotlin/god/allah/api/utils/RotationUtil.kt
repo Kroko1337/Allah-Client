@@ -56,7 +56,7 @@ fun getRotation(
 
     val zMultiplication: Float
 
-    val walkingSpeed = 0.10000000149011612f    //https://minecraft.fandom.com/wiki/Sprinting
+    val walkingSpeed = 0.10000000149011612f //https://minecraft.fandom.com/wiki/Sprinting
 
     val sprintMultiplication = if (sprinting) 1.25f else walkingSpeed
 

@@ -47,9 +47,17 @@ class KillAura : Module() {
     @Value("RayCast")
     private var rayCast = CheckBox(true)
 
-    @Value("ThroughWalls")
+    @Value("Through Walls")
     private var throughWalls = CheckBox(false)
 
+    @Value("No near rotate")
+    private var noNearRotate = CheckBox(true)
+
+    @Value("Reset Rotation")
+    private var resetRotation = CheckBox(true)
+
+    @Value("Reset Rotation-Mode", "Mode")
+    private var resetRotationMode = ComboBox("Silent", arrayOf("Silent", "Visible"))
 
     var target: Entity? = null
     var yaw: Float = 0F
@@ -63,12 +71,14 @@ class KillAura : Module() {
                 when (event.state) {
                     State.PRE -> {
                         if (target != null && mc.inGameHasFocus) {
-                            val rotation =
-                                getRotation(player, target!!, yaw, pitch, bestVector.value, mouseSensitivity.value)
-                            event.yaw = rotation[0]
-                            event.pitch = rotation[1]
-                            yaw = rotation[0]
-                            pitch = rotation[1]
+                            if (mc.objectMouseOver.entityHit == null || player.getDistance(target) > 0.5 || !noNearRotate.value) {
+                                val rotation =
+                                    getRotation(player, target!!, yaw, pitch, bestVector.value, mouseSensitivity.value)
+                                event.yaw = rotation[0]
+                                event.pitch = rotation[1]
+                                yaw = rotation[0]
+                                pitch = rotation[1]
+                            }
                         }
                     }
                 }
@@ -143,7 +153,7 @@ class KillAura : Module() {
         if (entity !is EntityLivingBase) return false
         if (entity.getDistance(player) > (if (rayCast.value) range.value + 1 else range.value)) return false
         if (entity.isDead && entity.deathTime != 0) return false
-        if(!player.canEntityBeSeen(entity) && !throughWalls.value) return false
+        if (!player.canEntityBeSeen(entity) && !throughWalls.value) return false
         return true
     }
 
@@ -154,7 +164,8 @@ class KillAura : Module() {
     }
 
     override fun onDisable() {
-
+        if (resetRotation.value)
+            resetRotation(RotationHandler.yaw, RotationHandler.pitch, resetRotationMode.value == "Silent");
     }
 
 

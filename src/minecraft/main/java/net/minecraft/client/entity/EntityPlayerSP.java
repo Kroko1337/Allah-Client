@@ -356,7 +356,6 @@ public class EntityPlayerSP extends AbstractClientPlayer {
             message = message.substring(Wrapper.INSTANCE.getCommandPrefix().length());
             final String[] split = StringHelper.INSTANCE.handleQuotation(message.split(" "));
             for (Command command : Registry.INSTANCE.getEntries(Command.class)) {
-                System.out.println(split[0] + " " + command.getName() + " " + command.getName().equalsIgnoreCase(split[0]));
                 if (command.getName().equalsIgnoreCase(split[0]) || Arrays.stream(command.getAliases()).anyMatch(s -> s.equalsIgnoreCase(split[0])))
                     if (!command.execute(Arrays.copyOfRange(split, 1, split.length))) {
                         Wrapper.INSTANCE.sendMessage("§cWrong syntax!", false, null, true);

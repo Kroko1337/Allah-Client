@@ -8,8 +8,6 @@ object StringHelper {
         var currentIndex = 0
         var array = arguments.copyOf()
 
-        println(array.asList())
-
         for(i in array.indices) {
             array[i] = ""
         }
@@ -29,9 +27,7 @@ object StringHelper {
                 currentIndex++
             }
         }
-        println(array.asList())
         array = array.copyOfRange(0, currentIndex)
-        println(array.asList())
         return array
     }
 }

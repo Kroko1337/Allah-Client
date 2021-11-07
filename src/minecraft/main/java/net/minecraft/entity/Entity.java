@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.UUID;
 import javax.annotation.Nullable;
 
+import god.allah.api.helper.RotationHandler;
 import god.allah.events.MoveRelativeEvent;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.block.Block;
@@ -1792,14 +1793,22 @@ public abstract class Entity implements ICommandSender
      */
     public Vec3d getLook(float partialTicks)
     {
+        float yaw = this.rotationYaw;
+        float pitch = this.rotationPitch;
+        float prevPitch = this.prevRotationPitch;
+        if(this == Minecraft.getMinecraft().player) {
+            yaw = RotationHandler.INSTANCE.getYaw();
+            pitch = RotationHandler.INSTANCE.getPitch();
+            prevPitch = RotationHandler.INSTANCE.getPrevPitch();
+        }
         if (partialTicks == 1.0F)
         {
-            return this.getVectorForRotation(this.rotationPitch, this.rotationYaw);
+            return this.getVectorForRotation(pitch, yaw);
         }
         else
         {
-            float f = this.prevRotationPitch + (this.rotationPitch - this.prevRotationPitch) * partialTicks;
-            float f1 = this.prevRotationYaw + (this.rotationYaw - this.prevRotationYaw) * partialTicks;
+            float f = prevRotationPitch + (pitch - prevRotationPitch) * partialTicks;
+            float f1 = this.prevRotationYaw + (yaw - this.prevRotationYaw) * partialTicks;
             return this.getVectorForRotation(f, f1);
         }
     }

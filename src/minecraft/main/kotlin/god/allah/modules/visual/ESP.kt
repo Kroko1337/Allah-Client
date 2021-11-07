@@ -5,8 +5,8 @@ import god.allah.api.executors.Category
 import god.allah.api.executors.Module
 import god.allah.api.executors.ModuleInfo
 
-@ModuleInfo(name = "GlowESP", category = Category.VISUAL)
-class GlowESP : Module() {
+@ModuleInfo(name = "ESP", category = Category.VISUAL)
+class ESP : Module() {
 
     override fun onEvent(event: Event) {
 

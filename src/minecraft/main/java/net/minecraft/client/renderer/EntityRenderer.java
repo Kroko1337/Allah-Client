@@ -18,6 +18,7 @@ import javax.imageio.ImageIO;
 
 import god.allah.api.Resolution;
 import god.allah.api.helper.RotationHandler;
+import god.allah.events.MouseOverEvent;
 import god.allah.events.RotationEvent;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockBed;
@@ -454,6 +455,9 @@ public class EntityRenderer implements IResourceManagerReloadListener {
             this.mc.profiler.startSection("pick");
             this.mc.pointedEntity = null;
             double d0 = (double) this.mc.playerController.getBlockReachDistance();
+
+            final MouseOverEvent mouseOverEvent = new MouseOverEvent(d0, 3.0).onFire();
+
             this.mc.objectMouseOver = entity.rayTrace(d0, partialTicks);
             Vec3d vec3d = entity.getPositionEyes(partialTicks);
             boolean flag = false;
@@ -463,7 +467,7 @@ public class EntityRenderer implements IResourceManagerReloadListener {
             if (this.mc.playerController.extendedReach()) {
                 d1 = 6.0D;
                 d0 = d1;
-            } else if (d0 > 3.0D) {
+            } else if (d0 > mouseOverEvent.getMaxRange()) {
                 flag = true;
             }
 

@@ -11,8 +11,8 @@ import net.minecraft.src.Reflector
 import net.minecraft.util.EntitySelectors
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.math.*
-import org.apache.commons.lang3.RandomUtils
 import kotlin.math.hypot
+import kotlin.random.Random
 
 
 fun getBestVector(look: Vec3d, axisAlignedBB: AxisAlignedBB): Vec3d {
@@ -22,10 +22,6 @@ fun getBestVector(look: Vec3d, axisAlignedBB: AxisAlignedBB): Vec3d {
         MathHelper.clamp(look.z, axisAlignedBB.minZ, axisAlignedBB.maxZ)
     )
 }
-
-private var heuristicsX = 0.0
-private var heuristicsY = 0.0
-private var heuristicsZ = 0.0
 
 
 fun getRotation(
@@ -59,23 +55,14 @@ fun getRotation(
         z = bestVec.z - eyeZ
     }
 
-
-    val randomFactor= 400 + RandomUtils.nextInt(10, 30)
-    if (heuristics) {
-        heuristicsX = getRandomSin(minX, maxX, randomFactor.toDouble()) + Math.random() / 750.0
-        heuristicsY = getRandomSin(minY, maxY, randomFactor.toDouble()) + Math.random() / 750.0
-        heuristicsZ = getRandomSin(minZ, maxZ, randomFactor.toDouble()) + Math.random() / 950.0
-    } else {
-        heuristicsX = 0.0
-        heuristicsY = 0.0
-        heuristicsZ = 0.0
-    }
-    x += heuristicsX
-    y += heuristicsY / 6
-    z += heuristicsZ
-
     if (target !is EntityLivingBase)
         y = (target.entityBoundingBox.minY + target.entityBoundingBox.maxY) / 2.0
+
+    if (heuristics) {
+        x += MathHelper.clamp(player.motionX * -1 * random(0.1, 1.0), -0.03, 0.03)
+        y += random(-0.05, 0.05)
+        z += MathHelper.clamp(player.motionZ * -1 * random(0.1, 1.0), -0.03, 0.03)
+    }
 
     val sprinting: Boolean = target.isSprinting
 

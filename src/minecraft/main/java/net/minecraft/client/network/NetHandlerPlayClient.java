@@ -4,6 +4,8 @@ import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.mojang.authlib.GameProfile;
+import god.allah.api.helper.RotationHandler;
+import god.allah.events.HandlePosLookEvent;
 import io.netty.buffer.Unpooled;
 import java.io.File;
 import java.io.IOException;
@@ -744,6 +746,14 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient
         float f = packetIn.getYaw();
         float f1 = packetIn.getPitch();
 
+        float entityYaw = entityplayer.rotationYaw;
+        float entityPitch = entityplayer.rotationPitch;
+
+        if(entityplayer == this.client.player) {
+            entityYaw = RotationHandler.INSTANCE.getYaw();
+            entityPitch = RotationHandler.INSTANCE.getPitch();
+        }
+
         if (packetIn.getFlags().contains(SPacketPlayerPosLook.EnumFlags.X))
         {
             d0 += entityplayer.posX;
@@ -773,17 +783,21 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient
 
         if (packetIn.getFlags().contains(SPacketPlayerPosLook.EnumFlags.X_ROT))
         {
-            f1 += entityplayer.rotationPitch;
+            f1 += entityPitch;
         }
 
         if (packetIn.getFlags().contains(SPacketPlayerPosLook.EnumFlags.Y_ROT))
         {
-            f += entityplayer.rotationYaw;
+            f += entityYaw;
         }
-
+        final float yaw = f;
+        final float pitch = f1;
+        final HandlePosLookEvent posLookEvent = new HandlePosLookEvent(d0,d1,d2,f,f1).onFire();
+        RotationHandler.INSTANCE.setYaw(posLookEvent.getYaw());
+        RotationHandler.INSTANCE.setPitch(posLookEvent.getPitch());
         entityplayer.setPositionAndRotation(d0, d1, d2, f, f1);
         this.netManager.sendPacket(new CPacketConfirmTeleport(packetIn.getTeleportId()));
-        this.netManager.sendPacket(new CPacketPlayer.PositionRotation(entityplayer.posX, entityplayer.getEntityBoundingBox().minY, entityplayer.posZ, entityplayer.rotationYaw, entityplayer.rotationPitch, false));
+        this.netManager.sendPacket(new CPacketPlayer.PositionRotation(entityplayer.posX, entityplayer.getEntityBoundingBox().minY, entityplayer.posZ, yaw, pitch, false));
 
         if (!this.doneLoadingTerrain)
         {

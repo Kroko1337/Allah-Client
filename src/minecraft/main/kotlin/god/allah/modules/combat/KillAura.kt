@@ -39,6 +39,9 @@ class KillAura : Module() {
     @Value("CPS")
     private var cps = SliderSetting<Long>(12, 1, 20)
 
+    @Value("OnlyPlayer")
+    private var onlyPlayer = CheckBox(true)
+
     @Value("MoveFix")
     private var moveFix = CheckBox(true)
 
@@ -60,7 +63,6 @@ class KillAura : Module() {
     @Value("Heuristics")
     private var heuristics = CheckBox(true)
 
-
     @Value("Reset Rotation")
     private var resetRotation = CheckBox(true)
 
@@ -72,7 +74,7 @@ class KillAura : Module() {
     var pitch: Float = 0F
     val timeHelper = TimeHelper()
 
-    //TODO: Heuristics, A3, (maybe) Intave Check
+    //TODO: A3, (maybe) Intave Check
 
     @EventInfo(priority = EventPriority.HIGH)
     override fun onEvent(event: Event) {
@@ -89,6 +91,12 @@ class KillAura : Module() {
                         event.yaw = yaw
                         event.pitch = pitch
                     }
+                } else if(target == null) {
+                    yaw = player.rotationYaw
+                    pitch = player.rotationPitch
+                } else if(!mc.inGameHasFocus) {
+                    event.yaw = yaw
+                    event.pitch = pitch
                 }
             }
             is UpdateEvent -> {
@@ -117,6 +125,8 @@ class KillAura : Module() {
                     if (mc.objectMouseOver.entityHit != null)
                         target = mc.objectMouseOver.entityHit
 
+                    sendMessage("$target -> ${mc.objectMouseOver.entityHit}")
+
                     if (isValid(target))
                         if (isReady())
                             attackEntity(target!!)
@@ -129,6 +139,10 @@ class KillAura : Module() {
             is MoveRelativeEvent -> {
                 if (moveFix.value)
                     event.yaw = RotationHandler.yaw
+            }
+            is MouseOverEvent -> {
+                event.range = range.value
+                event.maxRange = range.value
             }
         }
     }
@@ -169,8 +183,9 @@ class KillAura : Module() {
         if (entity == null) return false
         if (entity == player) return false
         if (entity !is EntityLivingBase) return false
-        if (entity.getDistance(player) > (if (rayCast.value) range.value + 1 else range.value)) return false
-        if (entity.isDead || entity.deathTime != 0) return false
+        if (entity !is EntityPlayer && onlyPlayer.value) return false
+        if (entity.getDistance(player) > (range.value + (if (rayCast.value) 1.5 else 0.0))) return false
+        if (entity.deathTime != 0) return false
         if (entity.isInvisible) return false
         if (!player.canEntityBeSeen(entity) && !throughWalls.value) return false
         return true

@@ -25,7 +25,6 @@ object Wrapper {
     val player: EntityPlayerSP get() = mc.player
 
 
-
     fun sendPacket(packet: Packet<*>) {
         mc.connection.sendPacket(packet)
     }

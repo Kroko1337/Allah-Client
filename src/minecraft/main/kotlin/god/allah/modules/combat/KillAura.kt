@@ -18,7 +18,6 @@ import god.allah.events.*
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.SharedMonsterAttributes
-import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.init.MobEffects
 import net.minecraft.util.EnumHand
 import org.lwjgl.input.Keyboard
@@ -34,6 +33,10 @@ class KillAura : Module() {
 
     @Value("Perfect Hit")
     private var perfectHit = CheckBox(true)
+
+    @Value("AutoBlock")
+    private var autoblock = CheckBox(true)
+
 
     @Value("MoveFix")
     private var moveFix = CheckBox(true)
@@ -61,7 +64,7 @@ class KillAura : Module() {
                     State.PRE -> {
                         if (target != null && mc.inGameHasFocus) {
                             val rotation =
-                                getRotation(player, target!!, yaw, pitch, bestVector.value, mouseSensitivity.value)
+                                    getRotation(player, target!!, yaw, pitch, bestVector.value, mouseSensitivity.value)
                             event.yaw = rotation[0]
                             event.pitch = rotation[1]
                             yaw = rotation[0]
@@ -95,9 +98,9 @@ class KillAura : Module() {
 
                     val flag = f2 > 0.9f
                     var flag2 =
-                        flag && player.fallDistance > 0.0f && !player.onGround && !player.isOnLadder && !player.isInWater && !player.isPotionActive(
-                            MobEffects.BLINDNESS
-                        ) && !player.isRiding && target is EntityLivingBase
+                            flag && player.fallDistance > 0.0f && !player.onGround && !player.isOnLadder && !player.isInWater && !player.isPotionActive(
+                                    MobEffects.BLINDNESS
+                            ) && !player.isRiding && target is EntityLivingBase
                     flag2 = flag2 && !player.isSprinting
 
                     if (flag2) {
@@ -111,7 +114,14 @@ class KillAura : Module() {
                     if (isValid(target))
                         if (!perfectHit.value || f == player.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).attributeValue)
                             attackEntity(target!!)
+                }
 
+                if (isValid(target)) {
+                    if (player.hurtTime != 0) {
+                        doBlock()
+                    } else {
+                        stopBlock()
+                    }
                 }
             }
             is JumpEvent -> {
@@ -151,6 +161,15 @@ class KillAura : Module() {
 
     override fun onDisable() {
 
+    }
+
+    fun doBlock() {
+        playerController.processRightClick(player, world, EnumHand.OFF_HAND)
+        player.activeHand = EnumHand.OFF_HAND
+    }
+
+    fun stopBlock() {
+        playerController.onStoppedUsingItem(player)
     }
 
 

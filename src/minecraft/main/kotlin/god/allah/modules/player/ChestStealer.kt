@@ -6,47 +6,43 @@ import god.allah.api.event.EventPriority
 import god.allah.api.executors.Category
 import god.allah.api.executors.Module
 import god.allah.api.executors.ModuleInfo
+import god.allah.api.utils.TimeHelper
 import god.allah.events.GuiHandleEvent
 import net.minecraft.inventory.ClickType
-import net.minecraft.inventory.Container
+import net.minecraft.inventory.ContainerChest
+import net.minecraft.item.ItemAir
+import java.lang.NullPointerException
 
 
 @ModuleInfo("ChestStealer", Category.PLAYER)
 class ChestStealer : Module() {
 
+    private val timeHelper = TimeHelper()
+
     @EventInfo(priority = EventPriority.LOW)
     override fun onEvent(event: Event) {
-        when(event) {
+        when (event) {
             is GuiHandleEvent -> {
-                val chest = player.openContainer
-                for (i in 0 until chest.inventorySlots.size) {
-                    val itemStack = chest.inventorySlots[i]
-                    mc.inGameHasFocus = true
-                    mc.mouseHelper.grabMouseCursor()
-                    if (itemStack != null) {
-                        if (player.ticksExisted % 5 == 0) {
-                            mc.playerController.windowClick(chest.windowId, i, 0,  ClickType.THROW, player)
+                try {
+                    if ((player.openContainer != null) && ((player.openContainer is ContainerChest))) {
+                        val container = player.openContainer as ContainerChest
+                        for (i in 0 until container.lowerChestInventory.sizeInventory) {
+                            mc.inGameHasFocus = true
+                            mc.mouseHelper.grabMouseCursor()
+                            if (container.lowerChestInventory.getStackInSlot(i).item !is ItemAir && timeHelper.hasReached(200, true)) {
+                                playerController.windowClick(container.windowId, i, 0, ClickType.QUICK_MOVE, player)
+                                playerController.windowClick(container.windowId, i, 0, ClickType.PICKUP_ALL, player)
+                            }
                         }
                     }
+                } catch (e: NullPointerException) {
+                    e.printStackTrace()
                 }
             }
         }
     }
 
     override fun onEnable() {
-    }
-
-    private fun containerEmpty(container: Container): Boolean {
-        var empty = true
-        var i = 0
-        val slot = if (container.inventorySlots.size === 90) 54 else 27
-        while (i < slot) {
-            if (container.getSlot(i).hasStack) {
-                empty = false
-            }
-            ++i
-        }
-        return empty
     }
 
     override fun onDisable() {

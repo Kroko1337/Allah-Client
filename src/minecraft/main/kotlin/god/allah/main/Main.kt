@@ -2,6 +2,7 @@ package god.allah.main
 
 import com.thealtening.auth.service.AlteningServiceType
 import god.allah.api.Registry
+import god.allah.api.clickgui.ClickGUI
 import god.allah.api.event.EventHandler
 import god.allah.api.setting.SettingRegistry
 import god.allah.api.setting.types.SettingCategory

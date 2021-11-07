@@ -12,6 +12,7 @@ import god.allah.api.utils.isMoving
 import god.allah.api.utils.setSpeed
 import god.allah.events.UpdateEvent
 import org.lwjgl.input.Keyboard
+import kotlin.math.sqrt
 
 @ModuleInfo("Speed", Category.MOVEMENT)
 class Speed : Module() {
@@ -23,12 +24,19 @@ class Speed : Module() {
     override fun onEvent(event: Event) {
         when (event) {
             is UpdateEvent -> {
-                if (autoJump.value && isMoving())
-                    if (ground) {
+                if (!Keyboard.isKeyDown(57)) {
+                    timer.setTimerSpeed(1F)
+                    setSpeed(sqrt(player.motionX * player.motionX + player.motionZ *player.motionZ) * 1.00455)
+                    if (player.onGround) {
                         player.jump()
                     } else {
-                        setSpeed(0.23)
+                        timer.setTimerSpeed(1.061f)
+                        player.motionX *= 1.004F
+                        player.motionZ *= 1.004F
+                        player.moveStrafing *= 2
                     }
+
+                }
             }
         }
     }

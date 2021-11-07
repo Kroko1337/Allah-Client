@@ -48,4 +48,9 @@ public class Timer
         this.elapsedTicks = (int)this.renderPartialTicks;
         this.renderPartialTicks -= (float)this.elapsedTicks;
     }
+
+    public void setTimerSpeed(float timerSpeed) {
+        this.tickLength = 1000f / (20 * timerSpeed);
+    }
+
 }

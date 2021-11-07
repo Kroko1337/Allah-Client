@@ -868,14 +868,9 @@ public class RenderGlobal implements IWorldEventListener, IResourceManagerReload
                     RenderHelper.disableStandardItemLighting();
                     this.renderManager.setRenderOutlines(true);
 
-                    for (int l = 0; l < list1.size(); ++l)
-                    {
-                        Entity entity5 = list1.get(l);
-
-                        if (!flag || Reflector.callBoolean(entity5, Reflector.ForgeEntity_shouldRenderInPass, i))
-                        {
-                            if (flag4)
-                            {
+                    for (Entity entity5 : list1) {
+                        if (!flag || Reflector.callBoolean(entity5, Reflector.ForgeEntity_shouldRenderInPass, i)) {
+                            if (flag4) {
                                 Shaders.nextEntity(entity5);
                             }
 

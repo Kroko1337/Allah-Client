@@ -1,21 +1,20 @@
-package god.allah.modules.movement
+package god.allah.modules.player
 
 import god.allah.api.event.Event
 import god.allah.api.event.EventInfo
-import god.allah.api.event.EventPriority
 import god.allah.api.executors.Category
 import god.allah.api.executors.Module
 import god.allah.api.executors.ModuleInfo
 import god.allah.events.UpdateEvent
 
-@ModuleInfo("Fly", Category.MOVEMENT)
-class Fly : Module() {
+@ModuleInfo("FastPlace", Category.PLAYER)
+class FastPlace : Module() {
 
     @EventInfo
     override fun onEvent(event: Event) {
-        when (event) {
+        when(event) {
             is UpdateEvent -> {
-                player.capabilities.isFlying = true
+                mc.rightClickDelayTimer = 0
             }
         }
     }
@@ -25,7 +24,6 @@ class Fly : Module() {
     }
 
     override fun onDisable() {
-        player.capabilities.isFlying = false
-    }
 
+    }
 }

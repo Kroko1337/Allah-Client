@@ -7,6 +7,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.UUID;
 import javax.annotation.Nullable;
+
+import god.allah.events.KnockBackModifierEvent;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockBed;
 import net.minecraft.block.BlockHorizontal;
@@ -1405,7 +1407,8 @@ public abstract class EntityPlayer extends EntityLivingBase
 
                     if (flag5)
                     {
-                        if (i > 0)
+                        final KnockBackModifierEvent knockBackModifierEvent = new KnockBackModifierEvent(i > 0, 0.6D, false).onFire();
+                        if (knockBackModifierEvent.getFlag())
                         {
                             if (targetEntity instanceof EntityLivingBase)
                             {
@@ -1416,9 +1419,9 @@ public abstract class EntityPlayer extends EntityLivingBase
                                 targetEntity.addVelocity((double)(-MathHelper.sin(this.rotationYaw * 0.017453292F) * (float)i * 0.5F), 0.1D, (double)(MathHelper.cos(this.rotationYaw * 0.017453292F) * (float)i * 0.5F));
                             }
 
-                            this.motionX *= 0.6D;
-                            this.motionZ *= 0.6D;
-                            this.setSprinting(false);
+                            this.motionX *= knockBackModifierEvent.getMotion();
+                            this.motionZ *= knockBackModifierEvent.getMotion();
+                            this.setSprinting(knockBackModifierEvent.getSprint());
                         }
 
                         if (flag3)

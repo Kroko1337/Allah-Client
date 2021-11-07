@@ -67,19 +67,15 @@ class KillAura : Module() {
     @EventInfo(priority = EventPriority.HIGH)
     override fun onEvent(event: Event) {
         when (event) {
-            is UpdateMotionEvent -> {
-                when (event.state) {
-                    State.PRE -> {
-                        if (target != null && mc.inGameHasFocus) {
-                            if (mc.objectMouseOver.entityHit == null || player.getDistance(target) > 0.5 || !noNearRotate.value) {
-                                val rotation =
-                                    getRotation(player, target!!, yaw, pitch, bestVector.value, mouseSensitivity.value)
-                                event.yaw = rotation[0]
-                                event.pitch = rotation[1]
-                                yaw = rotation[0]
-                                pitch = rotation[1]
-                            }
-                        }
+            is RotationEvent -> {
+                if (target != null && mc.inGameHasFocus) {
+                    if (mc.objectMouseOver.entityHit == null || player.getDistance(target) > 0.5 || !noNearRotate.value) {
+                        val rotation =
+                            getRotation(player, target!!, yaw, pitch, bestVector.value, mouseSensitivity.value)
+                        event.yaw = rotation[0]
+                        event.pitch = rotation[1]
+                        yaw = rotation[0]
+                        pitch = rotation[1]
                     }
                 }
             }
@@ -101,7 +97,7 @@ class KillAura : Module() {
                 }
             }
             is AttackEvent -> {
-                if (target != null) {
+                if (target != null && !player.isHandActive) {
                     var f = player.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).attributeValue
                     val f2 = player.getCooledAttackStrength(0.5f)
                     f *= (0.2f + f2 * f2 * 0.8f)
@@ -120,6 +116,9 @@ class KillAura : Module() {
                     if (rayCast.value) {
                         target = rayCastedEntity(range.value, yaw, pitch, 1F)
                     }
+
+                    if (mc.objectMouseOver.entityHit != null)
+                        target = mc.objectMouseOver.entityHit
 
                     if (isValid(target))
                         if (!perfectHit.value || f == player.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).attributeValue)

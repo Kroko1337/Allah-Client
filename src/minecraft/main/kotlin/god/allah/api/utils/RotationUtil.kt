@@ -29,7 +29,7 @@ fun getRotation(
     prevYaw: Float,
     prevPitch: Float,
     bestVector: Boolean,
-    mouseSensi: Boolean = true
+    mouseSensitivity: Boolean = true
 ): Array<Float> {
     val eyeX = player.posX
     val eyeY = player.posY + player.eyeHeight
@@ -75,18 +75,18 @@ fun getRotation(
     var pitch = updateRotation(prevPitch, pitchAngle, 180.0F)
     val yaw = updateRotation(prevYaw, yawAngle, 180.0F)
     pitch = MathHelper.clamp(pitch, -90.0F, 90.0F)
-    if (!mouseSensi)
+    if (!mouseSensitivity)
         return arrayOf(yaw, pitch)
     val rotationDelta = hypot(prevYaw - yawAngle, prevPitch - pitchAngle)
 
     val sensitivity = 0.5f
     val f = sensitivity * 0.6f + 0.2f
     val f1 = f * f * f * 8.0f
-    val deltaYaw: Float = yaw - prevYaw
+    val deltaYaw = yaw - prevYaw
     val deltaPitch: Float = pitch - prevPitch
 
-    val f2: Float = (deltaYaw * f1 * 3)
-    val f3: Float = (deltaPitch * f1 * 3)
+    val f2: Float = (deltaYaw * f1 * 5).toInt().toFloat()
+    val f3: Float = (deltaPitch * f1 * 5).toInt().toFloat()
 
     val angles = setAngles(prevYaw, prevPitch, f2, f3)
     return arrayOf(angles[0], MathHelper.clamp(angles[1], -90.0F, 90.0F))

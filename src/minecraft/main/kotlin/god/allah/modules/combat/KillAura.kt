@@ -64,6 +64,8 @@ class KillAura : Module() {
     var pitch: Float = 0F
     val timeHelper = TimeHelper()
 
+    //TODO: CPS, Heuristics, A3, (maybe) Intave Check
+
     @EventInfo(priority = EventPriority.HIGH)
     override fun onEvent(event: Event) {
         when (event) {
@@ -76,6 +78,9 @@ class KillAura : Module() {
                         event.pitch = rotation[1]
                         yaw = rotation[0]
                         pitch = rotation[1]
+                    } else {
+                        event.yaw = yaw
+                        event.pitch = pitch
                     }
                 }
             }
@@ -151,7 +156,7 @@ class KillAura : Module() {
         if (entity == player) return false
         if (entity !is EntityLivingBase) return false
         if (entity.getDistance(player) > (if (rayCast.value) range.value + 1 else range.value)) return false
-        if (entity.isDead && entity.deathTime != 0) return false
+        if (entity.isDead || entity.deathTime != 0) return false
         if (!player.canEntityBeSeen(entity) && !throughWalls.value) return false
         return true
     }

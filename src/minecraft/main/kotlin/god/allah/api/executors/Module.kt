@@ -48,5 +48,5 @@ abstract class Module : Executor {
 
 annotation class ModuleInfo(val name: String, val category: Category, val defaultKey: Int = 0)
 enum class Category(name: String) {
-    VISUAL("Visual"), PLAYER("Player"), WORLD("World"), MOVEMENT("Movement"), COMBAT("Combat"), MISC("Misc"), GUI("Gui")
+    VISUAL("Visual"), PLAYER("Player"), WORLD("World"), MOVEMENT("Movement"), COMBAT("Combat"), MISC("Misc"), GUI("Gui"), DEBUG("Debug")
 }

@@ -149,6 +149,7 @@ public class NetworkManager extends SimpleChannelInboundHandler < Packet<? >>
         {
             try
             {
+                if(new PacketEvent(p_channelRead0_2_).onFire().getCanceled()) return;
                 ((Packet<INetHandler>)p_channelRead0_2_).processPacket(this.packetListener);
             }
             catch (ThreadQuickExitException var4)
@@ -171,8 +172,6 @@ public class NetworkManager extends SimpleChannelInboundHandler < Packet<? >>
 
     public void sendPacket(Packet<?> packetIn)
     {
-        if(new PacketEvent(packetIn).onFire().getCanceled()) return;
-
         if (this.isChannelOpen())
         {
             this.flushOutboundQueue();

@@ -21,16 +21,16 @@ class Sprint : Module() {
     var current = 0
 
     @Value("Test")
-    val test = CheckBox(true)
+    var test = CheckBox(true)
 
     @Value("Test2")
-    val test2 = ComboBox("Test", arrayOf("Test", "Test2"))
+    var test2 = ComboBox("Test", arrayOf("Test", "Test2"))
 
     @Value("Slider")
-    val slider = SliderSetting<Long>(1, 1, 10)
+    var slider = SliderSetting<Long>(1, 1, 10)
 
     @Value("Category")
-    val testCategory = SettingCategory(test, test2, slider)
+    var testCategory = SettingCategory(test, test2, slider)
 
     @EventInfo(priority = EventPriority.LOW)
     override fun onEvent(event: Event) {

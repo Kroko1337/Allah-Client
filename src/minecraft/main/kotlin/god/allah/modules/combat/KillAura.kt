@@ -69,6 +69,7 @@ class KillAura : Module() {
                 }
             }
             is UpdateEvent -> {
+                range.value = 3.6;
                 if (target != null) {
                     if (!isValid(target))
                         target = null

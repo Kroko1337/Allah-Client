@@ -1,0 +1,30 @@
+package god.allah.modules.misc
+
+import god.allah.api.event.Event
+import god.allah.api.event.EventInfo
+import god.allah.api.event.EventPriority
+import god.allah.api.executors.Category
+import god.allah.api.executors.Module
+import god.allah.api.executors.ModuleInfo
+import god.allah.events.UpdateEvent
+
+@ModuleInfo("FastPlace", Category.PLAYER)
+class FastPlace : Module() {
+
+    @EventInfo(priority = EventPriority.LOW)
+    override fun onEvent(event: Event) {
+        when (event) {
+            is UpdateEvent -> {
+                mc.rightClickDelayTimer = 1
+            }
+        }
+    }
+
+    override fun onEnable() {
+    }
+
+
+    override fun onDisable() {
+        mc.rightClickDelayTimer = 4
+    }
+}

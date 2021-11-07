@@ -893,7 +893,6 @@ public class NetHandlerPlayServer implements INetHandlerPlayServer, ITickable
 
     public void sendPacket(final Packet<?> packetIn)
     {
-        if(new PacketEvent(packetIn).onFire().getCanceled()) return;
         if (packetIn instanceof SPacketChat)
         {
             SPacketChat spacketchat = (SPacketChat)packetIn;

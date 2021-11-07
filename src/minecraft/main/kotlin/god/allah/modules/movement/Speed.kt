@@ -9,6 +9,7 @@ import god.allah.api.executors.ModuleInfo
 import god.allah.api.setting.Value
 import god.allah.api.setting.types.CheckBox
 import god.allah.api.utils.isMoving
+import god.allah.api.utils.setSpeed
 import god.allah.events.UpdateEvent
 import org.lwjgl.input.Keyboard
 
@@ -16,16 +17,18 @@ import org.lwjgl.input.Keyboard
 class Speed : Module() {
 
     @Value("AutoJump")
-    val autojump = CheckBox(true)
+    var autoJump = CheckBox(true)
 
     @EventInfo(priority = EventPriority.HIGH)
     override fun onEvent(event: Event) {
         when (event) {
             is UpdateEvent -> {
-                if (!autojump.value && isMoving()) return
-                if (ground) {
-                    player.jump()
-                }
+                if (autoJump.value && isMoving())
+                    if (ground) {
+                        player.jump()
+                    } else {
+                        setSpeed(0.23)
+                    }
             }
         }
     }

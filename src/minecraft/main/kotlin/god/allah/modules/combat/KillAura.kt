@@ -11,6 +11,7 @@ import god.allah.api.setting.Value
 import god.allah.api.setting.types.CheckBox
 import god.allah.api.setting.types.ComboBox
 import god.allah.api.setting.types.SliderSetting
+import god.allah.api.utils.TimeHelper
 import god.allah.api.utils.getRotation
 import god.allah.api.utils.rayCastedEntity
 import god.allah.events.*
@@ -26,30 +27,31 @@ import org.lwjgl.input.Keyboard
 class KillAura : Module() {
 
     @Value("Range")
-    private val range = SliderSetting(3.0, 1.0, 6.0)
+    private var range = SliderSetting(3.0, 1.0, 6.0)
 
     @Value("Target Mode")
-    private val targetMode = ComboBox("Single", arrayOf("Single", "Switch", "Hybrid"))
+    private var targetMode = ComboBox("Single", arrayOf("Single", "Switch", "Hybrid"))
 
     @Value("Perfect Hit")
-    private val perfectHit = CheckBox(true)
+    private var perfectHit = CheckBox(true)
 
     @Value("MoveFix")
-    private val moveFix = CheckBox(true)
+    private var moveFix = CheckBox(true)
 
     @Value("BestVector")
-    private val bestVector = CheckBox(true)
+    private var bestVector = CheckBox(true)
 
     @Value("MouseSensitivity")
-    private val mouseSensitivity = CheckBox(true)
+    private var mouseSensitivity = CheckBox(true)
 
     @Value("RayCast")
-    private val rayCast = CheckBox(true)
+    private var rayCast = CheckBox(true)
 
 
     var target: Entity? = null
     var yaw: Float = 0F
     var pitch: Float = 0F
+    val timeHelper = TimeHelper()
 
     @EventInfo(priority = EventPriority.HIGH)
     override fun onEvent(event: Event) {
@@ -87,6 +89,8 @@ class KillAura : Module() {
                 }
             }
             is AttackEvent -> {
+                range.value = 3.5
+                moveFix.value = false
                 if (target != null) {
                     var f = player.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).attributeValue
                     val f2 = player.getCooledAttackStrength(0.5f)
@@ -108,9 +112,9 @@ class KillAura : Module() {
                     }
 
                     if (isValid(target))
-                        if (!perfectHit.value || f == player.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).attributeValue) {
+                        if (!perfectHit.value || f == player.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).attributeValue)
                             attackEntity(target!!)
-                        }
+
                 }
             }
             is JumpEvent -> {
@@ -137,7 +141,7 @@ class KillAura : Module() {
         if (entity == null) return false
         if (entity == player) return false
         if (entity !is EntityLivingBase) return false
-        if (entity.getDistance(player) > (if(rayCast.value) range.value + 1 else range.value)) return false
+        if (entity.getDistance(player) > (if (rayCast.value) range.value + 1 else range.value)) return false
         if (entity.isDead && entity.deathTime != 0) return false
         return true
     }

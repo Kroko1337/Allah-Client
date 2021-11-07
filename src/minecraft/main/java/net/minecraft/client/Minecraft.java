@@ -386,7 +386,7 @@ public class Minecraft implements IThreadListener, ISnooperInfo
     private SoundHandler soundHandler;
     private MusicTicker musicTicker;
     private ResourceLocation mojangLogo;
-    private final MinecraftSessionService sessionService;
+    public final MinecraftSessionService sessionService;
     private SkinManager skinManager;
     private final Queue < FutureTask<? >> scheduledTasks = Queues. < FutureTask<? >> newArrayDeque();
     private final Thread thread = Thread.currentThread();

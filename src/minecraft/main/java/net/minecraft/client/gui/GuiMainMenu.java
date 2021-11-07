@@ -367,11 +367,12 @@ public class GuiMainMenu extends GuiScreen
                 theAlteningAuthentication.updateService(AlteningServiceType.THEALTENING);
                 final AsynchronousDataRetriever asynchronousDataRetriever = basicDataRetriever.toAsync();
                 final Account account = asynchronousDataRetriever.getAccount();
+                String authServer = theAlteningAuthentication.getService().getAuthServer();
+                String sessionServer = theAlteningAuthentication.getService().getSessionServer();
                 final YggdrasilUserAuthentication service = (YggdrasilUserAuthentication) new YggdrasilAuthenticationService(Proxy.NO_PROXY, "").createUserAuthentication(Agent.MINECRAFT);
 
-
                 service.setUsername(account.getToken());
-                service.setPassword("Allahistmitdir");
+                service.setPassword("Sheesh");
 
                 service.logIn();
                 Minecraft.getMinecraft().session = new Session(service.getSelectedProfile().getName(), service.getSelectedProfile().getId().toString(), service.getAuthenticatedToken(), "LEGACY");

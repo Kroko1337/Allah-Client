@@ -4,6 +4,7 @@ import com.thealtening.auth.service.AlteningServiceType
 import god.allah.api.Registry
 import god.allah.api.clickgui.ClickGUI
 import god.allah.api.event.EventHandler
+import god.allah.api.gui.ClickGUIHandler
 import god.allah.api.setting.SettingRegistry
 import god.allah.api.setting.types.SettingCategory
 import god.allah.main.Wrapper.coder
@@ -24,6 +25,7 @@ class Main {
         Registry.init()
         EventHandler.init()
         SettingRegistry.init()
+        ClickGUIHandler.init()
 
         val tray = SystemTray.getSystemTray()
         val image: Image = Toolkit.getDefaultToolkit().createImage("icon.png")

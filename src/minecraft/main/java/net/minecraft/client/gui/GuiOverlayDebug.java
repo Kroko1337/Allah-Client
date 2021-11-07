@@ -6,6 +6,8 @@ import com.google.common.collect.UnmodifiableIterator;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map.Entry;
+
+import god.allah.api.Resolution;
 import net.minecraft.block.Block;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
@@ -38,7 +40,7 @@ public class GuiOverlayDebug extends Gui
         this.fontRenderer = mc.fontRenderer;
     }
 
-    public void renderDebugInfo(ScaledResolution scaledResolutionIn)
+    public void renderDebugInfo(Resolution scaledResolutionIn)
     {
         this.mc.profiler.startSection("debug");
         GlStateManager.pushMatrix();
@@ -77,7 +79,7 @@ public class GuiOverlayDebug extends Gui
         }
     }
 
-    protected void renderDebugInfoRight(ScaledResolution scaledRes)
+    protected void renderDebugInfoRight(Resolution scaledRes)
     {
         List<String> list = this.getDebugInfoRight();
 
@@ -89,7 +91,7 @@ public class GuiOverlayDebug extends Gui
             {
                 int j = this.fontRenderer.FONT_HEIGHT;
                 int k = this.fontRenderer.getStringWidth(s);
-                int l = scaledRes.getScaledWidth() - 2 - k;
+                int l = scaledRes.getWidth() - 2 - k;
                 int i1 = 2 + j * i;
                 drawRect(l - 1, i1 - 1, l + k + 1, i1 + j - 1, -1873784752);
                 this.fontRenderer.drawString(s, l, i1, 14737632);

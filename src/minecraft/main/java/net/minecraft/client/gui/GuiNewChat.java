@@ -4,6 +4,8 @@ import com.google.common.collect.Lists;
 import java.util.Iterator;
 import java.util.List;
 import javax.annotation.Nullable;
+
+import god.allah.api.Resolution;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.player.EntityPlayer;
@@ -251,7 +253,7 @@ public class GuiNewChat extends Gui
         }
         else
         {
-            ScaledResolution scaledresolution = new ScaledResolution(this.mc);
+            Resolution scaledresolution = Resolution.INSTANCE;
             int i = scaledresolution.getScaleFactor();
             float f = this.getChatScale();
             int j = mouseX / i - 2;

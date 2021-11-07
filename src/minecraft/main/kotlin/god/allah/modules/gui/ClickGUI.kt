@@ -16,7 +16,7 @@ class ClickGUI : Module() {
     }
 
     override fun onEnable() {
-        mc.displayGuiScreen(Registry.clickGui)
+        //mc.displayGuiScreen(Registry.clickGui)
         setToggled(false)
     }
 

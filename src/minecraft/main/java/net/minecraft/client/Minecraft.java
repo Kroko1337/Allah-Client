@@ -35,14 +35,12 @@ import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
 
 import god.allah.api.Registry;
+import god.allah.api.Resolution;
 import god.allah.api.executors.Module;
 import god.allah.events.AttackEvent;
 import god.allah.events.GuiHandleEvent;
@@ -67,7 +65,6 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiScreenWorking;
 import net.minecraft.client.gui.GuiSleepMP;
 import net.minecraft.client.gui.GuiWinGame;
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.gui.ScreenChatOptions;
 import net.minecraft.client.gui.advancements.GuiScreenAdvancements;
 import net.minecraft.client.gui.chat.NarratorChatListener;
@@ -991,13 +988,13 @@ public class Minecraft implements IThreadListener, ISnooperInfo
 
     private void drawSplashScreen(TextureManager textureManagerInstance) throws LWJGLException
     {
-        ScaledResolution scaledresolution = new ScaledResolution(this);
+        Resolution scaledresolution = Resolution.INSTANCE.resize(this);
         int i = scaledresolution.getScaleFactor();
-        Framebuffer framebuffer = new Framebuffer(scaledresolution.getScaledWidth() * i, scaledresolution.getScaledHeight() * i, true);
+        Framebuffer framebuffer = new Framebuffer(scaledresolution.getWidth() * i, scaledresolution.getHeight() * i, true);
         framebuffer.bindFramebuffer(false);
         GlStateManager.matrixMode(5889);
         GlStateManager.loadIdentity();
-        GlStateManager.ortho(0.0D, (double)scaledresolution.getScaledWidth(), (double)scaledresolution.getScaledHeight(), 0.0D, 1000.0D, 3000.0D);
+        GlStateManager.ortho(0.0D, (double)scaledresolution.getWidth(), (double)scaledresolution.getHeight(), 0.0D, 1000.0D, 3000.0D);
         GlStateManager.matrixMode(5888);
         GlStateManager.loadIdentity();
         GlStateManager.translate(0.0F, 0.0F, -2000.0F);
@@ -1033,11 +1030,11 @@ public class Minecraft implements IThreadListener, ISnooperInfo
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         int j = 256;
         int k = 256;
-        this.draw((scaledresolution.getScaledWidth() - 256) / 2, (scaledresolution.getScaledHeight() - 256) / 2, 0, 0, 256, 256, 255, 255, 255, 255);
+        this.draw((scaledresolution.getWidth() - 256) / 2, (scaledresolution.getHeight() - 256) / 2, 0, 0, 256, 256, 255, 255, 255, 255);
         GlStateManager.disableLighting();
         GlStateManager.disableFog();
         framebuffer.unbindFramebuffer();
-        framebuffer.framebufferRender(scaledresolution.getScaledWidth() * i, scaledresolution.getScaledHeight() * i);
+        framebuffer.framebufferRender(scaledresolution.getWidth() * i, scaledresolution.getHeight() * i);
         GlStateManager.enableAlpha();
         GlStateManager.alphaFunc(516, 0.1F);
         this.updateDisplay();
@@ -1119,9 +1116,9 @@ public class Minecraft implements IThreadListener, ISnooperInfo
                 ;
             }
 
-            ScaledResolution scaledresolution = new ScaledResolution(this);
-            int i = scaledresolution.getScaledWidth();
-            int j = scaledresolution.getScaledHeight();
+            Resolution scaledresolution = Resolution.INSTANCE;
+            int i = scaledresolution.getWidth();
+            int j = scaledresolution.getHeight();
             guiScreenIn.setWorldAndResolution(this, i, j);
             this.skipRenderWorld = false;
         }
@@ -1234,7 +1231,7 @@ public class Minecraft implements IThreadListener, ISnooperInfo
             this.profiler.endStartSection("gameRenderer");
             this.entityRenderer.updateCameraAndRender(this.isGamePaused ? this.renderPartialTicksPaused : this.timer.renderPartialTicks, i);
             this.profiler.endStartSection("toasts");
-            this.toastGui.drawToast(new ScaledResolution(this));
+            this.toastGui.drawToast(Resolution.INSTANCE);
             this.profiler.endSection();
         }
 
@@ -1815,8 +1812,8 @@ public class Minecraft implements IThreadListener, ISnooperInfo
 
         if (this.currentScreen != null)
         {
-            ScaledResolution scaledresolution = new ScaledResolution(this);
-            this.currentScreen.onResize(this, scaledresolution.getScaledWidth(), scaledresolution.getScaledHeight());
+            final Resolution scaledresolution = Resolution.INSTANCE.resize(this);
+            this.currentScreen.onResize(this, scaledresolution.getWidth(), scaledresolution.getHeight());
         }
 
         this.loadingScreen = new LoadingScreenRenderer(this);

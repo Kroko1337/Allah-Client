@@ -1,9 +1,9 @@
 package net.minecraft.src;
 
+import god.allah.api.Resolution;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiOptionButton;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.settings.GameSettings;
 
@@ -70,8 +70,8 @@ public class GuiQualitySettingsOF extends GuiScreen
 
             if (button.id != GameSettings.Options.AA_LEVEL.ordinal())
             {
-                ScaledResolution scaledresolution = new ScaledResolution(this.mc);
-                this.setWorldAndResolution(this.mc, scaledresolution.getScaledWidth(), scaledresolution.getScaledHeight());
+                Resolution scaledresolution = Resolution.INSTANCE;
+                this.setWorldAndResolution(this.mc, scaledresolution.getWidth(), scaledresolution.getHeight());
             }
         }
     }

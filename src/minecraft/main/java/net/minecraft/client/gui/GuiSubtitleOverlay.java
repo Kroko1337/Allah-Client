@@ -3,6 +3,8 @@ package net.minecraft.client.gui;
 import com.google.common.collect.Lists;
 import java.util.Iterator;
 import java.util.List;
+
+import god.allah.api.Resolution;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.ISound;
 import net.minecraft.client.audio.ISoundEventListener;
@@ -22,7 +24,7 @@ public class GuiSubtitleOverlay extends Gui implements ISoundEventListener
         this.client = clientIn;
     }
 
-    public void renderSubtitles(ScaledResolution resolution)
+    public void renderSubtitles(Resolution resolution)
     {
         if (!this.enabled && this.client.gameSettings.showSubtitles)
         {
@@ -80,7 +82,7 @@ public class GuiSubtitleOverlay extends Gui implements ISoundEventListener
                 int l1 = MathHelper.floor(MathHelper.clampedLerp(255.0D, 75.0D, (double)((float)(Minecraft.getSystemTime() - guisubtitleoverlay$subtitle1.getStartTime()) / 3000.0F)));
                 int i2 = l1 << 16 | l1 << 8 | l1;
                 GlStateManager.pushMatrix();
-                GlStateManager.translate((float)resolution.getScaledWidth() - (float)l * 1.0F - 2.0F, (float)(resolution.getScaledHeight() - 30) - (float)(i * (i1 + 1)) * 1.0F, 0.0F);
+                GlStateManager.translate((float)resolution.getWidth() - (float)l * 1.0F - 2.0F, (float)(resolution.getHeight() - 30) - (float)(i * (i1 + 1)) * 1.0F, 0.0F);
                 GlStateManager.scale(1.0F, 1.0F, 1.0F);
                 drawRect(-l - 1, -j1 - 1, l + 1, j1 + 1, -872415232);
                 GlStateManager.enableBlend();

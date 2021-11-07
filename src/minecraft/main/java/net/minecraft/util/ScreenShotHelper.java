@@ -8,8 +8,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
+
+import god.allah.api.Resolution;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.texture.TextureUtil;
@@ -58,7 +59,7 @@ public class ScreenShotHelper
             file1.mkdir();
             Minecraft minecraft = Minecraft.getMinecraft();
             int i = Config.getGameSettings().guiScale;
-            ScaledResolution scaledresolution = new ScaledResolution(minecraft);
+            Resolution scaledresolution = Resolution.INSTANCE;
             int j = scaledresolution.getScaleFactor();
             int k = Config.getScreenshotSize();
             boolean flag = OpenGlHelper.isFramebufferEnabled() && k > 1;
@@ -202,8 +203,8 @@ public class ScreenShotHelper
 
         if (minecraft.currentScreen != null)
         {
-            ScaledResolution scaledresolution = new ScaledResolution(minecraft);
-            minecraft.currentScreen.onResize(minecraft, scaledresolution.getScaledWidth(), scaledresolution.getScaledHeight());
+            Resolution scaledresolution = Resolution.INSTANCE.resize(minecraft);
+            minecraft.currentScreen.onResize(minecraft, scaledresolution.getWidth(), scaledresolution.getHeight());
         }
 
         updateFramebufferSize();

@@ -24,12 +24,16 @@ class ChestStealer : Module() {
         when (event) {
             is GuiHandleEvent -> {
                 try {
-                    if ((player.openContainer != null) && ((player.openContainer is ContainerChest))) {
+                    if (player.openContainer != null && player.openContainer is ContainerChest) {
                         val container = player.openContainer as ContainerChest
                         for (i in 0 until container.lowerChestInventory.sizeInventory) {
                             mc.inGameHasFocus = true
                             mc.mouseHelper.grabMouseCursor()
-                            if (container.lowerChestInventory.getStackInSlot(i).item !is ItemAir && timeHelper.hasReached(200, true)) {
+                            if (container.lowerChestInventory.getStackInSlot(i).item !is ItemAir && timeHelper.hasReached(
+                                    200,
+                                    true
+                                )
+                            ) {
                                 playerController.windowClick(container.windowId, i, 0, ClickType.QUICK_MOVE, player)
                                 playerController.windowClick(container.windowId, i, 0, ClickType.PICKUP_ALL, player)
                             }

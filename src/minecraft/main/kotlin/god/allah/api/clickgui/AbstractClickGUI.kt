@@ -19,7 +19,7 @@ abstract class AbstractClickGUI {
 
     abstract fun mouseClicked(mouseX: Int, mouseY: Int, mouseButton: Int)
 
-   open fun drawPanel(mouseX: Int, mouseY: Int) {}
+    open fun drawPanel(mouseX: Int, mouseY: Int) {}
 
     open fun drawModules(width: Int, height: Int, x: Int, y: Int) {}
 

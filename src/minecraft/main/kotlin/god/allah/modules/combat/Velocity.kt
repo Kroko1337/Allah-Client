@@ -16,7 +16,7 @@ import net.minecraft.network.play.server.SPacketExplosion
 class Velocity : Module() {
 
     @Value("Mode")
-    var mode = ComboBox("Cancel", modes = arrayOf("Cancel"))
+    var mode = ComboBox("Cancel", modes = arrayOf("Cancel", "Intave14"))
 
     @Value("Cancel Explosion")
     var cancelExplosion = CheckBox(true)

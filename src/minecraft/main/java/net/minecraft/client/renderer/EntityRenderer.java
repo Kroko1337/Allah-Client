@@ -16,6 +16,7 @@ import java.util.Random;
 import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
 
+import god.allah.api.Resolution;
 import god.allah.api.helper.RotationHandler;
 import god.allah.events.RotationEvent;
 import net.minecraft.block.Block;
@@ -28,7 +29,6 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiDownloadTerrain;
 import net.minecraft.client.gui.GuiMainMenu;
 import net.minecraft.client.gui.MapItemRenderer;
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.particle.ParticleManager;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.chunk.RenderChunk;
@@ -1167,9 +1167,9 @@ public class EntityRenderer implements IResourceManagerReloadListener {
 
         if (!this.mc.skipRenderWorld) {
             anaglyphEnable = this.mc.gameSettings.anaglyph;
-            final ScaledResolution scaledresolution = new ScaledResolution(this.mc);
-            int i1 = scaledresolution.getScaledWidth();
-            int j1 = scaledresolution.getScaledHeight();
+            final Resolution scaledresolution = Resolution.INSTANCE;
+            int i1 = scaledresolution.getWidth();
+            int j1 = scaledresolution.getHeight();
             final int k1 = Mouse.getX() * i1 / this.mc.displayWidth;
             final int l1 = j1 - Mouse.getY() * j1 / this.mc.displayHeight - 1;
             int i2 = this.mc.gameSettings.limitFramerate;
@@ -1259,7 +1259,7 @@ public class EntityRenderer implements IResourceManagerReloadListener {
                     });
                     crashreportcategory.addDetail("Screen size", new ICrashReportDetail<String>() {
                         public String call() throws Exception {
-                            return String.format("Scaled: (%d, %d). Absolute: (%d, %d). Scale factor of %d", scaledresolution.getScaledWidth(), scaledresolution.getScaledHeight(), EntityRenderer.this.mc.displayWidth, EntityRenderer.this.mc.displayHeight, scaledresolution.getScaleFactor());
+                            return String.format("Scaled: (%d, %d). Absolute: (%d, %d). Scale factor of %d", scaledresolution.getWidth(), scaledresolution.getHeight(), EntityRenderer.this.mc.displayWidth, EntityRenderer.this.mc.displayHeight, scaledresolution.getScaleFactor());
                         }
                     });
                     throw new ReportedException(crashreport);
@@ -1923,11 +1923,11 @@ public class EntityRenderer implements IResourceManagerReloadListener {
      * Setup orthogonal projection for rendering GUI screen overlays
      */
     public void setupOverlayRendering() {
-        ScaledResolution scaledresolution = new ScaledResolution(this.mc);
+        Resolution scaledresolution = Resolution.INSTANCE;
         GlStateManager.clear(256);
         GlStateManager.matrixMode(5889);
         GlStateManager.loadIdentity();
-        GlStateManager.ortho(0.0D, scaledresolution.getScaledWidth_double(), scaledresolution.getScaledHeight_double(), 0.0D, 1000.0D, 3000.0D);
+        GlStateManager.ortho(0.0D, scaledresolution.getWidthD(), scaledresolution.getHeightD(), 0.0D, 1000.0D, 3000.0D);
         GlStateManager.matrixMode(5888);
         GlStateManager.loadIdentity();
         GlStateManager.translate(0.0F, 0.0F, -2000.0F);

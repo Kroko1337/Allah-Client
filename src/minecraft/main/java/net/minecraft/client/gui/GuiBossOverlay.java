@@ -3,6 +3,8 @@ package net.minecraft.client.gui;
 import com.google.common.collect.Maps;
 import java.util.Map;
 import java.util.UUID;
+
+import god.allah.api.Resolution;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.network.play.server.SPacketUpdateBossInfo;
@@ -24,8 +26,8 @@ public class GuiBossOverlay extends Gui
     {
         if (!this.mapBossInfos.isEmpty())
         {
-            ScaledResolution scaledresolution = new ScaledResolution(this.client);
-            int i = scaledresolution.getScaledWidth();
+            Resolution scaledresolution = Resolution.INSTANCE;
+            int i = scaledresolution.getWidth();
             int j = 12;
 
             for (BossInfoClient bossinfoclient : this.mapBossInfos.values())
@@ -38,7 +40,7 @@ public class GuiBossOverlay extends Gui
                 this.client.fontRenderer.drawStringWithShadow(s, (float)(i / 2 - this.client.fontRenderer.getStringWidth(s) / 2), (float)(j - 9), 16777215);
                 j += 10 + this.client.fontRenderer.FONT_HEIGHT;
 
-                if (j >= scaledresolution.getScaledHeight() / 3)
+                if (j >= scaledresolution.getHeight() / 3)
                 {
                     break;
                 }

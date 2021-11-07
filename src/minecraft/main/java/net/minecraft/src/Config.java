@@ -22,9 +22,10 @@ import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.imageio.ImageIO;
+
+import god.allah.api.Resolution;
 import net.minecraft.client.LoadingScreenRenderer;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.block.model.ModelManager;
@@ -53,7 +54,6 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
-import org.lwjgl.opengl.GL12;
 import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GLContext;
 import org.lwjgl.opengl.PixelFormat;
@@ -2109,9 +2109,9 @@ public class Config
 
                 if (minecraft.currentScreen != null)
                 {
-                    ScaledResolution scaledresolution = new ScaledResolution(minecraft);
-                    int i = scaledresolution.getScaledWidth();
-                    int j = scaledresolution.getScaledHeight();
+                    Resolution scaledresolution = Resolution.INSTANCE;
+                    int i = scaledresolution.getWidth();
+                    int j = scaledresolution.getHeight();
                     minecraft.currentScreen.setWorldAndResolution(minecraft, i, j);
                 }
 

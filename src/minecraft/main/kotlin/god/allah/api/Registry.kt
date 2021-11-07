@@ -6,18 +6,16 @@ import god.allah.api.executors.CommandInfo
 import god.allah.api.executors.Module
 import god.allah.api.executors.ModuleInfo
 import org.reflections.Reflections
+import java.util.Comparator
 
 object Registry {
     val executors = HashMap<Class<out Executor>, ArrayList<Executor>>()
-
-    public var clickGui: ClickGUI? = null
 
     private val reflection = Reflections("god.allah")
 
     fun init() {
         addExecutor(Module::class.java, ModuleInfo::class.java)
         addExecutor(Command::class.java, CommandInfo::class.java)
-        clickGui = ClickGUI()
     }
 
     fun <T : Executor?> getEntry(executor: Class<T>): T {
@@ -42,5 +40,6 @@ object Registry {
                 executors[executorMain]?.add(executor.newInstance() as Executor)
             }
         }
+        executors[executorMain]?.sortWith(Comparator.comparing { executor: Executor -> executor.javaClass.simpleName})
     }
 }

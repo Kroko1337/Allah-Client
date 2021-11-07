@@ -15,7 +15,6 @@ class ModuleRendering(var mod: Module) : AbstractClickGUI() {
         this.y = y
         Gui.drawRect(x, y - 1, x + width, y + height - 1, Int.MIN_VALUE)
 
-        System.out.println(mod)
         if (mod.isToggled()) {
             Gui.drawRect(x, y - 1, x + width, y + height - 1, Int.MIN_VALUE)
         }

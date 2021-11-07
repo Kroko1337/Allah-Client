@@ -10,7 +10,7 @@ import net.minecraft.client.gui.Gui
 import java.util.function.Consumer
 
 
-class Panel (var x: Int, var y: Int, private var categories: Category)  : AbstractClickGUI() {
+class Panel (var x: Int, var y: Int, private var categories: Category) : AbstractClickGUI() {
 
     private var dragging: Boolean = false
 

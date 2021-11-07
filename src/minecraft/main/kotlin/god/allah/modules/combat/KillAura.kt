@@ -13,6 +13,7 @@ import god.allah.api.setting.types.ComboBox
 import god.allah.api.setting.types.SliderSetting
 import god.allah.api.utils.TimeHelper
 import god.allah.api.utils.getRotation
+import god.allah.api.utils.randomGaussian
 import god.allah.api.utils.rayCastedEntity
 import god.allah.events.*
 import net.minecraft.entity.Entity
@@ -34,6 +35,9 @@ class KillAura : Module() {
 
     @Value("Perfect Hit")
     private var perfectHit = CheckBox(true)
+
+    @Value("CPS")
+    private var cps = SliderSetting<Long>(12, 1, 20)
 
     @Value("MoveFix")
     private var moveFix = CheckBox(true)
@@ -64,7 +68,7 @@ class KillAura : Module() {
     var pitch: Float = 0F
     val timeHelper = TimeHelper()
 
-    //TODO: CPS, Heuristics, A3, (maybe) Intave Check
+    //TODO: Heuristics, A3, (maybe) Intave Check
 
     @EventInfo(priority = EventPriority.HIGH)
     override fun onEvent(event: Event) {
@@ -103,21 +107,6 @@ class KillAura : Module() {
             }
             is AttackEvent -> {
                 if (target != null && !player.isHandActive) {
-                    var f = player.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).attributeValue
-                    val f2 = player.getCooledAttackStrength(0.5f)
-                    f *= (0.2f + f2 * f2 * 0.8f)
-
-                    val flag = f2 > 0.9f
-                    var flag2 =
-                        flag && player.fallDistance > 0.0f && !player.onGround && !player.isOnLadder && !player.isInWater && !player.isPotionActive(
-                            MobEffects.BLINDNESS
-                        ) && !player.isRiding && target is EntityLivingBase
-                    flag2 = flag2 && !player.isSprinting
-
-                    if (flag2) {
-                        f *= 1.5f
-                    }
-
                     if (rayCast.value) {
                         target = rayCastedEntity(range.value, yaw, pitch, 1F)
                     }
@@ -126,9 +115,8 @@ class KillAura : Module() {
                         target = mc.objectMouseOver.entityHit
 
                     if (isValid(target))
-                        if (!perfectHit.value || f == player.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).attributeValue)
+                        if (isReady())
                             attackEntity(target!!)
-
                 }
             }
             is JumpEvent -> {
@@ -140,6 +128,29 @@ class KillAura : Module() {
                     event.yaw = RotationHandler.yaw
             }
         }
+    }
+
+    private fun isReady(): Boolean {
+        if (perfectHit.value) {
+            var f = player.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).attributeValue
+            val f2 = player.getCooledAttackStrength(0.5f)
+            f *= (0.2f + f2 * f2 * 0.8f)
+
+            val flag = f2 > 0.9f
+            var flag2 =
+                flag && player.fallDistance > 0.0f && !player.onGround && !player.isOnLadder && !player.isInWater && !player.isPotionActive(
+                    MobEffects.BLINDNESS
+                ) && !player.isRiding && target is EntityLivingBase
+            flag2 = flag2 && !player.isSprinting
+
+            if (flag2) {
+                f *= 1.5f
+            }
+            return f == player.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).attributeValue
+        } else {
+            return timeHelper.hasReached(1000 / cps.value + randomGaussian(20.0).toLong())
+        }
+        return false
     }
 
     private fun attackEntity(target: Entity) {
@@ -157,6 +168,7 @@ class KillAura : Module() {
         if (entity !is EntityLivingBase) return false
         if (entity.getDistance(player) > (if (rayCast.value) range.value + 1 else range.value)) return false
         if (entity.isDead || entity.deathTime != 0) return false
+        if (entity.isInvisible) return false
         if (!player.canEntityBeSeen(entity) && !throughWalls.value) return false
         return true
     }

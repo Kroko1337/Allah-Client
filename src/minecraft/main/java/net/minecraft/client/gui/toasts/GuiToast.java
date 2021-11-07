@@ -4,9 +4,10 @@ import com.google.common.collect.Queues;
 import java.util.Arrays;
 import java.util.Deque;
 import javax.annotation.Nullable;
+
+import god.allah.api.Resolution;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.util.math.MathHelper;
@@ -22,7 +23,7 @@ public class GuiToast extends Gui
         this.mc = mcIn;
     }
 
-    public void drawToast(ScaledResolution resolution)
+    public void drawToast(Resolution resolution)
     {
         if (!this.mc.gameSettings.hideGUI)
         {
@@ -32,7 +33,7 @@ public class GuiToast extends Gui
             {
                 GuiToast.ToastInstance<?> toastinstance = this.visible[i];
 
-                if (toastinstance != null && toastinstance.render(resolution.getScaledWidth(), i))
+                if (toastinstance != null && toastinstance.render(resolution.getWidth(), i))
                 {
                     this.visible[i] = null;
                 }

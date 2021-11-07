@@ -47,6 +47,9 @@ class KillAura : Module() {
     @Value("RayCast")
     private var rayCast = CheckBox(true)
 
+    @Value("ThroughWalls")
+    private var throughWalls = CheckBox(false)
+
 
     var target: Entity? = null
     var yaw: Float = 0F
@@ -140,6 +143,7 @@ class KillAura : Module() {
         if (entity !is EntityLivingBase) return false
         if (entity.getDistance(player) > (if (rayCast.value) range.value + 1 else range.value)) return false
         if (entity.isDead && entity.deathTime != 0) return false
+        if(!player.canEntityBeSeen(entity) && !throughWalls.value) return false
         return true
     }
 

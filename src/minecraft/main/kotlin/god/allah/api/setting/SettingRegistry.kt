@@ -9,7 +9,7 @@ import org.reflections.scanners.FieldAnnotationsScanner
 import org.reflections.scanners.MethodAnnotationsScanner
 
 object SettingRegistry {
-    val values = HashMap<Module, ArrayList<ISetting>>()
+    val values = HashMap<Module, ArrayList<ISetting<*>>>()
     private val reflection = Reflections("god.allah.modules")
 
     fun init() {
@@ -21,16 +21,26 @@ object SettingRegistry {
                 for (field in clazz.declaredFields) {
                     if (field.isAnnotationPresent(Value::class.java)) {
                         field.isAccessible = true
-                        val setting: ISetting = field.get(module) as ISetting
+                        val setting = field.get(module)
                         val annotation = field.getAnnotation(Value::class.java)
-                        setting.name = annotation.name
-                        setting.displayName = annotation.displayName
-                        setting.module = module
-                        values[module]?.add(setting)
+                        if(setting is ISetting<*>) {
+                            setting.name = annotation.name
+                            setting.displayName = annotation.displayName
+                            setting.module = module
+                            values[module]?.add(setting)
+                        }
                     }
                 }
             }
         }
+    }
+
+    fun getSetting(name: String, module: Module) : ISetting<*>? {
+        values[module]?.forEach { setting ->
+            if(setting.name.equals(name, true))
+                return setting
+        }
+        return null
     }
 
     private fun getModule(name: String): Module? {

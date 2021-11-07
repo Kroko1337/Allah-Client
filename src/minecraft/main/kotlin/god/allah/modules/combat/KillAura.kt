@@ -71,7 +71,6 @@ class KillAura : Module() {
                 }
             }
             is UpdateEvent -> {
-                range.value = 3.6;
                 if (target != null) {
                     if (!isValid(target))
                         target = null
@@ -89,8 +88,6 @@ class KillAura : Module() {
                 }
             }
             is AttackEvent -> {
-                range.value = 3.5
-                moveFix.value = false
                 if (target != null) {
                     var f = player.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).attributeValue
                     val f2 = player.getCooledAttackStrength(0.5f)

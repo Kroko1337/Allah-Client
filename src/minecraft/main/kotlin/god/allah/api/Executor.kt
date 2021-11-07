@@ -31,6 +31,10 @@ interface Executor {
         Wrapper.sendPacket(packet)
     }
 
+    fun clearChat(clearSend: Boolean = false) {
+        mc.ingameGUI.getChatGUI().clearChatMessages(clearSend)
+    }
+
     fun sendMessage(message: Any, actionBar: Boolean = false, style: Style? = null, prefix: Boolean = true) {
         Wrapper.sendMessage(message, actionBar, style, prefix)
     }

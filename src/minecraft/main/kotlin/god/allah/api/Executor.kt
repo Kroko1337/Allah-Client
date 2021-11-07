@@ -31,6 +31,16 @@ interface Executor {
         Wrapper.sendPacket(packet)
     }
 
+    fun resetRotation(yaw: Float, pitch: Float, silent: Boolean) {
+        if(yaw == player.rotationYaw && pitch == player.rotationPitch) return
+        if(silent)
+            player.rotationYaw = yaw - yaw % 360 + player.rotationYaw % 360
+        else {
+            player.rotationYaw = yaw
+            player.rotationPitch = pitch
+        }
+    }
+
     fun clearChat(clearSend: Boolean = false) {
         mc.ingameGUI.getChatGUI().clearChatMessages(clearSend)
     }

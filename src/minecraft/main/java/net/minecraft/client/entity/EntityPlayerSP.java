@@ -7,9 +7,8 @@ import javax.annotation.Nullable;
 import god.allah.api.Registry;
 import god.allah.api.executors.Command;
 import god.allah.api.helper.RotationHandler;
-import god.allah.events.State;
+import god.allah.api.helper.StringHelper;
 import god.allah.events.UpdateEvent;
-import god.allah.events.UpdateMotionEvent;
 import god.allah.main.Wrapper;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -241,7 +240,6 @@ public class EntityPlayerSP extends AbstractClientPlayer {
     public void onUpdate() {
         if (this.world.isBlockLoaded(new BlockPos(this.posX, 0.0D, this.posZ))) {
             new UpdateEvent().onFire();
-            final UpdateMotionEvent updateMotion = new UpdateMotionEvent(State.PRE, rotationYaw, rotationPitch).onFire();
             super.onUpdate();
 
             if (this.isRiding()) {
@@ -253,7 +251,7 @@ public class EntityPlayerSP extends AbstractClientPlayer {
                     this.connection.sendPacket(new CPacketVehicleMove(entity));
                 }
             } else {
-                this.onUpdateWalkingPlayer(updateMotion);
+                this.onUpdateWalkingPlayer();
             }
         }
     }
@@ -261,9 +259,10 @@ public class EntityPlayerSP extends AbstractClientPlayer {
     /**
      * called every tick when the player is on foot. Performs all the things that normally happen during movement.
      */
-    private void onUpdateWalkingPlayer(UpdateMotionEvent updateMotionEvent) {
+    private void onUpdateWalkingPlayer() {
         boolean flag = this.isSprinting();
-
+        final float yaw = RotationHandler.INSTANCE.getYaw();
+        final float pitch = RotationHandler.INSTANCE.getPitch();
         if (flag != this.serverSprintState) {
             if (flag) {
                 this.connection.sendPacket(new CPacketEntityAction(this, CPacketEntityAction.Action.START_SPRINTING));
@@ -291,24 +290,24 @@ public class EntityPlayerSP extends AbstractClientPlayer {
             double d0 = this.posX - this.lastReportedPosX;
             double d1 = axisalignedbb.minY - this.lastReportedPosY;
             double d2 = this.posZ - this.lastReportedPosZ;
-            double d3 = (double) (updateMotionEvent.getYaw() - this.lastReportedYaw);
-            double d4 = (double) (updateMotionEvent.getPitch() - this.lastReportedPitch);
+            double d3 = (double) (yaw - this.lastReportedYaw);
+            double d4 = (double) (pitch - this.lastReportedPitch);
             ++this.positionUpdateTicks;
             boolean flag2 = d0 * d0 + d1 * d1 + d2 * d2 > 9.0E-4D || this.positionUpdateTicks >= 20;
             boolean flag3 = d3 != 0.0D || d4 != 0.0D;
 
-            RotationHandler.INSTANCE.setYaw(updateMotionEvent.getYaw());
-            RotationHandler.INSTANCE.setPitch(updateMotionEvent.getPitch());
+            RotationHandler.INSTANCE.setYaw(yaw);
+            RotationHandler.INSTANCE.setPitch(pitch);
 
             if (this.isRiding()) {
-                this.connection.sendPacket(new CPacketPlayer.PositionRotation(this.motionX, -999.0D, this.motionZ, updateMotionEvent.getYaw(), updateMotionEvent.getPitch(), this.onGround));
+                this.connection.sendPacket(new CPacketPlayer.PositionRotation(this.motionX, -999.0D, this.motionZ, yaw, pitch, this.onGround));
                 flag2 = false;
             } else if (flag2 && flag3) {
-                this.connection.sendPacket(new CPacketPlayer.PositionRotation(this.posX, axisalignedbb.minY, this.posZ, updateMotionEvent.getYaw(), updateMotionEvent.getPitch(), this.onGround));
+                this.connection.sendPacket(new CPacketPlayer.PositionRotation(this.posX, axisalignedbb.minY, this.posZ, yaw, pitch, this.onGround));
             } else if (flag2) {
                 this.connection.sendPacket(new CPacketPlayer.Position(this.posX, axisalignedbb.minY, this.posZ, this.onGround));
             } else if (flag3) {
-                this.connection.sendPacket(new CPacketPlayer.Rotation(updateMotionEvent.getYaw(), updateMotionEvent.getPitch(), this.onGround));
+                this.connection.sendPacket(new CPacketPlayer.Rotation(yaw, pitch, this.onGround));
             } else if (this.prevOnGround != this.onGround) {
                 this.connection.sendPacket(new CPacketPlayer(this.onGround));
             }
@@ -321,13 +320,12 @@ public class EntityPlayerSP extends AbstractClientPlayer {
             }
 
             if (flag3) {
-                this.lastReportedYaw = updateMotionEvent.getYaw();
-                this.lastReportedPitch = updateMotionEvent.getPitch();
+                this.lastReportedYaw = yaw;
+                this.lastReportedPitch = pitch;
             }
 
             this.prevOnGround = this.onGround;
             this.autoJumpEnabled = this.mc.gameSettings.autoJump;
-            new UpdateMotionEvent(State.POST, updateMotionEvent.getYaw(), updateMotionEvent.getPitch()).onFire();
         }
     }
 
@@ -353,7 +351,7 @@ public class EntityPlayerSP extends AbstractClientPlayer {
     public void sendChatMessage(String message) {
         if (message.startsWith(Wrapper.INSTANCE.getCommandPrefix())) {
             message = message.substring(Wrapper.INSTANCE.getCommandPrefix().length());
-            final String[] split = message.split(" ");
+            final String[] split = StringHelper.INSTANCE.handleQuotation(message.split(" "));
             for (Command command : Registry.INSTANCE.getEntries(Command.class)) {
                 if (command.getName().equalsIgnoreCase(split[0]) || Arrays.stream(command.getAliases()).anyMatch(s -> s.equalsIgnoreCase(split[0])))
                     if (!command.execute(Arrays.copyOfRange(split, 1, split.length))) {

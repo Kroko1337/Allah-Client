@@ -26,7 +26,7 @@ object Wrapper {
 
 
     fun sendPacket(packet: Packet<*>) {
-        mc.connection.sendPacket(packet)
+        mc.connection?.sendPacket(packet)
     }
 
     fun getModule(name: String) : Module? {

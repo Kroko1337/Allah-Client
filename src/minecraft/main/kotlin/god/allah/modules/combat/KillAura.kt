@@ -18,6 +18,7 @@ import god.allah.events.*
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.SharedMonsterAttributes
+import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.init.MobEffects
 import net.minecraft.util.EnumHand
 import org.lwjgl.input.Keyboard
@@ -34,10 +35,6 @@ class KillAura : Module() {
     @Value("Perfect Hit")
     private var perfectHit = CheckBox(true)
 
-    @Value("AutoBlock")
-    private var autoblock = CheckBox(true)
-
-
     @Value("MoveFix")
     private var moveFix = CheckBox(true)
 
@@ -50,6 +47,17 @@ class KillAura : Module() {
     @Value("RayCast")
     private var rayCast = CheckBox(true)
 
+    @Value("Through Walls")
+    private var throughWalls = CheckBox(false)
+
+    @Value("No near rotate")
+    private var noNearRotate = CheckBox(true)
+
+    @Value("Reset Rotation")
+    private var resetRotation = CheckBox(true)
+
+    @Value("Reset Rotation-Mode", "Mode")
+    private var resetRotationMode = ComboBox("Silent", arrayOf("Silent", "Visible"))
 
     var target: Entity? = null
     var yaw: Float = 0F
@@ -59,17 +67,15 @@ class KillAura : Module() {
     @EventInfo(priority = EventPriority.HIGH)
     override fun onEvent(event: Event) {
         when (event) {
-            is UpdateMotionEvent -> {
-                when (event.state) {
-                    State.PRE -> {
-                        if (target != null && mc.inGameHasFocus) {
-                            val rotation =
-                                    getRotation(player, target!!, yaw, pitch, bestVector.value, mouseSensitivity.value)
-                            event.yaw = rotation[0]
-                            event.pitch = rotation[1]
-                            yaw = rotation[0]
-                            pitch = rotation[1]
-                        }
+            is RotationEvent -> {
+                if (target != null && mc.inGameHasFocus) {
+                    if (mc.objectMouseOver.entityHit == null || player.getDistance(target) > 0.5 || !noNearRotate.value) {
+                        val rotation =
+                            getRotation(player, target!!, yaw, pitch, bestVector.value, mouseSensitivity.value)
+                        event.yaw = rotation[0]
+                        event.pitch = rotation[1]
+                        yaw = rotation[0]
+                        pitch = rotation[1]
                     }
                 }
             }
@@ -91,16 +97,16 @@ class KillAura : Module() {
                 }
             }
             is AttackEvent -> {
-                if (target != null) {
+                if (target != null && !player.isHandActive) {
                     var f = player.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).attributeValue
                     val f2 = player.getCooledAttackStrength(0.5f)
                     f *= (0.2f + f2 * f2 * 0.8f)
 
                     val flag = f2 > 0.9f
                     var flag2 =
-                            flag && player.fallDistance > 0.0f && !player.onGround && !player.isOnLadder && !player.isInWater && !player.isPotionActive(
-                                    MobEffects.BLINDNESS
-                            ) && !player.isRiding && target is EntityLivingBase
+                        flag && player.fallDistance > 0.0f && !player.onGround && !player.isOnLadder && !player.isInWater && !player.isPotionActive(
+                            MobEffects.BLINDNESS
+                        ) && !player.isRiding && target is EntityLivingBase
                     flag2 = flag2 && !player.isSprinting
 
                     if (flag2) {
@@ -111,17 +117,13 @@ class KillAura : Module() {
                         target = rayCastedEntity(range.value, yaw, pitch, 1F)
                     }
 
+                    if (mc.objectMouseOver.entityHit != null)
+                        target = mc.objectMouseOver.entityHit
+
                     if (isValid(target))
                         if (!perfectHit.value || f == player.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).attributeValue)
                             attackEntity(target!!)
-                }
 
-                if (isValid(target)) {
-                    if (player.hurtTime != 0) {
-                        doBlock()
-                    } else {
-                        stopBlock()
-                    }
                 }
             }
             is JumpEvent -> {
@@ -150,6 +152,7 @@ class KillAura : Module() {
         if (entity !is EntityLivingBase) return false
         if (entity.getDistance(player) > (if (rayCast.value) range.value + 1 else range.value)) return false
         if (entity.isDead && entity.deathTime != 0) return false
+        if (!player.canEntityBeSeen(entity) && !throughWalls.value) return false
         return true
     }
 
@@ -160,16 +163,8 @@ class KillAura : Module() {
     }
 
     override fun onDisable() {
-
-    }
-
-    fun doBlock() {
-        playerController.processRightClick(player, world, EnumHand.OFF_HAND)
-        player.activeHand = EnumHand.OFF_HAND
-    }
-
-    fun stopBlock() {
-        playerController.onStoppedUsingItem(player)
+        if (resetRotation.value)
+            resetRotation(RotationHandler.yaw, RotationHandler.pitch, resetRotationMode.value == "Silent");
     }
 
 

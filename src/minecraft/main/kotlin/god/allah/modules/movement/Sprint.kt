@@ -12,7 +12,6 @@ import god.allah.api.setting.types.ComboBox
 import god.allah.api.setting.types.SettingCategory
 import god.allah.api.setting.types.SliderSetting
 import god.allah.events.UpdateEvent
-import god.allah.events.UpdateMotionEvent
 import org.lwjgl.input.Keyboard
 
 @ModuleInfo("Sprint", Category.MOVEMENT)

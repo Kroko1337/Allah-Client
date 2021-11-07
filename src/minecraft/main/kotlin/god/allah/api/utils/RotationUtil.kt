@@ -41,7 +41,7 @@ fun getRotation(
 
     if (bestVector) {
         val bestVec =
-            getBestVector(player.getPositionEyes(Wrapper.mc.timer.renderPartialTicks), target.entityBoundingBox);
+            getBestVector(player.getPositionEyes(Wrapper.mc.timer.renderPartialTicks), target.entityBoundingBox)
         x = bestVec.x - eyeX;
         y = bestVec.y - eyeY;
         z = bestVec.z - eyeZ;
@@ -49,6 +49,25 @@ fun getRotation(
 
     if (target !is EntityLivingBase)
         y = (target.entityBoundingBox.minY + target.entityBoundingBox.maxY) / 2.0
+
+    val sprinting: Boolean = target.isSprinting
+
+    val xMultiplication: Float
+
+    val zMultiplication: Float
+
+    val walkingSpeed = 0.10000000149011612f    //https://minecraft.fandom.com/wiki/Sprinting
+
+    val sprintMultiplication = if (sprinting) 1.25f else walkingSpeed
+
+    zMultiplication = ((player.motionZ * sprintMultiplication).toFloat())
+
+    xMultiplication = ((player.motionX * sprintMultiplication).toFloat())
+
+    if (xMultiplication != 0.0f && zMultiplication != 0.0f) {
+        x += xMultiplication * sprintMultiplication
+        z += zMultiplication * sprintMultiplication
+    }
 
     val angle = MathHelper.sqrt(x * x + z * z).toDouble()
     val yawAngle = (MathHelper.atan2(z, x) * (180.0 / Math.PI)).toFloat() - 90.0f

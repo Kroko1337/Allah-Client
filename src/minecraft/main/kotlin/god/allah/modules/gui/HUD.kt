@@ -24,7 +24,7 @@ class HUD : Module() {
         when (event) {
             is Render2DEvent -> {
                 var yAxis = 3
-                fr.drawString("Allah", event.resolution.scaledWidth / 2 - fr.getStringWidth("Allah") / 2, fr.FONT_HEIGHT, ThreadLocalRandom.current().nextInt(0x0000000, 0x9999999))
+                fr.drawStringWithShadow("Allah", (event.resolution.scaledWidth / 2 - fr.getStringWidth("Allah") / 2).toFloat(), fr.FONT_HEIGHT.toFloat(), ThreadLocalRandom.current().nextInt(0x0000000, 0x9999999))
                 Registry.getEntries(Module::class.java).filter { module -> module.category != Category.GUI }.sortedWith(Comparator { m1: Module, m2: Module -> fr.getStringWidth(m2.name) - fr.getStringWidth(m1.name) } as Comparator<Module>).forEach { module ->
                     if (module.isToggled()) {
                         fr.drawStringWithShadow(module.name, 4.0f, yAxis.toFloat(), -1)

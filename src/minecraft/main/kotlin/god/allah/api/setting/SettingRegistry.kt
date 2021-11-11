@@ -37,7 +37,7 @@ object SettingRegistry {
 
     fun getSetting(name: String, module: Module) : ISetting<*>? {
         values[module]?.forEach { setting ->
-            if(setting.name.equals(name, true))
+            if(setting.getDisplay().equals(name, true))
                 return setting
         }
         return null

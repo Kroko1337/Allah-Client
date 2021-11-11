@@ -45,6 +45,12 @@ class KillAura : Module() {
     @Value("MoveFix")
     private var moveFix = CheckBox(true)
 
+    @Value("Keep Sprint")
+    private var keepSprint = CheckBox(false)
+
+    @Value("Slowdown")
+    private var slowdown = SliderSetting(0.6, 0.1, 1.0)
+
     @Value("BestVector")
     private var bestVector = CheckBox(true)
 
@@ -99,12 +105,12 @@ class KillAura : Module() {
                         event.yaw = yaw
                         event.pitch = pitch
                     }
-                } else if (target == null) {
-                    yaw = player.rotationYaw
-                    pitch = player.rotationPitch
                 } else if (!mc.inGameHasFocus) {
                     event.yaw = yaw
                     event.pitch = pitch
+                } else {
+                    yaw = player.rotationYaw
+                    pitch = player.rotationPitch
                 }
             }
             is UpdateEvent -> {
@@ -137,7 +143,7 @@ class KillAura : Module() {
                     if (target != null) {
                         if (isReady()) {
                             //sendMessage("§aTargeto founded")
-                           /* if (target == null || mc.objectMouseOver.entityHit == null)
+                            /* if (target == null || mc.objectMouseOver.entityHit == null)
                                 sendMessage("$target -> ${mc.objectMouseOver.entityHit}")*/
                             attackEntity(target!!)
                         }
@@ -145,6 +151,11 @@ class KillAura : Module() {
                 } else {
                     //sendMessage("§cTargeto no founded")
                 }
+            }
+            is KnockBackModifierEvent -> {
+                if (keepSprint.value)
+                    event.sprint = true
+                event.motion = slowdown.value
             }
             is JumpEvent -> {
                 if (moveFix.value)

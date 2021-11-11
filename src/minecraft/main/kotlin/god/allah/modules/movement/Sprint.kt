@@ -16,25 +16,17 @@ import org.lwjgl.input.Keyboard
 @Module.Info("Sprint", Category.MOVEMENT)
 class Sprint : Module() {
 
-    var current = 0
-
-    @Value("Test")
-    var test = CheckBox(true)
-
-    @Value("Test2")
-    var test2 = ComboBox("Test", arrayOf("Test", "Test2"))
-
-    @Value("Slider")
-    var slider = SliderSetting<Long>(1, 1, 10)
-
-    @Value("Category")
-    var testCategory = SettingCategory(test, test2, slider)
+    @Value("Legit")
+    var legit = CheckBox(true)
 
     @EventInfo(priority = EventPriority.LOW)
     override fun onEvent(event: Event) {
-        when(event) {
+        when (event) {
             is UpdateEvent -> {
-                player.isSprinting = true
+                if (legit.value)
+                    mc.gameSettings.keyBindSprint.pressed = true
+                else
+                    player.isSprinting = true
             }
         }
     }

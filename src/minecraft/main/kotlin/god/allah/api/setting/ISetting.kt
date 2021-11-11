@@ -60,4 +60,17 @@ open class ISetting<T> {
             }
         }
     }
+
+    fun getDisplay() : String {
+        val newName = if(displayName == "") name else displayName
+        var index = 0
+        for(setting in SettingRegistry.values[module]!!) {
+            if(setting == this)
+                break
+            val settingName = if(setting.displayName == "") setting.name else setting.displayName
+            if(settingName.equals(newName, true))
+                index++
+        }
+        return newName + (if(index > 0) "$$index" else "")
+    }
 }

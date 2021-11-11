@@ -9,6 +9,7 @@ import god.allah.api.executors.Module
 import god.allah.api.utils.getRainbow
 import god.allah.api.setting.SettingRegistry
 import god.allah.modules.gui.HUD
+import kotlin.math.abs
 import kotlin.math.max
 
 @Draggable.Info("ArrayList", 3, 3)
@@ -17,6 +18,12 @@ class ArrayList : Draggable() {
     override fun draw() {
         var yAxis = yPos.toFloat()
         var calcWidth = 10
+
+        val right = xPos >= Resolution.widthD / 2
+        val down = yPos >= Resolution.heightD / 2
+        if(down)
+            yAxis -= fr.FONT_HEIGHT
+
         val suffix: Boolean = SettingRegistry.getSetting("Suffix", HUD::class.java)?.getField("Value") as Boolean
         Registry.getEntries(Module::class.java)
             .filter { module -> module.isToggled() && module.category != Category.GUI }
@@ -24,20 +31,29 @@ class ArrayList : Draggable() {
             .forEach { module ->
                 var position = xPos.toFloat()
                 val name = module.getDisplay(suffix)
-                val leftUp = xPos >= Resolution.widthD / 2 && yPos <= Resolution.heightD / 2
-                if(calcWidth < fr.getStringWidth(name))
+                if (calcWidth < fr.getStringWidth(name))
                     calcWidth = fr.getStringWidth(name)
-                if(leftUp) {
-                    position -= fr.getStringWidth(name)
+
+                if(right) {
                     hitBoxX = xPos - calcWidth
+                    position -= fr.getStringWidth(name)
                 } else {
                     hitBoxX = xPos
                 }
-                println("$hitBoxX $xPos")
+
                 fr.drawStringWithShadow(name, position, yAxis, -1)
-                yAxis += fr.FONT_HEIGHT
+                if (down)
+                    yAxis -= fr.FONT_HEIGHT
+                else
+                    yAxis += fr.FONT_HEIGHT
             }
         width = calcWidth
-        height = yAxis.toInt()
+        if(yAxis < yPos) {
+            hitBoxY = abs(yAxis.toInt() + fr.FONT_HEIGHT)
+        } else {
+            hitBoxY = yPos
+        }
+
+        height = abs(yAxis.toInt() - yPos)
     }
 }

@@ -15,7 +15,7 @@ class Setting : Command() {
                     clearChat()
                     SettingRegistry.values[module]?.forEach { setting ->
                         if (setting.getField("value") != null)
-                            sendMessage("§e${setting.name} §7-> §b${setting.getField("value")}")
+                            sendMessage("§e${setting.getDisplay()} §7-> §b${setting.getField("value")}")
                     }
                 } else {
                     sendMessage("§e${args[0]} §cis not a valid Module!")
@@ -27,7 +27,7 @@ class Setting : Command() {
                     clearChat()
                     val setting = SettingRegistry.getSetting(args[1], module)
                     if (setting != null) {
-                        sendMessage("§e${setting.name} §7-> §b${setting.getField("value")}")
+                        sendMessage("§e${setting.getDisplay()} §7-> §b${setting.getField("value")}")
                         if (setting.getField("modes") != null) {
                             val modes: Array<*> = setting.getField("modes") as Array<*>
                             sendMessage("")
@@ -88,7 +88,7 @@ class Setting : Command() {
                                 }
                             }
                             setting.tryChangeField("value", args[2])
-                            sendMessage("§e${setting.name} §7-> §b${setting.getField("value")}")
+                            sendMessage("§e${setting.getDisplay()} §7-> §b${setting.getField("value")}")
                         } catch (ex: Exception) {
                             sendMessage("§e§l${args[2]} §cis not an valid Value!")
                         }

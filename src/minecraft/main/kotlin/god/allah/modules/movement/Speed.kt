@@ -5,7 +5,6 @@ import god.allah.api.event.EventInfo
 import god.allah.api.event.EventPriority
 import god.allah.api.executors.Category
 import god.allah.api.executors.Module
-import god.allah.api.executors.ModuleInfo
 import god.allah.api.setting.Value
 import god.allah.api.setting.types.CheckBox
 import god.allah.api.utils.isMoving
@@ -14,7 +13,7 @@ import god.allah.events.UpdateEvent
 import org.lwjgl.input.Keyboard
 import kotlin.math.sqrt
 
-@ModuleInfo("Speed", Category.MOVEMENT)
+@Module.Info("Speed", Category.MOVEMENT)
 class Speed : Module() {
 
     @Value("AutoJump")

@@ -8,7 +8,7 @@ abstract class Command : Executor {
     val aliases: Array<String>
 
     init {
-        val commandInfo = this.javaClass.getAnnotation(CommandInfo::class.java)
+        val commandInfo = this.javaClass.getAnnotation(Info::class.java)
         name = commandInfo.name
         aliases = commandInfo.aliases
     }
@@ -24,6 +24,5 @@ abstract class Command : Executor {
                 shortest = alias
         return shortest
     }
+    annotation class Info(val name: String, val aliases: Array<String> = [])
 }
-
-annotation class CommandInfo(val name: String, val aliases: Array<String> = [])

@@ -2,6 +2,9 @@ package net.minecraft.client.gui;
 
 import java.io.IOException;
 import javax.annotation.Nullable;
+
+import god.allah.api.Registry;
+import god.allah.api.draggable.DraggableHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.ITabCompleter;
 import net.minecraft.util.TabCompleter;
@@ -169,6 +172,8 @@ public class GuiChat extends GuiScreen implements ITabCompleter
      */
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException
     {
+        if(!Registry.INSTANCE.getExecutors().isEmpty())
+            DraggableHandler.INSTANCE.handleMouseInput(mouseX, mouseY, mouseButton);
         if (mouseButton == 0)
         {
             ITextComponent itextcomponent = this.mc.ingameGUI.getChatGUI().getChatComponent(Mouse.getX(), Mouse.getY());
@@ -233,6 +238,8 @@ public class GuiChat extends GuiScreen implements ITabCompleter
      */
     public void drawScreen(int mouseX, int mouseY, float partialTicks)
     {
+        if(!Registry.INSTANCE.getExecutors().isEmpty())
+            DraggableHandler.INSTANCE.onUpdate(mouseX, mouseY);
         drawRect(2, this.height - 14, this.width - 2, this.height - 2, Integer.MIN_VALUE);
         this.inputField.drawTextBox();
         ITextComponent itextcomponent = this.mc.ingameGUI.getChatGUI().getChatComponent(Mouse.getX(), Mouse.getY());
@@ -251,6 +258,13 @@ public class GuiChat extends GuiScreen implements ITabCompleter
     public boolean doesGuiPauseGame()
     {
         return false;
+    }
+
+    @Override
+    protected void mouseReleased(int mouseX, int mouseY, int state) {
+        if(!Registry.INSTANCE.getExecutors().isEmpty())
+            DraggableHandler.INSTANCE.handleMouseRelease();
+        super.mouseReleased(mouseX, mouseY, state);
     }
 
     /**

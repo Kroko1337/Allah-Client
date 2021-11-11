@@ -1,12 +1,9 @@
 package god.allah.commands
 
-import god.allah.api.Registry
 import god.allah.api.executors.Command
-import god.allah.api.executors.CommandInfo
-import god.allah.main.Wrapper.getModule
-import god.allah.main.Wrapper.sendMessage
+import god.allah.api.Wrapper.getModule
 
-@CommandInfo("toggle", ["t"])
+@Command.Info("toggle", ["t"])
 class Toggle : Command() {
     override fun execute(args: Array<String>): Boolean {
         when(args.size) {

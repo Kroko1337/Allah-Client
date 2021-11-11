@@ -2,7 +2,7 @@ package god.allah.api.clickgui.list.underlist
 
 import god.allah.api.clickgui.AbstractClickGUI
 import god.allah.api.executors.Module
-import god.allah.main.Wrapper
+import god.allah.api.Wrapper
 import net.minecraft.client.gui.Gui
 
 class ModuleRendering(var mod: Module) : AbstractClickGUI() {

@@ -1,6 +1,5 @@
 package god.allah.api
 
-import god.allah.main.Wrapper
 import net.minecraft.client.Minecraft
 import net.minecraft.client.entity.EntityPlayerSP
 import net.minecraft.client.gui.FontRenderer
@@ -9,7 +8,6 @@ import net.minecraft.client.multiplayer.WorldClient
 import net.minecraft.network.Packet
 import net.minecraft.util.Timer
 import net.minecraft.util.text.Style
-import net.minecraft.util.text.TextComponentString
 
 interface Executor {
     val mc: Minecraft get() = Wrapper.mc

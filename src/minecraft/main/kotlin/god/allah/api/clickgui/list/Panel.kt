@@ -5,7 +5,7 @@ import god.allah.api.clickgui.AbstractClickGUI
 import god.allah.api.clickgui.list.underlist.ModuleRendering
 import god.allah.api.executors.Category
 import god.allah.api.executors.Module
-import god.allah.main.Wrapper
+import god.allah.api.Wrapper
 import net.minecraft.client.gui.Gui
 import java.util.function.Consumer
 

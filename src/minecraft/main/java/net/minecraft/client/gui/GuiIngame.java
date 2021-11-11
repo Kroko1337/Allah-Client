@@ -12,7 +12,9 @@ import java.util.Map;
 import java.util.Random;
 import javax.annotation.Nullable;
 
+import god.allah.api.Registry;
 import god.allah.api.Resolution;
+import god.allah.api.executors.Draggable;
 import god.allah.events.Render2DEvent;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -209,6 +211,9 @@ public class GuiIngame extends Gui
         }
 
         new Render2DEvent(scaledresolution, partialTicks).onFire();
+        if (!Registry.INSTANCE.getExecutors().isEmpty()) {
+            Registry.INSTANCE.getEntries(Draggable.class).forEach(draggable -> draggable.draw());
+        }
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         this.mc.getTextureManager().bindTexture(ICONS);
         GlStateManager.enableBlend();

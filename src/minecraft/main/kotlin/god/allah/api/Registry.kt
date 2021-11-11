@@ -1,10 +1,8 @@
 package god.allah.api
 
-import god.allah.api.clickgui.ClickGUI
+import god.allah.api.executors.Draggable
 import god.allah.api.executors.Command
-import god.allah.api.executors.CommandInfo
 import god.allah.api.executors.Module
-import god.allah.api.executors.ModuleInfo
 import org.reflections.Reflections
 import java.util.Comparator
 
@@ -14,15 +12,16 @@ object Registry {
     private val reflection = Reflections("god.allah")
 
     fun init() {
-        addExecutor(Module::class.java, ModuleInfo::class.java)
-        addExecutor(Command::class.java, CommandInfo::class.java)
+        addExecutor(Module::class.java, Module.Info::class.java)
+        addExecutor(Command::class.java, Command.Info::class.java)
+        addExecutor(Draggable::class.java, Draggable.Info::class.java)
     }
 
-    fun <T : Executor?> getEntry(executor: Class<T>): T {
+    fun <T : Executor?> getEntry(executor: Class<out T>): T {
         executors.keys.forEach { keys ->
             getEntries(keys).forEach { entry ->
                 if (entry.javaClass == executor)
-                    return executor as T
+                    return entry as T
             }
         }
         return null as T

@@ -1,11 +1,10 @@
 package god.allah.commands
 
 import god.allah.api.executors.Command
-import god.allah.api.executors.CommandInfo
-import god.allah.main.Wrapper
+import god.allah.api.Wrapper
 import org.lwjgl.input.Keyboard
 
-@CommandInfo("bind")
+@Command.Info("bind")
 class Bind : Command() {
     override fun execute(args: Array<String>): Boolean {
         when (args.size) {

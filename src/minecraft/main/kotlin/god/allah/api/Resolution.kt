@@ -1,5 +1,6 @@
 package god.allah.api
 
+import god.allah.api.executors.Draggable
 import net.minecraft.client.Minecraft
 import net.minecraft.util.math.MathHelper
 import kotlin.properties.Delegates
@@ -11,7 +12,11 @@ object Resolution {
     var heightD = 1.0
     var scaleFactor = 1
 
-    fun <T : Resolution?> resize(mc : Minecraft) : T{
+    fun <T : Resolution?> resize(mc: Minecraft): T {
+        if (Registry.executors.isNotEmpty())
+            Registry.getEntries(Draggable::class.java).forEach { draggable ->
+                draggable.savePositions()
+            }
         width = mc.displayWidth
         height = mc.displayHeight
         scaleFactor = 1
@@ -34,6 +39,12 @@ object Resolution {
         this.heightD = this.height.toDouble() / this.scaleFactor.toDouble()
         this.width = MathHelper.ceil(this.widthD)
         this.height = MathHelper.ceil(this.heightD)
+
+        if (Registry.executors.isNotEmpty())
+            Registry.getEntries(Draggable::class.java).forEach { draggable ->
+                draggable.calculatePositions(widthD, heightD)
+            }
+
         return this as T
     }
 }

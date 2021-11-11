@@ -4,10 +4,9 @@ import god.allah.api.event.Event
 import god.allah.api.event.EventInfo
 import god.allah.api.executors.Category
 import god.allah.api.executors.Module
-import god.allah.api.executors.ModuleInfo
 import god.allah.events.HandlePosLookEvent
 
-@ModuleInfo("NoRotate", Category.PLAYER)
+@Module.Info("NoRotate", Category.PLAYER)
 class NoRotate : Module() {
     @EventInfo
     override fun onEvent(event: Event) {

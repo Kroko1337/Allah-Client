@@ -1,8 +1,8 @@
 package god.allah.api.utils
 
-import god.allah.main.Wrapper.mc
-import god.allah.main.Wrapper.player
-import god.allah.main.Wrapper.sendPacket
+import god.allah.api.Wrapper.mc
+import god.allah.api.Wrapper.player
+import god.allah.api.Wrapper.sendPacket
 import net.minecraft.entity.Entity
 import net.minecraft.network.play.client.CPacketPlayer
 import org.lwjgl.input.Keyboard

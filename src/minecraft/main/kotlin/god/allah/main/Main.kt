@@ -1,16 +1,13 @@
 package god.allah.main
 
-import com.thealtening.auth.service.AlteningServiceType
 import god.allah.api.Registry
-import god.allah.api.clickgui.ClickGUI
 import god.allah.api.event.EventHandler
 import god.allah.api.gui.ClickGUIHandler
 import god.allah.api.setting.SettingRegistry
-import god.allah.api.setting.types.SettingCategory
-import god.allah.main.Wrapper.coder
-import god.allah.main.Wrapper.instance
-import god.allah.main.Wrapper.name
-import god.allah.main.Wrapper.version
+import god.allah.api.Wrapper.coder
+import god.allah.api.Wrapper.instance
+import god.allah.api.Wrapper.name
+import god.allah.api.Wrapper.version
 import org.lwjgl.opengl.Display
 import java.awt.Image
 import java.awt.SystemTray

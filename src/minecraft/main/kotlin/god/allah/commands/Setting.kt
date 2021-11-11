@@ -1,12 +1,10 @@
 package god.allah.commands
 
 import god.allah.api.executors.Command
-import god.allah.api.executors.CommandInfo
-import god.allah.api.setting.ISetting
 import god.allah.api.setting.SettingRegistry
-import god.allah.main.Wrapper
+import god.allah.api.Wrapper
 
-@CommandInfo("setting", ["value", "val"])
+@Command.Info("setting", ["value", "val"])
 class Setting : Command() {
 
     override fun execute(args: Array<String>): Boolean {

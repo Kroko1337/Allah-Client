@@ -11,7 +11,7 @@ abstract class Module : Executor {
     private var toggled = false
 
     init {
-        val moduleInfo = this.javaClass.getAnnotation(ModuleInfo::class.java)
+        val moduleInfo = this.javaClass.getAnnotation(Info::class.java)
         name = moduleInfo.name
         category = moduleInfo.category
         keyBind = moduleInfo.defaultKey
@@ -44,9 +44,14 @@ abstract class Module : Executor {
     open fun getInfo() : String? {
         return null
     }
+
+    fun getDisplay(suffix: Boolean) : String {
+        return name + (if(this.getInfo() != null && suffix) " §7" + this.getInfo() else "")
+    }
+
+    annotation class Info(val name: String, val category: Category, val defaultKey: Int = 0)
 }
 
-annotation class ModuleInfo(val name: String, val category: Category, val defaultKey: Int = 0)
 enum class Category(name: String) {
     VISUAL("Visual"), PLAYER("Player"), WORLD("World"), MOVEMENT("Movement"), COMBAT("Combat"), MISC("Misc"), GUI("Gui"), DEBUG("Debug")
 }

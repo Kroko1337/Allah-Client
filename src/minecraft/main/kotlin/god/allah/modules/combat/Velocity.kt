@@ -4,7 +4,6 @@ import god.allah.api.event.Event
 import god.allah.api.event.EventInfo
 import god.allah.api.executors.Category
 import god.allah.api.executors.Module
-import god.allah.api.executors.ModuleInfo
 import god.allah.api.setting.Value
 import god.allah.api.setting.types.CheckBox
 import god.allah.api.setting.types.ComboBox
@@ -13,7 +12,7 @@ import god.allah.events.PacketEvent
 import net.minecraft.network.play.server.SPacketEntityVelocity
 import net.minecraft.network.play.server.SPacketExplosion
 
-@ModuleInfo("Velocity", Category.COMBAT)
+@Module.Info("Velocity", Category.COMBAT)
 class Velocity : Module() {
 
     @Value("Mode")
@@ -21,6 +20,10 @@ class Velocity : Module() {
 
     @Value("Cancel Explosion")
     var cancelExplosion = CheckBox(true)
+
+    override fun getInfo(): String {
+        return mode.value
+    }
 
     @EventInfo
     override fun onEvent(event: Event) {

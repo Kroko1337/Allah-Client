@@ -2,7 +2,7 @@ package god.allah.api.utils
 
 import com.google.common.base.Predicate
 import com.google.common.base.Predicates
-import god.allah.main.Wrapper
+import god.allah.api.Wrapper
 import net.minecraft.client.Minecraft
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
@@ -12,7 +12,6 @@ import net.minecraft.util.EntitySelectors
 import net.minecraft.util.EnumFacing
 import net.minecraft.util.math.*
 import kotlin.math.hypot
-import kotlin.random.Random
 
 
 fun getBestVector(look: Vec3d, axisAlignedBB: AxisAlignedBB): Vec3d {
@@ -65,22 +64,23 @@ fun getRotation(
     }
 
     val sprinting: Boolean = target.isSprinting
-
-    val xMultiplication: Float
-
-    val zMultiplication: Float
+    val sprintingPlayer: Boolean = player.isSprinting
 
     val walkingSpeed = 0.10000000149011612f //https://minecraft.fandom.com/wiki/Sprinting
 
     val sprintMultiplication = if (sprinting) 1.25f else walkingSpeed
+    val sprintMultiplicationPlayer = if (sprintingPlayer) 1.25f else walkingSpeed
 
-    zMultiplication = ((player.motionZ * sprintMultiplication).toFloat())
+    val xMultiplication: Float = ((target.motionX * sprintMultiplication).toFloat())
+    val zMultiplication: Float = ((target.motionZ * sprintMultiplication).toFloat())
 
-    xMultiplication = ((player.motionX * sprintMultiplication).toFloat())
+    val xMultiplicationPlayer = ((player.motionX * sprintMultiplicationPlayer).toFloat())
+    val zMultiplicationPlayer = ((player.motionZ * sprintMultiplicationPlayer).toFloat())
 
-    if (xMultiplication != 0.0f && zMultiplication != 0.0f) {
-        x += xMultiplication * sprintMultiplication
-        z += zMultiplication * sprintMultiplication
+
+    if (xMultiplication != 0.0f && zMultiplication != 0.0f || xMultiplicationPlayer != 0.0f && zMultiplicationPlayer != 0.0f) {
+        x += xMultiplication + xMultiplicationPlayer
+        z += zMultiplication + zMultiplicationPlayer
     }
 
 
@@ -100,8 +100,8 @@ fun getRotation(
     val deltaYaw = yaw - prevYaw
     val deltaPitch: Float = pitch - prevPitch
 
-    val f2: Float = (deltaYaw * f1 * 5).toInt().toFloat()
-    val f3: Float = (deltaPitch * f1 * 5).toInt().toFloat()
+    val f2: Float = (deltaYaw * f1 * 7).toInt().toFloat()
+    val f3: Float = (deltaPitch * f1 * 7).toInt().toFloat()
 
     val angles = setAngles(prevYaw, prevPitch, f2, f3)
     return arrayOf(angles[0], MathHelper.clamp(angles[1], -90.0F, 90.0F))

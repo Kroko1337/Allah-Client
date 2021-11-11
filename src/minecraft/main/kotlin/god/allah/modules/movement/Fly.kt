@@ -5,10 +5,9 @@ import god.allah.api.event.EventInfo
 import god.allah.api.event.EventPriority
 import god.allah.api.executors.Category
 import god.allah.api.executors.Module
-import god.allah.api.executors.ModuleInfo
 import god.allah.events.UpdateEvent
 
-@ModuleInfo("Fly", Category.MOVEMENT)
+@Module.Info("Fly", Category.MOVEMENT)
 class Fly : Module() {
 
     @EventInfo

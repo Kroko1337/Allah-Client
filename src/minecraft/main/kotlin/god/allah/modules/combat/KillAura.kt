@@ -5,13 +5,12 @@ import god.allah.api.event.EventInfo
 import god.allah.api.event.EventPriority
 import god.allah.api.executors.Category
 import god.allah.api.executors.Module
-import god.allah.api.executors.ModuleInfo
 import god.allah.api.helper.RotationHandler
 import god.allah.api.setting.Value
 import god.allah.api.setting.types.CheckBox
 import god.allah.api.setting.types.ComboBox
 import god.allah.api.setting.types.SliderSetting
-import god.allah.api.utils.TimeHelper
+import god.allah.api.helper.TimeHelper
 import god.allah.api.utils.getRotation
 import god.allah.api.utils.randomGaussian
 import god.allah.api.utils.rayCastedEntity
@@ -22,9 +21,10 @@ import net.minecraft.entity.SharedMonsterAttributes
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.init.MobEffects
 import net.minecraft.util.EnumHand
+import net.minecraft.util.math.RayTraceResult
 import org.lwjgl.input.Keyboard
 
-@ModuleInfo("KillAura", Category.COMBAT, defaultKey = Keyboard.KEY_R)
+@Module.Info("KillAura", Category.COMBAT, defaultKey = Keyboard.KEY_R)
 class KillAura : Module() {
 
     @Value("Range")
@@ -82,7 +82,15 @@ class KillAura : Module() {
             is RotationEvent -> {
                 if (target != null && mc.inGameHasFocus) {
                     if (mc.objectMouseOver.entityHit == null || player.getDistance(target) > 0.5 || !noNearRotate.value) {
-                        val rotation = getRotation(player, target!!, yaw, pitch, bestVector.value, mouseSensitivity.value, heuristics.value)
+                        val rotation = getRotation(
+                            player,
+                            target!!,
+                            yaw,
+                            pitch,
+                            bestVector.value,
+                            mouseSensitivity.value,
+                            heuristics.value
+                        )
                         event.yaw = rotation[0]
                         event.pitch = rotation[1]
                         yaw = rotation[0]
@@ -91,10 +99,10 @@ class KillAura : Module() {
                         event.yaw = yaw
                         event.pitch = pitch
                     }
-                } else if(target == null) {
+                } else if (target == null) {
                     yaw = player.rotationYaw
                     pitch = player.rotationPitch
-                } else if(!mc.inGameHasFocus) {
+                } else if (!mc.inGameHasFocus) {
                     event.yaw = yaw
                     event.pitch = pitch
                 }
@@ -119,17 +127,23 @@ class KillAura : Module() {
             is AttackEvent -> {
                 if (target != null && !player.isHandActive) {
                     if (rayCast.value) {
-                        target = rayCastedEntity(range.value, yaw, pitch, 1F)
+                        target = rayCastedEntity(range.value, RotationHandler.yaw, RotationHandler.pitch, 1F)
                     }
 
-                    if (mc.objectMouseOver.entityHit != null)
-                        target = mc.objectMouseOver.entityHit
+                    if (rayCast.value)
+                        if (mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit == RayTraceResult.Type.ENTITY && mc.objectMouseOver.entityHit != null)
+                            target = mc.objectMouseOver.entityHit
 
-                    sendMessage("$target -> ${mc.objectMouseOver.entityHit}")
-
-                    if (isValid(target))
-                        if (isReady())
+                    if (target != null) {
+                        if (isReady()) {
+                            //sendMessage("§aTargeto founded")
+                           /* if (target == null || mc.objectMouseOver.entityHit == null)
+                                sendMessage("$target -> ${mc.objectMouseOver.entityHit}")*/
                             attackEntity(target!!)
+                        }
+                    }
+                } else {
+                    //sendMessage("§cTargeto no founded")
                 }
             }
             is JumpEvent -> {
@@ -172,10 +186,13 @@ class KillAura : Module() {
 
     private fun attackEntity(target: Entity) {
         if (mc.leftClickCounter <= 0) {
+            //sendMessage("§eAttacko")
             if (!player.isRowingBoat) {
                 playerController.attackEntity(player, target)
                 player.swingArm(EnumHand.MAIN_HAND)
             }
+        } else {
+            //sendMessage("Left Click momento")
         }
     }
 
@@ -186,6 +203,7 @@ class KillAura : Module() {
         if (entity !is EntityPlayer && onlyPlayer.value) return false
         if (entity.getDistance(player) > (range.value + (if (rayCast.value) 1.5 else 0.0))) return false
         if (entity.deathTime != 0) return false
+        if (entity.isDead) return false
         if (entity.isInvisible) return false
         if (!player.canEntityBeSeen(entity) && !throughWalls.value) return false
         return true

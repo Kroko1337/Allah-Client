@@ -1,4 +1,4 @@
-package god.allah.api.utils
+package god.allah.api.helper
 
 class TimeHelper {
     private var currentMS = System.currentTimeMillis()

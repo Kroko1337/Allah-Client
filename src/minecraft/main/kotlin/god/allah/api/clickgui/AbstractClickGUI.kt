@@ -1,6 +1,6 @@
 package god.allah.api.clickgui
 
-import god.allah.main.Wrapper
+import god.allah.api.Wrapper
 
 abstract class AbstractClickGUI {
 

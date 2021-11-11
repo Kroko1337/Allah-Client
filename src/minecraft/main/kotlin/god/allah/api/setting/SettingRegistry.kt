@@ -1,9 +1,9 @@
 package god.allah.api.setting
 
+import god.allah.api.Executor
 import god.allah.api.Registry
 import god.allah.api.event.EventHandler
 import god.allah.api.executors.Module
-import god.allah.api.executors.ModuleInfo
 import org.reflections.Reflections
 import org.reflections.scanners.FieldAnnotationsScanner
 import org.reflections.scanners.MethodAnnotationsScanner
@@ -13,7 +13,7 @@ object SettingRegistry {
     private val reflection = Reflections("god.allah.modules")
 
     fun init() {
-        reflection.getTypesAnnotatedWith(ModuleInfo::class.java).forEach { clazz ->
+        reflection.getTypesAnnotatedWith(Module.Info::class.java).forEach { clazz ->
             val module = getModule(clazz.canonicalName)
             if (module != null) {
                 if (!values.containsKey(module))
@@ -37,6 +37,14 @@ object SettingRegistry {
 
     fun getSetting(name: String, module: Module) : ISetting<*>? {
         values[module]?.forEach { setting ->
+            if(setting.name.equals(name, true))
+                return setting
+        }
+        return null
+    }
+
+    fun getSetting(name: String, module: Class<out Module>) : ISetting<*>? {
+        values[Registry.getEntry(module)]?.forEach { setting ->
             if(setting.name.equals(name, true))
                 return setting
         }

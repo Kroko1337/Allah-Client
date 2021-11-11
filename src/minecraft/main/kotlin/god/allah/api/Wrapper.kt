@@ -1,7 +1,7 @@
-package god.allah.main
+package god.allah.api
 
-import god.allah.api.Registry
 import god.allah.api.executors.Module
+import god.allah.main.Main
 import net.minecraft.client.Minecraft
 import net.minecraft.client.entity.EntityPlayerSP
 import net.minecraft.client.gui.FontRenderer
@@ -14,7 +14,7 @@ object Wrapper {
 
     const val name = "Allah"
     const val version = "v1.0"
-    var coder = arrayOf("Kroko", "Felix1337")
+    var coder = arrayOf("Kroko", "Felix1337", "Aro")
 
     const val prefix = "§c$name §7>> §f"
     var commandPrefix = "."

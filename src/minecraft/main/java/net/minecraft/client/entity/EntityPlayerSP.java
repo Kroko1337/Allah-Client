@@ -9,7 +9,7 @@ import god.allah.api.executors.Command;
 import god.allah.api.helper.RotationHandler;
 import god.allah.api.helper.StringHelper;
 import god.allah.events.UpdateEvent;
-import god.allah.main.Wrapper;
+import god.allah.api.Wrapper;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.ElytraSound;

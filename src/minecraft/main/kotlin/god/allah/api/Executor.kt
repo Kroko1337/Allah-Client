@@ -1,10 +1,13 @@
 package god.allah.api
 
+import net.minecraft.block.Block
 import net.minecraft.client.Minecraft
 import net.minecraft.client.entity.EntityPlayerSP
 import net.minecraft.client.gui.FontRenderer
 import net.minecraft.client.multiplayer.PlayerControllerMP
 import net.minecraft.client.multiplayer.WorldClient
+import net.minecraft.entity.player.EntityPlayer
+import net.minecraft.init.Blocks
 import net.minecraft.network.Packet
 import net.minecraft.util.Timer
 import net.minecraft.util.text.Style
@@ -24,6 +27,18 @@ interface Executor {
     val x: Double get() = player.posX
     val y: Double get() = player.posY
     val z: Double get() = player.posZ
+
+    fun isLiquid(block: Block) : Boolean {
+        return block == Blocks.WATER || block == Blocks.FLOWING_WATER
+    }
+
+    fun getBlock(offset: Double) : Block {
+        return getBlock(player, offset)
+    }
+
+    fun getBlock(player: EntityPlayer, offset: Double) : Block {
+        return world.getBlockState(player.position.add(0.0, offset, 0.0)).block
+    }
 
     fun sendPacket(packet: Packet<*>) {
         Wrapper.sendPacket(packet)

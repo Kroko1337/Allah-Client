@@ -1,6 +1,7 @@
 package god.allah.draggable
 
 import god.allah.api.Registry
+import god.allah.api.Resolution
 import god.allah.api.Wrapper
 import god.allah.api.executors.Category
 import god.allah.api.executors.Draggable
@@ -21,10 +22,19 @@ class ArrayList : Draggable() {
             .filter { module -> module.isToggled() && module.category != Category.GUI }
             .sortedWith(Comparator.comparingInt { module -> -fr.getStringWidth(module.getDisplay(suffix)) })
             .forEach { module ->
+                var position = xPos.toFloat()
                 val name = module.getDisplay(suffix)
-                fr.drawStringWithShadow(name, xPos.toFloat(), yAxis.toFloat(), -1)
+                val leftUp = xPos >= Resolution.widthD / 2 && yPos <= Resolution.heightD / 2
                 if(calcWidth < fr.getStringWidth(name))
                     calcWidth = fr.getStringWidth(name)
+                if(leftUp) {
+                    position -= fr.getStringWidth(name)
+                    hitBoxX = xPos - calcWidth
+                } else {
+                    hitBoxX = xPos
+                }
+                println("$hitBoxX $xPos")
+                fr.drawStringWithShadow(name, position, yAxis, -1)
                 yAxis += fr.FONT_HEIGHT
             }
         width = calcWidth

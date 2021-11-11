@@ -8,7 +8,7 @@ object DraggableHandler {
     fun handleMouseInput(mouseX: Int, mouseY: Int, button: Int) {
         if (button == 0 && !hasAlreadyDragged())
             Registry.getEntries(Draggable::class.java).forEach {
-                if (mouseX >= it.xPos && mouseX <= it.xPos + it.width && mouseY >= it.yPos && mouseY <= it.yPos + it.height)
+                if (mouseX >= it.hitBoxX && mouseX <= it.hitBoxX + it.width && mouseY >= it.hitBoxY && mouseY <= it.hitBoxY + it.height)
                     it.dragged = true
             }
     }

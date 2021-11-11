@@ -40,13 +40,6 @@ fun getRotation(
     var y = target.posY + target.eyeHeight - eyeY
     var z = target.posZ - eyeZ
 
-    val minX: Double = target.boundingBox.minX - target.posX
-    val maxX: Double = target.boundingBox.maxX - target.posX
-    val minY: Double = target.boundingBox.minY - target.posY
-    val maxY: Double = target.boundingBox.maxY - target.posY
-    val minZ: Double = target.boundingBox.minZ - target.posZ
-    val maxZ: Double = target.boundingBox.maxZ - target.posZ
-
     if (bestVector) {
         val bestVec = getBestVector(player.getPositionEyes(Wrapper.mc.timer.renderPartialTicks), target.entityBoundingBox)
         x = bestVec.x - eyeX
@@ -71,11 +64,11 @@ fun getRotation(
     val sprintMultiplication = if (sprinting) 1.25f else walkingSpeed
     val sprintMultiplicationPlayer = if (sprintingPlayer) 1.25f else walkingSpeed
 
-    val xMultiplication: Float = ((target.motionX * sprintMultiplication).toFloat())
-    val zMultiplication: Float = ((target.motionZ * sprintMultiplication).toFloat())
+    val xMultiplication: Float = (((target.posX - target.prevPosX) * sprintMultiplication).toFloat())
+    val zMultiplication: Float = (((target.posZ - target.prevPosZ) * sprintMultiplication).toFloat())
 
-    val xMultiplicationPlayer = ((player.motionX * sprintMultiplicationPlayer).toFloat())
-    val zMultiplicationPlayer = ((player.motionZ * sprintMultiplicationPlayer).toFloat())
+    val xMultiplicationPlayer = (((player.posX - player.prevPosX) * sprintMultiplicationPlayer).toFloat())
+    val zMultiplicationPlayer = (((player.posZ - player.prevPosZ) * sprintMultiplicationPlayer).toFloat())
 
 
     if (xMultiplication != 0.0f && zMultiplication != 0.0f || xMultiplicationPlayer != 0.0f && zMultiplicationPlayer != 0.0f) {

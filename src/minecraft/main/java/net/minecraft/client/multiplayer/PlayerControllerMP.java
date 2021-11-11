@@ -1,5 +1,6 @@
 package net.minecraft.client.multiplayer;
 
+import god.allah.events.BlockReachEvent;
 import io.netty.buffer.Unpooled;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockCommandBlock;
@@ -363,7 +364,8 @@ public class PlayerControllerMP
      */
     public float getBlockReachDistance()
     {
-        return this.currentGameType.isCreative() ? 5.0F : 4.5F;
+        final BlockReachEvent blockReachEvent = new BlockReachEvent(this.currentGameType.isCreative() ? 5.0F : 4.5F).onFire();
+        return blockReachEvent.getRange();
     }
 
     public void updateController()

@@ -13,6 +13,9 @@ abstract class Draggable : Executor {
     var xPos: Int
     var yPos: Int
 
+    var hitBoxX: Int
+    var hitBoxY: Int
+
     var width: Int
     var height: Int
 
@@ -22,6 +25,8 @@ abstract class Draggable : Executor {
         val info = this::class.java.getAnnotation(Info::class.java)
         xPos = info.xPos
         yPos = info.yPos
+        hitBoxX = info.yPos
+        hitBoxY = info.yPos
         width = info.width
         height = info.height
         name = info.name

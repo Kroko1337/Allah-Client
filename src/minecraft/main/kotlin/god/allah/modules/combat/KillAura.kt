@@ -78,7 +78,7 @@ class KillAura : Module() {
     var target: Entity? = null
     var yaw: Float = 0F
     var pitch: Float = 0F
-    val timeHelper = TimeHelper()
+    private val timeHelper = TimeHelper()
 
     @EventInfo(priority = EventPriority.HIGH)
     override fun onEvent(event: Event) {

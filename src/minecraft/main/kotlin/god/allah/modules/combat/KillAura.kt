@@ -80,8 +80,6 @@ class KillAura : Module() {
     var pitch: Float = 0F
     val timeHelper = TimeHelper()
 
-    //TODO: A3, (maybe) Intave Check
-
     @EventInfo(priority = EventPriority.HIGH)
     override fun onEvent(event: Event) {
         when (event) {

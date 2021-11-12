@@ -1,10 +1,8 @@
 package net.minecraft.entity;
 
-import god.allah.api.helper.RotationHandler;
+import god.allah.api.helper.PlayerHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.math.MathHelper;
-
-import java.nio.charset.MalformedInputException;
 
 public class EntityBodyHelper
 {
@@ -29,7 +27,7 @@ public class EntityBodyHelper
     {
         float yaw = this.living.rotationYaw;
         if(this.living == Minecraft.getMinecraft().player)
-            yaw = RotationHandler.INSTANCE.getYaw();
+            yaw = PlayerHandler.INSTANCE.getYaw();
         double d0 = this.living.posX - this.living.prevPosX;
         double d1 = this.living.posZ - this.living.prevPosZ;
 

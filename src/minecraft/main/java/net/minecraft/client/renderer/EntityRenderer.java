@@ -17,7 +17,7 @@ import javax.annotation.Nullable;
 import javax.imageio.ImageIO;
 
 import god.allah.api.Resolution;
-import god.allah.api.helper.RotationHandler;
+import god.allah.api.helper.PlayerHandler;
 import god.allah.events.MouseOverEvent;
 import god.allah.events.RotationEvent;
 import net.minecraft.block.Block;
@@ -1163,8 +1163,8 @@ public class EntityRenderer implements IResourceManagerReloadListener {
                 this.mc.player.turn(f2, f3 * (float) i);
             }
             final RotationEvent rotationEvent = new RotationEvent(mc.player.rotationYaw, mc.player.rotationPitch).onFire();
-            RotationHandler.INSTANCE.setYaw(rotationEvent.getYaw());
-            RotationHandler.INSTANCE.setPitch(rotationEvent.getPitch());
+            PlayerHandler.INSTANCE.setYaw(rotationEvent.getYaw());
+            PlayerHandler.INSTANCE.setPitch(rotationEvent.getPitch());
         }
 
         this.mc.profiler.endSection();

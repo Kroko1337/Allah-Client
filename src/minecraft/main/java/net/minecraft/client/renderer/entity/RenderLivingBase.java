@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import java.nio.FloatBuffer;
 import java.util.List;
 
-import god.allah.api.helper.RotationHandler;
+import god.allah.api.helper.PlayerHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.model.ModelBase;
@@ -96,9 +96,9 @@ public abstract class RenderLivingBase<T extends EntityLivingBase> extends Rende
         float pitch = entity.rotationPitch;
         float prePitch = entity.prevRotationPitch;
         if(entity == Minecraft.getMinecraft().player) {
-            yaw = RotationHandler.INSTANCE.getYaw();
-            pitch = RotationHandler.INSTANCE.getPitch();
-            prePitch = RotationHandler.INSTANCE.getPrevPitch();
+            yaw = PlayerHandler.INSTANCE.getYaw();
+            pitch = PlayerHandler.INSTANCE.getPitch();
+            prePitch = PlayerHandler.INSTANCE.getPrevPitch();
         }
         if (!Reflector.RenderLivingEvent_Pre_Constructor.exists() || !Reflector.postForgeBusEvent(Reflector.RenderLivingEvent_Pre_Constructor, entity, this, partialTicks, x, y, z))
         {

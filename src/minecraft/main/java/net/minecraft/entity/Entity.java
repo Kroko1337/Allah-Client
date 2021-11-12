@@ -12,7 +12,7 @@ import java.util.Set;
 import java.util.UUID;
 import javax.annotation.Nullable;
 
-import god.allah.api.helper.RotationHandler;
+import god.allah.api.helper.PlayerHandler;
 import god.allah.events.MoveRelativeEvent;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.block.Block;
@@ -1797,9 +1797,9 @@ public abstract class Entity implements ICommandSender
         float pitch = this.rotationPitch;
         float prevPitch = this.prevRotationPitch;
         if(this == Minecraft.getMinecraft().player) {
-            yaw = RotationHandler.INSTANCE.getYaw();
-            pitch = RotationHandler.INSTANCE.getPitch();
-            prevPitch = RotationHandler.INSTANCE.getPrevPitch();
+            yaw = PlayerHandler.INSTANCE.getYaw();
+            pitch = PlayerHandler.INSTANCE.getPitch();
+            prevPitch = PlayerHandler.INSTANCE.getPrevPitch();
         }
         if (partialTicks == 1.0F)
         {

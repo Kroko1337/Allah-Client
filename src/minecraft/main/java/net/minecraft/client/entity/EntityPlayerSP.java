@@ -6,7 +6,7 @@ import javax.annotation.Nullable;
 
 import god.allah.api.Registry;
 import god.allah.api.executors.Command;
-import god.allah.api.helper.RotationHandler;
+import god.allah.api.helper.PlayerHandler;
 import god.allah.api.helper.StringHelper;
 import god.allah.events.UpdateEvent;
 import god.allah.api.Wrapper;
@@ -231,7 +231,7 @@ public class EntityPlayerSP extends AbstractClientPlayer {
      * interpolated look vector
      */
     public Vec3d getLook(float partialTicks) {
-        return this.getVectorForRotation(RotationHandler.INSTANCE.getPitch(), RotationHandler.INSTANCE.getYaw());
+        return this.getVectorForRotation(PlayerHandler.INSTANCE.getPitch(), PlayerHandler.INSTANCE.getYaw());
     }
 
     /**
@@ -261,8 +261,8 @@ public class EntityPlayerSP extends AbstractClientPlayer {
      */
     private void onUpdateWalkingPlayer() {
         boolean flag = this.isSprinting();
-        final float yaw = RotationHandler.INSTANCE.getYaw();
-        final float pitch = RotationHandler.INSTANCE.getPitch();
+        final float yaw = PlayerHandler.INSTANCE.getYaw();
+        final float pitch = PlayerHandler.INSTANCE.getPitch();
         if (flag != this.serverSprintState) {
             if (flag) {
                 this.connection.sendPacket(new CPacketEntityAction(this, CPacketEntityAction.Action.START_SPRINTING));
@@ -296,8 +296,8 @@ public class EntityPlayerSP extends AbstractClientPlayer {
             boolean flag2 = d0 * d0 + d1 * d1 + d2 * d2 > 9.0E-4D || this.positionUpdateTicks >= 20;
             boolean flag3 = d3 != 0.0D || d4 != 0.0D;
 
-            RotationHandler.INSTANCE.setYaw(yaw);
-            RotationHandler.INSTANCE.setPitch(pitch);
+            PlayerHandler.INSTANCE.setYaw(yaw);
+            PlayerHandler.INSTANCE.setPitch(pitch);
 
             if (this.isRiding()) {
                 this.connection.sendPacket(new CPacketPlayer.PositionRotation(this.motionX, -999.0D, this.motionZ, yaw, pitch, this.onGround));

@@ -1,6 +1,8 @@
 package net.minecraft.network.play.client;
 
 import java.io.IOException;
+
+import god.allah.api.helper.PlayerHandler;
 import net.minecraft.network.Packet;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.INetHandlerPlayServer;
@@ -16,6 +18,7 @@ public class CPacketHeldItemChange implements Packet<INetHandlerPlayServer>
     public CPacketHeldItemChange(int slotIdIn)
     {
         this.slotId = slotIdIn;
+        PlayerHandler.INSTANCE.setCurrentItem(slotIdIn);
     }
 
     /**

@@ -637,7 +637,7 @@ public class ItemRenderer
         this.prevEquippedProgressMainHand = this.equippedProgressMainHand;
         this.prevEquippedProgressOffHand = this.equippedProgressOffHand;
         EntityPlayerSP entityplayersp = this.mc.player;
-        ItemStack itemstack = entityplayersp.getHeldItemMainhand();
+        ItemStack itemstack = entityplayersp.inventory.getCurrentItem(false);
         ItemStack itemstack1 = entityplayersp.getHeldItemOffhand();
 
         if (entityplayersp.isRowingBoat())

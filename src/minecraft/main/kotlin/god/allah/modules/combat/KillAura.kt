@@ -5,7 +5,7 @@ import god.allah.api.event.EventInfo
 import god.allah.api.event.EventPriority
 import god.allah.api.executors.Category
 import god.allah.api.executors.Module
-import god.allah.api.helper.RotationHandler
+import god.allah.api.helper.PlayerHandler
 import god.allah.api.setting.Value
 import god.allah.api.setting.types.CheckBox
 import god.allah.api.setting.types.ComboBox
@@ -22,7 +22,6 @@ import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.init.MobEffects
 import net.minecraft.util.EnumHand
 import net.minecraft.util.math.RayTraceResult
-import org.lwjgl.input.Keyboard
 
 @Module.Info("KillAura", Category.COMBAT)
 class KillAura : Module() {
@@ -165,7 +164,7 @@ class KillAura : Module() {
             is AttackEvent -> {
                 if (target != null && !player.isHandActive) {
                     if (rayCast.value) {
-                        target = rayCastedEntity(range.value, RotationHandler.yaw, RotationHandler.pitch, 1F)
+                        target = rayCastedEntity(range.value, PlayerHandler.yaw, PlayerHandler.pitch, 1F)
                         if (mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit == RayTraceResult.Type.ENTITY && mc.objectMouseOver.entityHit != null)
                             target = mc.objectMouseOver.entityHit
                     }
@@ -189,11 +188,11 @@ class KillAura : Module() {
             }
             is JumpEvent -> {
                 if (moveFix.value)
-                    event.yaw = RotationHandler.yaw
+                    event.yaw = PlayerHandler.yaw
             }
             is MoveRelativeEvent -> {
                 if (moveFix.value)
-                    event.yaw = RotationHandler.yaw
+                    event.yaw = PlayerHandler.yaw
             }
             is MouseOverEvent -> {
                 event.range = range.value
@@ -282,7 +281,7 @@ class KillAura : Module() {
 
     override fun onDisable() {
         if (resetRotation.value)
-            resetRotation(RotationHandler.yaw, RotationHandler.pitch, resetRotationMode.value == "Silent");
+            resetRotation(PlayerHandler.yaw, PlayerHandler.pitch, resetRotationMode.value == "Silent");
     }
 
 

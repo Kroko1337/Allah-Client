@@ -43,6 +43,7 @@ import javax.imageio.ImageIO;
 import god.allah.api.Registry;
 import god.allah.api.Resolution;
 import god.allah.api.executors.Module;
+import god.allah.api.helper.PlayerHandler;
 import god.allah.events.AttackEvent;
 import god.allah.events.GuiHandleEvent;
 import god.allah.main.Main;
@@ -2453,10 +2454,11 @@ public class Minecraft implements IThreadListener, ISnooperInfo {
 
                 if (flag) {
                     inventoryplayer.setPickedItemStack(itemstack);
-                    this.playerController.sendSlotPacket(this.player.getHeldItem(EnumHand.MAIN_HAND), 36 + inventoryplayer.currentItem);
+                    this.playerController.sendSlotPacket(this.player.getHeldItem(EnumHand.MAIN_HAND), 36 + PlayerHandler.INSTANCE.getCurrentItem());
                 } else if (i != -1) {
                     if (InventoryPlayer.isHotbar(i)) {
                         inventoryplayer.currentItem = i;
+                        PlayerHandler.INSTANCE.setCurrentItem(i);
                     } else {
                         this.playerController.pickItem(i);
                     }

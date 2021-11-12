@@ -4,7 +4,7 @@ import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.mojang.authlib.GameProfile;
-import god.allah.api.helper.RotationHandler;
+import god.allah.api.helper.PlayerHandler;
 import god.allah.events.HandlePosLookEvent;
 import io.netty.buffer.Unpooled;
 import java.io.File;
@@ -22,7 +22,6 @@ import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 import java.util.Map.Entry;
-import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.block.Block;
@@ -750,8 +749,8 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient
         float entityPitch = entityplayer.rotationPitch;
 
         if(entityplayer == this.client.player) {
-            entityYaw = RotationHandler.INSTANCE.getYaw();
-            entityPitch = RotationHandler.INSTANCE.getPitch();
+            entityYaw = PlayerHandler.INSTANCE.getYaw();
+            entityPitch = PlayerHandler.INSTANCE.getPitch();
         }
 
         if (packetIn.getFlags().contains(SPacketPlayerPosLook.EnumFlags.X))
@@ -793,8 +792,8 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient
         final float yaw = f;
         final float pitch = f1;
         final HandlePosLookEvent posLookEvent = new HandlePosLookEvent(d0,d1,d2,f,f1).onFire();
-        RotationHandler.INSTANCE.setYaw(posLookEvent.getYaw());
-        RotationHandler.INSTANCE.setPitch(posLookEvent.getPitch());
+        PlayerHandler.INSTANCE.setYaw(posLookEvent.getYaw());
+        PlayerHandler.INSTANCE.setPitch(posLookEvent.getPitch());
         entityplayer.setPositionAndRotation(d0, d1, d2, f, f1);
         this.netManager.sendPacket(new CPacketConfirmTeleport(packetIn.getTeleportId()));
         this.netManager.sendPacket(new CPacketPlayer.PositionRotation(entityplayer.posX, entityplayer.getEntityBoundingBox().minY, entityplayer.posZ, yaw, pitch, false));

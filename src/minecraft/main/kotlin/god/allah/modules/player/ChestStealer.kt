@@ -17,7 +17,6 @@ import net.minecraft.init.Items
 import net.minecraft.inventory.ClickType
 import net.minecraft.inventory.ContainerChest
 import net.minecraft.item.ItemStack
-import net.minecraft.network.play.client.CPacketCloseWindow
 import java.util.*
 
 

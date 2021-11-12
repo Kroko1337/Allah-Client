@@ -23,3 +23,12 @@ fun getHotBarSlot(item: Item) : Int {
     }
     return -1
 }
+
+fun findItem(item: Item, inventory: IInventory) : Int {
+    for(i in 0 ..inventory.sizeInventory) {
+        val stack: ItemStack? = inventory.getStackInSlot(i)
+        if(stack != null && stack.item == item)
+            return i
+    }
+    return -1
+}

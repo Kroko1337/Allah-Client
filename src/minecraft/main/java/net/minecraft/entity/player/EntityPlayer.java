@@ -10,6 +10,7 @@ import java.util.UUID;
 import javax.annotation.Nullable;
 
 import god.allah.events.KnockBackModifierEvent;
+import god.allah.events.NoClipEvent;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockBed;
 import net.minecraft.block.BlockHorizontal;
@@ -280,7 +281,8 @@ public abstract class EntityPlayer extends EntityLivingBase {
      * Called to update the entity's position/logic.
      */
     public void onUpdate() {
-        this.noClip = this.isSpectator();
+        final NoClipEvent noClipEvent = new NoClipEvent(this.isSpectator()).onFire();
+        this.noClip = noClipEvent.getNoClip();
 
         if (this.isSpectator()) {
             this.onGround = false;

@@ -11,10 +11,10 @@ import org.lwjgl.input.Keyboard;
 
 public class KeyBinding implements Comparable<KeyBinding>
 {
-    private static final Map<String, KeyBinding> KEYBIND_ARRAY = Maps.<String, KeyBinding>newHashMap();
-    private static final IntHashMap<KeyBinding> HASH = new IntHashMap<KeyBinding>();
-    private static final Set<String> KEYBIND_SET = Sets.<String>newHashSet();
-    private static final Map<String, Integer> CATEGORY_ORDER = Maps.<String, Integer>newHashMap();
+    public static final Map<String, KeyBinding> KEYBIND_ARRAY = Maps.<String, KeyBinding>newHashMap();
+    public static final IntHashMap<KeyBinding> HASH = new IntHashMap<KeyBinding>();
+    public static final Set<String> KEYBIND_SET = Sets.<String>newHashSet();
+    public static final Map<String, Integer> CATEGORY_ORDER = Maps.<String, Integer>newHashMap();
     private final String keyDescription;
     private final int keyCodeDefault;
     private final String keyCategory;

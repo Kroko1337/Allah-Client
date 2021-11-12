@@ -103,7 +103,7 @@ public abstract class Entity implements ICommandSender
     public boolean preventEntitySpawning;
     private final List<Entity> riddenByEntities;
     protected int rideCooldown;
-    private Entity ridingEntity;
+    public Entity ridingEntity;
 
     /**
      * If true, forces the World to spawn the entity and send it to clients even if the Chunk it is located in has not

@@ -9,6 +9,7 @@ import god.allah.api.executors.Module
 import god.allah.api.utils.getRainbow
 import god.allah.api.setting.SettingRegistry
 import god.allah.modules.gui.HUD
+import net.minecraft.client.gui.Gui
 import kotlin.math.abs
 import kotlin.math.max
 
@@ -40,7 +41,6 @@ class ArrayList : Draggable() {
                 } else {
                     hitBoxX = xPos
                 }
-
                 fr.drawStringWithShadow(name, position, yAxis, -1)
                 if (down)
                     yAxis -= fr.FONT_HEIGHT
@@ -48,10 +48,10 @@ class ArrayList : Draggable() {
                     yAxis += fr.FONT_HEIGHT
             }
         width = calcWidth
-        if(yAxis < yPos) {
-            hitBoxY = abs(yAxis.toInt() + fr.FONT_HEIGHT)
+        hitBoxY = if(yAxis < yPos) {
+            abs(yAxis.toInt() + fr.FONT_HEIGHT)
         } else {
-            hitBoxY = yPos
+            yPos
         }
 
         height = abs(yAxis.toInt() - yPos)

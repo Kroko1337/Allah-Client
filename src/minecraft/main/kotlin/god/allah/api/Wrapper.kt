@@ -43,4 +43,8 @@ object Wrapper {
             text.style = style
         player.sendStatusMessage(text, actionBar)
     }
+
+    fun isDeveloperMode() : Boolean {
+        return System.getProperty("java.class.path").contains("idea_rt.jar")
+    }
 }

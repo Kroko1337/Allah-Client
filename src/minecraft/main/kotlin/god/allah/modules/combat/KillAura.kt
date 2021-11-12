@@ -57,7 +57,7 @@ class KillAura : Module() {
     @Value("BestVector")
     private var bestVector = CheckBox(true)
 
-    @Value("MouseSensitivity")
+    @Value("Mouse Sensitivity")
     private var mouseSensitivity = CheckBox(true)
 
     @Value("RayCast")

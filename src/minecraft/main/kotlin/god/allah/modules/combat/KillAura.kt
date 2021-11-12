@@ -31,7 +31,10 @@ class KillAura : Module() {
     private var range = SliderSetting(3.0, 1.0, 6.0)
 
     @Value("Target Mode")
-    private var targetMode = ComboBox("Single", arrayOf("Single", "Switch", "Hybrid"))
+    private var targetMode = ComboBox("Hybrid", arrayOf("Single", "Switch", "Hybrid"))
+
+    @Value("Hybrid Mode")
+    private var hybridMode = ComboBox("Nearest", arrayOf("Nearest", "Health"))
 
     @Value("Perfect Hit")
     private var perfectHit = CheckBox(true)
@@ -78,6 +81,7 @@ class KillAura : Module() {
     var target: Entity? = null
     var yaw: Float = 0F
     var pitch: Float = 0F
+    var currentTarget = 0
     private val timeHelper = TimeHelper()
 
     @EventInfo(priority = EventPriority.HIGH)
@@ -85,7 +89,10 @@ class KillAura : Module() {
         when (event) {
             is RotationEvent -> {
                 if (target != null && mc.inGameHasFocus) {
-                    if ((mc.objectMouseOver != null && mc.objectMouseOver.entityHit == null) || player.getDistance(target) > 0.5 || !noNearRotate.value) {
+                    if ((mc.objectMouseOver != null && mc.objectMouseOver.entityHit == null) || player.getDistance(
+                            target
+                        ) > 0.5 || !noNearRotate.value
+                    ) {
                         val rotation = getRotation(
                             player,
                             target!!,
@@ -135,6 +142,23 @@ class KillAura : Module() {
                                     break
                                 }
                             }
+                    }
+                    "Switch" -> {
+                        val list = world.loadedEntityList.filter { entity -> isValid(entity) }
+                        if (currentTarget >= list.size)
+                            currentTarget = 0
+                        if (list.isNotEmpty())
+                            target = list[currentTarget]
+                    }
+                    "Hybrid" -> {
+                        when (hybridMode.value) {
+                            "Nearest" -> {
+                                target = getNearestEntity()
+                            }
+                            "Health" -> {
+                                target = getLowestEntity()
+                            }
+                        }
                     }
                 }
             }
@@ -207,10 +231,33 @@ class KillAura : Module() {
             if (!player.isRowingBoat) {
                 playerController.attackEntity(player, target)
                 player.swingArm(EnumHand.MAIN_HAND)
+                currentTarget++
             }
         } else {
             //sendMessage("Left Click momento")
         }
+    }
+
+    private fun getNearestEntity(): Entity? {
+        var target: Entity? = null
+        world.loadedEntityList.filter { entity -> isValid(entity) }.forEach { entity ->
+            if (target == null || target!!.getDistance(player) > entity.getDistance(player))
+                target = entity
+        }
+        return target
+    }
+
+    private fun getLowestEntity(): Entity? {
+        var target: EntityLivingBase? = null
+        world.loadedEntityList.filter { entity -> isValid(entity) && entity is EntityLivingBase }.forEach { entity ->
+            when (entity) {
+                is EntityLivingBase -> {
+                    if (target == null || target!!.health > entity.health)
+                        target = entity
+                }
+            }
+        }
+        return target!!
     }
 
     private fun isValid(entity: Entity?): Boolean {
@@ -230,6 +277,7 @@ class KillAura : Module() {
         yaw = player.rotationYaw
         pitch = player.rotationPitch
         target = null
+        currentTarget = 0
     }
 
     override fun onDisable() {

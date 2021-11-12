@@ -37,6 +37,4 @@ class ModuleRendering(var mod: Module) : AbstractClickGUI() {
         }
 
     }
-
-
 }

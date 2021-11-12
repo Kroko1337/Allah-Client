@@ -19,6 +19,7 @@ import javax.imageio.ImageIO;
 import god.allah.api.Resolution;
 import god.allah.api.helper.PlayerHandler;
 import god.allah.events.MouseOverEvent;
+import god.allah.events.Render3DEvent;
 import god.allah.events.RotationEvent;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockBed;
@@ -1667,6 +1668,7 @@ public class EntityRenderer implements IResourceManagerReloadListener {
         }
 
         this.mc.profiler.endStartSection("hand");
+        new Render3DEvent(partialTicks).onFire();
 
         if (this.renderHand && !Shaders.isShadowPass) {
             if (flag) {

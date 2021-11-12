@@ -40,8 +40,7 @@ class HUD : Module() {
 
                 for(i in 0 ..Wrapper.name.length) {
                     val char = Wrapper.name.substring(max(i - 1, 0), i)
-                    fr.drawStringWithShadow(char,
-                        event.resolution.width / 2F - fr.getStringWidth(Wrapper.name) / 2F + fr.getStringWidth(Wrapper.name.substring(0, max(i - 1, 0))), fr.FONT_HEIGHT.toFloat(), getRainbow(i * 200, 4600, saturation = 0.7F))
+                    fr.drawStringWithShadow(char, event.resolution.width / 2F - fr.getStringWidth(Wrapper.name) / 2F + fr.getStringWidth(Wrapper.name.substring(0, max(i - 1, 0))), fr.FONT_HEIGHT.toFloat(), getRainbow(i * 200, 4600, saturation = 0.7F))
                 }
             }
         }

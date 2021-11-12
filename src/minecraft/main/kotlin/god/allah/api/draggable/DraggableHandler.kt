@@ -17,7 +17,6 @@ object DraggableHandler {
                     it.dragged = true
                     dragX = it.xPos.toDouble() - mouseX
                     dragY = it.yPos.toDouble() - mouseY
-                    println("Upadte")
                 }
             }
     }
@@ -33,8 +32,6 @@ object DraggableHandler {
         Registry.getEntries(Draggable::class.java).filter { it.dragged }.forEach {
             val nextPosX = (mouseX + dragX).toInt()
             val nextPosY = (mouseY + dragY).toInt()
-
-            println("$nextPosY -> ${Resolution.height}")
 
             it.xPos = MathHelper.clamp(nextPosX, 0, Resolution.width)
             it.yPos = MathHelper.clamp(nextPosY, 0, Resolution.height)

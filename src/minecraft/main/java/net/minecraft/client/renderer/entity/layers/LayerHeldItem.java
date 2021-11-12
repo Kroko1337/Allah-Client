@@ -1,6 +1,8 @@
 package net.minecraft.client.renderer.entity.layers;
 
+import god.allah.api.helper.PlayerHandler;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
@@ -22,7 +24,7 @@ public class LayerHeldItem implements LayerRenderer<EntityLivingBase>
     {
         boolean flag = entitylivingbaseIn.getPrimaryHand() == EnumHandSide.RIGHT;
         ItemStack itemstack = flag ? entitylivingbaseIn.getHeldItemOffhand() : entitylivingbaseIn.getHeldItemMainhand();
-        ItemStack itemstack1 = flag ? entitylivingbaseIn.getHeldItemMainhand() : entitylivingbaseIn.getHeldItemOffhand();
+        ItemStack itemstack1 = flag ? entitylivingbaseIn == Minecraft.getMinecraft().player ? Minecraft.getMinecraft().player.inventory.getCurrentItem(false) : entitylivingbaseIn.getHeldItemMainhand() : entitylivingbaseIn.getHeldItemOffhand();
 
         if (!itemstack.isEmpty() || !itemstack1.isEmpty())
         {

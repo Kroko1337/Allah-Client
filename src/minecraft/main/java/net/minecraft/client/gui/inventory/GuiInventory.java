@@ -1,6 +1,8 @@
 package net.minecraft.client.gui.inventory;
 
 import java.io.IOException;
+
+import god.allah.api.helper.PlayerHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiButtonImage;
@@ -135,6 +137,11 @@ public class GuiInventory extends InventoryEffectRenderer implements IRecipeShow
         float f2 = ent.rotationPitch;
         float f3 = ent.prevRotationYawHead;
         float f4 = ent.rotationYawHead;
+
+        final float beforeYaw = PlayerHandler.INSTANCE.getYaw();
+        final float beforePitch = PlayerHandler.INSTANCE.getPitch();
+        final float beforePrevPitch = PlayerHandler.INSTANCE.getPrevPitch();
+
         GlStateManager.rotate(135.0F, 0.0F, 1.0F, 0.0F);
         RenderHelper.enableStandardItemLighting();
         GlStateManager.rotate(-135.0F, 0.0F, 1.0F, 0.0F);
@@ -144,6 +151,11 @@ public class GuiInventory extends InventoryEffectRenderer implements IRecipeShow
         ent.rotationPitch = -((float)Math.atan((double)(mouseY / 40.0F))) * 20.0F;
         ent.rotationYawHead = ent.rotationYaw;
         ent.prevRotationYawHead = ent.rotationYaw;
+        if(ent == Minecraft.getMinecraft().player) {
+            PlayerHandler.INSTANCE.setYaw(ent.rotationYawHead);
+            PlayerHandler.INSTANCE.setPitch(ent.rotationPitch);
+            PlayerHandler.INSTANCE.setPrevPitch(ent.prevRotationPitch);
+        }
         GlStateManager.translate(0.0F, 0.0F, 0.0F);
         RenderManager rendermanager = Minecraft.getMinecraft().getRenderManager();
         rendermanager.setPlayerViewY(180.0F);
@@ -155,6 +167,13 @@ public class GuiInventory extends InventoryEffectRenderer implements IRecipeShow
         ent.rotationPitch = f2;
         ent.prevRotationYawHead = f3;
         ent.rotationYawHead = f4;
+
+        if(ent == Minecraft.getMinecraft().player) {
+            PlayerHandler.INSTANCE.setYaw(beforeYaw);
+            PlayerHandler.INSTANCE.setPitch(beforePitch);
+            PlayerHandler.INSTANCE.setPrevPitch(beforePrevPitch);
+        }
+
         GlStateManager.popMatrix();
         RenderHelper.disableStandardItemLighting();
         GlStateManager.disableRescaleNormal();

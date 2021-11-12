@@ -8,6 +8,7 @@ import god.allah.api.Registry;
 import god.allah.api.executors.Command;
 import god.allah.api.helper.PlayerHandler;
 import god.allah.api.helper.StringHelper;
+import god.allah.events.SlowdownEvent;
 import god.allah.events.UpdateEvent;
 import god.allah.api.Wrapper;
 import net.minecraft.block.state.IBlockState;
@@ -855,8 +856,9 @@ public class EntityPlayerSP extends AbstractClientPlayer {
         this.mc.getTutorial().handleMovement(this.movementInput);
 
         if (this.isHandActive() && !this.isRiding()) {
-            this.movementInput.moveStrafe *= 0.2F;
-            this.movementInput.moveForward *= 0.2F;
+            final SlowdownEvent slowdownEvent = new SlowdownEvent(0.2F).onFire();
+            this.movementInput.moveStrafe *= slowdownEvent.getSlowdown();
+            this.movementInput.moveForward *= slowdownEvent.getSlowdown();
             this.sprintToggleTimer = 0;
         }
 

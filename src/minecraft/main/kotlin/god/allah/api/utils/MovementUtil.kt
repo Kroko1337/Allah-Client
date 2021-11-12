@@ -4,7 +4,9 @@ import god.allah.api.Wrapper.mc
 import god.allah.api.Wrapper.player
 import god.allah.api.Wrapper.sendPacket
 import net.minecraft.entity.Entity
+import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.network.play.client.CPacketPlayer
+import net.minecraft.util.math.MathHelper
 import org.lwjgl.input.Keyboard
 import kotlin.math.cos
 import kotlin.math.sin
@@ -24,6 +26,13 @@ fun setSpeed(speed: Double, yaw: Float = player.rotationYaw, direction: Boolean 
     if (keyboardPressed() || !onlyWhenPress) {
         player.motionX = -sin(Math.toRadians((if (direction) getDirection(yaw, repeat) else yaw).toDouble())) * speed
         player.motionZ = cos(Math.toRadians((if (direction) getDirection(yaw, repeat) else yaw).toDouble())) * speed
+    }
+}
+
+fun addSpeed(speed: Double, yaw: Float = player.rotationYaw, direction: Boolean = true, repeat: Boolean = false, onlyWhenPress: Boolean = true, entity: EntityPlayer = player) {
+    if(keyboardPressed() || !onlyWhenPress) {
+        entity.motionX -= MathHelper.sin(Math.toRadians((if(direction) getDirection(yaw, repeat) else yaw).toDouble()).toFloat()) * speed
+        entity.motionZ += MathHelper.cos(Math.toRadians((if(direction) getDirection(yaw, repeat) else yaw).toDouble()).toFloat()) * speed
     }
 }
 

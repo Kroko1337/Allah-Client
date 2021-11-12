@@ -74,6 +74,9 @@ class KillAura : Module() {
     @Value("Reset Rotation")
     private var resetRotation = CheckBox(true)
 
+    @Value("No Timer Attack")
+    private var noTimerAttack = CheckBox(true)
+
     @Value("Reset Rotation-Mode", "Mode")
     private var resetRotationMode = ComboBox("Silent", arrayOf("Silent", "Visible"))
 
@@ -225,16 +228,17 @@ class KillAura : Module() {
     }
 
     private fun attackEntity(target: Entity) {
-        if (mc.leftClickCounter <= 0) {
-            //sendMessage("§eAttacko")
-            if (!player.isRowingBoat) {
-                playerController.attackEntity(player, target)
-                player.swingArm(EnumHand.MAIN_HAND)
-                currentTarget++
+        if (timer.timerSpeed == 1.0F || !noTimerAttack.value)
+            if (mc.leftClickCounter <= 0) {
+                //sendMessage("§eAttacko")
+                if (!player.isRowingBoat) {
+                    playerController.attackEntity(player, target)
+                    player.swingArm(EnumHand.MAIN_HAND)
+                    currentTarget++
+                }
+            } else {
+                //sendMessage("Left Click momento")
             }
-        } else {
-            //sendMessage("Left Click momento")
-        }
     }
 
     private fun getNearestEntity(): Entity? {

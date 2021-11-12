@@ -53,4 +53,8 @@ public class Timer
         this.tickLength = 1000f / (20 * timerSpeed);
     }
 
+    public float getTimerSpeed() {
+        return 1000F / tickLength / 20;
+    }
+
 }

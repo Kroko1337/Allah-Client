@@ -8,32 +8,24 @@ import god.allah.api.executors.Module
 import god.allah.api.helper.TimeHelper
 import god.allah.events.UpdateEvent
 import net.minecraft.enchantment.EnchantmentHelper
+import net.minecraft.item.ItemSword
 import net.minecraft.network.play.client.CPacketHeldItemChange
+import net.minecraft.src.Reflector
+import net.minecraft.util.EnumHand
 import kotlin.math.roundToLong
 import kotlin.random.Random
 
 @Module.Info("NoSlowDown", Category.MOVEMENT)
 class NoSlowDown : Module() {
 
-    private val timeHelper = TimeHelper()
-
     @EventInfo(priority = EventPriority.LOW)
     override fun onEvent(event: Event) {
         when (event) {
             is UpdateEvent -> {
-                var f = 0.25f + EnchantmentHelper.getEfficiencyModifier(player).toFloat() * 0.05f
-
-                f += 0.75f
-
-                if (timeHelper.hasReached((1000.0 / 12).roundToLong())) {
+                if (player.getHeldItem(EnumHand.MAIN_HAND).item is ItemSword) {
                     sendPacket(CPacketHeldItemChange())
-                    player.resetCooldown()
-                    player.resetActiveHand()
-                    timeHelper.reset()
-                }
-
-                if (Random.nextFloat() < f) {
-                    world.setEntityState(player, 30.toByte())
+                    player.movementInput.moveForward *= 0.4f
+                    player.movementInput.moveStrafe *= 0.4f
                 }
             }
         }

@@ -672,6 +672,8 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient
         if (InventoryPlayer.isHotbar(packetIn.getHeldItemHotbarIndex()))
         {
             this.client.player.inventory.currentItem = packetIn.getHeldItemHotbarIndex();
+            if(this.client.player == Minecraft.getMinecraft().player)
+                PlayerHandler.INSTANCE.setCurrentItem(packetIn.getHeldItemHotbarIndex());
         }
     }
 

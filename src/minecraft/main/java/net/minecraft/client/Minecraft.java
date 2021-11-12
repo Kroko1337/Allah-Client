@@ -46,6 +46,7 @@ import god.allah.api.executors.Module;
 import god.allah.api.helper.PlayerHandler;
 import god.allah.events.AttackEvent;
 import god.allah.events.GuiHandleEvent;
+import god.allah.events.SyncItemEvent;
 import god.allah.main.Main;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -1996,6 +1997,9 @@ public class Minecraft implements IThreadListener, ISnooperInfo {
                     this.ingameGUI.getSpectatorGui().onHotbarSelected(i);
                 } else if (!this.player.isCreative() || this.currentScreen != null || !flag1 && !flag) {
                     this.player.inventory.currentItem = i;
+                    final SyncItemEvent syncItemEvent = new SyncItemEvent().onFire();
+                    if(!syncItemEvent.getCanceled())
+                        PlayerHandler.INSTANCE.setCurrentItem(i);
                 } else {
                     GuiContainerCreative.handleHotbarSnapshots(this, i, flag1, flag);
                 }

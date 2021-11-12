@@ -6,6 +6,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import god.allah.api.helper.PlayerHandler;
+import god.allah.events.SyncItemEvent;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.util.RecipeItemHelper;
@@ -196,6 +197,13 @@ public class InventoryPlayer implements IInventory {
         if (direction < 0) {
             direction = -1;
         }
+
+        final SyncItemEvent syncItemEvent = new SyncItemEvent().onFire();
+
+        if (!syncItemEvent.getCanceled())
+            for (PlayerHandler.INSTANCE.setCurrentItem(PlayerHandler.INSTANCE.getCurrentItem() - direction); PlayerHandler.INSTANCE.getCurrentItem() < 0; PlayerHandler.INSTANCE.setCurrentItem(PlayerHandler.INSTANCE.getCurrentItem() + 9)) {
+                ;
+            }
 
         for (this.currentItem -= direction; this.currentItem < 0; this.currentItem += 9) {
             ;

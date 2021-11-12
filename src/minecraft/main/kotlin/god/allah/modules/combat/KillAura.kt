@@ -256,7 +256,7 @@ class KillAura : Module() {
                 }
             }
         }
-        return target!!
+        return target
     }
 
     private fun isValid(entity: Entity?): Boolean {

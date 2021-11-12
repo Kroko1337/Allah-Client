@@ -24,7 +24,7 @@ import net.minecraft.util.EnumHand
 import net.minecraft.util.math.RayTraceResult
 import org.lwjgl.input.Keyboard
 
-@Module.Info("KillAura", Category.COMBAT, defaultKey = Keyboard.KEY_R)
+@Module.Info("KillAura", Category.COMBAT)
 class KillAura : Module() {
 
     @Value("Range")
@@ -85,7 +85,7 @@ class KillAura : Module() {
         when (event) {
             is RotationEvent -> {
                 if (target != null && mc.inGameHasFocus) {
-                    if (mc.objectMouseOver.entityHit == null || player.getDistance(target) > 0.5 || !noNearRotate.value) {
+                    if ((mc.objectMouseOver != null && mc.objectMouseOver.entityHit == null) || player.getDistance(target) > 0.5 || !noNearRotate.value) {
                         val rotation = getRotation(
                             player,
                             target!!,
@@ -100,8 +100,18 @@ class KillAura : Module() {
                         yaw = rotation[0]
                         pitch = rotation[1]
                     } else {
-                        event.yaw = yaw
+                        val rotation = getRotation(
+                            player,
+                            target!!,
+                            yaw,
+                            pitch,
+                            bestVector.value,
+                            mouseSensitivity.value,
+                            heuristics.value
+                        )
+                        event.yaw = rotation[0]
                         event.pitch = pitch
+                        yaw = rotation[0]
                     }
                 } else if (!mc.inGameHasFocus) {
                     event.yaw = yaw
@@ -132,11 +142,9 @@ class KillAura : Module() {
                 if (target != null && !player.isHandActive) {
                     if (rayCast.value) {
                         target = rayCastedEntity(range.value, RotationHandler.yaw, RotationHandler.pitch, 1F)
-                    }
-
-                    if (rayCast.value)
                         if (mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit == RayTraceResult.Type.ENTITY && mc.objectMouseOver.entityHit != null)
                             target = mc.objectMouseOver.entityHit
+                    }
 
                     if (target != null) {
                         if (isReady()) {

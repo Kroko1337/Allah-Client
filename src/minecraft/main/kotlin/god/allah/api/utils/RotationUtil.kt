@@ -3,7 +3,6 @@ package god.allah.api.utils
 import com.google.common.base.Predicate
 import com.google.common.base.Predicates
 import god.allah.api.Wrapper
-import net.minecraft.client.Minecraft
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
 import net.minecraft.entity.item.EntityItemFrame
@@ -121,24 +120,23 @@ private fun updateRotation(p_75652_1_: Float, p_75652_2_: Float, p_75652_3_: Flo
 }
 
 fun rayCastedEntity(range: Double, yaw: Float, pitch: Float, partialTicks: Float): Entity? {
-    val mc = Minecraft.getMinecraft()
     var range = range
-    val entity: Entity? = mc.renderViewEntity
+    val entity: Entity? = Wrapper.mc.renderViewEntity
     var pointedEntity: Entity? = null
-    if (entity != null && mc.world != null) {
-        var mouseOver = entity.rayTrace(range, partialTicks)
-        val vec3 = entity.getPositionEyes(1f)
+    if (entity != null && Wrapper.mc.world != null) {
+        var mouseOver: RayTraceResult? = entity.rayTrace(range, partialTicks)
+        val vec3: Vec3d = entity.getPositionEyes(1f)
         val flag = false
         var d1 = range
         if (mouseOver != null) {
             d1 = mouseOver.hitVec.distanceTo(vec3)
         }
-        val vec31 = getLook(entity, yaw, pitch, partialTicks)
-        val vec32 = vec3.add(vec31.x * range, vec31.y * range, vec31.z * range)
+        val vec31: Vec3d = getLook(Wrapper.mc.player, yaw, pitch, partialTicks)
+        val vec32: Vec3d = vec3.add(vec31.x * range, vec31.y * range, vec31.z * range)
         pointedEntity = null
         var vec33: Vec3d? = null
         val f = 1.0f
-        val list: List<*> = mc.world.getEntitiesInAABBexcluding(
+        val list: List<*> = Wrapper.mc.world.getEntitiesInAABBexcluding(
             entity,
             entity.entityBoundingBox.expand(vec31.x * range, vec31.y * range, vec31.z * range).expand(
                 f.toDouble(), f.toDouble(), f.toDouble()
@@ -154,7 +152,7 @@ fun rayCastedEntity(range: Double, yaw: Float, pitch: Float, partialTicks: Float
                 f1.toDouble(), f1.toDouble(),
                 f1.toDouble()
             )
-            val movingobjectposition = axisalignedbb.calculateIntercept(vec3, vec32)
+            val movingobjectposition: RayTraceResult? = axisalignedbb.calculateIntercept(vec3, vec32)
             if (axisalignedbb.contains(vec3)) {
                 if (range >= 0.0) {
                     pointedEntity = entity1
@@ -190,7 +188,7 @@ fun rayCastedEntity(range: Double, yaw: Float, pitch: Float, partialTicks: Float
                 BlockPos(vec33)
             )
         }
-        if (pointedEntity != null && (d2 < d1 || mc.objectMouseOver == null)) {
+        if (pointedEntity != null && (d2 < d1 || Wrapper.mc.objectMouseOver == null)) {
             mouseOver = RayTraceResult(pointedEntity, vec33)
             if (pointedEntity is EntityLivingBase || pointedEntity is EntityItemFrame) {
                 return pointedEntity

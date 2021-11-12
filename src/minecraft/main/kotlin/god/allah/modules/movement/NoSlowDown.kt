@@ -25,7 +25,7 @@ class NoSlowDown : Module() {
     @Value("Spoof Mode")
     var spoofMode = ComboBox("None", arrayOf("None", "Intave13", "AAC4"))
 
-    @EventInfo(priority = EventPriority.LOW)
+    @EventInfo(priority = EventPriority.HIGH)
     override fun onEvent(event: Event) {
         when (event) {
             is SlowdownEvent -> {

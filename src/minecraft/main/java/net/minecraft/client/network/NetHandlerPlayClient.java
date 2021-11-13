@@ -796,7 +796,7 @@ public class NetHandlerPlayClient implements INetHandlerPlayClient
         final HandlePosLookEvent posLookEvent = new HandlePosLookEvent(d0,d1,d2,f,f1).onFire();
         PlayerHandler.INSTANCE.setYaw(posLookEvent.getYaw());
         PlayerHandler.INSTANCE.setPitch(posLookEvent.getPitch());
-        entityplayer.setPositionAndRotation(d0, d1, d2, f, f1);
+        entityplayer.setPositionAndRotation(posLookEvent.getX(), posLookEvent.getY(), posLookEvent.getZ(), posLookEvent.getYaw(), posLookEvent.getPitch());
         this.netManager.sendPacket(new CPacketConfirmTeleport(packetIn.getTeleportId()));
         this.netManager.sendPacket(new CPacketPlayer.PositionRotation(entityplayer.posX, entityplayer.getEntityBoundingBox().minY, entityplayer.posZ, yaw, pitch, false));
 

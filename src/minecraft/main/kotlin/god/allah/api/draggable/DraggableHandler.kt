@@ -16,7 +16,7 @@ object DraggableHandler {
     fun handleMouseInput(mouseX: Int, mouseY: Int, button: Int) {
         if (button == 0 && !hasAlreadyDragged())
             Registry.getEntries(Draggable::class.java).forEach {
-                if (mouseX >= it.hitBoxX && mouseX <= it.hitBoxX + it.width && mouseY >= it.hitBoxY && mouseY <= it.hitBoxY + it.height) {
+                if (it.isVisible() && mouseX >= it.hitBoxX && mouseX <= it.hitBoxX + it.width && mouseY >= it.hitBoxY && mouseY <= it.hitBoxY + it.height) {
                     it.dragged = true
                     dragX = it.xPos.toDouble() - mouseX
                     dragY = it.yPos.toDouble() - mouseY
@@ -33,32 +33,34 @@ object DraggableHandler {
 
     fun onUpdate(mouseX: Int, mouseY: Int) {
         Registry.getEntries(Draggable::class.java).filter { it.dragged }.forEach {
-            val distanceX = (it.hitBoxX.toDouble() - it.xPos)
-            val distanceY = (it.hitBoxY.toDouble() - it.yPos)
+            if (it.isVisible()) {
+                val distanceX = (it.hitBoxX.toDouble() - it.xPos)
+                val distanceY = (it.hitBoxY.toDouble() - it.yPos)
 
-            if(lastDistanceX > distanceX)
-                dragX -= distanceX
-            else if(lastDistanceX < distanceX)
-                dragX += lastDistanceX
-            if(lastDistanceY > distanceY)
-                dragY -= distanceY
-            else if(lastDistanceY < distanceY)
-                dragY += lastDistanceY
+                if (lastDistanceX > distanceX)
+                    dragX -= distanceX
+                else if (lastDistanceX < distanceX)
+                    dragX += lastDistanceX
+                if (lastDistanceY > distanceY)
+                    dragY -= distanceY
+                else if (lastDistanceY < distanceY)
+                    dragY += lastDistanceY
 
-            val nextPosX = (mouseX + dragX).toInt()
-            val nextPosY = (mouseY + dragY).toInt()
+                val nextPosX = (mouseX + dragX).toInt()
+                val nextPosY = (mouseY + dragY).toInt()
 
-            it.xPos = MathHelper.clamp(nextPosX, 0, Resolution.width)
-            it.yPos = MathHelper.clamp(nextPosY, 0, Resolution.height)
-            it.hitBoxX = it.xPos
-            it.hitBoxY = it.yPos
+                it.xPos = MathHelper.clamp(nextPosX, 0, Resolution.width)
+                it.yPos = MathHelper.clamp(nextPosY, 0, Resolution.height)
+                it.hitBoxX = it.xPos
+                it.hitBoxY = it.yPos
 
-            lastDistanceX = distanceX
-            lastDistanceY = distanceY
+                lastDistanceX = distanceX
+                lastDistanceY = distanceY
+            }
         }
     }
 
-    private fun hasAlreadyDragged() : Boolean {
+    private fun hasAlreadyDragged(): Boolean {
         return Registry.getEntries(Draggable::class.java).any { it.dragged }
     }
 

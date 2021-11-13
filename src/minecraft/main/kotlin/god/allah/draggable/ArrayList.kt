@@ -10,11 +10,16 @@ import god.allah.api.utils.getRainbow
 import god.allah.api.setting.SettingRegistry
 import god.allah.modules.gui.HUD
 import net.minecraft.client.gui.Gui
+import kotlin.collections.ArrayList
 import kotlin.math.abs
 import kotlin.math.max
 
 @Draggable.Info("ArrayList", 3, 3)
 class ArrayList : Draggable() {
+
+    override fun isVisible(): Boolean {
+        return Registry.getEntry(HUD::class.java).isToggled()
+    }
 
     override fun draw() {
         var yAxis = yPos.toFloat()
@@ -22,9 +27,10 @@ class ArrayList : Draggable() {
 
         val right = xPos >= Resolution.widthD / 2
         val down = yPos >= Resolution.heightD / 2
-        if(down)
-            yAxis -= fr.FONT_HEIGHT
 
+
+        if (down)
+            yAxis -= fr.FONT_HEIGHT
         val suffix: Boolean = SettingRegistry.getSetting("Suffix", HUD::class.java)?.getField("Value") as Boolean
         Registry.getEntries(Module::class.java)
             .filter { module -> module.isToggled() && module.category != Category.GUI }
@@ -35,7 +41,7 @@ class ArrayList : Draggable() {
                 if (calcWidth < fr.getStringWidth(name))
                     calcWidth = fr.getStringWidth(name)
 
-                if(right) {
+                if (right) {
                     hitBoxX = xPos - calcWidth
                     position -= fr.getStringWidth(name)
                 } else {
@@ -48,7 +54,7 @@ class ArrayList : Draggable() {
                     yAxis += fr.FONT_HEIGHT
             }
         width = calcWidth
-        hitBoxY = if(yAxis < yPos) {
+        hitBoxY = if (yAxis < yPos) {
             abs(yAxis.toInt() + fr.FONT_HEIGHT)
         } else {
             yPos

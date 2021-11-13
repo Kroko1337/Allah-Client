@@ -7,7 +7,6 @@ abstract class Draggable : Executor {
     private var calcX = 0.0
     private var calcY = 0.0
 
-    var visible = true
     var dragged = false
 
     var xPos: Int
@@ -30,6 +29,10 @@ abstract class Draggable : Executor {
         width = info.width
         height = info.height
         name = info.name
+    }
+
+    open fun isVisible() : Boolean {
+        return true
     }
 
     abstract fun draw()

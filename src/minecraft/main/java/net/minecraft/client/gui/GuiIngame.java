@@ -231,7 +231,7 @@ public class GuiIngame extends Gui {
 
         new Render2DEvent(scaledresolution, partialTicks).onFire();
         if (!Registry.INSTANCE.getExecutors().isEmpty()) {
-            Registry.INSTANCE.getEntries(Draggable.class).forEach(draggable -> draggable.draw());
+            Registry.INSTANCE.getEntries(Draggable.class).stream().filter(Draggable::isVisible).forEach(Draggable::draw);
         }
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         this.mc.getTextureManager().bindTexture(ICONS);

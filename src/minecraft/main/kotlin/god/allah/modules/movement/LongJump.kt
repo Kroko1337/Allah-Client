@@ -1,6 +1,7 @@
 package god.allah.modules.movement
 
 import god.allah.api.event.Event
+import god.allah.api.event.EventInfo
 import god.allah.api.executors.Category
 import god.allah.api.executors.Module
 import god.allah.api.setting.Value
@@ -18,6 +19,7 @@ class LongJump : Module() {
     var sentinelState = 0
     var sentinelWasAir = false
 
+    @EventInfo
     override fun onEvent(event: Event) {
         when(mode.value) {
             "Sentinel" -> {

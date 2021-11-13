@@ -179,6 +179,7 @@ class Scaffold : Module() {
     }
 
     override fun onDisable() {
-
+        if(!PlayerHandler.hasAlready(player.inventory.currentItem))
+            sendPacket(CPacketHeldItemChange(player.inventory.currentItem))
     }
 }

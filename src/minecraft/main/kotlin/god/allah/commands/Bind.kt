@@ -12,7 +12,7 @@ class Bind : Command() {
                 val module = Wrapper.getModule(args[0])
                 if (module != null) {
                     module.keyBind = Keyboard.getKeyIndex(args[1].uppercase())
-                    sendMessage("§e${module.name} §abounded to §e§l${args[1].uppercase()}")
+                    sendMessage("§e${module.name} §abound to §e§l${args[1].uppercase()}")
                 } else {
                     sendMessage("§e${args[0]} §cis not a valid Module!")
                 }
@@ -24,7 +24,7 @@ class Bind : Command() {
                     if (module.keyBind == 0)
                         sendMessage("§e§l${module.name} §cis not bounded!")
                     else
-                        sendMessage("§e§l${module.name} §ais currently bounded to §e§l${Keyboard.getKeyName(module.keyBind)}")
+                        sendMessage("§e§l${module.name} §ais currently bound to §e§l${Keyboard.getKeyName(module.keyBind)}")
                 } else {
                     sendMessage("§e${args[0]} §cis not a valid Module!")
                 }

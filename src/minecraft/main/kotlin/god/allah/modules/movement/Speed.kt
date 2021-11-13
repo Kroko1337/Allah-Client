@@ -7,41 +7,74 @@ import god.allah.api.executors.Category
 import god.allah.api.executors.Module
 import god.allah.api.setting.Value
 import god.allah.api.setting.types.CheckBox
+import god.allah.api.setting.types.ComboBox
+import god.allah.api.utils.addSpeed
+import god.allah.api.utils.getDirection
 import god.allah.api.utils.setSpeed
+import god.allah.events.JumpEvent
+import god.allah.events.MoveRelativeEvent
 import god.allah.events.UpdateEvent
+import net.minecraft.util.math.MathHelper
 import org.lwjgl.input.Keyboard
 import kotlin.math.sqrt
 
 @Module.Info("Speed", Category.MOVEMENT)
 class Speed : Module() {
 
+    @Value("Mode")
+    val mode = ComboBox("NCPBhop", arrayOf("NCPBhop", "NCPYPort"))
+
     @EventInfo(priority = EventPriority.HIGH)
     override fun onEvent(event: Event) {
-        when (event) {
-            is UpdateEvent -> {
-                if (!Keyboard.isKeyDown(57)) {
-                    timer.timerSpeed = 1F
-                    setSpeed(sqrt(player.motionX * player.motionX + player.motionZ *player.motionZ) * 1.00455)
-                    if (player.onGround) {
-                        player.jump()
-                    } else {
-                        timer.timerSpeed = 1.061f
-                        player.motionX *= 1.004F
-                        player.motionZ *= 1.004F
-                        player.moveStrafing *= 2
+        when (mode.value) {
+            "NCPYPort" -> {
+                when (event) {
+                    is JumpEvent -> {
+                        event.yaw = getDirection(player.rotationYaw)
                     }
-
+                    is UpdateEvent -> {
+                        player.isSprinting = true
+                        if (player.onGround) {
+                            player.jump()
+                            player.motionX *= 0.75
+                            player.motionZ *= 0.75
+                            timer.timerSpeed = 0.8F
+                        } else {
+                            if (player.motionY < 0.4) {
+                                timer.timerSpeed = 1.6F
+                                player.motionY = -1337.0
+                                setSpeed(0.26)
+                            }
+                        }
+                    }
+                }
+            }
+            "NCPBhop" -> {
+                when (event) {
+                    is UpdateEvent -> {
+                        if (!mc.gameSettings.keyBindJump.pressed) {
+                            timer.timerSpeed = 1F
+                            setSpeed(sqrt(player.motionX * player.motionX + player.motionZ * player.motionZ) * 1.00455)
+                            if (player.onGround) {
+                                player.jump()
+                            } else {
+                                timer.timerSpeed = 1.061f
+                                player.motionX *= 1.004F
+                                player.motionZ *= 1.004F
+                                player.moveStrafing *= 2
+                            }
+                        }
+                    }
                 }
             }
         }
     }
 
     override fun onEnable() {
-
     }
 
     override fun onDisable() {
-
+        timer.timerSpeed = 1F
     }
 
 }

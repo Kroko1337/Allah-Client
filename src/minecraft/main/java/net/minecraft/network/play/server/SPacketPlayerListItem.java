@@ -17,7 +17,7 @@ import net.minecraft.world.GameType;
 public class SPacketPlayerListItem implements Packet<INetHandlerPlayClient>
 {
     private SPacketPlayerListItem.Action action;
-    private final List<SPacketPlayerListItem.AddPlayerData> players = Lists.<SPacketPlayerListItem.AddPlayerData>newArrayList();
+    public final List<SPacketPlayerListItem.AddPlayerData> players = Lists.<SPacketPlayerListItem.AddPlayerData>newArrayList();
 
     public SPacketPlayerListItem()
     {

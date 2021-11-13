@@ -11,6 +11,8 @@ import god.allah.api.setting.types.CheckBox
 import god.allah.api.setting.types.ComboBox
 import god.allah.api.setting.types.SliderSetting
 import god.allah.api.helper.TimeHelper
+import god.allah.api.setting.Dependency
+import god.allah.api.setting.ISetting
 import god.allah.api.utils.getRotation
 import god.allah.api.utils.randomGaussian
 import god.allah.api.utils.rayCastedEntity
@@ -33,13 +35,13 @@ class KillAura : Module() {
     private var targetMode = ComboBox("Hybrid", arrayOf("Single", "Switch", "Hybrid"))
 
     @Value("Hybrid Mode")
-    private var hybridMode = ComboBox("Nearest", arrayOf("Nearest", "Health"))
+    private var hybridMode = ComboBox("Nearest", arrayOf("Nearest", "Health"), Dependency(targetMode, "Hybrid"))
 
     @Value("Perfect Hit")
     private var perfectHit = CheckBox(true)
 
     @Value("CPS")
-    private var cps = SliderSetting<Long>(12, 1, 20)
+    private var cps = SliderSetting<Long>(12, 1, 20, Dependency(perfectHit, false))
 
     @Value("OnlyPlayer")
     private var onlyPlayer = CheckBox(true)
@@ -71,14 +73,14 @@ class KillAura : Module() {
     @Value("Heuristics")
     private var heuristics = CheckBox(true)
 
-    @Value("Reset Rotation")
-    private var resetRotation = CheckBox(true)
-
     @Value("No Timer Attack")
     private var noTimerAttack = CheckBox(true)
 
+    @Value("Reset Rotation")
+    private var resetRotation = CheckBox(true)
+
     @Value("Reset Rotation-Mode", "Mode")
-    private var resetRotationMode = ComboBox("Silent", arrayOf("Silent", "Visible"))
+    private var resetRotationMode = ComboBox("Silent", arrayOf("Silent", "Visible"), Dependency(resetRotation, true))
 
     var target: Entity? = null
     var yaw: Float = 0F

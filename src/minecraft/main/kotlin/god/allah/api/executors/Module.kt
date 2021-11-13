@@ -2,6 +2,7 @@ package god.allah.api.executors
 
 import god.allah.api.Executor
 import god.allah.api.event.Event
+import god.allah.api.setting.ISetting
 
 abstract class Module : Executor {
     val name: String

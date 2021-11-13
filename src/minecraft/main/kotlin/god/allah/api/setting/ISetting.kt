@@ -5,10 +5,32 @@ import com.github.drapostolos.typeparser.TypeParser
 import god.allah.api.executors.Module
 import java.lang.ClassCastException
 
-open class ISetting<T> {
+open class ISetting<T>(vararg dependencies: Dependency<*>) {
+    private val dependencies: ArrayList<Dependency<*>> = ArrayList()
+
+    init {
+        dependencies.forEach {
+            this.dependencies.add(it)
+        }
+    }
+
     lateinit var module: Module
     lateinit var name: String
     lateinit var displayName: String
+
+    fun isVisible() : Boolean {
+        if(dependencies.isNotEmpty()) {
+            for(dependency in dependencies) {
+                if(!dependency.setting.isVisible()) {
+                    return false
+                }
+                if(dependency.neededValue != null && dependency.setting.getField("value") != dependency.neededValue) {
+                    return false
+                }
+            }
+        }
+        return true
+    }
 
     fun getFields(): HashMap<String, *> {
         val hashMap = HashMap<String, Any>()
@@ -67,6 +89,8 @@ open class ISetting<T> {
         for(setting in SettingRegistry.values[module]!!) {
             if(setting == this)
                 break
+            if(!setting.isVisible())
+                continue
             val settingName = if(setting.displayName == "") setting.name else setting.displayName
             if(settingName.equals(newName, true))
                 index++

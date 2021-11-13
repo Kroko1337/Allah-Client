@@ -4,6 +4,7 @@ import god.allah.api.event.Event
 import god.allah.api.event.EventInfo
 import god.allah.api.executors.Category
 import god.allah.api.executors.Module
+import god.allah.api.setting.Dependency
 import god.allah.api.setting.Value
 import god.allah.api.setting.types.CheckBox
 import god.allah.api.setting.types.ComboBox
@@ -20,7 +21,7 @@ class Velocity : Module() {
     var mode = ComboBox("Cancel", modes = arrayOf("Cancel", "Intave14", "BackToBlock"))
 
     @Value("Cancel Explosion")
-    var cancelExplosion = CheckBox(true)
+    var cancelExplosion = CheckBox(true, Dependency(mode, "Cancel"))
 
     override fun getInfo(): String {
         return mode.value

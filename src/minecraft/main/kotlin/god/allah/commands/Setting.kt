@@ -14,7 +14,7 @@ class Setting : Command() {
                 if (module != null) {
                     clearChat()
                     SettingRegistry.values[module]?.forEach { setting ->
-                        if (setting.getField("value") != null)
+                        if (setting.isVisible() && setting.getField("value") != null)
                             sendMessage("§e${setting.getDisplay()} §7-> §b${setting.getField("value")}")
                     }
                 } else {
@@ -26,7 +26,7 @@ class Setting : Command() {
                 if (module != null) {
                     clearChat()
                     val setting = SettingRegistry.getSetting(args[1], module)
-                    if (setting != null) {
+                    if (setting != null && setting.isVisible()) {
                         sendMessage("§e${setting.getDisplay()} §7-> §b${setting.getField("value")}")
                         if (setting.getField("modes") != null) {
                             val modes: Array<*> = setting.getField("modes") as Array<*>
@@ -48,7 +48,7 @@ class Setting : Command() {
                 if (module != null) {
                     clearChat()
                     val setting = SettingRegistry.getSetting(args[1], module)
-                    if (setting != null) {
+                    if (setting != null && setting.isVisible()) {
                         try {
                             if (setting.getField("modes") != null) {
                                 var exist = false

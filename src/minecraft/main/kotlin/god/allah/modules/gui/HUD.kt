@@ -1,6 +1,5 @@
 package god.allah.modules.gui
 
-import god.allah.api.Registry
 import god.allah.api.Wrapper
 import god.allah.api.event.Event
 import god.allah.api.event.EventInfo
@@ -10,13 +9,6 @@ import god.allah.api.setting.Value
 import god.allah.api.setting.types.CheckBox
 import god.allah.api.utils.getRainbow
 import god.allah.events.Render2DEvent
-import net.minecraft.util.math.MathHelper
-import org.lwjgl.input.Keyboard
-import org.lwjgl.opengl.Display
-import org.lwjgl.opengl.GL11
-import java.awt.Color
-import java.awt.Toolkit
-import java.util.concurrent.ThreadLocalRandom
 import kotlin.math.max
 
 

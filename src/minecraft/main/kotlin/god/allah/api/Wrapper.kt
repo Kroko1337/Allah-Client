@@ -38,7 +38,7 @@ object Wrapper {
     }
 
     fun sendMessage(message: Any, actionBar: Boolean = false, style: Style? = null, prefix: Boolean = true) {
-        val text = TextComponentString("${Wrapper.prefix}$message")
+        val text = TextComponentString("${if(prefix) Wrapper.prefix else ""}$message")
         if(style != null)
             text.style = style
         player.sendStatusMessage(text, actionBar)

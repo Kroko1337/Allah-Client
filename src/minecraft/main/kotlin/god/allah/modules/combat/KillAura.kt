@@ -13,6 +13,7 @@ import god.allah.api.setting.types.SliderSetting
 import god.allah.api.helper.TimeHelper
 import god.allah.api.setting.Dependency
 import god.allah.api.setting.ISetting
+import god.allah.api.setting.types.SettingGroup
 import god.allah.api.utils.getRotation
 import god.allah.api.utils.randomGaussian
 import god.allah.api.utils.rayCastedEntity
@@ -81,6 +82,12 @@ class KillAura : Module() {
 
     @Value("Reset Rotation-Mode", "Mode")
     private var resetRotationMode = ComboBox("Silent", arrayOf("Silent", "Visible"), Dependency(resetRotation, true))
+
+    @Value("Attacking")
+    private var attackingGroup = SettingGroup(range, targetMode, hybridMode, perfectHit, cps, onlyPlayer, keepSprint, slowdown, throughWalls, noTimerAttack)
+
+    @Value("Rotation")
+    private var rotationGroup = SettingGroup(moveFix, bestVector, rayCast, mouseSensitivity, noNearRotate, heuristics, resetRotation, resetRotationMode)
 
     var target: Entity? = null
     var yaw: Float = 0F

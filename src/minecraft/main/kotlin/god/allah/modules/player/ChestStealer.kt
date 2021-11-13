@@ -8,6 +8,7 @@ import god.allah.api.executors.Module
 import god.allah.api.helper.TimeHelper
 import god.allah.api.setting.Value
 import god.allah.api.setting.types.CheckBox
+import god.allah.api.setting.types.SettingGroup
 import god.allah.api.setting.types.SliderSetting
 import god.allah.api.utils.getAmount
 import god.allah.api.utils.randomGaussian
@@ -37,6 +38,12 @@ class ChestStealer : Module() {
 
     @Value("Random Pick")
     var randomPick = CheckBox(false)
+
+    @Value("Delays")
+    var delayGroup = SettingGroup(startDelay, grabDelay, autoClose)
+
+    @Value("Interaction")
+    var interactionGroup = SettingGroup(stackItems, randomPick)
 
     private val startTimer = TimeHelper()
     private val grabTimer = TimeHelper()

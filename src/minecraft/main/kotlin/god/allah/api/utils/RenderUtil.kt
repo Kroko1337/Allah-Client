@@ -41,13 +41,12 @@ fun generateYouTubeThumbnail(link: String): String {
     return "http://img.youtube.com/vi/$generated/0.jpg"
 }
 
-fun renderPicture(link: String, x: Int, y: Int, width: Int, height: Int) {
+fun getPicture(link: String) : ResourceLocation? {
     val bufferedImage = ImageIO.read(URL(link))
     var resourceLocation: ResourceLocation? = null
     mc.addScheduledTask {
         val dynamicTexture = DynamicTexture(bufferedImage)
         resourceLocation = mc.textureManager.getDynamicTextureLocation("cover.jpg", dynamicTexture)
     }
-    if (resourceLocation != null)
-        drawImage(resourceLocation!!, .6F, x.toFloat(), y.toFloat(), width.toFloat(), height.toFloat())
+    return resourceLocation
 }

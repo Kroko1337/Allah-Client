@@ -9,6 +9,7 @@ import god.allah.api.setting.types.CheckBox
 import god.allah.api.setting.types.ComboBox
 import god.allah.events.KnockBackModifierEvent
 import god.allah.events.PacketEvent
+import god.allah.events.UpdateEvent
 import net.minecraft.network.play.server.SPacketEntityVelocity
 import net.minecraft.network.play.server.SPacketExplosion
 
@@ -16,7 +17,7 @@ import net.minecraft.network.play.server.SPacketExplosion
 class Velocity : Module() {
 
     @Value("Mode")
-    var mode = ComboBox("Cancel", modes = arrayOf("Cancel", "Intave14"))
+    var mode = ComboBox("Cancel", modes = arrayOf("Cancel", "Intave14", "BackToBlock"))
 
     @Value("Cancel Explosion")
     var cancelExplosion = CheckBox(true)
@@ -47,6 +48,16 @@ class Velocity : Module() {
                 when(event) {
                     is KnockBackModifierEvent -> {
                         event.flag = true
+                    }
+                }
+            }
+            "BackToBlock" -> {
+                when(event) {
+                    is UpdateEvent -> {
+                        if(player.hurtTime == 6) {
+                            player.motionX *= -1
+                            player.motionZ *= -1
+                        }
                     }
                 }
             }

@@ -4,11 +4,14 @@ import god.allah.api.Registry
 import god.allah.api.Resolution
 import god.allah.api.executors.Draggable
 import net.minecraft.util.math.MathHelper
+import kotlin.math.abs
 
 object DraggableHandler {
 
     var dragX = 0.0
     var dragY = 0.0
+    var lastDistanceX = 0.0
+    var lastDistanceY = 0.0
 
     fun handleMouseInput(mouseX: Int, mouseY: Int, button: Int) {
         if (button == 0 && !hasAlreadyDragged())
@@ -30,6 +33,18 @@ object DraggableHandler {
 
     fun onUpdate(mouseX: Int, mouseY: Int) {
         Registry.getEntries(Draggable::class.java).filter { it.dragged }.forEach {
+            val distanceX = (it.hitBoxX.toDouble() - it.xPos)
+            val distanceY = (it.hitBoxY.toDouble() - it.yPos)
+
+            if(lastDistanceX > distanceX)
+                dragX -= distanceX
+            else if(lastDistanceX < distanceX)
+                dragX += lastDistanceX
+            if(lastDistanceY > distanceY)
+                dragY -= distanceY
+            else if(lastDistanceY < distanceY)
+                dragY += lastDistanceY
+
             val nextPosX = (mouseX + dragX).toInt()
             val nextPosY = (mouseY + dragY).toInt()
 
@@ -37,6 +52,9 @@ object DraggableHandler {
             it.yPos = MathHelper.clamp(nextPosY, 0, Resolution.height)
             it.hitBoxX = it.xPos
             it.hitBoxY = it.yPos
+
+            lastDistanceX = distanceX
+            lastDistanceY = distanceY
         }
     }
 

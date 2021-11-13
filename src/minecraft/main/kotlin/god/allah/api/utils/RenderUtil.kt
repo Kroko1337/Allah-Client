@@ -41,20 +41,6 @@ fun generateYouTubeThumbnail(link: String): String {
     return "http://img.youtube.com/vi/$generated/0.jpg"
 }
 
-fun downloadPicture(link: String) {
-    val url = URL(link)
-    val inputStream = BufferedInputStream(url.openStream())
-    val outputStream = ByteArrayOutputStream()
-    val buffer = ByteArray(1024)
-    var read: Int
-    while (-1 != (inputStream.read(buffer).also { read = it })) {
-        outputStream.write(buffer, 0, read)
-    }
-    outputStream.close()
-    inputStream.close()
-    val response = outputStream.toByteArray()
-}
-
 fun renderPicture(link: String, x: Int, y: Int, width: Int, height: Int) {
     val bufferedImage = ImageIO.read(URL(link))
     var resourceLocation: ResourceLocation? = null

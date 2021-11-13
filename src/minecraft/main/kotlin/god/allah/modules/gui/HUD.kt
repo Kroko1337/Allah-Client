@@ -16,7 +16,7 @@ import kotlin.math.max
 class HUD : Module() {
 
     @Value("Suffix")
-    var suffix = CheckBox(true)
+    val suffix = CheckBox(true)
 
     init {
         setToggled(true)

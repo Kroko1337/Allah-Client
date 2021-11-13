@@ -20,10 +20,10 @@ import kotlin.random.Random
 class NoSlowDown : Module() {
 
     @Value("Slowdown")
-    var slowdown = SliderSetting(0.2F, 0.1F, 1F)
+    val slowdown = SliderSetting(0.2F, 0.1F, 1F)
 
     @Value("Spoof Mode")
-    var spoofMode = ComboBox("None", arrayOf("None", "Intave13", "AAC4"))
+    val spoofMode = ComboBox("None", arrayOf("None", "Intave13", "AAC4"))
 
     override fun getInfo(): String {
         return "${spoofMode.value}, ${slowdown.value}"

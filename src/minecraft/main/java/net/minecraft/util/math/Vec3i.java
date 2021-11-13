@@ -116,6 +116,14 @@ public class Vec3i implements Comparable<Vec3i>
         return Math.sqrt(d0 * d0 + d1 * d1 + d2 * d2);
     }
 
+    public double getDistance(Double xIn, Double yIn, Double zIn)
+    {
+        double d0 = this.getX() - xIn;
+        double d1 = this.getY() - yIn;
+        double d2 = this.getZ() - zIn;
+        return Math.sqrt(d0 * d0 + d1 * d1 + d2 * d2);
+    }
+
     /**
      * Calculate squared distance to the given coordinates
      */

@@ -144,13 +144,6 @@
             <artifactId>auth</artifactId>
             <version>3.0.2</version>
         </dependency>
-        <!-- lombok used for cleaner code -->
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>1.18.16</version>
-            <scope>provided</scope>
-        </dependency>
         <!-- Updated libraries -->
         <dependency>
             <groupId>io.netty</groupId>

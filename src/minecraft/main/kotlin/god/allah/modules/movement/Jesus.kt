@@ -15,7 +15,7 @@ import god.allah.events.UpdateEvent
 class Jesus : Module() {
 
     @Value("Mode")
-    var mode = ComboBox("Intave13", arrayOf("Intave13", "Karhu 2.2 169"))
+    val mode = ComboBox("Intave13", arrayOf("Intave13", "Karhu 2.2 169"))
 
     override fun getInfo(): String {
         return mode.value

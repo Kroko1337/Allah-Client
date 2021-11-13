@@ -13,7 +13,7 @@ import god.allah.events.UpdateEvent
 class Sprint : Module() {
 
     @Value("Legit")
-    var legit = CheckBox(true)
+    val legit = CheckBox(true)
 
     @EventInfo(priority = EventPriority.LOW)
     override fun onEvent(event: Event) {

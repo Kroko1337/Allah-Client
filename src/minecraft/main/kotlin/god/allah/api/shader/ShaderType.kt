@@ -1,4 +1,4 @@
-package god.allah.api.shadersystem
+package god.allah.api.shader
 
 import org.lwjgl.opengl.ARBFragmentShader
 import org.lwjgl.opengl.ARBVertexShader

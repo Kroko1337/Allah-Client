@@ -30,64 +30,64 @@ import net.minecraft.util.math.RayTraceResult
 class KillAura : Module() {
 
     @Value("Range")
-    private var range = SliderSetting(3.0, 1.0, 6.0)
+    private val range = SliderSetting(3.0, 1.0, 6.0)
 
     @Value("Target Mode")
-    private var targetMode = ComboBox("Hybrid", arrayOf("Single", "Switch", "Hybrid"))
+    private val targetMode = ComboBox("Hybrid", arrayOf("Single", "Switch", "Hybrid"))
 
     @Value("Hybrid Mode")
-    private var hybridMode = ComboBox("Nearest", arrayOf("Nearest", "Health"), Dependency(targetMode, "Hybrid"))
+    private val hybridMode = ComboBox("Nearest", arrayOf("Nearest", "Health"), Dependency(targetMode, "Hybrid"))
 
     @Value("Perfect Hit")
-    private var perfectHit = CheckBox(true)
+    private val perfectHit = CheckBox(true)
 
     @Value("CPS")
-    private var cps = SliderSetting<Long>(12, 1, 20, Dependency(perfectHit, false))
+    private val cps = SliderSetting<Long>(12, 1, 20, Dependency(perfectHit, false))
 
     @Value("OnlyPlayer")
-    private var onlyPlayer = CheckBox(true)
+    private val onlyPlayer = CheckBox(true)
 
     @Value("MoveFix")
-    private var moveFix = CheckBox(true)
+    private val moveFix = CheckBox(true)
 
     @Value("Keep Sprint")
-    private var keepSprint = CheckBox(false)
+    private val keepSprint = CheckBox(false)
 
     @Value("Slowdown")
-    private var slowdown = SliderSetting(0.6, 0.1, 1.0)
+    private val slowdown = SliderSetting(0.6, 0.1, 1.0)
 
     @Value("BestVector")
-    private var bestVector = CheckBox(true)
+    private val bestVector = CheckBox(true)
 
     @Value("Mouse Sensitivity")
-    private var mouseSensitivity = CheckBox(true)
+    private val mouseSensitivity = CheckBox(true)
 
     @Value("RayCast")
-    private var rayCast = CheckBox(true)
+    private val rayCast = CheckBox(true)
 
     @Value("Through Walls")
-    private var throughWalls = CheckBox(false)
+    private val throughWalls = CheckBox(false)
 
     @Value("No near rotate")
-    private var noNearRotate = CheckBox(true)
+    private val noNearRotate = CheckBox(true)
 
     @Value("Heuristics")
-    private var heuristics = CheckBox(true)
+    private val heuristics = CheckBox(true)
 
     @Value("No Timer Attack")
-    private var noTimerAttack = CheckBox(true)
+    private val noTimerAttack = CheckBox(true)
 
     @Value("Reset Rotation")
-    private var resetRotation = CheckBox(true)
+    private val resetRotation = CheckBox(true)
 
     @Value("Reset Rotation-Mode", "Mode")
-    private var resetRotationMode = ComboBox("Silent", arrayOf("Silent", "Visible"), Dependency(resetRotation, true))
+    private val resetRotationMode = ComboBox("Silent", arrayOf("Silent", "Visible"), Dependency(resetRotation, true))
 
     @Value("Attacking")
-    private var attackingGroup = SettingGroup(range, targetMode, hybridMode, perfectHit, cps, onlyPlayer, keepSprint, slowdown, throughWalls, noTimerAttack)
+    private val attackingGroup = SettingGroup(range, targetMode, hybridMode, perfectHit, cps, onlyPlayer, keepSprint, slowdown, throughWalls, noTimerAttack)
 
     @Value("Rotation")
-    private var rotationGroup = SettingGroup(moveFix, bestVector, rayCast, mouseSensitivity, noNearRotate, heuristics, resetRotation, resetRotationMode)
+    private val rotationGroup = SettingGroup(moveFix, bestVector, rayCast, mouseSensitivity, noNearRotate, heuristics, resetRotation, resetRotationMode)
 
     var target: Entity? = null
     var yaw: Float = 0F

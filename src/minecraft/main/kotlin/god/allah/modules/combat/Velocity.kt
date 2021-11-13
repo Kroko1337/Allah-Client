@@ -18,10 +18,10 @@ import net.minecraft.network.play.server.SPacketExplosion
 class Velocity : Module() {
 
     @Value("Mode")
-    var mode = ComboBox("Cancel", modes = arrayOf("Cancel", "Intave14", "BackToBlock"))
+    val mode = ComboBox("Cancel", modes = arrayOf("Cancel", "Intave14", "BackToBlock"))
 
     @Value("Cancel Explosion")
-    var cancelExplosion = CheckBox(true, Dependency(mode, "Cancel"))
+    val cancelExplosion = CheckBox(true, Dependency(mode, "Cancel"))
 
     override fun getInfo(): String {
         return mode.value

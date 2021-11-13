@@ -1,6 +1,5 @@
-package god.allah.api.shadersystem
+package god.allah.api.shader
 
-import net.minecraft.util.ResourceLocation
 import org.apache.commons.io.IOUtils
 import org.lwjgl.opengl.ARBFragmentShader
 import org.lwjgl.opengl.ARBShaderObjects
@@ -17,9 +16,10 @@ abstract class Shader(shaderName: String) {
 
     private var programId = 0
 
-    private var resourceLocation: InputStream
+    private var resourceLocation: InputStream?
 
     init {
+
         resourceLocation = javaClass.getResourceAsStream("/god/allph/api/shadersystem$shaderName")
         this.programId = ARBShaderObjects.glCreateProgramObjectARB() //setting up shaderProgramID ad start.
     }
@@ -39,4 +39,6 @@ abstract class Shader(shaderName: String) {
         }
         return this
     }
+
+    annotation class Info (val name: String) {}
 }

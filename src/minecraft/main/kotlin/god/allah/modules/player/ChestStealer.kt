@@ -25,25 +25,25 @@ import java.util.*
 class ChestStealer : Module() {
 
     @Value("Start Delay")
-    var startDelay = SliderSetting(150L, 0L, 500L)
+    val startDelay = SliderSetting(150L, 0L, 500L)
 
     @Value("Grab Delay")
-    var grabDelay = SliderSetting(150L, 0L, 500L)
+    val grabDelay = SliderSetting(150L, 0L, 500L)
 
     @Value("Auto Close")
-    var autoClose = CheckBox(true)
+    val autoClose = CheckBox(true)
 
     @Value("Stack Items")
-    var stackItems = CheckBox(true)
+    val stackItems = CheckBox(true)
 
     @Value("Random Pick")
-    var randomPick = CheckBox(false)
+    val randomPick = CheckBox(false)
 
     @Value("Delays")
-    var delayGroup = SettingGroup(startDelay, grabDelay, autoClose)
+    val delayGroup = SettingGroup(startDelay, grabDelay, autoClose)
 
     @Value("Interaction")
-    var interactionGroup = SettingGroup(stackItems, randomPick)
+    val interactionGroup = SettingGroup(stackItems, randomPick)
 
     private val startTimer = TimeHelper()
     private val grabTimer = TimeHelper()

@@ -134,16 +134,6 @@
             <artifactId>java-discord-rpc</artifactId>
             <version>2.0.2</version>
         </dependency>
-        <dependency>
-            <groupId>com.thealtening.api</groupId>
-            <artifactId>api</artifactId>
-            <version>4.1.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.thealtening.auth</groupId>
-            <artifactId>auth</artifactId>
-            <version>3.0.2</version>
-        </dependency>
         <!-- Updated libraries -->
         <dependency>
             <groupId>io.netty</groupId>

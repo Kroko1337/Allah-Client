@@ -8,6 +8,7 @@ import god.allah.api.setting.Dependency
 import god.allah.api.setting.Value
 import god.allah.api.setting.types.CheckBox
 import god.allah.api.setting.types.ComboBox
+import god.allah.api.utils.setSpeed
 import god.allah.events.KnockBackModifierEvent
 import god.allah.events.PacketEvent
 import god.allah.events.UpdateEvent
@@ -18,7 +19,7 @@ import net.minecraft.network.play.server.SPacketExplosion
 class Velocity : Module() {
 
     @Value("Mode")
-    val mode = ComboBox("Cancel", modes = arrayOf("Cancel", "Intave14", "BackToBlock"))
+    val mode = ComboBox("Cancel", modes = arrayOf("Cancel", "Intave14", "Intave13Wall", "BackToBlock"))
 
     @Value("Cancel Explosion")
     val cancelExplosion = CheckBox(true, Dependency(mode, "Cancel"))
@@ -42,6 +43,14 @@ class Velocity : Module() {
                                     event.canceled = true
                             }
                         }
+                    }
+                }
+            }
+            "Intave13Wall" -> {
+                when(event) {
+                    is UpdateEvent -> {
+                        if (player.hurtTime != 0 && player.collidedHorizontally)
+                            setSpeed(0.2)
                     }
                 }
             }

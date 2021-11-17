@@ -18,12 +18,11 @@ import java.util.Random;
 import com.mojang.authlib.Agent;
 import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
 import com.mojang.authlib.yggdrasil.YggdrasilUserAuthentication;
-import com.thealtening.api.TheAltening;
-import com.thealtening.api.response.Account;
-import com.thealtening.api.retriever.AsynchronousDataRetriever;
-import com.thealtening.api.retriever.BasicDataRetriever;
-import com.thealtening.auth.TheAlteningAuthentication;
-import com.thealtening.auth.service.AlteningServiceType;
+import god.allah.api.auth.AuthService;
+import god.allah.api.auth.account.AlteningAccount;
+import god.allah.api.auth.handle.AuthenticationKt;
+import god.allah.api.services.AlteningAPIKt;
+import god.allah.api.utils.LoginUtilKt;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
@@ -47,6 +46,7 @@ import net.minecraft.world.WorldServerDemo;
 import net.minecraft.world.storage.ISaveFormat;
 import net.minecraft.world.storage.WorldInfo;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.logging.Log;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.input.Mouse;
@@ -360,25 +360,8 @@ public class GuiMainMenu extends GuiScreen
 
         if (button.id == 14 && this.realmsButton.visible) {
             //this.switchToRealms();
-            try {
-                final BasicDataRetriever basicDataRetriever = new BasicDataRetriever("api-lalc-shdk-tfjv");
-                final TheAlteningAuthentication theAlteningAuthentication = TheAlteningAuthentication.theAltening();
-                basicDataRetriever.updateKey("api-lalc-shdk-tfjv");
-                theAlteningAuthentication.updateService(AlteningServiceType.THEALTENING);
-                final AsynchronousDataRetriever asynchronousDataRetriever = basicDataRetriever.toAsync();
-                final Account account = asynchronousDataRetriever.getAccount();
-                String authServer = theAlteningAuthentication.getService().getAuthServer();
-                String sessionServer = theAlteningAuthentication.getService().getSessionServer();
-                final YggdrasilUserAuthentication service = (YggdrasilUserAuthentication) new YggdrasilAuthenticationService(Proxy.NO_PROXY, "").createUserAuthentication(Agent.MINECRAFT);
-
-                service.setUsername(account.getToken());
-                service.setPassword("Sheesh");
-
-                service.logIn();
-                Minecraft.getMinecraft().session = new Session(service.getSelectedProfile().getName(), service.getSelectedProfile().getId().toString(), service.getAuthenticatedToken(), "LEGACY");
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
+            AuthenticationKt.switchTo(AuthService.ALTENING);
+            LoginUtilKt.generateAltening("api-lalc-shdk-tfjv");
         }
 
         if (button.id == 4)

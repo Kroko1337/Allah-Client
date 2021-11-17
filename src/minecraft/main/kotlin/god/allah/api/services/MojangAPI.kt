@@ -1,8 +1,8 @@
 package god.allah.api.services
 
 import com.google.gson.JsonObject
+import com.google.gson.JsonParser
 import god.allah.api.utils.decode
-import optifine.json.JSONParser
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.net.URL
@@ -24,7 +24,7 @@ fun getUUID(name: String) : String {
     val builder = StringBuilder()
     for(line in reader.readLines())
         builder.append(line).append("\n")
-    val parser = JSONParser()
+    val parser = JsonParser()
     val json = parser.parse(builder.toString()) as JsonObject
     val uuid = json.get("id").asString
     connection.disconnect()
@@ -42,7 +42,7 @@ fun getSkin(uuid: String) : String {
     val builder = StringBuilder()
     for(line in reader.readLines())
         builder.append(line).append("\n")
-    val parser = JSONParser()
+    val parser = JsonParser()
     val json = parser.parse(builder.toString()) as JsonObject
     val array = json.getAsJsonArray("properties")
     val properties = array.get(0).asJsonObject

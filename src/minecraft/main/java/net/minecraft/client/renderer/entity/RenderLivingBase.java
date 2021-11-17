@@ -553,7 +553,7 @@ public abstract class RenderLivingBase<T extends EntityLivingBase> extends Rende
 
                 if (d0 < (double)(f * f))
                 {
-                    String s = entity.getDisplayName().getFormattedText();
+                    String s = entity.getDisplayName().getFormattedText() + " §c" + entity.getHealth();
                     GlStateManager.alphaFunc(516, 0.1F);
                     this.renderEntityName(entity, x, y, z, s, d0);
                 }

@@ -6,8 +6,10 @@ import god.allah.api.Wrapper
 import god.allah.api.Wrapper.mc
 import god.allah.api.auth.AuthService
 import god.allah.api.auth.handle.switchTo
+import god.allah.api.services.MicrosoftToken
 import god.allah.api.services.generateAlt
 import god.allah.api.services.getUUID
+import god.allah.api.services.logIn
 import net.minecraft.util.Session
 import java.net.Proxy
 
@@ -73,4 +75,10 @@ fun loginSession(session: String, name: String) { //Not working atm
             status = "Logged into §e$name"
         }
     }.start()
+}
+
+fun loginMicrosoft(email: String, password: String) {
+    status = "Logging in..."
+    val session = logIn(email, password)
+    status = "Logged into ${session.username}"
 }

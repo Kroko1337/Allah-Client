@@ -1163,6 +1163,8 @@ public class EntityRenderer implements IResourceManagerReloadListener {
                 this.smoothCamPitch = 0.0F;
                 this.mc.player.turn(f2, f3 * (float) i);
             }
+            PlayerHandler.INSTANCE.setCurrentYaw(PlayerHandler.INSTANCE.getYaw());
+            PlayerHandler.INSTANCE.setCurrentPitch(PlayerHandler.INSTANCE.getPitch());
             final RotationEvent rotationEvent = new RotationEvent(mc.player.rotationYaw, mc.player.rotationPitch).onFire();
             PlayerHandler.INSTANCE.setYaw(rotationEvent.getYaw());
             PlayerHandler.INSTANCE.setPitch(rotationEvent.getPitch());

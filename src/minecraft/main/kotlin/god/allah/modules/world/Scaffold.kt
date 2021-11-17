@@ -46,22 +46,18 @@ class Scaffold : Module() {
     private val delayTime = TimeHelper()
     private var blockPos: BlockPos? = null
     private lateinit var itemStack: ItemStack
-    private var yaw = 0.0F
-    private var pitch = 0.0F
 
     @EventInfo
     override fun onEvent(event: Event) {
         when (event) {
             is RotationEvent -> {
                 if (blockPos != null) {
-                    val rotation = getRotation(player, blockPos!!, yaw, pitch, mouseSensitivity.value)
+                    val rotation = getRotation(player, blockPos!!, mouseSensitivity.value)
                     event.yaw = rotation[0]
                     event.pitch = rotation[1]
-                    yaw = rotation[0]
-                    pitch = rotation[1]
                 } else {
-                    event.yaw = yaw
-                    event.pitch = pitch
+                    event.yaw = PlayerHandler.yaw
+                    event.pitch = PlayerHandler.pitch
                 }
             }
             is SyncItemEvent -> {
@@ -92,34 +88,39 @@ class Scaffold : Module() {
                                         blockPos!!.z + 0.5
                                     )
                                     val sideHit =
-                                        if (rayCast.value) mc.objectMouseOver.sideHit else EnumFacing.getFacingFromVector(vecHit.x.toFloat(), vecHit.y.toFloat(), vecHit.z.toFloat())
-                                    sendMessage(sideHit, actionBar = true)
-                                    val action = playerController.processRightClickBlock(
-                                        player,
-                                        world,
-                                        blockPos!!,
-                                        sideHit,
-                                        vecHit,
-                                        EnumHand.MAIN_HAND
-                                    )
-                                    when (action) {
-                                        EnumActionResult.SUCCESS -> {
-                                            player.swingArm(EnumHand.MAIN_HAND)
-                                            if (!itemStack.isEmpty && (itemStack.count != i || playerController.isInCreativeMode)) {
-                                                mc.entityRenderer.itemRenderer.resetEquippedProgress(EnumHand.MAIN_HAND)
+                                        if (rayCast.value) mc.objectMouseOver.sideHit else EnumFacing.getFacingFromVector(
+                                            vecHit.x.toFloat(),
+                                            vecHit.y.toFloat(),
+                                            vecHit.z.toFloat()
+                                        )
+                                    if (sideHit != null) {
+                                        val action = playerController.processRightClickBlock(
+                                            player,
+                                            world,
+                                            blockPos!!,
+                                            sideHit,
+                                            vecHit,
+                                            EnumHand.MAIN_HAND
+                                        )
+                                        when (action) {
+                                            EnumActionResult.SUCCESS -> {
+                                                player.swingArm(EnumHand.MAIN_HAND)
+                                                if (!itemStack.isEmpty && (itemStack.count != i || playerController.isInCreativeMode)) {
+                                                    mc.entityRenderer.itemRenderer.resetEquippedProgress(EnumHand.MAIN_HAND)
+                                                }
+                                                return
                                             }
-                                            return
                                         }
                                     }
-                                }
-                                if (!itemStack.isEmpty && playerController.processRightClick(
-                                        player,
-                                        world,
-                                        EnumHand.MAIN_HAND
-                                    ) == EnumActionResult.SUCCESS
-                                ) {
-                                    mc.entityRenderer.itemRenderer.resetEquippedProgress(EnumHand.MAIN_HAND)
-                                    return
+                                    if (!itemStack.isEmpty && playerController.processRightClick(
+                                            player,
+                                            world,
+                                            EnumHand.MAIN_HAND
+                                        ) == EnumActionResult.SUCCESS
+                                    ) {
+                                        mc.entityRenderer.itemRenderer.resetEquippedProgress(EnumHand.MAIN_HAND)
+                                        return
+                                    }
                                 }
                             }
                         }
@@ -173,13 +174,11 @@ class Scaffold : Module() {
     override fun onEnable() {
         delayTime.reset()
         blockPos = null
-        yaw = player.rotationYaw
-        pitch = player.rotationPitch
         itemStack = player.inventory.getCurrentItem()
     }
 
     override fun onDisable() {
-        if(!PlayerHandler.hasAlready(player.inventory.currentItem))
+        if (!PlayerHandler.hasAlready(player.inventory.currentItem))
             sendPacket(CPacketHeldItemChange(player.inventory.currentItem))
     }
 }

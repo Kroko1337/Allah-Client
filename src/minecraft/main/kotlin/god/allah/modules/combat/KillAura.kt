@@ -90,8 +90,6 @@ class KillAura : Module() {
     private val rotationGroup = SettingGroup(moveFix, bestVector, rayCast, mouseSensitivity, noNearRotate, heuristics, resetRotation, resetRotationMode)
 
     var target: Entity? = null
-    var yaw: Float = 0F
-    var pitch: Float = 0F
     var currentTarget = 0
     private val timeHelper = TimeHelper()
 
@@ -107,36 +105,26 @@ class KillAura : Module() {
                         val rotation = getRotation(
                             player,
                             target!!,
-                            yaw,
-                            pitch,
                             bestVector.value,
                             mouseSensitivity.value,
                             heuristics.value
                         )
                         event.yaw = rotation[0]
                         event.pitch = rotation[1]
-                        yaw = rotation[0]
-                        pitch = rotation[1]
                     } else {
                         val rotation = getRotation(
                             player,
                             target!!,
-                            yaw,
-                            pitch,
                             bestVector.value,
                             mouseSensitivity.value,
                             heuristics.value
                         )
                         event.yaw = rotation[0]
-                        event.pitch = pitch
-                        yaw = rotation[0]
+                        event.pitch = PlayerHandler.pitch
                     }
                 } else if (!mc.inGameHasFocus) {
-                    event.yaw = yaw
-                    event.pitch = pitch
-                } else {
-                    yaw = player.rotationYaw
-                    pitch = player.rotationPitch
+                    event.yaw = PlayerHandler.yaw
+                    event.pitch = PlayerHandler.pitch
                 }
             }
             is UpdateEvent -> {
@@ -286,8 +274,6 @@ class KillAura : Module() {
     }
 
     override fun onEnable() {
-        yaw = player.rotationYaw
-        pitch = player.rotationPitch
         target = null
         currentTarget = 0
     }

@@ -7,6 +7,9 @@ object PlayerHandler {
     var pitch: Float = 0.0F
     var prevPitch: Float = 0.0F
 
+    var currentYaw: Float = 0.0F
+    var currentPitch: Float = 0.0F
+
     var currentItem: Int = 0
 
     fun hasAlready(slot: Int) : Boolean {

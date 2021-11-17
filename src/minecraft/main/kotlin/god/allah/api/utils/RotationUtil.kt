@@ -3,6 +3,7 @@ package god.allah.api.utils
 import com.google.common.base.Predicate
 import com.google.common.base.Predicates
 import god.allah.api.Wrapper
+import god.allah.api.helper.PlayerHandler
 import net.minecraft.client.Minecraft
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
@@ -23,7 +24,7 @@ fun getBestVector(look: Vec3d, axisAlignedBB: AxisAlignedBB): Vec3d {
     )
 }
 
-fun getRotation(player: EntityPlayer = Wrapper.player, blockPos: BlockPos, prevYaw: Float, prevPitch: Float, mouseSensitivity: Boolean, prediction: Boolean = true) : Array<Float> {
+fun getRotation(player: EntityPlayer = Wrapper.player, blockPos: BlockPos, mouseSensitivity: Boolean, prediction: Boolean = true) : Array<Float> {
     val mc = Minecraft.getMinecraft()
     val block = mc.world.getBlockState(blockPos)
     val bounding = block.getBoundingBox(mc.world,blockPos)
@@ -35,17 +36,15 @@ fun getRotation(player: EntityPlayer = Wrapper.player, blockPos: BlockPos, prevY
     val angle = MathHelper.sqrt(x * x + z * z).toDouble()
     val yawAngle = ((MathHelper.atan2(z, x) * 180.0 / PI).toFloat() - 90.0f)
     val pitchAngle = -(MathHelper.atan2(y, angle) * 180.0 / Math.PI).toFloat()
-    val yaw = updateRotation(prevYaw, yawAngle, 180.0F)
-    val pitch = updateRotation(prevPitch, pitchAngle, 180.0F)
-    return handleMouseSensitivity(mouseSensitivity, yaw, pitch, prevYaw, prevPitch)
+    val yaw = updateRotation(PlayerHandler.currentYaw, yawAngle, 180.0F)
+    val pitch = updateRotation(PlayerHandler.currentPitch, pitchAngle, 180.0F)
+    return handleMouseSensitivity(mouseSensitivity, yaw, pitch, PlayerHandler.currentYaw, PlayerHandler.currentPitch)
 }
 
 
 fun getRotation(
     player: Entity,
     target: Entity,
-    prevYaw: Float,
-    prevPitch: Float,
     bestVector: Boolean,
     mouseSensitivity: Boolean = true,
     heuristics: Boolean = true
@@ -98,9 +97,9 @@ fun getRotation(
     val angle = MathHelper.sqrt(x * x + z * z).toDouble()
     val yawAngle = (MathHelper.atan2(z, x) * (180.0 / Math.PI)).toFloat() - 90.0f
     val pitchAngle = (-(MathHelper.atan2(y, angle) * (180.0 / Math.PI))).toFloat()
-    val pitch = updateRotation(prevPitch, pitchAngle, 180.0F)
-    val yaw = updateRotation(prevYaw, yawAngle, 180.0F)
-    return handleMouseSensitivity(mouseSensitivity, yaw, pitch, prevYaw, prevPitch)
+    val pitch = updateRotation(PlayerHandler.currentPitch, pitchAngle, 180.0F)
+    val yaw = updateRotation(PlayerHandler.currentYaw, yawAngle, 180.0F)
+    return handleMouseSensitivity(mouseSensitivity, yaw, pitch, PlayerHandler.currentYaw, PlayerHandler.currentPitch)
 }
 
 fun handleMouseSensitivity(mouseSensitivity: Boolean, yaw: Float, pitch: Float, prevYaw: Float, prevPitch: Float) : Array<Float> {

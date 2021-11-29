@@ -24,6 +24,10 @@ class Speed : Module() {
     @Value("Mode")
     val mode = ComboBox("NCPBhop", arrayOf("NCPBhop", "NCPYPort"))
 
+    override fun getInfo(): String {
+        return mode.value
+    }
+
     @EventInfo(priority = EventPriority.HIGH)
     override fun onEvent(event: Event) {
         when (mode.value) {

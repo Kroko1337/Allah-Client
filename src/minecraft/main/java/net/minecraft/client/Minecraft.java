@@ -752,8 +752,8 @@ public class Minecraft implements IThreadListener, ISnooperInfo {
             InputStream inputstream1 = null;
 
             try {
-                inputstream = this.defaultResourcePack.getInputStreamAssets(new ResourceLocation("icons/icon_16x16.png"));
-                inputstream1 = this.defaultResourcePack.getInputStreamAssets(new ResourceLocation("icons/icon_32x32.png"));
+                inputstream = this.defaultResourcePack.getInputStream(new ResourceLocation("allah/icons/icon_32x32.png"));
+                inputstream1 = this.defaultResourcePack.getInputStream(new ResourceLocation("allah/icons/icon_16x16.png"));
 
                 if (inputstream != null && inputstream1 != null) {
                     Display.setIcon(new ByteBuffer[]{this.readImageToBuffer(inputstream), this.readImageToBuffer(inputstream1)});

@@ -2,8 +2,10 @@ package god.allah.api.utils
 
 import com.google.common.base.Predicate
 import com.google.common.base.Predicates
+import god.allah.api.Wrapper.mc
 import god.allah.api.Wrapper
 import god.allah.api.helper.PlayerHandler
+import god.allah.events.MouseOverEvent
 import net.minecraft.client.Minecraft
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
@@ -141,84 +143,83 @@ private fun updateRotation(p_75652_1_: Float, p_75652_2_: Float, p_75652_3_: Flo
     return p_75652_1_ + f
 }
 
-fun rayCastedEntity(range: Double, yaw: Float, pitch: Float, partialTicks: Float): Entity? {
-    var range = range
-    val entity: Entity? = Wrapper.mc.renderViewEntity
-    var pointedEntity: Entity? = null
-    if (entity != null && Wrapper.mc.world != null) {
-        var mouseOver: RayTraceResult? = entity.rayTrace(range, partialTicks)
-        val vec3: Vec3d = entity.getPositionEyes(1f)
-        val flag = false
-        var d1 = range
-        if (mouseOver != null) {
-            d1 = mouseOver.hitVec.distanceTo(vec3)
+private var mouseOver: RayTraceResult? = null
+private var pointedEntity: Entity? = null
+
+fun rayCast(range: Double, yaw: Float = PlayerHandler.yaw, pitch: Float = PlayerHandler.pitch) : RayTraceResult? {
+    val entity: Entity? = mc.renderViewEntity
+    if (entity != null && mc.world != null) {
+        mc.pointedEntity = null
+        var d0: Double = range
+        mouseOver = entity.rayTrace(d0, 1F)
+        val vec3d = entity.getPositionEyes(1F)
+        var flag = false
+        val i = 3
+        var d1 = d0
+        if (mc.playerController.extendedReach()) {
+            d1 = 6.0
+            d0 = d1
+        } else if (d0 > range) {
+            flag = true
         }
-        val vec31: Vec3d = getLook(Wrapper.mc.player, yaw, pitch, partialTicks)
-        val vec32: Vec3d = vec3.add(vec31.x * range, vec31.y * range, vec31.z * range)
+        if (mc.objectMouseOver != null) {
+            d1 = mc.objectMouseOver.hitVec.distanceTo(vec3d)
+        }
+        val vec3d1 = entity.getLook(1.0f)
+        val vec3d2 = vec3d.add(vec3d1.x * d0, vec3d1.y * d0, vec3d1.z * d0)
         pointedEntity = null
-        var vec33: Vec3d? = null
+        var vec3d3: Vec3d? = null
         val f = 1.0f
-        val list: List<*> = Wrapper.mc.world.getEntitiesInAABBexcluding(
+        val list: List<Entity> = mc.world.getEntitiesInAABBexcluding(
             entity,
-            entity.entityBoundingBox.expand(vec31.x * range, vec31.y * range, vec31.z * range).expand(
-                f.toDouble(), f.toDouble(), f.toDouble()
-            ),
+            entity.entityBoundingBox.expand(vec3d1.x * d0, vec3d1.y * d0, vec3d1.z * d0).grow(1.0, 1.0, 1.0),
             Predicates.and(EntitySelectors.NOT_SPECTATING,
-                Predicate { obj -> obj?.canBeCollidedWith() ?: false })
+                Predicate { p_apply_1_ -> p_apply_1_ != null && p_apply_1_.canBeCollidedWith() })
         )
         var d2 = d1
-        for (i in list.indices) {
-            val entity1 = list[i] as Entity
-            val f1 = entity1.collisionBorderSize
-            val axisalignedbb = entity1.entityBoundingBox.expand(
-                f1.toDouble(), f1.toDouble(),
-                f1.toDouble()
-            )
-            val movingobjectposition: RayTraceResult? = axisalignedbb.calculateIntercept(vec3, vec32)
-            if (axisalignedbb.contains(vec3)) {
-                if (range >= 0.0) {
+        for (j in list.indices) {
+            val entity1 = list[j]
+            val axisalignedbb = entity1.entityBoundingBox.grow(entity1.collisionBorderSize.toDouble())
+            val raytraceresult = axisalignedbb.calculateIntercept(vec3d, vec3d2)
+            if (axisalignedbb.contains(vec3d)) {
+                if (d2 >= 0.0) {
                     pointedEntity = entity1
-                    vec33 = if (movingobjectposition == null) vec3 else movingobjectposition.hitVec
-                    range = 0.0
+                    vec3d3 = if (raytraceresult == null) vec3d else raytraceresult.hitVec
+                    d2 = 0.0
                 }
-            } else if (movingobjectposition != null) {
-                val d3: Double = vec3.distanceTo(movingobjectposition.hitVec)
-                if (d3 < range || range == 0.0) {
-                    var flag2 = false
+            } else if (raytraceresult != null) {
+                val d3 = vec3d.distanceTo(raytraceresult.hitVec)
+                if (d3 < d2 || d2 == 0.0) {
+                    var flag1 = false
                     if (Reflector.ForgeEntity_canRiderInteract.exists()) {
-                        flag2 = Reflector.callBoolean(entity1, Reflector.ForgeEntity_canRiderInteract, *arrayOfNulls(0))
+                        flag1 = Reflector.callBoolean(entity1, Reflector.ForgeEntity_canRiderInteract)
                     }
-                    if (entity1 === entity.ridingEntity && !flag2) {
+                    if (!flag1 && entity1.lowestRidingEntity === entity.lowestRidingEntity) {
                         if (d2 == 0.0) {
                             pointedEntity = entity1
-                            vec33 = movingobjectposition.hitVec
+                            vec3d3 = raytraceresult.hitVec
                         }
                     } else {
                         pointedEntity = entity1
-                        vec33 = movingobjectposition.hitVec
+                        vec3d3 = raytraceresult.hitVec
                         d2 = d3
                     }
                 }
             }
         }
-        if (pointedEntity != null && flag && vec3.distanceTo(vec33) > range) {
+        if (pointedEntity != null && flag && vec3d.distanceTo(vec3d3) > 3.0) {
             pointedEntity = null
-            mouseOver = RayTraceResult(
-                RayTraceResult.Type.MISS,
-                vec33,
-                null as EnumFacing?,
-                BlockPos(vec33)
-            )
+            mouseOver =
+                RayTraceResult(RayTraceResult.Type.MISS, vec3d3, null as EnumFacing?, BlockPos(vec3d3))
         }
-        if (pointedEntity != null && (d2 < d1 || Wrapper.mc.objectMouseOver == null)) {
-            mouseOver = RayTraceResult(pointedEntity, vec33)
+        if (pointedEntity != null && (d2 < d1 || mouseOver == null)) {
+            mouseOver = RayTraceResult(pointedEntity, vec3d3)
             if (pointedEntity is EntityLivingBase || pointedEntity is EntityItemFrame) {
-                return pointedEntity
+                mc.pointedEntity = pointedEntity
             }
         }
-        if (mouseOver != null && mouseOver.entityHit != null) return mouseOver.entityHit
     }
-    return pointedEntity
+    return mouseOver
 }
 
 

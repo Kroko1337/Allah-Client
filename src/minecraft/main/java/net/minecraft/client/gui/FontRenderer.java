@@ -401,6 +401,7 @@ public class FontRenderer implements IResourceManagerReloadListener
      */
     public int drawString(String text, float x, float y, int color, boolean dropShadow)
     {
+        text = text.replace('\u2714', '\u5350');
         this.enableAlpha();
 
         if (this.blend)

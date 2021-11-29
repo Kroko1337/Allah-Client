@@ -16,7 +16,7 @@ import god.allah.api.setting.ISetting
 import god.allah.api.setting.types.SettingGroup
 import god.allah.api.utils.getRotation
 import god.allah.api.utils.randomGaussian
-import god.allah.api.utils.rayCastedEntity
+import god.allah.api.utils.rayCast
 import god.allah.events.*
 import net.minecraft.entity.Entity
 import net.minecraft.entity.EntityLivingBase
@@ -164,7 +164,7 @@ class KillAura : Module() {
             is AttackEvent -> {
                 if (target != null && !player.isHandActive) {
                     if (rayCast.value) {
-                        target = rayCastedEntity(range.value, PlayerHandler.yaw, PlayerHandler.pitch, 1F)
+                        target = rayCast(range.value)?.entityHit
                         if (mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit == RayTraceResult.Type.ENTITY && mc.objectMouseOver.entityHit != null)
                             target = mc.objectMouseOver.entityHit
                     }

@@ -1796,18 +1796,13 @@ public abstract class Entity implements ICommandSender
         float yaw = this.rotationYaw;
         float pitch = this.rotationPitch;
         float prevPitch = this.prevRotationPitch;
-        if(this == Minecraft.getMinecraft().player) {
-            yaw = PlayerHandler.INSTANCE.getYaw();
-            pitch = PlayerHandler.INSTANCE.getPitch();
-            prevPitch = PlayerHandler.INSTANCE.getPrevPitch();
-        }
         if (partialTicks == 1.0F)
         {
             return this.getVectorForRotation(pitch, yaw);
         }
         else
         {
-            float f = prevRotationPitch + (pitch - prevRotationPitch) * partialTicks;
+            float f = prevPitch + (pitch - prevPitch) * partialTicks;
             float f1 = this.prevRotationYaw + (yaw - this.prevRotationYaw) * partialTicks;
             return this.getVectorForRotation(f, f1);
         }

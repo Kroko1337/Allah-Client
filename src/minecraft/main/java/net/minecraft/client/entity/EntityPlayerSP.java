@@ -235,6 +235,11 @@ public class EntityPlayerSP extends AbstractClientPlayer {
         return this.getVectorForRotation(PlayerHandler.INSTANCE.getPitch(), PlayerHandler.INSTANCE.getYaw());
     }
 
+    @Override
+    public Vec3d getLookVec() {
+        return this.getVectorForRotation(PlayerHandler.INSTANCE.getPitch(), PlayerHandler.INSTANCE.getYaw());
+    }
+
     /**
      * Called to update the entity's position/logic.
      */

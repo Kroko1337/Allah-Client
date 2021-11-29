@@ -6,16 +6,11 @@ import god.allah.api.event.EventPriority
 import god.allah.api.executors.Category
 import god.allah.api.executors.Module
 import god.allah.api.setting.Value
-import god.allah.api.setting.types.CheckBox
 import god.allah.api.setting.types.ComboBox
-import god.allah.api.utils.addSpeed
 import god.allah.api.utils.getDirection
 import god.allah.api.utils.setSpeed
-import god.allah.events.JumpEvent
-import god.allah.events.MoveRelativeEvent
+import god.allah.events.MoveEvent
 import god.allah.events.UpdateEvent
-import net.minecraft.util.math.MathHelper
-import org.lwjgl.input.Keyboard
 import kotlin.math.sqrt
 
 @Module.Info("Speed", Category.MOVEMENT)
@@ -33,8 +28,9 @@ class Speed : Module() {
         when (mode.value) {
             "NCPYPort" -> {
                 when (event) {
-                    is JumpEvent -> {
-                        event.yaw = getDirection(player.rotationYaw)
+                    is MoveEvent -> {
+                        if (event.type == MoveEvent.Type.JUMP)
+                            event.yaw = getDirection(player.rotationYaw)
                     }
                     is UpdateEvent -> {
                         player.isSprinting = true

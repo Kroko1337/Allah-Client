@@ -12,7 +12,7 @@ import java.util.UUID;
 import javax.annotation.Nullable;
 
 import god.allah.api.helper.PlayerHandler;
-import god.allah.events.JumpEvent;
+import god.allah.events.MoveEvent;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockLadder;
@@ -2048,8 +2048,8 @@ public abstract class EntityLivingBase extends Entity
         {
             float yaw = this.rotationYaw;
             if(this == Minecraft.getMinecraft().player) {
-                final JumpEvent jumpEvent = new JumpEvent(this.rotationYaw).onFire();
-                yaw = jumpEvent.getYaw();
+                final MoveEvent moveEvent = new MoveEvent(this.rotationYaw, MoveEvent.Type.JUMP).onFire();
+                yaw = moveEvent.getYaw();
             }
             float f = yaw * 0.017453292F;
             this.motionX -= (double)(MathHelper.sin(f) * 0.2F);

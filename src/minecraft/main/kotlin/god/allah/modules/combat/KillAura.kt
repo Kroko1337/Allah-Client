@@ -186,11 +186,7 @@ class KillAura : Module() {
                     event.sprint = true
                 event.motion = slowdown.value
             }
-            is JumpEvent -> {
-                if (moveFix.value)
-                    event.yaw = PlayerHandler.yaw
-            }
-            is MoveRelativeEvent -> {
+            is MoveEvent -> {
                 if (moveFix.value)
                     event.yaw = PlayerHandler.yaw
             }

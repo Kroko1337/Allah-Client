@@ -13,7 +13,7 @@ import java.util.UUID;
 import javax.annotation.Nullable;
 
 import god.allah.api.helper.PlayerHandler;
-import god.allah.events.MoveRelativeEvent;
+import god.allah.events.MoveEvent;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFence;
@@ -1538,8 +1538,8 @@ public abstract class Entity implements ICommandSender
             forward = forward * f;
             float yaw = this.rotationYaw;
             if(this == Minecraft.getMinecraft().player) {
-                final MoveRelativeEvent moveRelativeEvent = new MoveRelativeEvent(this.rotationYaw).onFire();
-                yaw = moveRelativeEvent.getYaw();
+                final MoveEvent moveEvent = new MoveEvent(this.rotationYaw, MoveEvent.Type.MOVE).onFire();
+                yaw = moveEvent.getYaw();
             }
             float f1 = MathHelper.sin(yaw * 0.017453292F);
             float f2 = MathHelper.cos(yaw * 0.017453292F);

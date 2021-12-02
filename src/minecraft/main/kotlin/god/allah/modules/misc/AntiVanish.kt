@@ -14,6 +14,8 @@ import net.minecraft.util.text.event.ClickEvent
 @Module.Info("AntiVanish", Category.MISC)
 class AntiVanish : Module() {
 
+    //TODO: get names from UUID and safe them in a list
+
     @EventInfo(EventPriority.HIGH)
     override fun onEvent(event: Event) {
         when (event) {

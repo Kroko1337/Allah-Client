@@ -77,6 +77,7 @@ class LongJump : Module() {
                     sendPacket(CPacketPlayer.Position(x, y, z, false))
                     sendPacket(CPacketPlayer(true))
                 } else {
+                    stopMove()
                     sendMessage("§cYou are hungry please eat some food!", actionBar = true, prefix = false)
                     setToggled(false)
                 }

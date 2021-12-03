@@ -13,6 +13,14 @@ import god.allah.api.Wrapper.mc
 import net.minecraft.client.gui.Gui.*
 import org.lwjgl.opengl.GL11.*
 
+fun drawImage(location: ResourceLocation, x: Int, y: Int, width: Float, height: Float) {
+    mc.textureManager.bindTexture(location)
+    color(1F,1F,1F,1F)
+    glEnable(GL_BLEND)
+    drawModalRectWithCustomSizedTexture(x, y, 0F, 0F, width.toInt(), height.toInt(), width, height)
+    glDisable(GL_BLEND)
+}
+
 fun drawImage(location: ResourceLocation, scale: Float, x: Float, y: Float, width: Float, height: Float) {
     val scaleMulti = 1 / scale
     pushMatrix()

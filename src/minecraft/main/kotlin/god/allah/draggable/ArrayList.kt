@@ -14,7 +14,7 @@ import kotlin.collections.ArrayList
 import kotlin.math.abs
 import kotlin.math.max
 
-@Draggable.Info("ArrayList", 3, 3)
+@Draggable.Info("ArrayList", 1, 20)
 class ArrayList : Draggable() {
 
     override fun isVisible(): Boolean {
@@ -55,7 +55,7 @@ class ArrayList : Draggable() {
             }
         width = calcWidth
         hitBoxY = if (yAxis < yPos) {
-            abs(yAxis.toInt() + fr.FONT_HEIGHT)
+            abs(yAxis.toInt())
         } else {
             yPos
         }

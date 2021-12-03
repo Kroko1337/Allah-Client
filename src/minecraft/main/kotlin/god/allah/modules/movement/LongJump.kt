@@ -21,9 +21,9 @@ class LongJump : Module() {
 
     @EventInfo
     override fun onEvent(event: Event) {
-        when(mode.value) {
+        when (mode.value) {
             "Sentinel" -> {
-                when(event) {
+                when (event) {
                     is UpdateEvent -> {
                         if (player.hurtTime != 0) {
                             timer.timerSpeed = 0.4F
@@ -48,7 +48,7 @@ class LongJump : Module() {
                             }
                             sentinelState++
                         } else if (player.onGround) {
-                            if(sentinelWasAir)
+                            if (sentinelWasAir)
                                 setToggled(false)
                             timer.timerSpeed = 1F
                             sentinelState = 0
@@ -62,23 +62,29 @@ class LongJump : Module() {
     override fun onEnable() {
         sentinelState = 0
         sentinelWasAir = false
-        when(mode.value) {
+        when (mode.value) {
             "Sentinel" -> {
-                if (!player.foodStats.needFood()) {
-                    run {
-                        var distance = 0.06
-                        while (distance < 3.075) {
-                            sendPacket(CPacketPlayer.Position(x, y + 0.06, z, false))
-                            distance += 0.1E-8
-                            sendPacket(CPacketPlayer.Position(x, y + 0.1E-8, z, false))
-                            distance += 0.06
+                if (player.onGround) {
+                    if (!player.foodStats.needFood()) {
+                        run {
+                            var distance = 0.06
+                            while (distance < 3.075) {
+                                sendPacket(CPacketPlayer.Position(x, y + 0.06, z, false))
+                                distance += 0.1E-8
+                                sendPacket(CPacketPlayer.Position(x, y + 0.1E-8, z, false))
+                                distance += 0.06
+                            }
                         }
+                        sendPacket(CPacketPlayer.Position(x, y, z, false))
+                        sendPacket(CPacketPlayer(true))
+                    } else {
+                        stopMove()
+                        sendMessage("§cYou are hungry please eat some food!", actionBar = true, prefix = false)
+                        setToggled(false)
                     }
-                    sendPacket(CPacketPlayer.Position(x, y, z, false))
-                    sendPacket(CPacketPlayer(true))
                 } else {
                     stopMove()
-                    sendMessage("§cYou are hungry please eat some food!", actionBar = true, prefix = false)
+                    sendMessage("§cPlease enable on ground!", actionBar = true, prefix = false)
                     setToggled(false)
                 }
             }

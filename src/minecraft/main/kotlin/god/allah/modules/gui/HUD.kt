@@ -7,6 +7,7 @@ import god.allah.api.executors.Category
 import god.allah.api.executors.Module
 import god.allah.api.setting.Value
 import god.allah.api.setting.types.CheckBox
+import god.allah.api.setting.types.ComboBox
 import god.allah.api.utils.getRainbow
 import god.allah.events.Render2DEvent
 import kotlin.math.max
@@ -14,6 +15,9 @@ import kotlin.math.max
 
 @Module.Info("HUD", Category.GUI)
 class HUD : Module() {
+
+    @Value("Watermark Mode")
+    val watermarkMode = ComboBox("Allah", arrayOf("Allah", "Holo"))
 
     @Value("Suffix")
     val suffix = CheckBox(true)

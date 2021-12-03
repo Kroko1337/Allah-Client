@@ -5,6 +5,7 @@ import god.allah.api.event.EventInfo
 import god.allah.api.event.EventPriority
 import god.allah.api.executors.Category
 import god.allah.api.executors.Module
+import god.allah.api.helper.TimeHelper
 import god.allah.api.setting.Value
 import god.allah.api.setting.types.ComboBox
 import god.allah.api.utils.setSpeed
@@ -20,9 +21,22 @@ class Fly : Module() {
 
     var watchDuckTime = 0
 
+    private val blocksMCTimeHelper = TimeHelper()
+
     @EventInfo
     override fun onEvent(event: Event) {
         when (mode.value) {
+            "BlocksMC" -> {
+                when(event) {
+                    is NoClipEvent -> {
+                        event.noClip = true
+                    }
+                    is UpdateEvent -> {
+                        player.motionY = 5E-3
+                        setSpeed(1.2, onlyWhenPress = true)
+                    }
+                }
+            }
             "Vanilla" -> {
                 when (event) {
                     is UpdateEvent -> {
@@ -56,6 +70,7 @@ class Fly : Module() {
 
     override fun onEnable() {
         watchDuckTime = 0
+        blocksMCTimeHelper.reset()
     }
 
     override fun onDisable() {

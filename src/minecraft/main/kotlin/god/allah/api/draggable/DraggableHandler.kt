@@ -49,8 +49,8 @@ object DraggableHandler {
                 val nextPosX = (mouseX + dragX).toInt()
                 val nextPosY = (mouseY + dragY).toInt()
 
-                it.xPos = MathHelper.clamp(nextPosX, 0, Resolution.width)
-                it.yPos = MathHelper.clamp(nextPosY, 0, Resolution.height)
+                it.xPos = MathHelper.clamp(nextPosX, 0, Resolution.width - (it.width - abs(it.xPos - it.hitBoxX)))
+                it.yPos = MathHelper.clamp(nextPosY, 0, Resolution.height - (it.height - abs(it.yPos - it.hitBoxY)))
                 it.hitBoxX = it.xPos
                 it.hitBoxY = it.yPos
 

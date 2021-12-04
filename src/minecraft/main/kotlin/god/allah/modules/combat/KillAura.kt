@@ -15,6 +15,7 @@ import god.allah.api.setting.Dependency
 import god.allah.api.setting.ISetting
 import god.allah.api.setting.types.SettingGroup
 import god.allah.api.utils.getRotation
+import god.allah.api.utils.random
 import god.allah.api.utils.randomGaussian
 import god.allah.api.utils.rayCast
 import god.allah.events.*
@@ -40,6 +41,9 @@ class KillAura : Module() {
 
     @Value("Perfect Hit")
     private val perfectHit = CheckBox(true)
+
+    @Value("Randomize Perfect Hit")
+    private val randomizePerfectHit = CheckBox(true, Dependency(perfectHit, true))
 
     @Value("CPS")
     private val cps = SliderSetting<Long>(12, 1, 20, Dependency(perfectHit, false))
@@ -84,10 +88,30 @@ class KillAura : Module() {
     private val resetRotationMode = ComboBox("Silent", arrayOf("Silent", "Visible"), Dependency(resetRotation, true))
 
     @Value("Attacking")
-    private val attackingGroup = SettingGroup(range, targetMode, hybridMode, perfectHit, cps, onlyPlayer, keepSprint, slowdown, throughWalls, noTimerAttack)
+    private val attackingGroup = SettingGroup(
+        range,
+        targetMode,
+        hybridMode,
+        perfectHit,
+        cps,
+        onlyPlayer,
+        keepSprint,
+        slowdown,
+        throughWalls,
+        noTimerAttack
+    )
 
     @Value("Rotation")
-    private val rotationGroup = SettingGroup(moveFix, bestVector, rayCast, mouseSensitivity, noNearRotate, heuristics, resetRotation, resetRotationMode)
+    private val rotationGroup = SettingGroup(
+        moveFix,
+        bestVector,
+        rayCast,
+        mouseSensitivity,
+        noNearRotate,
+        heuristics,
+        resetRotation,
+        resetRotationMode
+    )
 
     var target: Entity? = null
     var currentTarget = 0
@@ -213,11 +237,17 @@ class KillAura : Module() {
             if (flag2) {
                 f *= 1.5f
             }
-            return f == player.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).attributeValue
+            var perfectHit = f == player.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).attributeValue
+            if (perfectHit) {
+                if (randomizePerfectHit.value && !timeHelper.hasReached(random(0, 50).toLong(), true))
+                    perfectHit = false
+            } else {
+                timeHelper.reset()
+            }
+            return perfectHit
         } else {
             return timeHelper.hasReached(1000 / cps.value + randomGaussian(20.0).toLong())
         }
-        return false
     }
 
     private fun attackEntity(target: Entity) {
@@ -245,14 +275,15 @@ class KillAura : Module() {
 
     private fun getLowestEntity(): Entity? {
         var target: EntityLivingBase? = null
-        world.loadedEntityList.filter { entity -> isValid(entity) && entity is EntityLivingBase }.forEach { entity ->
-            when (entity) {
-                is EntityLivingBase -> {
-                    if (target == null || target!!.health > entity.health)
-                        target = entity
+        world.loadedEntityList.filter { entity -> isValid(entity) && entity is EntityLivingBase }
+            .forEach { entity ->
+                when (entity) {
+                    is EntityLivingBase -> {
+                        if (target == null || target!!.health > entity.health)
+                            target = entity
+                    }
                 }
             }
-        }
         return target
     }
 

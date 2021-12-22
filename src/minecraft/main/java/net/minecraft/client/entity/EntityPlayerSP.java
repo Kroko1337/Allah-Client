@@ -249,7 +249,7 @@ public class EntityPlayerSP extends AbstractClientPlayer {
             super.onUpdate();
 
             if (this.isRiding()) {
-                this.connection.sendPacket(new CPacketPlayer.Rotation(this.rotationYaw, this.rotationPitch, this.onGround));
+                this.connection.sendPacket(new CPacketPlayer.Rotation(PlayerHandler.INSTANCE.getYaw(), PlayerHandler.INSTANCE.getPitch(), this.onGround));
                 this.connection.sendPacket(new CPacketInput(this.moveStrafing, this.moveForward, this.movementInput.jump, this.movementInput.sneak));
                 Entity entity = this.getLowestRidingEntity();
 

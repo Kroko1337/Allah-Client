@@ -60,7 +60,7 @@ fun getRotation(
     var z = target.posZ - eyeZ
 
     if (bestVector) {
-        val bestVec = getBestVector(player.getPositionEyes(Wrapper.mc.timer.renderPartialTicks), target.entityBoundingBox)
+        val bestVec = getBestVector(player.getPositionEyes(mc.timer.renderPartialTicks), target.entityBoundingBox)
         x = bestVec.x - eyeX
         y = bestVec.y - eyeY
         z = bestVec.z - eyeZ
@@ -97,8 +97,8 @@ fun getRotation(
 
 
     val angle = MathHelper.sqrt(x * x + z * z).toDouble()
-    val yawAngle = (MathHelper.atan2(z, x) * (180.0 / Math.PI)).toFloat() - 90.0f
-    val pitchAngle = (-(MathHelper.atan2(y, angle) * (180.0 / Math.PI))).toFloat()
+    val yawAngle = (MathHelper.atan2(z, x) * 180.0 / Math.PI).toFloat() - 90.0f
+    val pitchAngle = (-(MathHelper.atan2(y, angle) * 180.0 / Math.PI)).toFloat()
     val pitch = updateRotation(PlayerHandler.currentPitch, pitchAngle, 180.0F)
     val yaw = updateRotation(PlayerHandler.currentYaw, yawAngle, 180.0F)
     return handleMouseSensitivity(mouseSensitivity, yaw, pitch, PlayerHandler.currentYaw, PlayerHandler.currentPitch)

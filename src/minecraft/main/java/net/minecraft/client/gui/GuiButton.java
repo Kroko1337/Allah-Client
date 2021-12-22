@@ -1,11 +1,15 @@
 package net.minecraft.client.gui;
 
+import god.allah.api.utils.ColorUtilKt;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.audio.SoundHandler;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.util.ResourceLocation;
+import org.lwjgl.opengl.GL11;
+
+import java.awt.*;
 
 public class GuiButton extends Gui
 {
@@ -85,11 +89,37 @@ public class GuiButton extends Gui
             GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
             this.hovered = mouseX >= this.x && mouseY >= this.y && mouseX < this.x + this.width && mouseY < this.y + this.height;
             int i = this.getHoverState(this.hovered);
-            GlStateManager.enableBlend();
-            GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-            GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-            this.drawTexturedModalRect(this.x, this.y, 0, 46 + i * 20, this.width / 2, this.height);
-            this.drawTexturedModalRect(this.x + this.width / 2, this.y, 200 - this.width / 2, 46 + i * 20, this.width / 2, this.height);
+
+            GL11.glDisable(GL11.GL_TEXTURE_2D);
+            GL11.glEnable(GL11.GL_BLEND);
+            GL11.glBegin(GL11.GL_POLYGON);
+            GL11.glColor4f(0, 0, 0, 0.4F);
+            GL11.glVertex2d(x, y);
+            GL11.glVertex2d(x, y + height);
+            GL11.glVertex2d(x + width, y + height);
+            GL11.glVertex2d(x + width, y);
+            GL11.glEnd();
+            GL11.glDisable(GL11.GL_BLEND);
+            GL11.glEnable(GL11.GL_TEXTURE_2D);
+            GlStateManager.resetColor();
+
+            if(isMouseOver()) {
+                final Color color = new Color(ColorUtilKt.getRainbow(25, 4000, 0.5F, 1));
+                final Color color2 = new Color(ColorUtilKt.getRainbow(250, 4000, 0.5F, 1));
+                GL11.glDisable(GL11.GL_TEXTURE_2D);
+                GL11.glBegin(GL11.GL_POLYGON);
+                GL11.glColor4f((float)color.getRed() / 255, (float)color.getGreen() / 255, (float)color.getBlue() / 255, 0.8F);
+                GL11.glVertex2d(x, y + height - 2);
+                GL11.glVertex2d(x, y + height);
+                GL11.glColor4f((float)color2.getRed() / 255, (float)color2.getGreen() / 255, (float)color2.getBlue() / 255, 0.8F);
+                GL11.glVertex2d(x + width, y + height);
+                GL11.glVertex2d(x + width, y + height - 2);
+                GL11.glEnd();
+                GL11.glEnable(GL11.GL_TEXTURE_2D);
+                GlStateManager.resetColor();
+            }
+            /*this.drawTexturedModalRect(this.x, this.y, 0, 46 + i * 20, this.width / 2, this.height);
+            this.drawTexturedModalRect(this.x + this.width / 2, this.y, 200 - this.width / 2, 46 + i * 20, this.width / 2, this.height);*/
             this.mouseDragged(mc, mouseX, mouseY);
             int j = 14737632;
 

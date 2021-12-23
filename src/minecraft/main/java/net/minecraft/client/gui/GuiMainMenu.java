@@ -654,13 +654,6 @@ public class GuiMainMenu extends GuiScreen {
             k1 = custompanoramaproperties.getOverlay2Bottom();
         }
 
-        if (l != 0 || i1 != 0) {
-            //this.drawGradientRect(0, 0, this.width, this.height, l, i1);
-        }
-
-        if (j1 != 0 || k1 != 0) {
-            //this.drawGradientRect(0, 0, this.width, this.height, j1, k1);
-        }
 
         int colorOffset = 0;
         for (int rectX = calcX - 2; rectX < calcX + calcWidth; rectX += 1) {

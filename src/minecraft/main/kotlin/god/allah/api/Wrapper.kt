@@ -8,6 +8,7 @@ import net.minecraft.client.gui.FontRenderer
 import net.minecraft.network.Packet
 import net.minecraft.util.text.Style
 import net.minecraft.util.text.TextComponentString
+import kotlin.properties.Delegates
 
 object Wrapper {
     lateinit var instance: Main
@@ -15,6 +16,8 @@ object Wrapper {
     const val name = "Allah"
     const val version = "v1.0"
     var coder = arrayOf("Kroko", "Felix1337", "Aro")
+
+    val initTime = System.currentTimeMillis()
 
     const val prefix = "§c$name §7>> §f"
     var commandPrefix = "."

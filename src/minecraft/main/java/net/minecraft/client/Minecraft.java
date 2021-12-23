@@ -412,8 +412,8 @@ public class Minecraft implements IThreadListener, ISnooperInfo {
     private long debugCrashKeyPressTime = -1L;
     private IReloadableResourceManager resourceManager;
     private final MetadataSerializer metadataSerializer = new MetadataSerializer();
-    private final List<IResourcePack> defaultResourcePacks = Lists.<IResourcePack>newArrayList();
-    private final DefaultResourcePack defaultResourcePack;
+    public final List<IResourcePack> defaultResourcePacks = Lists.<IResourcePack>newArrayList();
+    public final DefaultResourcePack defaultResourcePack;
     private ResourcePackRepository resourcePackRepository;
     private LanguageManager languageManager;
     private BlockColors blockColors;

@@ -27,6 +27,7 @@ import god.allah.api.auth.handle.AuthenticationKt;
 import god.allah.api.services.AlteningAPIKt;
 import god.allah.api.utils.ColorUtilKt;
 import god.allah.api.utils.LoginUtilKt;
+import god.allah.shader.BackgroundShader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
@@ -599,12 +600,41 @@ public class GuiMainMenu extends GuiScreen {
         tessellator.draw();
     }
 
+    private final BackgroundShader backgroundShader = new BackgroundShader(BackgroundShader.Type.FOG);
+    private final BackgroundShader nextBackgroundShader = new BackgroundShader(BackgroundShader.Type.FOG);
+
     /**
      * Draws the screen and all the components in it.
      */
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+
+        GlStateManager.disableCull();
+        if (dragged) {
+            xPos = mouseX + draggedX;
+            if (xPos > 0)
+                nextBackgroundShader.changeTo(backgroundShader.getType().getBefore());
+            else
+                nextBackgroundShader.changeTo(backgroundShader.getType().getNext());
+            nextBackgroundShader.use();
+            GL11.glBegin(GL11.GL_POLYGON);
+            GL11.glVertex2d(0, 0);
+            GL11.glVertex2d(width, 0);
+            GL11.glVertex2d(width, height);
+            GL11.glVertex2d(0, height);
+            GL11.glEnd();
+            nextBackgroundShader.disuse();
+        }
+
         this.panoramaTimer += partialTicks;
-        /* Shader */
+        backgroundShader.use();
+        GL11.glBegin(GL11.GL_POLYGON);
+        GL11.glVertex2d(xPos, 0);
+        GL11.glVertex2d(width + xPos, 0);
+        GL11.glVertex2d(width + xPos, height);
+        GL11.glVertex2d(xPos, height);
+        GL11.glEnd();
+        backgroundShader.disuse();
+
        /* GlStateManager.disableAlpha();
         this.renderSkybox(mouseX, mouseY, partialTicks);*/
         GlStateManager.enableAlpha();
@@ -643,8 +673,6 @@ public class GuiMainMenu extends GuiScreen {
 
         colorOffset %= 360;
 
-        int bottomColorBegin = colorOffset;
-
         for (int rectY = calcY - 2; rectY < calcY + calcHeight; rectY += 1) {
             if (rectY <= calcY + calcHeight) {
                 //rectX = MathHelper.clamp(rectX, calcX, calcWidth);
@@ -672,13 +700,11 @@ public class GuiMainMenu extends GuiScreen {
             }
         }
 
-        System.out.println(colorOffset);
-
+        final Color backgroundColor = new Color(0x292A2F);
         GL11.glDisable(GL11.GL_CULL_FACE);
         GL11.glDisable(GL11.GL_TEXTURE_2D);
         GL11.glEnable(GL11.GL_BLEND);
-        final Color color = new Color(0x3E424B);
-        GL11.glColor4d((double) color.getRed() / 255, (double) color.getGreen() / 255, (double) color.getBlue() / 255, 0.6);
+        GL11.glColor4d((double) backgroundColor.getRed() / 255, (double) backgroundColor.getGreen() / 255, (double) backgroundColor.getBlue() / 255, 0.8);
         GL11.glBegin(GL11.GL_POLYGON);
         GL11.glVertex2d(calcX, calcY);
         GL11.glVertex2d(calcX, calcY + calcHeight);
@@ -687,7 +713,6 @@ public class GuiMainMenu extends GuiScreen {
         GL11.glEnd();
         GL11.glEnable(GL11.GL_TEXTURE_2D);
         GL11.glDisable(GL11.GL_BLEND);
-        //drawRect(calcX, calcY, calcX + calcWidth, calcY + calcHeight, -1);
 
         fontRenderer.drawString(Wrapper.name, calcX + calcWidth / 2 - fontRenderer.getStringWidth(Wrapper.name) / 2, calcY - fontRenderer.FONT_HEIGHT - 5, -1);
 
@@ -714,11 +739,36 @@ public class GuiMainMenu extends GuiScreen {
         }
     }
 
+    boolean dragged = false;
+    int draggedX, xPos;
+
+    @Override
+    protected void mouseReleased(int mouseX, int mouseY, int state) {
+        dragged = false;
+
+        if (xPos <= -20) {
+            backgroundShader.changeTo(backgroundShader.getType().getNext());
+        } else if (xPos >= 20) {
+            backgroundShader.changeTo(backgroundShader.getType().getBefore());
+        }
+        xPos = 0;
+        super.mouseReleased(mouseX, mouseY, state);
+    }
+
     /**
      * Called when the mouse is clicked. Args : mouseX, mouseY, clickedButton
      */
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
         super.mouseClicked(mouseX, mouseY, mouseButton);
+
+        if (mouseButton == 0) {
+            if (mouseX <= width && mouseX >= width - 30 || mouseX <= 30) {
+                dragged = true;
+                draggedX = xPos - mouseX;
+                backgroundShader.setDraggedX(draggedX);
+            }
+            return;
+        }
 
         synchronized (this.threadLock) {
             if (!this.openGLWarning1.isEmpty() && !StringUtils.isNullOrEmpty(this.openGLWarningLink) && mouseX >= this.openGLWarningX1 && mouseX <= this.openGLWarningX2 && mouseY >= this.openGLWarningY1 && mouseY <= this.openGLWarningY2) {

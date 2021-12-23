@@ -758,7 +758,10 @@ public class GuiMainMenu extends GuiScreen {
         if (mouseButton == 0) {
             if (mouseX <= width && mouseX >= width - 30 || mouseX <= 30) {
                 dragged = true;
-                draggedX = Math.abs(xPos - mouseX);
+                if (mouseX >= width - 30)
+                    draggedX = xPos - mouseX;
+                else if(mouseX <= 30)
+                    draggedX = mouseX - xPos;
             }
             return;
         }

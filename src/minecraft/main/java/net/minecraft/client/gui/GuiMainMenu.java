@@ -745,6 +745,7 @@ public class GuiMainMenu extends GuiScreen {
             backgroundShader.changeTo(backgroundShader.getType().getBefore());
         }
         xPos = 0;
+        backgroundShader.setDraggedX(0);
         super.mouseReleased(mouseX, mouseY, state);
     }
 
@@ -757,8 +758,7 @@ public class GuiMainMenu extends GuiScreen {
         if (mouseButton == 0) {
             if (mouseX <= width && mouseX >= width - 30 || mouseX <= 30) {
                 dragged = true;
-                draggedX = xPos - mouseX;
-                backgroundShader.setDraggedX(draggedX);
+                draggedX = Math.abs(xPos - mouseX);
             }
             return;
         }

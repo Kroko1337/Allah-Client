@@ -1575,7 +1575,7 @@ public class Minecraft implements IThreadListener, ISnooperInfo {
      */
     public void toggleFullscreen() {
         try {
-            this.fullscreen = !this.fullscreen;
+           /* this.fullscreen = !this.fullscreen;
             this.gameSettings.fullScreen = this.fullscreen;
 
             if (this.fullscreen) {
@@ -1612,7 +1612,7 @@ public class Minecraft implements IThreadListener, ISnooperInfo {
 
             Display.setFullscreen(this.fullscreen);
             Display.setVSyncEnabled(this.gameSettings.enableVsync);
-            this.updateDisplay();
+            this.updateDisplay();*/
         } catch (Exception exception) {
             LOGGER.error("Couldn't toggle fullscreen", (Throwable) exception);
         }
@@ -1898,7 +1898,6 @@ public class Minecraft implements IThreadListener, ISnooperInfo {
                 }
             }
         }
-
         this.processKeyBinds();
     }
 

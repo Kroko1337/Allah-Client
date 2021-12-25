@@ -1,5 +1,6 @@
 package god.allah.api
 
+import god.allah.api.clickgui.ClickGUI
 import god.allah.api.executors.Module
 import god.allah.main.Main
 import net.minecraft.client.Minecraft
@@ -18,6 +19,8 @@ object Wrapper {
     var coder = arrayOf("Kroko", "Felix1337", "Aro")
 
     val initTime = System.currentTimeMillis()
+
+    lateinit var clickGUI: ClickGUI
 
     const val prefix = "§c$name §7>> §f"
     var commandPrefix = "."

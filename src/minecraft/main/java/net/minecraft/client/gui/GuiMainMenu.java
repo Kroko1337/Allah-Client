@@ -376,7 +376,7 @@ public class GuiMainMenu extends GuiScreen {
 
         if (button.id == 14 && this.realmsButton.visible) {
             //this.switchToRealms();
-            AuthenticationKt.switchTo(AuthService.ALTENING);
+
             LoginUtilKt.generateAltening("api-lalc-shdk-tfjv");
         }
 

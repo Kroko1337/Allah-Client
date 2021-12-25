@@ -4,6 +4,7 @@ import god.allah.api.clickgui.AbstractClickGUI
 import god.allah.api.executors.Module
 import god.allah.api.Wrapper
 import net.minecraft.client.gui.Gui
+import java.awt.Color
 
 class ModuleRendering(var mod: Module) : AbstractClickGUI() {
 
@@ -19,7 +20,7 @@ class ModuleRendering(var mod: Module) : AbstractClickGUI() {
             Gui.drawRect(x, y - 1, x + width, y + height - 1, Int.MIN_VALUE)
         }
 
-        Wrapper.fr.drawStringWithShadow(mod.name, calculateMiddle(mod.name, x, width), (y + height - 12).toFloat(), -1)
+        Wrapper.fr.drawStringWithShadow(mod.name, calculateMiddle(mod.name, x, width), (y + height - 12).toFloat(), if(mod.isToggled()) -1 else Color.gray.rgb)
         super.drawModules(width, height, x, y)
     }
 

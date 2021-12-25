@@ -1,6 +1,7 @@
 package god.allah.modules.gui
 
 import god.allah.api.Registry
+import god.allah.api.Wrapper
 import god.allah.api.clickgui.ClickGUI
 import god.allah.api.event.Event
 import god.allah.api.executors.Category
@@ -15,7 +16,7 @@ class ClickGUI : Module() {
     }
 
     override fun onEnable() {
-        //mc.displayGuiScreen(Registry.clickGui)
+        mc.displayGuiScreen(Wrapper.clickGUI)
         setToggled(false)
     }
 

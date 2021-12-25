@@ -15,8 +15,10 @@ private val parser = JsonParser()
 
 fun generateAlt(apiKey: String): AlteningAccount {
     val url = URL("$api/generate?key=$apiKey")
-    val connection = url.openConnection() as HttpsURLConnection
+    println(url.toString())
+    val connection : HttpsURLConnection = url.openConnection() as HttpsURLConnection
     connection.requestMethod = "GET"
+    connection.doInput = true
     connection.doOutput = true
     connection.setRequestProperty("Content-Type", "application/json")
     val inputStream = connection.inputStream

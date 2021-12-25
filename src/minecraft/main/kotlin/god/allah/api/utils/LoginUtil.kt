@@ -16,9 +16,9 @@ import java.net.Proxy
 var status = "Waiting..."
 
 fun generateAltening(apiKey: String) {
-    switchTo(AuthService.ALTENING)
     Thread() {
         run {
+            switchTo(AuthService.ALTENING)
             status = "Generating..."
             val account = generateAlt(apiKey)
             val service = YggdrasilAuthenticationService(Proxy.NO_PROXY, "").createUserAuthentication(Agent.MINECRAFT)

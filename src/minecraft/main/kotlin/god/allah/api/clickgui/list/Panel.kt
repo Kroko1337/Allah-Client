@@ -14,20 +14,19 @@ class Panel (var x: Int, var y: Int, private var categories: Category) : Abstrac
 
     private var dragging: Boolean = false
 
-    private var extended: Boolean = false
+    var extended: Boolean = false
 
     private var dragX: Int = 0
     private var dragY: Int = 0
 
     private var mouseX : Int = 0
     private var mouseY : Int = 0
-    private var moduleListArrayList: ArrayList<ModuleRendering>? = null
+    val modules = ArrayList<ModuleRendering>()
 
     init {
-        moduleListArrayList = ArrayList()
         for (module in getEntries(Module::class.java)) {
             if (module.category !== this.categories) continue
-            moduleListArrayList!!.add(ModuleRendering(module))
+            modules.add(ModuleRendering(module))
         }
 
     }
@@ -47,7 +46,7 @@ class Panel (var x: Int, var y: Int, private var categories: Category) : Abstrac
 
         if (extended) {
             var yAxis = (0 + height)
-            for (list in moduleListArrayList!!) {
+            for (list in modules!!) {
                 list.drawModules(width, height, x, y + yAxis)
                 yAxis += height
             }
@@ -67,12 +66,12 @@ class Panel (var x: Int, var y: Int, private var categories: Category) : Abstrac
                 this.extended = !extended
             }
         }
-        if (extended) moduleListArrayList!!.forEach(Consumer { moduleButton: ModuleRendering -> moduleButton.mouseClicked(mouseX, mouseY, mouseButton) })
+        if (extended) modules!!.forEach(Consumer { moduleButton: ModuleRendering -> moduleButton.mouseClicked(mouseX, mouseY, mouseButton) })
 
     }
 
     override fun mouseReleased() {
         dragging = false
-        if (extended) moduleListArrayList!!.forEach(Consumer { moduleButton: ModuleRendering -> moduleButton.mouseReleased() })
+        if (extended) modules!!.forEach(Consumer { moduleButton: ModuleRendering -> moduleButton.mouseReleased() })
     }
 }

@@ -37,7 +37,7 @@ class BackgroundShader(var type: Type) {
     }
 
     enum class Type(val shader: Shader) {
-        PENIS(Shader("penis-background")), COLORS(Shader("colors-background")), KOKS(Shader("koks-background")), SWASTIKA(Shader("swastika-background")), FOG(Shader("fog-background")) , LIQUID(Shader("liquid-background")), SUN(Shader("sun-background")), SNAKE(Shader("snake-background")), DRAWN(Shader("drawn-background")), HOLE(Shader("hole-background")), PEPPA(Shader("peppa-background")), AMONGUS(Shader("amongus-background")), CLOUDS(Shader("cloud-background")), RETRO_SUN(Shader("retrosun-background")), VORONOI(Shader("voronoi-background")), BLOCKS(Shader("blocks-background")), BUBBLES(Shader("bubbles-background"));
+        LAVA(Shader("lava-background")), PENIS(Shader("penis-background")), COLORS(Shader("colors-background")), KOKS(Shader("koks-background")), SWASTIKA(Shader("swastika-background")), FOG(Shader("fog-background")) , LIQUID(Shader("liquid-background")), SUN(Shader("sun-background")), SNAKE(Shader("snake-background")), DRAWN(Shader("drawn-background")), HOLE(Shader("hole-background")), PEPPA(Shader("peppa-background")), AMONGUS(Shader("amongus-background")), CLOUDS(Shader("cloud-background")), RETRO_SUN(Shader("retrosun-background")), VORONOI(Shader("voronoi-background")), BLOCKS(Shader("blocks-background")), BUBBLES(Shader("bubbles-background"));
 
         fun getNext() : Type {
             var next = ordinal + 1

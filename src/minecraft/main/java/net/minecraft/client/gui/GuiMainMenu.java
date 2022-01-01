@@ -20,6 +20,7 @@ import java.util.Random;
 import com.mojang.authlib.Agent;
 import com.mojang.authlib.yggdrasil.YggdrasilAuthenticationService;
 import com.mojang.authlib.yggdrasil.YggdrasilUserAuthentication;
+import god.allah.api.Resolution;
 import god.allah.api.Wrapper;
 import god.allah.api.auth.AuthService;
 import god.allah.api.auth.account.AlteningAccount;
@@ -605,16 +606,19 @@ public class GuiMainMenu extends GuiScreen {
 
     /**
      * Draws the screen and all the components in it.
+     * TODO: improve swiping
      */
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-
+        lastXPos = xPos;
         GlStateManager.disableCull();
         if (dragged) {
             xPos = mouseX + draggedX;
+            swipeSpeed = Math.abs(xPos - lastXPos);
             if (xPos > 0)
                 nextBackgroundShader.changeTo(backgroundShader.getType().getBefore());
             else
                 nextBackgroundShader.changeTo(backgroundShader.getType().getNext());
+
             nextBackgroundShader.use();
             GL11.glBegin(GL11.GL_POLYGON);
             GL11.glVertex2d(0, 0);
@@ -626,6 +630,9 @@ public class GuiMainMenu extends GuiScreen {
         }
 
         this.panoramaTimer += partialTicks;
+
+        drawRect(xPos, 0, xPos + width, height, Color.black.getRGB());
+
         backgroundShader.use();
         GL11.glBegin(GL11.GL_POLYGON);
         GL11.glVertex2d(xPos, 0);
@@ -733,17 +740,17 @@ public class GuiMainMenu extends GuiScreen {
     }
 
     boolean dragged = false;
-    int draggedX, xPos;
+    int draggedX, xPos, lastXPos, swipeSpeed;
 
     @Override
     protected void mouseReleased(int mouseX, int mouseY, int state) {
         dragged = false;
-
-        if (xPos <= -20) {
-            backgroundShader.changeTo(backgroundShader.getType().getNext());
-        } else if (xPos >= 20) {
-            backgroundShader.changeTo(backgroundShader.getType().getBefore());
-        }
+        if (swipeSpeed > 3 || Math.abs(xPos) > Resolution.INSTANCE.getWidth() / 6)
+            if (xPos < 0) {
+                backgroundShader.changeTo(backgroundShader.getType().getNext());
+            } else if (xPos > 0) {
+                backgroundShader.changeTo(backgroundShader.getType().getBefore());
+            }
         xPos = 0;
         backgroundShader.setDraggedX(0);
         super.mouseReleased(mouseX, mouseY, state);
@@ -756,13 +763,8 @@ public class GuiMainMenu extends GuiScreen {
         super.mouseClicked(mouseX, mouseY, mouseButton);
 
         if (mouseButton == 0) {
-            if (mouseX <= width && mouseX >= width - 30 || mouseX <= 30) {
-                dragged = true;
-                if (mouseX >= width - 30)
-                    draggedX = xPos - mouseX;
-                else if(mouseX <= 30)
-                    draggedX = mouseX - xPos;
-            }
+            dragged = true;
+            draggedX = xPos - mouseX;
             return;
         }
 

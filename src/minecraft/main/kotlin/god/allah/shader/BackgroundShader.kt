@@ -1,12 +1,14 @@
 package god.allah.shader
 
-import god.allah.api.Resolution
 import god.allah.api.Wrapper
 import god.allah.api.shader.Shader
 import net.minecraft.client.Minecraft
+import org.lwjgl.BufferUtils
 import org.lwjgl.input.Mouse
+import org.lwjgl.opengl.ARBShaderObjects
 import org.lwjgl.opengl.Display
 import org.lwjgl.opengl.GL20
+
 
 class BackgroundShader(var type: Type) {
 
@@ -23,9 +25,17 @@ class BackgroundShader(var type: Type) {
             Display.getHeight().toFloat()
         )
 
-        GL20.glUniform2f(
-            type.shader.getUniform("mouse"), 0F, 0F
-        )
+        val mc = Minecraft.getMinecraft()
+
+        val mouseX = Mouse.getX() / mc.displayWidth.toFloat()
+        val mouseY = Mouse.getY() / mc.displayHeight.toFloat()
+        val mouseBuffer = BufferUtils.createFloatBuffer(2)
+        mouseBuffer.position(0)
+        mouseBuffer.put(mouseX)
+        mouseBuffer.put(mouseY)
+        mouseBuffer.flip()
+
+        ARBShaderObjects.glUniform2ARB(type.shader.getUniform("mouse"), mouseBuffer)
     }
 
     fun disuse() {

@@ -25,17 +25,10 @@ class BackgroundShader(var type: Type) {
             Display.getHeight().toFloat()
         )
 
-        val mc = Minecraft.getMinecraft()
-
-        val mouseX = Mouse.getX() / mc.displayWidth.toFloat()
-        val mouseY = Mouse.getY() / mc.displayHeight.toFloat()
-        val mouseBuffer = BufferUtils.createFloatBuffer(2)
-        mouseBuffer.position(0)
-        mouseBuffer.put(mouseX)
-        mouseBuffer.put(mouseY)
-        mouseBuffer.flip()
-
-        ARBShaderObjects.glUniform2ARB(type.shader.getUniform("mouse"), mouseBuffer)
+        GL20.glUniform2f(
+            type.shader.getUniform("mouse"), 0.5F,
+            0.5F
+        )
     }
 
     fun disuse() {

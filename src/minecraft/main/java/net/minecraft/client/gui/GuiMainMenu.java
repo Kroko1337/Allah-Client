@@ -604,9 +604,10 @@ public class GuiMainMenu extends GuiScreen {
     private final BackgroundShader backgroundShader = new BackgroundShader(BackgroundShader.Type.FOG);
     private final BackgroundShader nextBackgroundShader = new BackgroundShader(BackgroundShader.Type.FOG);
 
+    //Todo: Fix Swiping when press button
+
     /**
      * Draws the screen and all the components in it.
-     * TODO: improve swiping
      */
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         lastXPos = xPos;

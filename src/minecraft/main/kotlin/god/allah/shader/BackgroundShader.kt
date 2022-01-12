@@ -25,10 +25,11 @@ class BackgroundShader(var type: Type) {
             Display.getHeight().toFloat()
         )
 
-        GL20.glUniform2f(
-            type.shader.getUniform("mouse"), 0.5F,
-            0.5F
-        )
+        if (type == Type.FISH)
+            GL20.glUniform2f(
+                type.shader.getUniform("mouse"), 0.5F,
+                0.5F
+            )
     }
 
     fun disuse() {
@@ -41,18 +42,33 @@ class BackgroundShader(var type: Type) {
     }
 
     enum class Type(val shader: Shader) {
-        FISH(Shader("fish-background")), LAVA(Shader("lava-background")), PENIS(Shader("penis-background")), COLORS(Shader("colors-background")), KOKS(Shader("koks-background")), SWASTIKA(Shader("swastika-background")), FOG(Shader("fog-background")) , LIQUID(Shader("liquid-background")), SUN(Shader("sun-background")), SNAKE(Shader("snake-background")), DRAWN(Shader("drawn-background")), HOLE(Shader("hole-background")), PEPPA(Shader("peppa-background")), AMONGUS(Shader("amongus-background")), CLOUDS(Shader("cloud-background")), RETRO_SUN(Shader("retrosun-background")), VORONOI(Shader("voronoi-background")), BLOCKS(Shader("blocks-background")), BUBBLES(Shader("bubbles-background"));
+        FISH(Shader("fish-background")), LAVA(Shader("lava-background")), PENIS(Shader("penis-background")), COLORS(
+            Shader("colors-background")
+        ),
+        KOKS(Shader("koks-background")), SWASTIKA(Shader("swastika-background")), FOG(Shader("fog-background")), LIQUID(
+            Shader("liquid-background")
+        ),
+        SUN(Shader("sun-background")), SNAKE(Shader("snake-background")), DRAWN(Shader("drawn-background")), HOLE(
+            Shader(
+                "hole-background"
+            )
+        ),
+        PEPPA(Shader("peppa-background")), AMONGUS(Shader("amongus-background")), CLOUDS(Shader("cloud-background")), RETRO_SUN(
+            Shader("retrosun-background")
+        ),
+        VORONOI(Shader("voronoi-background")), BLOCKS(Shader("blocks-background")), BUBBLES(Shader("bubbles-background"));
 
-        fun getNext() : Type {
+        fun getNext(): Type {
             var next = ordinal + 1
-            if(next >= values().size) {
+            if (next >= values().size) {
                 next = 0
             }
             return values()[next]
         }
-        fun getBefore() : Type {
+
+        fun getBefore(): Type {
             var next = ordinal - 1
-            if(next < 0) {
+            if (next < 0) {
                 next = values().size - 1
             }
             return values()[next]

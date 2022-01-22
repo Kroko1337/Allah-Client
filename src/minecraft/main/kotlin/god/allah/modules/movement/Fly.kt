@@ -12,12 +12,16 @@ import god.allah.api.utils.setSpeed
 import god.allah.events.NoClipEvent
 import god.allah.events.UpdateEvent
 import net.minecraft.network.play.client.CPacketPlayer
+import net.minecraft.network.play.client.CPacketPlayerTryUseItemOnBlock
+import net.minecraft.util.EnumFacing
+import net.minecraft.util.EnumHand
+import net.minecraft.util.math.BlockPos
 
 @Module.Info("Fly", Category.MOVEMENT)
 class Fly : Module() {
 
     @Value("Mode")
-    val mode = ComboBox("Vanilla", arrayOf("Vanilla", "WatchDuck"))
+    val mode = ComboBox("Vanilla", arrayOf("Vanilla", "WatchDuck", "Verus"))
 
     var watchDuckTime = 0
 
@@ -26,6 +30,18 @@ class Fly : Module() {
     @EventInfo
     override fun onEvent(event: Event) {
         when (mode.value) {
+            "Verus" -> {
+                when(event) {
+                    is UpdateEvent -> {
+                        player.motionY = 0.0
+                        if(mc.gameSettings.keyBindJump.pressed)
+                            player.motionY = 0.05
+                        else if(mc.gameSettings.keyBindSneak.pressed)
+                            player.motionY = -0.05
+                        sendPacket(CPacketPlayerTryUseItemOnBlock(player.position, EnumFacing.UP, EnumHand.MAIN_HAND, 0F, 0F, 0F))
+                    }
+                }
+            }
             "BlocksMC" -> {
                 when(event) {
                     is NoClipEvent -> {

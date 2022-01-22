@@ -8,16 +8,19 @@ import god.allah.api.executors.Module
 import god.allah.api.setting.Value
 import god.allah.api.setting.types.ComboBox
 import god.allah.api.utils.getDirection
+import god.allah.api.utils.isMoving
 import god.allah.api.utils.setSpeed
 import god.allah.events.MoveEvent
 import god.allah.events.UpdateEvent
+import net.minecraft.network.play.client.CPacketEntityAction
+import net.minecraft.network.play.client.CPacketPlayerAbilities
 import kotlin.math.sqrt
 
 @Module.Info("Speed", Category.MOVEMENT)
 class Speed : Module() {
 
     @Value("Mode")
-    val mode = ComboBox("NCPBhop", arrayOf("NCPBhop", "NCPYPort"))
+    val mode = ComboBox("NCPBhop", arrayOf("NCPBhop", "NCPYPort", "Sentinel"))
 
     override fun getInfo(): String {
         return mode.value
@@ -26,6 +29,31 @@ class Speed : Module() {
     @EventInfo(priority = EventPriority.HIGH)
     override fun onEvent(event: Event) {
         when (mode.value) {
+            "Sentinel" -> {
+                when (event) {
+                    is UpdateEvent -> {
+                        var boost = 0.43
+                        if (!player.foodStats.needFood()) {
+                            boost = 0.27
+                        }
+                        player.isSprinting = true
+                        player.jumpMovementFactor = 0.03F
+                        if (isMoving()) {
+                            if (player.onGround) {
+                                player.jump()
+                                setSpeed(boost)
+                                timer.timerSpeed = 1.0F
+                            } else {
+                                if (player.motionY < 0)
+                                    timer.timerSpeed = 1.5F + ((player.motionY.toFloat()) * -0.5F)
+                                else
+                                    timer.timerSpeed = 1F
+                                setSpeed(0.27)
+                            }
+                        }
+                    }
+                }
+            }
             "NCPYPort" -> {
                 when (event) {
                     is MoveEvent -> {
@@ -75,6 +103,7 @@ class Speed : Module() {
 
     override fun onDisable() {
         timer.timerSpeed = 1F
+        player.jumpMovementFactor = 0.02F
     }
 
 }

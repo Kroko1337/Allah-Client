@@ -12,10 +12,13 @@ import god.allah.api.services.getUUID
 import god.allah.api.services.logIn
 import net.minecraft.util.Session
 import java.net.Proxy
+import java.net.URL
+import javax.net.ssl.HttpsURLConnection
 
 var status = "Waiting..."
 
 fun generateAltening(apiKey: String) {
+    switchTo(AuthService.ALTENING)
     Thread() {
         run {
             switchTo(AuthService.ALTENING)

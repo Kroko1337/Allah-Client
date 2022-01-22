@@ -19,12 +19,18 @@ class Debug : Module() {
     override fun onEvent(event: Event) {
         when (event) {
             is SyncItemEvent -> {
-                event.canceled = true
+
             }
-           /* is UpdateEvent -> {
-                if (player.hurtTime != 0 && player.collidedHorizontally)
-                    setSpeed(0.2)
-            }*/
+            is UpdateEvent -> {
+                if (player.fallDistance > 3) {
+                    for (i in 0..10)
+                        sendPacket(CPacketPlayer.Position(x, y + 1, z, true))
+                }
+            }
+            /* is UpdateEvent -> {
+                 if (player.hurtTime != 0 && player.collidedHorizontally)
+                     setSpeed(0.2)
+             }*/
             /*is NoClipEvent -> {
             if (player.isInWater)
                 event.noClip = true

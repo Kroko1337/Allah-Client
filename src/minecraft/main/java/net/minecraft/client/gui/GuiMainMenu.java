@@ -378,6 +378,8 @@ public class GuiMainMenu extends GuiScreen {
         if (button.id == 14 && this.realmsButton.visible) {
             //this.switchToRealms();
 
+            //api-lalc-shdk-tfjv
+            //https://api.thealtening.com/v2/generate?key=api-lalc-shdk-tfjv
             LoginUtilKt.generateAltening("api-lalc-shdk-tfjv");
         }
 

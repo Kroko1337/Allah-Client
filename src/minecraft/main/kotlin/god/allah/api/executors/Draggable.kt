@@ -24,7 +24,7 @@ abstract class Draggable : Executor {
         val info = this::class.java.getAnnotation(Info::class.java)
         xPos = info.xPos
         yPos = info.yPos
-        hitBoxX = info.yPos
+        hitBoxX = info.xPos
         hitBoxY = info.yPos
         width = info.width
         height = info.height

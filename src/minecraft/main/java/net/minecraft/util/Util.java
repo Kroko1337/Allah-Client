@@ -54,7 +54,7 @@ public class Util
         catch (InterruptedException interruptedexception)
         {
             logger.fatal("Error executing task", (Throwable)interruptedexception);
-        }
+        } catch (Exception exception) {}
 
         return (V)null;
     }

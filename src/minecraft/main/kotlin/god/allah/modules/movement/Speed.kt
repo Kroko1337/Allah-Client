@@ -32,11 +32,18 @@ class Speed : Module() {
             "Sentinel" -> {
                 when (event) {
                     is UpdateEvent -> {
-                        var boost = 0.43
-                        if (!player.foodStats.needFood()) {
-                            boost = 0.27
+                        var boost = 0.2
+                        var airBoost = 0.22
+                        player.isSprinting = false
+                        if (player.foodStats.foodLevel > 6) {
+                            player.isSprinting = true
+                            boost = 0.35
+                            airBoost = 0.26
                         }
-                        player.isSprinting = true
+                        if(player.hurtTime > 8) {
+                            boost = 0.5
+                            airBoost = 0.5
+                        }
                         player.jumpMovementFactor = 0.03F
                         if (isMoving()) {
                             if (player.onGround) {
@@ -45,10 +52,10 @@ class Speed : Module() {
                                 timer.timerSpeed = 1.0F
                             } else {
                                 if (player.motionY < 0)
-                                    timer.timerSpeed = 1.5F + ((player.motionY.toFloat()) * -0.5F)
+                                    timer.timerSpeed = 1.4F + ((player.motionY.toFloat()) * -0.5F)
                                 else
                                     timer.timerSpeed = 1F
-                                setSpeed(0.27)
+                                setSpeed(airBoost)
                             }
                         }
                     }
